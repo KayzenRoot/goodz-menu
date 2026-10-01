@@ -15,20 +15,21 @@
   "implementationAuthorized": false,
   "overallCompletionPercent": null,
   "overallCompletionState": "NOT_YET_BASELINED",
-  "activeWorkOrder": "GMZ-SP-004",
-  "activeIssue": 10,
-  "activeBranch": "planning/gmz-sp-004-data-model",
-  "baseSha": "10feef3f6976dcd8a6b36740e8711fb6234503b1",
+  "activeWorkOrder": "GMZ-SP-004-CD-001",
+  "activeIssue": 15,
+  "activeBranch": "correction/gmz-sp-004-stock-identity",
+  "baseSha": "c7f7c2a3081d9a3790fc51e1380f8c7df3038473",
   "nextAction": "GMZ-SP-005_API_INTEGRATION_AND_AI_ARCHITECTURE",
-  "stopCondition": "GMZ_SP_004_DATA_MODEL_READY_FOR_REVIEW",
+  "stopCondition": "GMZ_SP_004_CD_001_STOCK_IDENTITY_CORRECTED",
   "lastAudit": {
-    "workOrder": "GMZ-SP-004",
-    "requiredDataFamilies": 52,
-    "missingFamilies": 0,
-    "ownershipRows": 42,
+    "workOrder": "GMZ-SP-004-CD-001",
+    "parentWorkOrder": "GMZ-SP-004",
+    "defect": "AMBIGUOUS_PHYSICAL_STOCK_IDENTITY",
+    "correction": "Product != Ingredient != InventoryItem",
+    "ownershipRows": 45,
     "critical": 0,
     "high": 0,
-    "disposition": "APPROVED_FOR_PLANNING_PROMOTION",
+    "disposition": "APPROVED_FOR_CORRECTION_PROMOTION",
     "independent": false
   },
   "currentOutputs": {
@@ -38,7 +39,9 @@
     "traceability": "APPROVED_V0_1",
     "scope": "FROZEN_V0_1",
     "architecture": "APPROVED_BASELINE_V0_1",
-    "adrs": "ADR-0001..ADR-0004"
+    "adrs": "ADR-0001..ADR-0004",
+    "dataModel": "APPROVED_V0_1_CORRECTED",
+    "dataOwnershipMatrix": "APPROVED_V0_1_CORRECTED"
   },
   "sourceSeedArchive": {
     "id": "GMZ-SRC-001",
@@ -51,5 +54,5 @@
     "blocksFinalSourcePackFreeze": true,
     "blocksContinuedPlanning": false
   },
-  "dataModel": "APPROVED_V0_1"
+  "dataModel": "APPROVED_V0_1_CORRECTED"
 }
