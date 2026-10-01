@@ -84,7 +84,7 @@ STOP CONDITION: `GMZ_SP_003_SCOPE_ARCHITECTURE_READY_FOR_REVIEW`.
 
 ## GMZ-SP-003 current state
 - canonical Scope: `FROZEN_V0.1`
-- Architecture baseline: `V0.1 / REVIEW_PENDING`
+- Architecture baseline: `APPROVED_V0.1`
 - foundational ADRs: `ADR-0001..ADR-0004`
 - master source local integrity: `VERIFIED`
 - master source repository archive: `PENDING_GMZ-SP-003A / ISSUE #9`
@@ -103,3 +103,16 @@ STOP CONDITION: `GMZ_SP_003_SCOPE_ARCHITECTURE_READY_FOR_REVIEW`.
 - continued planning: `AUTHORIZED`
 - implementation: `NOT_AUTHORIZED`
 - next: `GMZ-SP-004 — Data Model Baseline`
+
+
+## GMZ-SP-003 audit
+- Scope: `FROZEN_V0.1`
+- Architecture: `APPROVED_V0.1`
+- Foundational ADRs: `ADR-0001..ADR-0004`
+- Current Supabase assumptions: official docs revalidated `2026-10-01`
+- Source identity: `VERIFIED`
+- Source archive: `PENDING GMZ-SP-003A / #9`
+- Product/runtime code introduced: `NO`
+- CRITICAL/HIGH: `0 / 0`
+- Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
+- Next governed increment: `GMZ-SP-004 — Data Model + API/Integration Contracts`
