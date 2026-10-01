@@ -1,6 +1,6 @@
 # Goodz Menu — Data Ownership & Tenant Scope Matrix
 
-Status: `BASELINE_V0.1 / REVIEW_PENDING`
+Status: `APPROVED_V0.1`
 
 Legend:
 - P = platform scoped
@@ -23,7 +23,10 @@ Legend:
 | Products / Variants / Modifiers | GMZ-M06 | O/E | canonical reference |
 | Channel Offers / Fee Profiles | GMZ-M06 | O/E/B | versioned commercial |
 | Media | GMZ-M11 | O/E | provider-abstracted |
+| Inventory Items / stock identity | GMZ-M08 | O/E/B | canonical physical-stock identity |
 | Ingredients / Recipes / Preparations | GMZ-M07 | O/E | versioned canonical |
+| Product direct-stock consumption rules | GMZ-M06/M08 | O/E/B | versioned consumption contract |
+| Production Runs | GMZ-M07/M08 | E/B | transactional production |
 | Inventory Locations | GMZ-M08 | E/B | canonical reference |
 | Inventory Lots | GMZ-M08 | E/B | canonical operational |
 | Inventory Movements | GMZ-M08 | E/B | append ledger |

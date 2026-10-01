@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `READY_FOR_DATA_MODEL_PLANNING`
+Status: `READY_FOR_API_AI_UX_SECURITY_CONTRACTS`
 
 ## Current state
 - Project: Goodz Menu
@@ -20,10 +20,10 @@ Status: `READY_FOR_DATA_MODEL_PLANNING`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-SP-003` — Scope + Architecture + source preservation
-- Issue: `#6`
-- Branch: `planning/gmz-sp-003-scope-architecture`
-- Base: `10feef3f6976dcd8a6b36740e8711fb6234503b1`
+- Work Order: `GMZ-SP-004-CD-001` — Stock Identity Correction
+- Issue: `#15`
+- Branch: `correction/gmz-sp-004-stock-identity`
+- Base: `c7f7c2a3081d9a3790fc51e1380f8c7df3038473`
 - Mode: planning only
 
 ## Progress accounting
@@ -53,7 +53,7 @@ Review and promote Project Overview + Requirements, then continue the canonical 
 
 No product code before the applicable planning contracts are frozen and the first implementation Work Order is admitted.
 
-STOP CONDITION: `GMZ_SP_003_SCOPE_ARCHITECTURE_READY_FOR_REVIEW`.
+STOP CONDITION: `GMZ_SP_004_CD_001_STOCK_IDENTITY_CORRECTED`.
 
 
 ## GMZ-SP-001 audit
@@ -123,8 +123,21 @@ STOP CONDITION: `GMZ_SP_003_SCOPE_ARCHITECTURE_READY_FOR_REVIEW`.
 - Data Model: `APPROVED_V0.1`
 - Data ownership/tenant-scope matrix: `APPROVED_V0.1`
 - Required issue data families: `52 / 52`
-- Ownership matrix families: `42`
+- Ownership matrix families: `45`
 - SQL/migrations/runtime code: `NONE`
 - CRITICAL/HIGH: `0 / 0`
 - Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
 - Next governed increment: `GMZ-SP-005 — API/Integration + AI Architecture contracts`
+
+
+## GMZ-SP-004-CD-001 correction
+- Parent: `GMZ-SP-004`
+- Defect: ambiguous physical-stock identity for resale/packaging/produced stock
+- Correction: `Product ≠ Ingredient ≠ InventoryItem`
+- Direct resale stock consumption: `ProductInventoryConsumptionRule`
+- Intermediate production: `ProductionRun`
+- Ownership matrix rows: `45`
+- SQL/migrations/runtime code: `NONE`
+- CRITICAL/HIGH: `0 / 0`
+- Disposition: `APPROVED_FOR_CORRECTION_PROMOTION`
+- Next: `GMZ-SP-005 — API/Integration + AI Architecture`
