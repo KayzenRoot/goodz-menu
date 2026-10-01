@@ -1,6 +1,6 @@
 # GMZ-IMPL-001 — Executable Local Runtime Foundation
 
-Status: `ADMITTED / EXECUTION_BASE_BIND_PENDING`  
+Status: `READY_FOR_EXECUTOR`  
 Issue: `#36`  
 Assurance: `ELEVATED`  
 Base branch: `main`  
@@ -73,12 +73,15 @@ Current official source checks on 2026-10-01:
 
 ## EXECUTION BASE BINDING
 
-The executor MUST NOT begin production-code mutation until this admission packet is merged/promoted and the branch is fast-forwarded to the resulting admission merge.
+Execution base is now bound:
 
-The post-admission Context Lock must record the exact execution base SHA.
+- admission merge: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
+- legal executor base: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
+- work branch was fast-forwarded to that merge before post-admission bind.
+- executor mutation is authorized only inside this Work Order and its WRITE_ALLOWED surface.
 
-If that binding has not occurred, STOP with:
-`GMZ_IMPL_001_EXECUTION_BASE_NOT_BOUND`.
+If executor starts from a different lineage, STOP with:
+`GMZ_IMPL_001_EXECUTION_BASE_MISMATCH`.
 
 ## MUST READ FIRST
 
@@ -382,3 +385,12 @@ Stop only when implementation is committed/pushed, PR is open against `main`, fi
 - CRITICAL/HIGH: `0 / 0`
 - disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
 - executor remains blocked until the admission merge SHA is written to Context Lock.
+
+
+## EXECUTOR ADMISSION
+- admission PR: `#37`
+- admission final head: `59bc67a4555cfee164d17ea2dc17a8b9fd2cc5ae`
+- admission merge / execution base: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
+- final admission checks: `SUCCESS`
+- execution authority: `ACTIVE FOR GMZ-IMPL-001 ONLY`
+- self-merge authority: `NO`
