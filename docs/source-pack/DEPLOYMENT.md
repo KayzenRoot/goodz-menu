@@ -1,6 +1,6 @@
 # Goodz Menu — Deployment & Runtime Baseline
 
-Status: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`  
+Status: `APPROVED_V0.1`  
 Authority domain: `ARCHITECTURE + VALIDATION`
 
 ## 1. Purpose
