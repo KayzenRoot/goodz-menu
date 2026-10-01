@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "project": "Goodz Menu",
   "repository": "KayzenRoot/goodz-menu",
-  "status": "READY_FOR_DATA_MODEL_AND_CONTRACTS",
+  "status": "READY_FOR_API_AI_UX_SECURITY_CONTRACTS",
   "gefVersion": "1.1.1",
   "ideation": "CLOSED",
   "sourcePack": "ELABORATION_IN_PROGRESS",
@@ -15,19 +15,21 @@
   "implementationAuthorized": false,
   "overallCompletionPercent": null,
   "overallCompletionState": "NOT_YET_BASELINED",
-  "activeWorkOrder": "GMZ-SP-003",
-  "activeIssue": 6,
-  "activeBranch": "planning/gmz-sp-003-scope-architecture",
+  "activeWorkOrder": "GMZ-SP-004",
+  "activeIssue": 10,
+  "activeBranch": "planning/gmz-sp-004-data-model",
   "baseSha": "10feef3f6976dcd8a6b36740e8711fb6234503b1",
-  "nextAction": "GMZ-SP-004_DATA_MODEL_AND_API_INTEGRATION_CONTRACTS",
-  "stopCondition": "GMZ_SP_003_SCOPE_ARCHITECTURE_READY_FOR_REVIEW",
+  "nextAction": "GMZ-SP-005_API_INTEGRATION_AND_AI_ARCHITECTURE",
+  "stopCondition": "GMZ_SP_004_DATA_MODEL_READY_FOR_REVIEW",
   "lastAudit": {
-    "workOrder": "GMZ-SP-003",
+    "workOrder": "GMZ-SP-004",
+    "requiredDataFamilies": 52,
+    "missingFamilies": 0,
+    "ownershipRows": 42,
     "critical": 0,
     "high": 0,
     "disposition": "APPROVED_FOR_PLANNING_PROMOTION",
-    "independent": false,
-    "sourceArchiveGate": "GMZ-SP-003A/#9"
+    "independent": false
   },
   "currentOutputs": {
     "projectOverview": "APPROVED_V0_1",
@@ -48,5 +50,6 @@
     "completed": false,
     "blocksFinalSourcePackFreeze": true,
     "blocksContinuedPlanning": false
-  }
+  },
+  "dataModel": "APPROVED_V0_1"
 }
