@@ -43,3 +43,13 @@ Executor is **not yet authorized to mutate production code** until:
 - disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
 
 STOP CONDITION: `GMZ_IMPL_001_ADMISSION_PROMOTED_BASE_BIND_PENDING`
+
+
+## Admission promotion
+- PR: `#37`
+- final admission head: `59bc67a4555cfee164d17ea2dc17a8b9fd2cc5ae`
+- admission merge: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
+- branch fast-forward to merge: `PASS`
+- exact execution base bind: `PASS`
+- executor state: `READY_FOR_EXECUTOR`
+- implementation code present before bind: `NO`
