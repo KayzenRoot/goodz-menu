@@ -19,7 +19,7 @@
   "activeIssue": 6,
   "activeBranch": "planning/gmz-sp-003-scope-architecture",
   "baseSha": "10feef3f6976dcd8a6b36740e8711fb6234503b1",
-  "nextAction": "REVIEW_SCOPE_ARCHITECTURE_AND_COMPLETE_MASTER_ARCHIVE",
+  "nextAction": "REVIEW_SCOPE_ARCHITECTURE_AND_PROMOTE",
   "stopCondition": "GMZ_SP_003_SCOPE_ARCHITECTURE_READY_FOR_REVIEW",
   "lastAudit": {
     "workOrder": "GMZ-SP-002",
@@ -43,5 +43,10 @@
     "expectedBytes": 79633,
     "expectedLines": 4770,
     "completed": false
+  },
+  "sourceArchive": {
+    "id": "GMZ-SRC-001",
+    "status": "ARCHIVED_RECONSTRUCTABLE",
+    "sha256": "b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5"
   }
 }
