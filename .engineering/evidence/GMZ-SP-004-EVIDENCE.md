@@ -67,7 +67,7 @@ No:
 ## Audit
 - required issue data families: `52 / 52`
 - missing: `0`
-- ownership matrix data-family rows: `42`
+- ownership matrix data-family rows: `45`
 - CRITICAL: `0`
 - HIGH: `0`
 - audit independence: `NOT_INDEPENDENT / owner-operated`
@@ -76,3 +76,17 @@ No:
 Overall product completion remains `NOT_YET_BASELINED`.
 
 STOP CONDITION: `GMZ_SP_004_DATA_MODEL_READY_FOR_REVIEW`
+
+
+## Correction evidence
+Review found and corrected a stock-identity modeling gap.
+
+Added:
+- `InventoryItem` as canonical physical stock identity;
+- `ProductInventoryConsumptionRule` for resale/direct stock depletion;
+- `ProductionRun` for produced intermediate stock.
+
+Invariant now explicit:
+`Product ≠ Ingredient ≠ InventoryItem`.
+
+This correction prevents catalog products, culinary ingredients and physical stock identity from collapsing into one ambiguous entity.
