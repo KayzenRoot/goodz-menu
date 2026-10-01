@@ -1,6 +1,6 @@
 # GMZ-IMPL-001 — Executable Local Runtime Foundation
 
-Status: `ADMISSION_CANDIDATE`  
+Status: `ADMITTED / EXECUTION_BASE_BIND_PENDING`  
 Issue: `#36`  
 Assurance: `ELEVATED`  
 Base branch: `main`  
@@ -373,3 +373,12 @@ Known CRITICAL/HIGH forbids progression and credit.
 Stop only when implementation is committed/pushed, PR is open against `main`, final exact-head evidence is complete, and executor reports:
 
 `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## ADMISSION AUDIT
+- reviewed admission candidate: `e9f5d274f5316d223b0a6bb1ad632388e325e04f`
+- governance-only delta: `PASS`
+- Socket Security checks: `SUCCESS`
+- CRITICAL/HIGH: `0 / 0`
+- disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
+- executor remains blocked until the admission merge SHA is written to Context Lock.
