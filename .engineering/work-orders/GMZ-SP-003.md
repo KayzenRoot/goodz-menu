@@ -21,7 +21,7 @@ Mandatory sources:
 ## Objective
 1. freeze complete-product scope classification;
 2. establish architecture baseline and invariants;
-3. preserve the original master source artifact in-repository before Source Pack closure;
+3. verify and register the original master source identity while delegating byte-exact repository transport to GMZ-SP-003A / Issue #9;
 4. record foundational ADRs.
 
 ## WRITE_ALLOWED
@@ -48,7 +48,20 @@ Mandatory sources:
 - architecture maps all 110 requirements to a coherent bounded system shape;
 - tenant/security, ledger, integration, offline and AI invariants are explicit;
 - architecture distinguishes baseline from later implementation choices;
-- source preservation status is truthful;
+- source identity/integrity status is truthful and the byte-exact repository archive gap is delegated to GMZ-SP-003A / Issue #9;
 - no known HIGH/CRITICAL planning defect.
 
 STOP CONDITION: `GMZ_SP_003_SCOPE_ARCHITECTURE_READY_FOR_REVIEW`
+
+
+## Correction Delta CD-001 — source archive transport split
+Large connector payloads failed byte-exact verification. All noncanonical archive fragments were deleted.
+
+GMZ-SP-003A / Issue #9 now exclusively owns byte-for-byte repository preservation of GMZ-SRC-001.
+
+This Work Order may promote Scope/Architecture independently, but **final Source Pack freeze remains blocked** until GMZ-SP-003A reaches `GMZ_SRC_001_ARCHIVED_BYTE_EXACT`.
+
+The canonical seed identity remains:
+- bytes: `79,633`
+- lines: `4,770`
+- SHA-256: `b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5`
