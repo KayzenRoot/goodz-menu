@@ -13,7 +13,7 @@ Status: `READY_FOR_TEST_BENCHMARK_AND_DEPLOYMENT`
 - Scope: `FROZEN_V0.1`
 - Requirements: `APPROVED_V0.1`
 - Architecture: `APPROVED_V0.1`
-- Security: `APPROVED_V0.1`
+- Security: `APPROVED_V0_1`
 - Test/Benchmark Plan: `NOT_YET_FROZEN`
 - Definition of Done: `NOT_YET_FROZEN`
 - Data Model: `APPROVED_V0.1`
@@ -191,3 +191,16 @@ STOP CONDITION: `GMZ_SP_007_SECURITY_BASELINE_READY_FOR_REVIEW`.
 - CRITICAL/HIGH: `0 / 0`
 - Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
 - Next governed increment: `GMZ-SP-008 — Test & Benchmark Plan`
+
+
+## GMZ-SP-007 promotion
+- Security: `APPROVED_V0.1`
+- Security Control Matrix: `APPROVED_V0.1`
+- Supabase security guidance: `REVALIDATED 2026-10-01`
+- RLS/Auth/MFA/session implementation: `NONE`
+- CRITICAL/HIGH: `0 / 0`
+- Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
+- Merge: `a993c614f47597d07621179c8e8b8ce70b8e9891`
+- Next governed increment: `GMZ-SP-008 — Test & Benchmark Plan`
+
+STOP CONDITION: `GMZ_SP_007_SECURITY_BASELINE_READY_FOR_REVIEW`.
