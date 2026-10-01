@@ -1,6 +1,6 @@
 # Goodz Menu — Innovation Ledger
 
-Status: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`  
+Status: `APPROVED_V0.1`  
 Authority domain: `INNOVATION`
 
 ## 1. Purpose
