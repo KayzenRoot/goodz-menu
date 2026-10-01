@@ -1,6 +1,6 @@
 # Goodz Menu — Requirement Traceability
 
-Status: `DOCUMENTED_V0.1 / REVIEW_PENDING`
+Status: `APPROVED_V0.1`
 
 This matrix binds requirement families to canonical module owners. Detailed one-to-many dependencies will be refined in Architecture.
 
