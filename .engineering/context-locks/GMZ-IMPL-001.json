@@ -23,7 +23,7 @@
   "lockedSources": [
     {
       "path": ".engineering/CHECKPOINT.json",
-      "gitBlobSha": "491b659c406aa3cf17af439abb9f7b756a4cc293"
+      "gitBlobSha": "7afe278acf8097eb4908a8414b56e4814e8be194"
     },
     {
       "path": ".engineering/SOURCE-HIERARCHY.md",
@@ -114,5 +114,18 @@
     "sourcePackFrozen": true,
     "implementationCodePresentAtBind": false,
     "result": "PASS"
-  }
+  },
+  "correctionDeltas": [
+    {
+      "id": "GMZ-IMPL-001-CD-001",
+      "reason": "Post-admission execution-base bind updated CHECKPOINT.json after the provisional Context Lock was compiled, leaving only its checkpoint fingerprint stale.",
+      "oldCheckpointGitBlobSha": "491b659c406aa3cf17af439abb9f7b756a4cc293",
+      "newCheckpointGitBlobSha": "7afe278acf8097eb4908a8414b56e4814e8be194",
+      "semanticScopeChange": false,
+      "executionBaseChanged": false,
+      "executionBaseSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
+      "implementationCodeTouched": false,
+      "disposition": "LOCK_REBOUND_TO_PROMOTED_READY_FOR_EXECUTOR_CHECKPOINT"
+    }
+  ]
 }
