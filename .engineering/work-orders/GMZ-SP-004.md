@@ -54,7 +54,7 @@ STOP CONDITION: `GMZ_SP_004_DATA_MODEL_READY_FOR_REVIEW`
 
 ## Audit disposition
 - Required issue data families checked: `52 / 52` represented.
-- Ownership matrix rows: `42` data families.
+- Ownership matrix rows: `45` data families.
 - Tenant scope: explicit.
 - Inventory/financial append-ledger semantics: explicit.
 - Historical economic snapshots: explicit.
@@ -64,3 +64,18 @@ STOP CONDITION: `GMZ_SP_004_DATA_MODEL_READY_FOR_REVIEW`
 - SQL/migrations/runtime code: `NONE`.
 - CRITICAL/HIGH: `0 / 0`.
 - Disposition: `APPROVED_FOR_PLANNING_PROMOTION`.
+
+
+## Correction Delta CD-001
+Review identified a modeling gap for resale products and packaging.
+
+Correction:
+- added `InventoryItem` as canonical physical stock identity;
+- retained `Product` as sellable identity;
+- retained `Ingredient` as recipe/culinary role;
+- added `ProductInventoryConsumptionRule` for direct resale stock depletion;
+- added `ProductionRun` for intermediate/preparation stock production.
+
+Validated invariant: `Product ≠ Ingredient ≠ InventoryItem`.
+
+No SQL/runtime implementation was introduced.
