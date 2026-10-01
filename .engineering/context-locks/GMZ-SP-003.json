@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "goodz.context-lock",
+  "workOrder": "GMZ-SP-003",
+  "issue": 6,
+  "repository": "KayzenRoot/goodz-menu",
+  "baseBranch": "main",
+  "baseSha": "10feef3f6976dcd8a6b36740e8711fb6234503b1",
+  "candidateBranch": "planning/gmz-sp-003-scope-architecture",
+  "gefVersion": "1.1.1",
+  "seed": {
+    "id": "GMZ-SRC-001",
+    "sha256": "b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5",
+    "expectedLines": 4770,
+    "expectedBytes": 79633
+  },
+  "mode": "PLANNING_ONLY",
+  "stopCondition": "GMZ_SP_003_SCOPE_ARCHITECTURE_READY_FOR_REVIEW"
+}
