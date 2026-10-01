@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `READY_FOR_DATA_MODEL_PLANNING`
+Status: `READY_FOR_API_AI_UX_SECURITY_CONTRACTS`
 
 ## Current state
 - Project: Goodz Menu
@@ -20,10 +20,10 @@ Status: `READY_FOR_DATA_MODEL_PLANNING`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-SP-003` — Scope + Architecture + source preservation
-- Issue: `#6`
-- Branch: `planning/gmz-sp-003-scope-architecture`
-- Base: `10feef3f6976dcd8a6b36740e8711fb6234503b1`
+- Work Order: `GMZ-SP-004` — Canonical Data Model
+- Issue: `#10`
+- Branch: `planning/gmz-sp-004-data-model`
+- Base: `d63bfb0e13822710b8954f3ccc5c323954bfed3a`
 - Mode: planning only
 
 ## Progress accounting
@@ -53,7 +53,7 @@ Review and promote Project Overview + Requirements, then continue the canonical 
 
 No product code before the applicable planning contracts are frozen and the first implementation Work Order is admitted.
 
-STOP CONDITION: `GMZ_SP_003_SCOPE_ARCHITECTURE_READY_FOR_REVIEW`.
+STOP CONDITION: `GMZ_SP_004_DATA_MODEL_READY_FOR_REVIEW`.
 
 
 ## GMZ-SP-001 audit
@@ -128,3 +128,17 @@ STOP CONDITION: `GMZ_SP_003_SCOPE_ARCHITECTURE_READY_FOR_REVIEW`.
 - CRITICAL/HIGH: `0 / 0`
 - Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
 - Next governed increment: `GMZ-SP-005 — API/Integration + AI Architecture contracts`
+
+
+## GMZ-SP-004 correction/final audit
+- Data Model: `APPROVED_V0.1`
+- Data ownership/tenant-scope matrix: `APPROVED_V0.1`
+- Required issue data families: `52 / 52`
+- Ownership matrix rows: `45`
+- Explicit stock invariant: `Product ≠ Ingredient ≠ InventoryItem`
+- resale direct-stock consumption: modeled
+- intermediate production run: modeled
+- SQL/migrations/runtime code: `NONE`
+- CRITICAL/HIGH: `0 / 0`
+- Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
+- Next: `GMZ-SP-005 — API/Integration + AI Architecture`
