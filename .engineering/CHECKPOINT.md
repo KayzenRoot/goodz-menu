@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `IMPLEMENTATION_ADMISSION_REVIEW_PENDING`
+Status: `GMZ_IMPL_001_ADMITTED_EXECUTION_BASE_BIND_PENDING`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,7 +27,7 @@ Status: `IMPLEMENTATION_ADMISSION_REVIEW_PENDING`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-001` — admission candidate
+- Work Order: `GMZ-IMPL-001` — ADMITTED / execution-base bind pending
 - Issue: `#36`
 - Branch: `implementation/gmz-impl-001-runtime-foundation`
 - Base: `main@aba0a70189c90f8b86c855a34a07332e7a8bc5ff`
@@ -324,3 +324,16 @@ STOP CONDITION: `GMZ_SOURCE_PACK_V0_1_FROZEN`.
 - exact execution base: `NOT_YET_BOUND`
 
 STOP CONDITION: `GMZ_IMPL_001_ADMISSION_READY_FOR_REVIEW`.
+
+
+## GMZ-IMPL-001 admission audit
+- admission head reviewed: `e9f5d274f5316d223b0a6bb1ad632388e325e04f`
+- changed files: `6 governance-only`
+- Socket Security checks: `SUCCESS`
+- runtime/application code: `NONE`
+- business-domain implementation: `NONE`
+- max future accepted credit: `8 / 515`
+- earned credit now: `0`
+- CRITICAL/HIGH: `0 / 0`
+- disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
+- executor mutation remains blocked until exact admission merge SHA is bound.
