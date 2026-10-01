@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "goodz.context-lock",
+  "workOrder": "GMZ-SP-008",
+  "issue": 27,
+  "repository": "KayzenRoot/goodz-menu",
+  "baseBranch": "main",
+  "baseSha": "7b1dec75847f2d882f9b94be2fad67e78811e71d",
+  "candidateBranch": "planning/gmz-sp-008-test-benchmark-plan",
+  "gefVersion": "1.1.1",
+  "mode": "PLANNING_ONLY",
+  "writeAllowed": [
+    "docs/source-pack/TEST-BENCHMARK-PLAN.md",
+    ".engineering/TEST-COVERAGE-MATRIX.md",
+    ".engineering/PERFORMANCE-BUDGETS.md",
+    ".engineering/work-orders/GMZ-SP-008.md",
+    ".engineering/context-locks/GMZ-SP-008.json",
+    ".engineering/CHECKPOINT.md",
+    ".engineering/CHECKPOINT.json",
+    ".engineering/evidence/GMZ-SP-008-EVIDENCE.md"
+  ],
+  "writeForbidden": [
+    ".gef/**",
+    "runtime/application code",
+    "test implementation",
+    "CI workflow implementation",
+    "package/dependency manifests",
+    "deployment artifacts",
+    "provider credentials/configuration"
+  ],
+  "stopCondition": "GMZ_SP_008_TEST_BENCHMARK_PLAN_READY_FOR_REVIEW"
+}
