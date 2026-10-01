@@ -1,6 +1,6 @@
 # GMZ-SP-010 — Backlog Baseline + Definition of Done + Innovation Ledger
 
-Status: `ADMITTED / PLANNING_ONLY`  
+Status: `APPROVED / READY_FOR_PROMOTION`  
 Risk: `HIGH_ASSURANCE_PLANNING`  
 Issue: `#33`
 
@@ -62,3 +62,14 @@ where each dimension is 1..5:
 - no known HIGH/CRITICAL planning defect.
 
 STOP CONDITION: `GMZ_SP_010_BACKLOG_DOD_INNOVATION_READY_FOR_REVIEW`
+
+
+## Audit disposition
+- candidate head: `9894fbdc99d76064be8228d864a4c82f00e2cad5`
+- module coverage: `29 / 29`
+- denominator: `515`
+- innovation coverage: `69 / 69`
+- invalid module refs: `0`
+- CRITICAL/HIGH: `0 / 0`
+- implementation: `NONE`
+- disposition: `APPROVED_FOR_PLANNING_PROMOTION`
