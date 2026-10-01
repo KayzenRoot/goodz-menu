@@ -396,7 +396,7 @@ Before production, every AI provider requires review of:
 
 Provider routing must respect data sensitivity.
 
-## 34. Prompt injection and tool safety
+## 34. Prompt injection and AI tool security
 
 Retrieved web/doc content is untrusted data.
 
