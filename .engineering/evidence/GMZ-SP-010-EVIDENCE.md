@@ -1,6 +1,6 @@
 # GMZ-SP-010 — Evidence Bundle
 
-Status: `READY_FOR_REVIEW`
+Status: `APPROVED_FOR_PLANNING_PROMOTION`
 
 ## Binding
 - Repository: `KayzenRoot/goodz-menu`
@@ -48,10 +48,17 @@ GMZ-SP-003A / Issue #9 remains OPEN and blocks final Source Pack freeze until GM
 ## Implementation boundary
 No application code, migrations, tests, CI/deploy code or dependencies.
 
-## Preliminary audit
-- CRITICAL: 0
-- HIGH: 0
-- known blocking defect inside SP-010 scope: 0
-- external final-freeze blocker: Issue #9
+## Audit
+- candidate head: `9894fbdc99d76064be8228d864a4c82f00e2cad5`
+- modules: `29 / 29`
+- unique modules: `29`
+- denominator arithmetic: `515 / PASS`
+- innovation entries: `69 / 69`
+- invalid module references: `0`
+- CRITICAL: `0`
+- HIGH: `0`
+- known blocking defect inside SP-010 scope: `0`
+- external final-freeze blocker: `Issue #9`
+- disposition: `APPROVED_FOR_PLANNING_PROMOTION`
 
 STOP CONDITION: `GMZ_SP_010_BACKLOG_DOD_INNOVATION_READY_FOR_REVIEW`
