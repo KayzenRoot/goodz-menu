@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "project": "Goodz Menu",
   "repository": "KayzenRoot/goodz-menu",
-  "status": "READY_FOR_BACKLOG_DOD_AND_SOURCE_PACK_CLOSURE",
+  "status": "SOURCE_PACK_READY_EXCEPT_SOURCE_ARCHIVE",
   "gefVersion": "1.1.1",
   "ideation": "CLOSED",
   "sourcePack": "ELABORATION_IN_PROGRESS",
@@ -11,24 +11,26 @@
   "architecture": "APPROVED_V0_1",
   "security": "APPROVED_V0_1",
   "testBenchmarkPlan": "APPROVED_V0_1",
-  "definitionOfDone": "NOT_YET_FROZEN",
+  "definitionOfDone": "APPROVED_V0_1",
   "implementationAuthorized": false,
-  "overallCompletionPercent": null,
-  "overallCompletionState": "NOT_YET_BASELINED",
-  "activeWorkOrder": "GMZ-SP-009",
-  "activeIssue": 31,
-  "activeBranch": "planning/gmz-sp-009-deployment-local-docker",
-  "baseSha": "1c326c0b5774ef260f125284ea503c56f506e58c",
-  "nextAction": "GMZ-SP-010_BACKLOG_DOD_INNOVATION_LEDGER",
-  "stopCondition": "GMZ_SP_009_DEPLOYMENT_LOCAL_DOCKER_READY_FOR_REVIEW",
+  "overallCompletionPercent": 0,
+  "overallCompletionState": "BASELINED_NO_IMPLEMENTATION_CREDIT",
+  "activeWorkOrder": "GMZ-SP-010",
+  "activeIssue": 33,
+  "activeBranch": "planning/gmz-sp-010-backlog-dod-innovation",
+  "baseSha": "c2b01875bff41eb1a6b122a7b9f04118e3d36ec4",
+  "nextAction": "GMZ-SP-003A_ARCHIVE_MASTER_SOURCE_THEN_FINAL_SOURCE_PACK_FREEZE",
+  "stopCondition": "GMZ_SP_010_BACKLOG_DOD_INNOVATION_READY_FOR_REVIEW",
   "lastAudit": {
-    "workOrder": "GMZ-SP-009",
+    "workOrder": "GMZ-SP-010",
     "critical": 0,
     "high": 0,
     "disposition": "APPROVED_FOR_PLANNING_PROMOTION",
     "independent": false,
-    "auditedHead": "187faa259b808f8c46ceb2d6008d9972d828c4d0",
-    "socketChecks": "SUCCESS"
+    "auditedHead": "9894fbdc99d76064be8228d864a4c82f00e2cad5",
+    "modules": 29,
+    "denominator": 515,
+    "innovationEntries": 69
   },
   "currentOutputs": {
     "projectOverview": "APPROVED_V0_1",
@@ -45,7 +47,12 @@
     "performanceBudgets": "APPROVED_V0_1",
     "deployment": "APPROVED_V0_1",
     "localDockerContract": "APPROVED_V0_1",
-    "environmentMatrix": "APPROVED_V0_1"
+    "environmentMatrix": "APPROVED_V0_1",
+    "backlogBaseline": "APPROVED_V0_1",
+    "definitionOfDone": "APPROVED_V0_1",
+    "innovationLedger": "APPROVED_V0_1",
+    "productionDenominator": 515,
+    "productionEarned": 0
   },
   "sourceSeedArchive": {
     "id": "GMZ-SRC-001",
@@ -64,5 +71,9 @@
   "uiUxDesignSystem": "APPROVED_V0_1",
   "uxStateMatrix": "APPROVED_V0_1",
   "securityControlMatrix": "APPROVED_V0_1",
-  "deployment": "APPROVED_V0_1"
+  "deployment": "APPROVED_V0_1",
+  "backlogBaseline": "APPROVED_V0_1",
+  "innovationLedger": "APPROVED_V0_1",
+  "productionDenominator": 515,
+  "productionEarned": 0
 }
