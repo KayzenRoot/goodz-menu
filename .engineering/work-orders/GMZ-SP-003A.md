@@ -1,6 +1,6 @@
 # GMZ-SP-003A — Preserve GMZ-SRC-001 Byte-Exact in Repository
 
-Status: `ADMITTED / SOURCE_ARCHIVE`  
+Status: `APPROVED / READY_FOR_PROMOTION`  
 Risk: `HIGH_INTEGRITY_PLANNING`  
 Issue: `#9`
 
@@ -49,3 +49,14 @@ Repository-recovered source independently verifies:
 - no HIGH/CRITICAL defect.
 
 STOP CONDITION: `GMZ_SRC_001_ARCHIVED_BYTE_EXACT`
+
+
+## Audit disposition
+- audited candidate head: `645548fa1fc49bb2e533201def9a6392574c3179`
+- Socket Security checks: `SUCCESS`
+- repository archive blob: `12becc0f50e09a63f1b35fca1c04d769e9b7a486 / MATCH`
+- recovered bytes: `79,633 / MATCH`
+- recovered lines: `4,770 / MATCH`
+- recovered SHA-256: `MATCH`
+- CRITICAL/HIGH: `0 / 0`
+- disposition: `APPROVED_FOR_PLANNING_PROMOTION`
