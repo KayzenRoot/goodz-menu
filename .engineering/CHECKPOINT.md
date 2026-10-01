@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `READY_FOR_SOURCE_PACK_ELABORATION`
+Status: `READY_FOR_SCOPE_AND_ARCHITECTURE`
 
 ## Current state
 - Project: Goodz Menu
@@ -9,9 +9,9 @@ Status: `READY_FOR_SOURCE_PACK_ELABORATION`
 - GEF init: `APPLIED / CONFIRMED`
 - Ideation: `CLOSED`
 - Controlled Scope Delta 001: `ACCEPTED`
-- Source Pack: `BOOTSTRAP_COMPLETE / ELABORATION_NEXT`
+- Source Pack: `ELABORATION_IN_PROGRESS`
 - Scope: `IN_DISCUSSION / NOT_FROZEN`
-- Requirements: `NOT_YET_FROZEN`
+- Requirements: `APPROVED_V0.1`
 - Architecture: `NOT_YET_FROZEN`
 - Security: `NOT_YET_FROZEN`
 - Test/Benchmark Plan: `NOT_YET_FROZEN`
@@ -19,10 +19,10 @@ Status: `READY_FOR_SOURCE_PACK_ELABORATION`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-SP-001` — bootstrap complete
-- Issue: `#2`
-- Branch: `planning/gmz-sp-001-bootstrap`
-- Base: `4ef67d1af85f400f893adee54f7fc19961730b70`
+- Work Order: `GMZ-SP-002` — Project Overview + Requirements
+- Issue: `#4`
+- Branch: `planning/gmz-sp-002-overview-requirements`
+- Base: `dd8c87e9883f4109509df5160ad6e0e58417f4c7`
 - Mode: planning only
 
 ## Progress accounting
@@ -34,7 +34,7 @@ Planning artifacts do not manufacture product-completion percentage.
 The master ideation artifact is digest-registered as GMZ-SRC-001 but has not yet been copied byte-for-byte into the repository. Its semantic promotion is underway.
 
 ## Next legal action
-Complete the canonical Source Pack decomposition:
+Review and promote Project Overview + Requirements, then continue the canonical Source Pack decomposition:
 1. Project Overview
 2. Requirements
 3. frozen Scope
@@ -52,7 +52,7 @@ Complete the canonical Source Pack decomposition:
 
 No product code before the applicable planning contracts are frozen and the first implementation Work Order is admitted.
 
-STOP CONDITION: `GMZ_SP_001_PLANNING_BOOTSTRAP_READY_FOR_SOURCE_PACK_ELABORATION`.
+STOP CONDITION: `GMZ_SP_002_OVERVIEW_REQUIREMENTS_READY_FOR_REVIEW`.
 
 
 ## GMZ-SP-001 audit
@@ -63,3 +63,20 @@ STOP CONDITION: `GMZ_SP_001_PLANNING_BOOTSTRAP_READY_FOR_SOURCE_PACK_ELABORATION
 - HIGH findings: `0`
 - Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
 - Audit independence: `NOT_INDEPENDENT / owner-operated workflow`
+
+
+## GMZ-SP-002 current output
+- Project Overview: `APPROVED_V0.1`
+- Requirements: `APPROVED_V0.1`
+- Stable requirement IDs: `110`
+- Requirement traceability: `APPROVED_V0.1`
+- Product code: `NONE`
+
+
+## GMZ-SP-002 audit
+- Stable requirements: `110`
+- Duplicate IDs: `0`
+- Requirement families: `23`
+- CRITICAL/HIGH: `0 / 0`
+- Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
+- Next governed increment: `GMZ-SP-003 — Scope + Architecture Baseline`

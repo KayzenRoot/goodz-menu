@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "goodz.context-lock",
+  "workOrder": "GMZ-SP-002",
+  "issue": 4,
+  "repository": "KayzenRoot/goodz-menu",
+  "baseBranch": "main",
+  "baseSha": "dd8c87e9883f4109509df5160ad6e0e58417f4c7",
+  "candidateBranch": "planning/gmz-sp-002-overview-requirements",
+  "gefVersion": "1.1.1",
+  "seedId": "GMZ-SRC-001",
+  "mode": "PLANNING_ONLY",
+  "writeAllowed": [
+    "docs/source-pack/PROJECT-OVERVIEW.md",
+    "docs/source-pack/REQUIREMENTS.md",
+    ".engineering/REQUIREMENT-TRACEABILITY.md",
+    ".engineering/work-orders/GMZ-SP-002.md",
+    ".engineering/context-locks/GMZ-SP-002.json",
+    ".engineering/CHECKPOINT.md",
+    ".engineering/CHECKPOINT.json",
+    ".engineering/evidence/GMZ-SP-002-EVIDENCE.md"
+  ],
+  "writeForbidden": [
+    ".gef/**",
+    "runtime/application code",
+    "database schema/migrations",
+    "dependency manifests",
+    "CI/build workflows",
+    "deployment files",
+    "secrets"
+  ],
+  "stopCondition": "GMZ_SP_002_OVERVIEW_REQUIREMENTS_READY_FOR_REVIEW"
+}
