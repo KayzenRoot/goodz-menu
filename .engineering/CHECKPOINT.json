@@ -46,7 +46,9 @@
   },
   "sourceArchive": {
     "id": "GMZ-SRC-001",
-    "status": "ARCHIVED_RECONSTRUCTABLE",
-    "sha256": "b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5"
+    "status": "PENDING_GMZ_SP_003A",
+    "issue": 9,
+    "sha256": "b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5",
+    "blocksFinalSourcePackFreeze": true
   }
 }
