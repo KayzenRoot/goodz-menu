@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "project": "Goodz Menu",
   "repository": "KayzenRoot/goodz-menu",
-  "status": "READY_FOR_DEPLOYMENT_AND_SOURCE_PACK_CLOSURE",
+  "status": "DEPLOYMENT_BASELINE_REVIEW_PENDING",
   "gefVersion": "1.1.1",
   "ideation": "CLOSED",
   "sourcePack": "ELABORATION_IN_PROGRESS",
@@ -15,12 +15,12 @@
   "implementationAuthorized": false,
   "overallCompletionPercent": null,
   "overallCompletionState": "NOT_YET_BASELINED",
-  "activeWorkOrder": "NONE",
-  "activeIssue": null,
-  "activeBranch": null,
-  "baseSha": "f59a71f5d86144c4d3048416c4dcf740beed740e",
-  "nextAction": "GMZ-SP-009_DEPLOYMENT_LOCAL_DOCKER_CONTRACT",
-  "stopCondition": "GMZ_SP_008_CD_001_PROMOTED_STATE_SYNCHRONIZED",
+  "activeWorkOrder": "GMZ-SP-009",
+  "activeIssue": 31,
+  "activeBranch": "planning/gmz-sp-009-deployment-local-docker",
+  "baseSha": "1c326c0b5774ef260f125284ea503c56f506e58c",
+  "nextAction": "REVIEW_GMZ_SP_009_THEN_GMZ_SP_010_BACKLOG_DOD_INNOVATION",
+  "stopCondition": "GMZ_SP_009_DEPLOYMENT_LOCAL_DOCKER_READY_FOR_REVIEW",
   "lastAudit": {
     "workOrder": "GMZ-SP-008",
     "critical": 0,
@@ -42,7 +42,10 @@
     "dataOwnershipMatrix": "APPROVED_V0_1_CORRECTED",
     "testBenchmarkPlan": "APPROVED_V0_1",
     "testCoverageMatrix": "APPROVED_V0_1",
-    "performanceBudgets": "APPROVED_V0_1"
+    "performanceBudgets": "APPROVED_V0_1",
+    "deployment": "FROZEN_CANDIDATE_V0_1_REVIEW_PENDING",
+    "localDockerContract": "FROZEN_CANDIDATE_V0_1_REVIEW_PENDING",
+    "environmentMatrix": "FROZEN_CANDIDATE_V0_1_REVIEW_PENDING"
   },
   "sourceSeedArchive": {
     "id": "GMZ-SRC-001",
@@ -60,5 +63,6 @@
   "aiArchitecture": "APPROVED_V0_1",
   "uiUxDesignSystem": "APPROVED_V0_1",
   "uxStateMatrix": "APPROVED_V0_1",
-  "securityControlMatrix": "APPROVED_V0_1"
+  "securityControlMatrix": "APPROVED_V0_1",
+  "deployment": "FROZEN_CANDIDATE_V0_1_REVIEW_PENDING"
 }
