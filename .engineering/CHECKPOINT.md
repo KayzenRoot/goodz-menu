@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `SOURCE_PACK_CLOSURE_REVIEW_PENDING`
+Status: `SOURCE_PACK_READY_EXCEPT_SOURCE_ARCHIVE`
 
 ## Current state
 - Project: Goodz Menu
@@ -15,9 +15,9 @@ Status: `SOURCE_PACK_CLOSURE_REVIEW_PENDING`
 - Architecture: `APPROVED_V0.1`
 - Security: `APPROVED_V0_1`
 - Test/Benchmark Plan: `APPROVED_V0.1`
-- Definition of Done: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
-- Backlog baseline: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
-- Innovation Ledger: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+- Definition of Done: `APPROVED_V0.1`
+- Backlog baseline: `APPROVED_V0.1`
+- Innovation Ledger: `APPROVED_V0.1`
 - Deployment: `APPROVED_V0.1`
 - Data Model: `APPROVED_V0.1`
 - API/Integration Contracts: `APPROVED_V0.1`
@@ -27,7 +27,7 @@ Status: `SOURCE_PACK_CLOSURE_REVIEW_PENDING`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-SP-010` — Backlog + DoD + Innovation Ledger
+- Work Order: `GMZ-SP-010` — approved / promotion pending
 - Issue: `#33`
 - Branch: `planning/gmz-sp-010-backlog-dod-innovation`
 - Base: `c2b01875bff41eb1a6b122a7b9f04118e3d36ec4`
@@ -261,3 +261,14 @@ STOP CONDITION: `GMZ_SP_009_DEPLOYMENT_LOCAL_DOCKER_READY_FOR_REVIEW`.
 - implementation authorization: `NO`
 
 STOP CONDITION: `GMZ_SP_010_BACKLOG_DOD_INNOVATION_READY_FOR_REVIEW`.
+
+
+## GMZ-SP-010 audit
+- audited candidate head: `9894fbdc99d76064be8228d864a4c82f00e2cad5`
+- modules: `29 / 29`
+- production denominator: `515`
+- innovation entries: `69 / 69`
+- invalid innovation module references: `0`
+- CRITICAL/HIGH: `0 / 0`
+- Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
+- Remaining blocker to final Source Pack freeze: `GMZ-SP-003A / Issue #9`
