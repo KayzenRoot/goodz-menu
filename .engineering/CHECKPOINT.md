@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `READY_FOR_BACKLOG_DOD_AND_SOURCE_PACK_CLOSURE`
+Status: `SOURCE_PACK_CLOSURE_REVIEW_PENDING`
 
 ## Current state
 - Project: Goodz Menu
@@ -15,7 +15,9 @@ Status: `READY_FOR_BACKLOG_DOD_AND_SOURCE_PACK_CLOSURE`
 - Architecture: `APPROVED_V0.1`
 - Security: `APPROVED_V0_1`
 - Test/Benchmark Plan: `APPROVED_V0.1`
-- Definition of Done: `NOT_YET_FROZEN`
+- Definition of Done: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+- Backlog baseline: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+- Innovation Ledger: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
 - Deployment: `APPROVED_V0.1`
 - Data Model: `APPROVED_V0.1`
 - API/Integration Contracts: `APPROVED_V0.1`
@@ -25,10 +27,10 @@ Status: `READY_FOR_BACKLOG_DOD_AND_SOURCE_PACK_CLOSURE`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-SP-009` — approved / promotion pending
-- Issue: `#31`
-- Branch: `planning/gmz-sp-009-deployment-local-docker`
-- Base: `1c326c0b5774ef260f125284ea503c56f506e58c`
+- Work Order: `GMZ-SP-010` — Backlog + DoD + Innovation Ledger
+- Issue: `#33`
+- Branch: `planning/gmz-sp-010-backlog-dod-innovation`
+- Base: `c2b01875bff41eb1a6b122a7b9f04118e3d36ec4`
 - Mode: planning only
 
 ## Progress accounting
@@ -246,3 +248,16 @@ STOP CONDITION: `GMZ_SP_009_DEPLOYMENT_LOCAL_DOCKER_READY_FOR_REVIEW`.
 - CRITICAL/HIGH: `0 / 0`
 - Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
 - Next governed increment: `GMZ-SP-010 — Backlog + Definition of Done + Innovation Ledger`
+
+
+## GMZ-SP-010 current output
+- Backlog baseline: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+- Definition of Done: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+- Innovation Ledger: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+- production denominator: `515`
+- evidence-backed production credit: `0 / 515 = 0.00%`
+- first implementation direction: `runtime + design shell + local Supabase connectivity + health smoke`
+- final Source Pack freeze blocker: `GMZ-SP-003A / Issue #9`
+- implementation authorization: `NO`
+
+STOP CONDITION: `GMZ_SP_010_BACKLOG_DOD_INNOVATION_READY_FOR_REVIEW`.
