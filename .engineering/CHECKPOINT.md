@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `READY_FOR_UI_UX_AND_SECURITY`
+Status: `READY_FOR_SECURITY_AND_VALIDATION`
 
 ## Current state
 - Project: Goodz Menu
@@ -19,13 +19,14 @@ Status: `READY_FOR_UI_UX_AND_SECURITY`
 - Data Model: `APPROVED_V0.1`
 - API/Integration Contracts: `APPROVED_V0.1`
 - AI Architecture: `APPROVED_V0.1`
+- UI/UX Design System: `APPROVED_V0.1`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-SP-005` — API/Integration + AI Architecture
-- Issue: `#13`
-- Branch: `planning/gmz-sp-005-promotion-v2`
-- Base: `0f5465f7a9a3926c2590e163fd5096b2b903142b`
+- Work Order: `GMZ-SP-006` — UI/UX Design System
+- Issue: `#19`
+- Branch: `planning/gmz-sp-006-ui-ux-design-system`
+- Base: `fa78e7495921d5814304029ac4b119300b16f6ab`
 - Mode: planning only
 
 ## Progress accounting
@@ -55,7 +56,7 @@ Review and promote Project Overview + Requirements, then continue the canonical 
 
 No product code before the applicable planning contracts are frozen and the first implementation Work Order is admitted.
 
-STOP CONDITION: `GMZ_SP_005_API_AI_CONTRACTS_READY_FOR_REVIEW`.
+STOP CONDITION: `GMZ_SP_006_UI_UX_DESIGN_SYSTEM_READY_FOR_REVIEW`.
 
 
 ## GMZ-SP-001 audit
@@ -158,3 +159,18 @@ STOP CONDITION: `GMZ_SP_005_API_AI_CONTRACTS_READY_FOR_REVIEW`.
 - CRITICAL/HIGH: `0 / 0`
 - Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
 - Next governed increment: `GMZ-SP-006 — UI/UX Design System`
+
+
+## GMZ-SP-006 audit
+- UI/UX Design System: `APPROVED_V0.1`
+- UX State Matrix: `APPROVED_V0.1`
+- light/dark: `REQUIRED`
+- controlled glassmorphism/depth: `REQUIRED`
+- motion + reduced motion: `REQUIRED`
+- toast/error/notification/settings UX: `REQUIRED`
+- POS/Owner/Storefront/Super Admin shells: `DOCUMENTED`
+- visual review pack: `REQUIRED`
+- frontend/runtime implementation: `NONE`
+- CRITICAL/HIGH: `0 / 0`
+- Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
+- Next governed increment: `GMZ-SP-007 — Security, Privacy & Admin Guard`
