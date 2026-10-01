@@ -1,6 +1,6 @@
 # GMZ-IMPL-001 — Admission Evidence
 
-Status: `ADMISSION_CANDIDATE`
+Status: `APPROVED_FOR_ADMISSION_PROMOTION`
 
 ## Binding
 - Issue: `#36`
@@ -34,4 +34,12 @@ Executor is **not yet authorized to mutate production code** until:
 3. Context Lock is updated to `BOUND_FOR_EXECUTION`;
 4. work branch descends from that SHA.
 
-STOP CONDITION: `GMZ_IMPL_001_ADMISSION_READY_FOR_REVIEW`
+## Admission audit
+- audited head: `e9f5d274f5316d223b0a6bb1ad632388e325e04f`
+- changed files: `6`
+- runtime code: `NONE`
+- Socket Security checks: `SUCCESS`
+- CRITICAL/HIGH: `0 / 0`
+- disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
+
+STOP CONDITION: `GMZ_IMPL_001_ADMISSION_PROMOTED_BASE_BIND_PENDING`
