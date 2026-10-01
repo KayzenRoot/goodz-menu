@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "project": "Goodz Menu",
   "repository": "KayzenRoot/goodz-menu",
-  "status": "READY_FOR_API_AI_UX_SECURITY_CONTRACTS",
+  "status": "READY_FOR_UI_UX_AND_SECURITY",
   "gefVersion": "1.1.1",
   "ideation": "CLOSED",
   "sourcePack": "ELABORATION_IN_PROGRESS",
@@ -15,22 +15,20 @@
   "implementationAuthorized": false,
   "overallCompletionPercent": null,
   "overallCompletionState": "NOT_YET_BASELINED",
-  "activeWorkOrder": "GMZ-SP-004-CD-001",
-  "activeIssue": 15,
-  "activeBranch": "correction/gmz-sp-004-stock-identity",
-  "baseSha": "c7f7c2a3081d9a3790fc51e1380f8c7df3038473",
-  "nextAction": "GMZ-SP-005_API_INTEGRATION_AND_AI_ARCHITECTURE",
-  "stopCondition": "GMZ_SP_004_CD_001_STOCK_IDENTITY_CORRECTED",
+  "activeWorkOrder": "GMZ-SP-005",
+  "activeIssue": 13,
+  "activeBranch": "planning/gmz-sp-005-promotion-v2",
+  "baseSha": "0f5465f7a9a3926c2590e163fd5096b2b903142b",
+  "nextAction": "GMZ-SP-006_UI_UX_DESIGN_SYSTEM",
+  "stopCondition": "GMZ_SP_005_API_AI_CONTRACTS_READY_FOR_REVIEW",
   "lastAudit": {
-    "workOrder": "GMZ-SP-004-CD-001",
-    "parentWorkOrder": "GMZ-SP-004",
-    "defect": "AMBIGUOUS_PHYSICAL_STOCK_IDENTITY",
-    "correction": "Product != Ingredient != InventoryItem",
-    "ownershipRows": 45,
+    "workOrder": "GMZ-SP-005",
     "critical": 0,
     "high": 0,
-    "disposition": "APPROVED_FOR_CORRECTION_PROMOTION",
-    "independent": false
+    "disposition": "APPROVED_FOR_PLANNING_PROMOTION",
+    "independent": false,
+    "currentProviderDocsVerified": "2026-10-01",
+    "inheritedCorrection": "GMZ-SP-004-CD-001"
   },
   "currentOutputs": {
     "projectOverview": "APPROVED_V0_1",
@@ -54,5 +52,7 @@
     "blocksFinalSourcePackFreeze": true,
     "blocksContinuedPlanning": false
   },
-  "dataModel": "APPROVED_V0_1_CORRECTED"
+  "dataModel": "APPROVED_V0_1_CORRECTED",
+  "apiIntegrationContracts": "APPROVED_V0_1",
+  "aiArchitecture": "APPROVED_V0_1"
 }

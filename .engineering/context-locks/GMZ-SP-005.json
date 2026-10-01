@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "goodz.context-lock",
+  "workOrder": "GMZ-SP-005",
+  "issue": 13,
+  "repository": "KayzenRoot/goodz-menu",
+  "baseBranch": "main",
+  "baseSha": "0f5465f7a9a3926c2590e163fd5096b2b903142b",
+  "candidateBranch": "planning/gmz-sp-005-promotion-v2",
+  "gefVersion": "1.1.1",
+  "mode": "PLANNING_ONLY",
+  "writeAllowed": [
+    "docs/source-pack/API-INTEGRATION-CONTRACTS.md",
+    "docs/source-pack/AI-ARCHITECTURE.md",
+    ".engineering/work-orders/GMZ-SP-005.md",
+    ".engineering/context-locks/GMZ-SP-005.json",
+    ".engineering/CHECKPOINT.md",
+    ".engineering/CHECKPOINT.json",
+    ".engineering/evidence/GMZ-SP-005-EVIDENCE.md"
+  ],
+  "writeForbidden": [
+    ".gef/**",
+    "runtime code",
+    "provider SDK installation",
+    "credentials/secrets",
+    "SQL/migrations",
+    "CI/build workflows",
+    "deploy implementation",
+    "production webhook registration",
+    "financial/investment execution"
+  ],
+  "stopCondition": "GMZ_SP_005_API_AI_CONTRACTS_READY_FOR_REVIEW"
+}
