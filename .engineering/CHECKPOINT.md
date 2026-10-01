@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `SOURCE_PACK_FROZEN_READY_FOR_IMPLEMENTATION_ADMISSION`
+Status: `GMZ_IMPL_001_ADMITTED_EXECUTION_BASE_BIND_PENDING`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,10 +27,10 @@ Status: `SOURCE_PACK_FROZEN_READY_FOR_IMPLEMENTATION_ADMISSION`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `NONE`
-- Issue: `NONE`
-- Branch: `main after GMZ-SP-003A merge`
-- Base: `GMZ-SP-003A final merge state`
+- Work Order: `GMZ-IMPL-001` — ADMITTED / execution-base bind pending
+- Issue: `#36`
+- Branch: `implementation/gmz-impl-001-runtime-foundation`
+- Base: `main@aba0a70189c90f8b86c855a34a07332e7a8bc5ff`
 - Mode: planning only
 
 ## Progress accounting
@@ -310,3 +310,30 @@ STOP CONDITION: `GMZ_SRC_001_ARCHIVED_BYTE_EXACT`.
 - next: `ADMIT FIRST IMPLEMENTATION WORK ORDER`
 
 STOP CONDITION: `GMZ_SOURCE_PACK_V0_1_FROZEN`.
+
+
+## GMZ-IMPL-001 admission candidate
+- objective: `Executable Local Runtime Foundation`
+- Source Pack: `FROZEN_V0.1`
+- assurance: `ELEVATED`
+- max accepted slice credit: `8 / 515`
+- current earned production credit: `0 / 515`
+- admitted modules: `M25(4), M04(1), M26(2), M23(1)`
+- business-domain implementation: `NOT ADMITTED`
+- executor production-code mutation: `BLOCKED UNTIL ADMISSION MERGE + EXECUTION BASE BIND`
+- exact execution base: `NOT_YET_BOUND`
+
+STOP CONDITION: `GMZ_IMPL_001_ADMISSION_READY_FOR_REVIEW`.
+
+
+## GMZ-IMPL-001 admission audit
+- admission head reviewed: `e9f5d274f5316d223b0a6bb1ad632388e325e04f`
+- changed files: `6 governance-only`
+- Socket Security checks: `SUCCESS`
+- runtime/application code: `NONE`
+- business-domain implementation: `NONE`
+- max future accepted credit: `8 / 515`
+- earned credit now: `0`
+- CRITICAL/HIGH: `0 / 0`
+- disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
+- executor mutation remains blocked until exact admission merge SHA is bound.

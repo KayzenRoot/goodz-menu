@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "goodz.implementation-context-lock",
+  "workOrderId": "GMZ-IMPL-001",
+  "issue": 36,
+  "repository": "KayzenRoot/goodz-menu",
+  "gefVersion": "1.1.1",
+  "assurance": "ELEVATED",
+  "admissionBaseRef": "main",
+  "admissionBaseSha": "aba0a70189c90f8b86c855a34a07332e7a8bc5ff",
+  "workBranch": "implementation/gmz-impl-001-runtime-foundation",
+  "executionBaseSha": null,
+  "executionBaseState": "MUST_BIND_AFTER_ADMISSION_PROMOTION",
+  "sourcePack": "FROZEN_V0_1",
+  "productionDenominator": 515,
+  "maxSliceCredit": 8,
+  "creditAllocation": {
+    "GMZ-M25": 4,
+    "GMZ-M04": 1,
+    "GMZ-M26": 2,
+    "GMZ-M23": 1
+  },
+  "lockedSources": [
+    {
+      "path": ".engineering/CHECKPOINT.json",
+      "gitBlobSha": "491b659c406aa3cf17af439abb9f7b756a4cc293"
+    },
+    {
+      "path": ".engineering/SOURCE-HIERARCHY.md",
+      "gitBlobSha": "189109435a264fe5a7306d6d10fc3ea62145dab2"
+    },
+    {
+      "path": ".engineering/DECISIONS-LEDGER.md",
+      "gitBlobSha": "8da7deea3fb575d0576a78a5311f666fa0a77da2"
+    },
+    {
+      "path": "docs/source-pack/README.md",
+      "gitBlobSha": "88c78f4fcef00da66bc0a49d33f75554de708cee"
+    },
+    {
+      "path": "docs/source-pack/REQUIREMENTS.md",
+      "gitBlobSha": "2e179c00446980a481e56dd02fe71865a7237f59"
+    },
+    {
+      "path": "docs/source-pack/ARCHITECTURE.md",
+      "gitBlobSha": "a82ff873264a1ba77fa37e6914f321a48e0a75f5"
+    },
+    {
+      "path": "docs/source-pack/UI-UX-DESIGN-SYSTEM.md",
+      "gitBlobSha": "3f456ee57daa4b922c47c12a5c3826aaaa099421"
+    },
+    {
+      "path": "docs/source-pack/SECURITY.md",
+      "gitBlobSha": "24e98825a54313a47e46abc32661f4ebaa6894d7"
+    },
+    {
+      "path": "docs/source-pack/TEST-BENCHMARK-PLAN.md",
+      "gitBlobSha": "1531d1a9abd4d9470cac2d8d24847e4258c91e45"
+    },
+    {
+      "path": "docs/source-pack/DEPLOYMENT.md",
+      "gitBlobSha": "b8f730179337a5c26ba34cdf9da43dab4b5e3b83"
+    },
+    {
+      "path": "docs/source-pack/DEFINITION-OF-DONE.md",
+      "gitBlobSha": "a3d1652a7dc9edfabafcb98151b9db8aed417888"
+    },
+    {
+      "path": "docs/source-pack/BACKLOG.md",
+      "gitBlobSha": "a535ec1809ce7aa97de31cb2abd3ea4ffe81404f"
+    },
+    {
+      "path": ".engineering/LOCAL-DOCKER-CONTRACT.md",
+      "gitBlobSha": "0379ca20ebc767d450c74e4d54058410745b948d"
+    },
+    {
+      "path": ".engineering/PERFORMANCE-BUDGETS.md",
+      "gitBlobSha": "d091933f413a8b3053cbc28642f5c946a649155c"
+    }
+  ],
+  "stalePolicy": "If frozen Scope/Architecture/Security/Test/Deployment/DoD or the admitted execution base changes incompatibly before executor mutation, mark GMZ-IMPL-001 STALE and stop for recompile/rebind.",
+  "invariants": [
+    "No business/domain feature completion claim",
+    "No business schema tables/migrations",
+    "No Auth/RBAC implementation",
+    "No remote Supabase project creation or production deployment",
+    "No real secrets",
+    "Local Supabase remains development/test only",
+    "Docker mode is canonical acceptance runtime",
+    "Light and dark theme are required at first visible shell",
+    "Reduced-motion path is required",
+    "CRITICAL/HIGH findings block progression",
+    "No force push/history rewrite",
+    "Executor does not merge its own PR"
+  ],
+  "executor": "GEF heavy executor / Codex",
+  "codexAllowed": true,
+  "codexAuthorizedScope": "Only GMZ-IMPL-001 after executionBaseSha is bound and branch descends from it.",
+  "codexProhibited": [
+    "main direct mutation",
+    "merge",
+    "force push",
+    "history rewrite",
+    "remote production infrastructure",
+    "scope expansion"
+  ],
+  "stopCondition": "GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT"
+}
