@@ -1,6 +1,6 @@
 # GMZ-SP-009 — Deployment + Local Docker Contract Baseline
 
-Status: `ADMITTED / PLANNING_ONLY`  
+Status: `APPROVED / READY_FOR_PROMOTION`  
 Risk: `ELEVATED_PLANNING`  
 Issue: `#31`
 
@@ -50,3 +50,11 @@ Freeze the deployment/runtime contract that future implementation must satisfy, 
 - no HIGH/CRITICAL planning defect.
 
 STOP CONDITION: `GMZ_SP_009_DEPLOYMENT_LOCAL_DOCKER_READY_FOR_REVIEW`
+
+
+## Audit disposition
+- candidate head: `187faa259b808f8c46ceb2d6008d9972d828c4d0`
+- Socket Security checks: `SUCCESS`
+- CRITICAL/HIGH: `0 / 0`
+- implementation: `NONE`
+- disposition: `APPROVED_FOR_PLANNING_PROMOTION`
