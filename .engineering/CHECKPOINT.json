@@ -2,12 +2,12 @@
   "schemaVersion": "1.0",
   "project": "Goodz Menu",
   "repository": "KayzenRoot/goodz-menu",
-  "status": "READY_FOR_SOURCE_PACK_ELABORATION",
+  "status": "SOURCE_PACK_ELABORATION_IN_PROGRESS",
   "gefVersion": "1.1.1",
   "ideation": "CLOSED",
-  "sourcePack": "BOOTSTRAP_COMPLETE_ELABORATION_NEXT",
+  "sourcePack": "ELABORATION_IN_PROGRESS",
   "scope": "IN_DISCUSSION",
-  "requirements": "NOT_YET_FROZEN",
+  "requirements": "DOCUMENTED_V0_1_REVIEW_PENDING",
   "architecture": "NOT_YET_FROZEN",
   "security": "NOT_YET_FROZEN",
   "testBenchmarkPlan": "NOT_YET_FROZEN",
@@ -15,11 +15,11 @@
   "implementationAuthorized": false,
   "overallCompletionPercent": null,
   "overallCompletionState": "NOT_YET_BASELINED",
-  "activeWorkOrder": "GMZ-SP-001",
-  "activeIssue": 2,
-  "activeBranch": "planning/gmz-sp-001-bootstrap",
-  "baseSha": "4ef67d1af85f400f893adee54f7fc19961730b70",
-  "nextAction": "GMZ-SP-002_PROJECT_OVERVIEW_AND_REQUIREMENTS",
+  "activeWorkOrder": "GMZ-SP-002",
+  "activeIssue": 4,
+  "activeBranch": "planning/gmz-sp-002-overview-requirements",
+  "baseSha": "dd8c87e9883f4109509df5160ad6e0e58417f4c7",
+  "nextAction": "REVIEW_PROJECT_OVERVIEW_AND_REQUIREMENTS",
   "stopCondition": "GMZ_SP_001_PLANNING_BOOTSTRAP_READY_FOR_SOURCE_PACK_ELABORATION",
   "lastAudit": {
     "candidateHead": "fa29702bfcab8a344767616b4e47970fde738f3f",
@@ -27,5 +27,11 @@
     "high": 0,
     "disposition": "APPROVED_FOR_PLANNING_PROMOTION",
     "independent": false
+  },
+  "currentOutputs": {
+    "projectOverview": "DOCUMENTED_REVIEW_PENDING",
+    "requirements": "DOCUMENTED_V0_1_REVIEW_PENDING",
+    "requirementCount": 110,
+    "traceability": "DOCUMENTED_V0_1_REVIEW_PENDING"
   }
 }
