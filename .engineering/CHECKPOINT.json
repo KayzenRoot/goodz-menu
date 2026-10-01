@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "project": "Goodz Menu",
   "repository": "KayzenRoot/goodz-menu",
-  "status": "DEPLOYMENT_BASELINE_REVIEW_PENDING",
+  "status": "READY_FOR_BACKLOG_DOD_AND_SOURCE_PACK_CLOSURE",
   "gefVersion": "1.1.1",
   "ideation": "CLOSED",
   "sourcePack": "ELABORATION_IN_PROGRESS",
@@ -19,16 +19,16 @@
   "activeIssue": 31,
   "activeBranch": "planning/gmz-sp-009-deployment-local-docker",
   "baseSha": "1c326c0b5774ef260f125284ea503c56f506e58c",
-  "nextAction": "REVIEW_GMZ_SP_009_THEN_GMZ_SP_010_BACKLOG_DOD_INNOVATION",
+  "nextAction": "GMZ-SP-010_BACKLOG_DOD_INNOVATION_LEDGER",
   "stopCondition": "GMZ_SP_009_DEPLOYMENT_LOCAL_DOCKER_READY_FOR_REVIEW",
   "lastAudit": {
-    "workOrder": "GMZ-SP-008",
+    "workOrder": "GMZ-SP-009",
     "critical": 0,
     "high": 0,
     "disposition": "APPROVED_FOR_PLANNING_PROMOTION",
     "independent": false,
-    "auditedHead": "3cd9b85fe0893dcdf336a6a6d64f7c60e7fdef46",
-    "merge": "f59a71f5d86144c4d3048416c4dcf740beed740e"
+    "auditedHead": "187faa259b808f8c46ceb2d6008d9972d828c4d0",
+    "socketChecks": "SUCCESS"
   },
   "currentOutputs": {
     "projectOverview": "APPROVED_V0_1",
@@ -43,9 +43,9 @@
     "testBenchmarkPlan": "APPROVED_V0_1",
     "testCoverageMatrix": "APPROVED_V0_1",
     "performanceBudgets": "APPROVED_V0_1",
-    "deployment": "FROZEN_CANDIDATE_V0_1_REVIEW_PENDING",
-    "localDockerContract": "FROZEN_CANDIDATE_V0_1_REVIEW_PENDING",
-    "environmentMatrix": "FROZEN_CANDIDATE_V0_1_REVIEW_PENDING"
+    "deployment": "APPROVED_V0_1",
+    "localDockerContract": "APPROVED_V0_1",
+    "environmentMatrix": "APPROVED_V0_1"
   },
   "sourceSeedArchive": {
     "id": "GMZ-SRC-001",
@@ -64,5 +64,5 @@
   "uiUxDesignSystem": "APPROVED_V0_1",
   "uxStateMatrix": "APPROVED_V0_1",
   "securityControlMatrix": "APPROVED_V0_1",
-  "deployment": "FROZEN_CANDIDATE_V0_1_REVIEW_PENDING"
+  "deployment": "APPROVED_V0_1"
 }
