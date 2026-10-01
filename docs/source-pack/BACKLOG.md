@@ -1,6 +1,6 @@
 # Goodz Menu — Weighted Production Backlog Baseline
 
-Status: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`  
+Status: `APPROVED_V0.1`  
 Authority domain: `FUTURE_WORK + COMPLETION`
 
 ## 1. Purpose
