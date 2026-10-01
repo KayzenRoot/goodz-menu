@@ -1,6 +1,6 @@
 # Goodz Menu — Local Docker Contract
 
-Status: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+Status: `APPROVED_V0.1`
 
 ## Goal
 
