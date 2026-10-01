@@ -1,6 +1,6 @@
 # GMZ-SP-007 — Security, Privacy, RLS & Admin Guard Baseline
 
-Status: APPROVED / READY_FOR_PROMOTION
+Status: PROMOTED / MERGED
 Risk: HIGH_PLANNING_ASSURANCE
 Issue: #21
 
@@ -65,3 +65,11 @@ STOP CONDITION: GMZ_SP_007_SECURITY_BASELINE_READY_FOR_REVIEW
 - RLS SQL/migrations/runtime/auth implementation: NONE.
 - CRITICAL/HIGH: 0 / 0.
 - Disposition: APPROVED_FOR_PLANNING_PROMOTION.
+
+
+## Promotion
+- PR: `#22`
+- Audited head: `38335f8e0dd3cf4f1b001f4e2bb62df8b9ddf95a`
+- Merge: `a993c614f47597d07621179c8e8b8ce70b8e9891`
+- CRITICAL/HIGH: `0 / 0`
+- Next: `GMZ-SP-008 — Test & Benchmark Plan`
