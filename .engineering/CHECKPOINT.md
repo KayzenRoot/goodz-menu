@@ -16,6 +16,7 @@ Status: `READY_FOR_DATA_MODEL_PLANNING`
 - Security: `NOT_YET_FROZEN`
 - Test/Benchmark Plan: `NOT_YET_FROZEN`
 - Definition of Done: `NOT_YET_FROZEN`
+- Data Model: `APPROVED_V0.1`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
@@ -116,3 +117,14 @@ STOP CONDITION: `GMZ_SP_003_SCOPE_ARCHITECTURE_READY_FOR_REVIEW`.
 - CRITICAL/HIGH: `0 / 0`
 - Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
 - Next governed increment: `GMZ-SP-004 — Data Model + API/Integration Contracts`
+
+
+## GMZ-SP-004 audit
+- Data Model: `APPROVED_V0.1`
+- Data ownership/tenant-scope matrix: `APPROVED_V0.1`
+- Required issue data families: `52 / 52`
+- Ownership matrix families: `42`
+- SQL/migrations/runtime code: `NONE`
+- CRITICAL/HIGH: `0 / 0`
+- Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
+- Next governed increment: `GMZ-SP-005 — API/Integration + AI Architecture contracts`
