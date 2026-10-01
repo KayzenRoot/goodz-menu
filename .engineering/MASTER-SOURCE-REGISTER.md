@@ -1,6 +1,6 @@
 # Goodz Menu — Master Source Register
 
-Status: `REGISTERED_FOR_PROMOTION`
+Status: `REGISTERED / ARCHIVE_PENDING_GMZ-SP-003A`
 
 ## Seed GMZ-SRC-001
 - Name: `GOODZ-MENU-MASTER-IDEAS-v0.3-FINAL.md`
@@ -41,7 +41,14 @@ No idea is considered lost merely because it is not implemented in the first rel
 ## Integrity rule
 Any later re-ingest of the original seed must match the SHA-256 above or be registered as a new source version.
 
-## Current gap
-The byte-for-byte seed artifact is registered by digest but has not yet been copied into this repository. This is a planning-source portability gap, not an implementation blocker for this first bootstrap increment. It must be closed before final Source Pack freeze.
+## Preservation state
+The original local artifact was revalidated on 2026-10-01:
+- bytes: `79,633` — MATCH
+- lines: `4,770` — MATCH
+- SHA-256: `b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5` — MATCH
 
-STOP CONDITION: `GMZ_SRC_001_REGISTERED`.
+Byte-exact repository archival is delegated to `GMZ-SP-003A` / Issue `#9` after connector chunk transport failed exact blob verification. All invalid fragments were removed.
+
+This gap remains blocking for final Source Pack freeze, not for continued canonical planning.
+
+STOP CONDITION: `GMZ_SRC_001_REGISTERED_IDENTITY_VERIFIED_ARCHIVE_PENDING`.

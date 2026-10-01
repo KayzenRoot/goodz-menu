@@ -66,4 +66,24 @@ Status: `ACTIVE`
 **Decision:** Investment/crypto/market modules may research current information and present scenarios with risk, liquidity, source/time and impact on business reserves. Predictions are not certainties and business liquidity/reserve constraints outrank speculative allocation.  
 **Status:** APPROVED.
 
-Next decision ID: `D-0017`.
+## D-0017 — Modular monolith baseline
+**Decision:** Begin with a modular monolith and explicit domain boundaries; service extraction requires evidence.  
+**ADR:** ADR-0001.  
+**Status:** APPROVED.
+
+## D-0018 — Supabase/PostgreSQL/Auth baseline
+**Decision:** Supabase PostgreSQL/Auth is the preferred initial data/auth/local stack direction, with implementation-time documentation validation and provider-independent domain logic.  
+**ADR:** ADR-0002.  
+**Status:** APPROVED_WITH_IMPLEMENTATION_VALIDATION.
+
+## D-0019 — Auditable ledgers and reliable events
+**Decision:** Inventory/finance are ledger-oriented; external events use durable inbox/outbox/idempotency semantics.  
+**ADR:** ADR-0003.  
+**Status:** APPROVED.
+
+## D-0020 — AI truth/action separation
+**Decision:** Deterministic Truth Layer owns official business values; AI interpretation and recommendations are separated from policy/approval/action execution.  
+**ADR:** ADR-0004.  
+**Status:** APPROVED.
+
+Next decision ID: `D-0021`.
