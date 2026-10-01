@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `READY_FOR_TEST_BENCHMARK_AND_DEPLOYMENT`
+Status: `TEST_BENCHMARK_PLAN_REVIEW_PENDING`
 
 ## Current state
 - Project: Goodz Menu
@@ -14,7 +14,7 @@ Status: `READY_FOR_TEST_BENCHMARK_AND_DEPLOYMENT`
 - Requirements: `APPROVED_V0.1`
 - Architecture: `APPROVED_V0.1`
 - Security: `APPROVED_V0_1`
-- Test/Benchmark Plan: `NOT_YET_FROZEN`
+- Test/Benchmark Plan: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
 - Definition of Done: `NOT_YET_FROZEN`
 - Data Model: `APPROVED_V0.1`
 - API/Integration Contracts: `APPROVED_V0.1`
@@ -24,10 +24,10 @@ Status: `READY_FOR_TEST_BENCHMARK_AND_DEPLOYMENT`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-SP-007` — Security, Privacy, RLS & Admin Guard
-- Issue: `#21`
-- Branch: `planning/gmz-sp-007-security-privacy`
-- Base: `4d65a8ea4e352620a2e06f5c6bdb109785334edb`
+- Work Order: `GMZ-SP-008` — Test & Benchmark Plan
+- Issue: `#27`
+- Branch: `planning/gmz-sp-008-test-benchmark-plan`
+- Base: `7b1dec75847f2d882f9b94be2fad67e78811e71d`
 - Mode: planning only
 
 ## Progress accounting
@@ -204,3 +204,15 @@ STOP CONDITION: `GMZ_SP_007_SECURITY_BASELINE_READY_FOR_REVIEW`.
 - Next governed increment: `GMZ-SP-008 — Test & Benchmark Plan`
 
 STOP CONDITION: `GMZ_SP_007_SECURITY_BASELINE_READY_FOR_REVIEW`.
+
+
+## GMZ-SP-008 current output
+- Test & Benchmark Plan: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+- Test Coverage Matrix: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+- Performance Budgets: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+- Accessibility target: `WCAG 2.2 AA`
+- Storefront field targets: `LCP <=2.5s / INP <=200ms / CLS <=0.1 at p75`
+- Runtime/test implementation: `NONE`
+- Next if approved: `GMZ-SP-009 — Deployment + Local Docker Contract`
+
+STOP CONDITION: `GMZ_SP_008_TEST_BENCHMARK_PLAN_READY_FOR_REVIEW`.
