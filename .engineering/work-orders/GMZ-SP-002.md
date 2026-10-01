@@ -1,6 +1,6 @@
 # GMZ-SP-002 — Canonical Project Overview + Requirements Decomposition
 
-Status: `ADMITTED / PLANNING_ONLY`  
+Status: `APPROVED / READY_FOR_PROMOTION`  
 Risk: `ELEVATED_PLANNING`  
 Issue: `#4`
 
@@ -54,3 +54,14 @@ Promote the ideation seed into the first canonical Source Pack product contracts
 - no known HIGH/CRITICAL planning defect.
 
 STOP CONDITION: `GMZ_SP_002_OVERVIEW_REQUIREMENTS_READY_FOR_REVIEW`
+
+
+## Audit disposition
+- Requirement IDs: `110`
+- Duplicate IDs: `0`
+- Requirement families: `23`
+- CRITICAL findings: `0`
+- HIGH findings: `0`
+- Governance correction: stale GMZ-SP-001 stopCondition in machine checkpoint corrected before promotion.
+- Product code introduced: `NO`
+- Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
