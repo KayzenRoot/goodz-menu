@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "goodz.context-lock",
+  "workOrder": "GMZ-SP-006",
+  "issue": 19,
+  "repository": "KayzenRoot/goodz-menu",
+  "baseBranch": "main",
+  "baseSha": "fa78e7495921d5814304029ac4b119300b16f6ab",
+  "candidateBranch": "planning/gmz-sp-006-ui-ux-design-system",
+  "gefVersion": "1.1.1",
+  "mode": "PLANNING_ONLY",
+  "writeAllowed": [
+    "docs/source-pack/UI-UX-DESIGN-SYSTEM.md",
+    ".engineering/UX-STATE-MATRIX.md",
+    ".engineering/work-orders/GMZ-SP-006.md",
+    ".engineering/context-locks/GMZ-SP-006.json",
+    ".engineering/CHECKPOINT.md",
+    ".engineering/CHECKPOINT.json",
+    ".engineering/evidence/GMZ-SP-006-EVIDENCE.md"
+  ],
+  "writeForbidden": [
+    ".gef/**",
+    "frontend/runtime code",
+    "CSS/Tailwind configuration",
+    "component-library installation",
+    "images/assets",
+    "package manifests",
+    "CI/build/deployment implementation",
+    "secrets"
+  ],
+  "stopCondition": "GMZ_SP_006_UI_UX_DESIGN_SYSTEM_READY_FOR_REVIEW"
+}
