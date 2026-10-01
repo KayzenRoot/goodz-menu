@@ -1,6 +1,6 @@
 # Goodz Menu — Master Source Register
 
-Status: `REGISTERED / ARCHIVE_COPY_IN_PROGRESS`
+Status: `REGISTERED / ARCHIVED`
 
 ## Seed GMZ-SRC-001
 - Name: `GOODZ-MENU-MASTER-IDEAS-v0.3-FINAL.md`
@@ -47,10 +47,9 @@ The original local artifact was revalidated on 2026-10-01:
 - lines: `4,770` — MATCH
 - SHA-256: `b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5` — MATCH
 
-Repository archival is in progress under `docs/source-seeds/`.
-`GMZ-SRC-001-MANIFEST.md` defines exact reconstruction and hash verification.
-At least one archive part has been committed, but the archive is NOT yet complete.
+Repository archival is complete under `docs/source-seeds/` as four deterministic gzip+base64 parts.
+`GMZ-SRC-001-MANIFEST.md` defines reconstruction and exact integrity verification.
 
-This gap remains blocking for final Source Pack freeze, not for continued planning.
+The archive is acceptable only when reconstruction matches the registered byte count, line count and SHA-256.
 
 STOP CONDITION: `GMZ_SRC_001_REGISTERED`.
