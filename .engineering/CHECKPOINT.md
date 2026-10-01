@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `SOURCE_PACK_FREEZE_REVIEW_PENDING`
+Status: `SOURCE_PACK_FROZEN_READY_FOR_IMPLEMENTATION_ADMISSION`
 
 ## Current state
 - Project: Goodz Menu
@@ -9,7 +9,7 @@ Status: `SOURCE_PACK_FREEZE_REVIEW_PENDING`
 - GEF init: `APPLIED / CONFIRMED`
 - Ideation: `CLOSED`
 - Controlled Scope Delta 001: `ACCEPTED`
-- Source Pack: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+- Source Pack: `FROZEN_V0.1`
 - Scope: `FROZEN_V0.1`
 - Requirements: `APPROVED_V0.1`
 - Architecture: `APPROVED_V0.1`
@@ -27,10 +27,10 @@ Status: `SOURCE_PACK_FREEZE_REVIEW_PENDING`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-SP-003A` — Byte-Exact Source Archive
-- Issue: `#9`
-- Branch: `planning/gmz-sp-003a-source-archive`
-- Base: `0d247eb651995bcea2d9912dd4698d040503fda8`
+- Work Order: `NONE`
+- Issue: `NONE`
+- Branch: `main after GMZ-SP-003A merge`
+- Base: `GMZ-SP-003A final merge state`
 - Mode: planning only
 
 ## Progress accounting
@@ -39,9 +39,18 @@ Overall production completion: `0 / 515 = 0.00%`.
 Planning artifacts do not manufacture product-completion percentage.
 
 ## Current source archive
-GMZ-SRC-001 is present in the repository as a byte-exact archive candidate and independently verifies all registered integrity properties.
+GMZ-SRC-001 is preserved byte-exact in repository truth:
+- bytes: `79,633`;
+- lines: `4,770`;
+- SHA-256: `b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5`;
+- Git blob: `12becc0f50e09a63f1b35fca1c04d769e9b7a486`.
+
+The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
+Admit the first implementation Work Order. Recommended scope: runtime + design shell + local Supabase connectivity + health smoke, with no business-feature completion claim.
+
+
 Review and promote Project Overview + Requirements, then continue the canonical Source Pack decomposition:
 1. Project Overview
 2. Requirements
@@ -284,3 +293,20 @@ STOP CONDITION: `GMZ_SP_010_BACKLOG_DOD_INNOVATION_READY_FOR_REVIEW`.
 - implementation: `NOT_AUTHORIZED`
 
 STOP CONDITION: `GMZ_SRC_001_ARCHIVED_BYTE_EXACT`.
+
+
+## GMZ-SP-003A audit
+- byte-exact archive: `PASS`
+- recovered bytes: `79,633 / MATCH`
+- recovered lines: `4,770 / MATCH`
+- recovered SHA-256: `MATCH`
+- Git blob: `MATCH`
+- Source Pack: `FROZEN_V0.1`
+- production denominator: `515`
+- production earned: `0`
+- implementation code introduced: `NONE`
+- CRITICAL/HIGH: `0 / 0`
+- disposition: `APPROVED_FOR_PLANNING_PROMOTION`
+- next: `ADMIT FIRST IMPLEMENTATION WORK ORDER`
+
+STOP CONDITION: `GMZ_SOURCE_PACK_V0_1_FROZEN`.
