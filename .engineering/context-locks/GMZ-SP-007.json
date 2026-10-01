@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "goodz.context-lock",
+  "workOrder": "GMZ-SP-007",
+  "issue": 21,
+  "repository": "KayzenRoot/goodz-menu",
+  "baseBranch": "main",
+  "baseSha": "4d65a8ea4e352620a2e06f5c6bdb109785334edb",
+  "candidateBranch": "planning/gmz-sp-007-security-privacy",
+  "gefVersion": "1.1.1",
+  "mode": "PLANNING_ONLY",
+  "writeAllowed": [
+    "docs/source-pack/SECURITY.md",
+    ".engineering/SECURITY-CONTROL-MATRIX.md",
+    ".engineering/work-orders/GMZ-SP-007.md",
+    ".engineering/context-locks/GMZ-SP-007.json",
+    ".engineering/CHECKPOINT.md",
+    ".engineering/CHECKPOINT.json",
+    ".engineering/evidence/GMZ-SP-007-EVIDENCE.md"
+  ],
+  "writeForbidden": [
+    ".gef/**",
+    "RLS SQL",
+    "schema/migrations",
+    "auth/session implementation",
+    "credentials/secrets",
+    "runtime/application code",
+    "dependency changes",
+    "CI/build/deployment implementation"
+  ],
+  "stopCondition": "GMZ_SP_007_SECURITY_BASELINE_READY_FOR_REVIEW"
+}
