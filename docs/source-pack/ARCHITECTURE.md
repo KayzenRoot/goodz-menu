@@ -316,6 +316,8 @@ POS and storefront budgets will be frozen by Test/Benchmark Plan.
 12. Microservice extraction requires measured need.
 
 ## 21. Current external references consulted
+
+Revalidated against current official Supabase documentation on 2026-10-01.
 - Supabase local development / CLI: https://supabase.com/docs/guides/local-development/cli/getting-started
 - Supabase local workflow: https://supabase.com/docs/guides/local-development/cli-workflows
 - Supabase data security/RLS: https://supabase.com/docs/guides/database/secure-data
