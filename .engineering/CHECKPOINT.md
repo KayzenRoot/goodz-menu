@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `PLANNING_BOOTSTRAP_IN_PROGRESS`
+Status: `READY_FOR_SOURCE_PACK_ELABORATION`
 
 ## Current state
 - Project: Goodz Menu
@@ -9,7 +9,7 @@ Status: `PLANNING_BOOTSTRAP_IN_PROGRESS`
 - GEF init: `APPLIED / CONFIRMED`
 - Ideation: `CLOSED`
 - Controlled Scope Delta 001: `ACCEPTED`
-- Source Pack: `IN_CONSTRUCTION`
+- Source Pack: `BOOTSTRAP_COMPLETE / ELABORATION_NEXT`
 - Scope: `IN_DISCUSSION / NOT_FROZEN`
 - Requirements: `NOT_YET_FROZEN`
 - Architecture: `NOT_YET_FROZEN`
@@ -19,7 +19,7 @@ Status: `PLANNING_BOOTSTRAP_IN_PROGRESS`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-SP-001`
+- Work Order: `GMZ-SP-001` — bootstrap complete
 - Issue: `#2`
 - Branch: `planning/gmz-sp-001-bootstrap`
 - Base: `4ef67d1af85f400f893adee54f7fc19961730b70`
@@ -53,3 +53,13 @@ Complete the canonical Source Pack decomposition:
 No product code before the applicable planning contracts are frozen and the first implementation Work Order is admitted.
 
 STOP CONDITION: `GMZ_SP_001_PLANNING_BOOTSTRAP_READY_FOR_SOURCE_PACK_ELABORATION`.
+
+
+## GMZ-SP-001 audit
+- Audited planning candidate: `fa29702bfcab8a344767616b4e47970fde738f3f`
+- Changed files: `13`
+- Product/runtime code introduced: `NO`
+- CRITICAL findings: `0`
+- HIGH findings: `0`
+- Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
+- Audit independence: `NOT_INDEPENDENT / owner-operated workflow`
