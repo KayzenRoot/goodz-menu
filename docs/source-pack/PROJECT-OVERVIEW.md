@@ -1,6 +1,6 @@
 # Goodz Menu — Project Overview
 
-Status: `DOCUMENTED / REVIEW_PENDING`  
+Status: `APPROVED_V0.1`  
 Authority domain: `REQUIREMENT + PLANNING` until Source Pack freeze.
 
 ## 1. Product definition
