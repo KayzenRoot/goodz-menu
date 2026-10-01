@@ -1,6 +1,6 @@
 # GMZ-SP-004 — Canonical Data Model Baseline
 
-Status: `ADMITTED / PLANNING_ONLY`  
+Status: `APPROVED / READY_FOR_PROMOTION`  
 Risk: `ELEVATED_PLANNING`  
 Issue: `#10`
 
@@ -50,3 +50,17 @@ Define the canonical logical data model, domain ownership, tenant scope and ledg
 - no known HIGH/CRITICAL planning defect.
 
 STOP CONDITION: `GMZ_SP_004_DATA_MODEL_READY_FOR_REVIEW`
+
+
+## Audit disposition
+- Required issue data families checked: `52 / 52` represented.
+- Ownership matrix rows: `42` data families.
+- Tenant scope: explicit.
+- Inventory/financial append-ledger semantics: explicit.
+- Historical economic snapshots: explicit.
+- External mapping/idempotency records: explicit.
+- AI insight/recommendation/evidence/action/outcome separation: explicit.
+- Platform administration separated from tenant administration: explicit.
+- SQL/migrations/runtime code: `NONE`.
+- CRITICAL/HIGH: `0 / 0`.
+- Disposition: `APPROVED_FOR_PLANNING_PROMOTION`.
