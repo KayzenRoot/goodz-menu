@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "goodz.context-lock",
+  "workOrder": "GMZ-SP-004-CD-001",
+  "parentWorkOrder": "GMZ-SP-004",
+  "issue": 15,
+  "repository": "KayzenRoot/goodz-menu",
+  "baseBranch": "main",
+  "baseSha": "c7f7c2a3081d9a3790fc51e1380f8c7df3038473",
+  "candidateBranch": "correction/gmz-sp-004-stock-identity",
+  "gefVersion": "1.1.1",
+  "mode": "PLANNING_CORRECTION",
+  "stopCondition": "GMZ_SP_004_CD_001_STOCK_IDENTITY_CORRECTED"
+}
