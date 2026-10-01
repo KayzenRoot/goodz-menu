@@ -31,7 +31,7 @@ Overall production completion: `NOT_YET_BASELINED`.
 Planning artifacts do not manufacture product-completion percentage.
 
 ## Current source gap
-The master ideation artifact GMZ-SRC-001 is preserved in-repository as a reconstructable deterministic archive with a registered SHA-256 integrity anchor.
+The master ideation artifact GMZ-SRC-001 identity is locally verified and digest-registered. Byte-exact repository archival is delegated to GMZ-SP-003A / Issue #9 and remains required before final Source Pack freeze.
 
 ## Next legal action
 Review and promote Project Overview + Requirements, then continue the canonical Source Pack decomposition:
@@ -87,5 +87,5 @@ STOP CONDITION: `GMZ_SP_003_SCOPE_ARCHITECTURE_READY_FOR_REVIEW`.
 - Architecture baseline: `V0.1 / REVIEW_PENDING`
 - foundational ADRs: `ADR-0001..ADR-0004`
 - master source local integrity: `VERIFIED`
-- master source repository archive: `COMPLETE / RECONSTRUCTABLE`
+- master source repository archive: `PENDING_GMZ-SP-003A / ISSUE #9`
 - implementation authorization: `NO`
