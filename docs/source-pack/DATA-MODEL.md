@@ -1,6 +1,6 @@
 # Goodz Menu — Canonical Data Model
 
-Status: `BASELINE_V0.1 / CORRECTION_APPLIED / REVIEW_PENDING`  
+Status: `APPROVED_V0.1`  
 Authority domain: `ARCHITECTURE + REQUIREMENT`
 
 This document defines the logical model only. It does **not** create SQL, migrations, indexes, RLS policies or physical column types.
