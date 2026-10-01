@@ -1,6 +1,6 @@
 # Goodz Menu — Canonical Source Pack
 
-Status: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+Status: `FROZEN_V0.1`
 
 This directory holds the canonical planning contracts promoted from GMZ-SRC-001.
 
@@ -31,11 +31,11 @@ A document becomes canonical only when:
 ## Current phase
 All required v0.1 Source Pack documents are present and promoted. GMZ-SRC-001 is byte-exact archived in repository truth.
 
-Final freeze is pending the exact-head audit of GMZ-SP-003A.
+GMZ-SP-003A byte-exact archive verification passed. Source Pack v0.1 is frozen for implementation admission.
 
 ## Production accounting
 - denominator: `515`
 - evidence-backed implementation credit: `0 / 515`
 - implementation code admitted: `NO`
 
-STOP CONDITION: `GMZ_SOURCE_PACK_V0_1_FREEZE_REVIEW_PENDING`
+STOP CONDITION: `GMZ_SOURCE_PACK_V0_1_FROZEN`
