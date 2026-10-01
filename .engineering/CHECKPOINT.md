@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `READY_FOR_SECURITY_AND_VALIDATION`
+Status: `READY_FOR_TEST_BENCHMARK_AND_DEPLOYMENT`
 
 ## Current state
 - Project: Goodz Menu
@@ -13,20 +13,21 @@ Status: `READY_FOR_SECURITY_AND_VALIDATION`
 - Scope: `FROZEN_V0.1`
 - Requirements: `APPROVED_V0.1`
 - Architecture: `APPROVED_V0.1`
-- Security: `NOT_YET_FROZEN`
+- Security: `APPROVED_V0.1`
 - Test/Benchmark Plan: `NOT_YET_FROZEN`
 - Definition of Done: `NOT_YET_FROZEN`
 - Data Model: `APPROVED_V0.1`
 - API/Integration Contracts: `APPROVED_V0.1`
 - AI Architecture: `APPROVED_V0.1`
 - UI/UX Design System: `APPROVED_V0.1`
+- Security Control Matrix: `APPROVED_V0.1`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-SP-006` — UI/UX Design System
-- Issue: `#19`
-- Branch: `planning/gmz-sp-006-ui-ux-design-system`
-- Base: `fa78e7495921d5814304029ac4b119300b16f6ab`
+- Work Order: `GMZ-SP-007` — Security, Privacy, RLS & Admin Guard
+- Issue: `#21`
+- Branch: `planning/gmz-sp-007-security-privacy`
+- Base: `4d65a8ea4e352620a2e06f5c6bdb109785334edb`
 - Mode: planning only
 
 ## Progress accounting
@@ -56,7 +57,7 @@ Review and promote Project Overview + Requirements, then continue the canonical 
 
 No product code before the applicable planning contracts are frozen and the first implementation Work Order is admitted.
 
-STOP CONDITION: `GMZ_SP_006_UI_UX_DESIGN_SYSTEM_READY_FOR_REVIEW`.
+STOP CONDITION: `GMZ_SP_007_SECURITY_BASELINE_READY_FOR_REVIEW`.
 
 
 ## GMZ-SP-001 audit
@@ -174,3 +175,19 @@ STOP CONDITION: `GMZ_SP_006_UI_UX_DESIGN_SYSTEM_READY_FOR_REVIEW`.
 - CRITICAL/HIGH: `0 / 0`
 - Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
 - Next governed increment: `GMZ-SP-007 — Security, Privacy & Admin Guard`
+
+
+## GMZ-SP-007 audit
+- Security & Privacy: `APPROVED_V0.1`
+- Security Control Matrix: `APPROVED_V0.1`
+- tenant isolation / RLS / authz: `PASS`
+- MFA / sessions / Admin Guard / support mode: `PASS`
+- secrets / webhooks / offline / logging: `PASS`
+- LGPD/privacy lifecycle: `PASS`
+- AI prompt-injection/tool security: `PASS`
+- mandatory security test families: `DOCUMENTED`
+- current Supabase security assumptions: `VERIFIED 2026-10-01`
+- implementation: `NONE`
+- CRITICAL/HIGH: `0 / 0`
+- Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
+- Next governed increment: `GMZ-SP-008 — Test & Benchmark Plan`
