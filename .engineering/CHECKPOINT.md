@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `TEST_BENCHMARK_PLAN_REVIEW_PENDING`
+Status: `READY_FOR_DEPLOYMENT_AND_SOURCE_PACK_CLOSURE`
 
 ## Current state
 - Project: Goodz Menu
@@ -14,7 +14,7 @@ Status: `TEST_BENCHMARK_PLAN_REVIEW_PENDING`
 - Requirements: `APPROVED_V0.1`
 - Architecture: `APPROVED_V0.1`
 - Security: `APPROVED_V0_1`
-- Test/Benchmark Plan: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+- Test/Benchmark Plan: `APPROVED_V0.1`
 - Definition of Done: `NOT_YET_FROZEN`
 - Data Model: `APPROVED_V0.1`
 - API/Integration Contracts: `APPROVED_V0.1`
@@ -206,13 +206,21 @@ STOP CONDITION: `GMZ_SP_007_SECURITY_BASELINE_READY_FOR_REVIEW`.
 STOP CONDITION: `GMZ_SP_007_SECURITY_BASELINE_READY_FOR_REVIEW`.
 
 
-## GMZ-SP-008 current output
-- Test & Benchmark Plan: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
-- Test Coverage Matrix: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
-- Performance Budgets: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+## GMZ-SP-008 promotion
+- Test & Benchmark Plan: `APPROVED_V0.1`
+- Test Coverage Matrix: `APPROVED_V0.1`
+- Performance Budgets: `APPROVED_V0.1`
 - Accessibility target: `WCAG 2.2 AA`
 - Storefront field targets: `LCP <=2.5s / INP <=200ms / CLS <=0.1 at p75`
 - Runtime/test implementation: `NONE`
 - Next if approved: `GMZ-SP-009 — Deployment + Local Docker Contract`
 
 STOP CONDITION: `GMZ_SP_008_TEST_BENCHMARK_PLAN_READY_FOR_REVIEW`.
+
+
+## GMZ-SP-008 audit
+- audited head: `3cd9b85fe0893dcdf336a6a6d64f7c60e7fdef46`
+- merge: `f59a71f5d86144c4d3048416c4dcf740beed740e`
+- CRITICAL/HIGH: `0 / 0`
+- Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
+- Next governed increment: `GMZ-SP-009 — Deployment + Local Docker Contract`
