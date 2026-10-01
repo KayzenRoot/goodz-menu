@@ -1,6 +1,6 @@
 # GMZ-SP-005 — API/Integration Contracts + AI Architecture
 
-Status: `ADMITTED / PLANNING_ONLY`  
+Status: `APPROVED / READY_FOR_PROMOTION`  
 Risk: `ELEVATED_PLANNING`  
 Issue: `#13`
 
@@ -50,3 +50,20 @@ Freeze the first canonical application/integration contracts and Goodz AI archit
 - no known HIGH/CRITICAL planning defect.
 
 STOP CONDITION: `GMZ_SP_005_API_AI_CONTRACTS_READY_FOR_REVIEW`
+
+
+## Audit disposition
+- Integration/provider isolation: PASS.
+- Idempotency/inbox/outbox/retry/dead-letter: PASS.
+- Secret/webhook/correlation contracts: PASS.
+- iFood current assumptions: source-verified 2026-10-01.
+- 99Food current assumptions: source-verified 2026-10-01.
+- Truth Layer / Agent Fabric / Policy Brain / Proof Engine: PASS.
+- Model Router / AI Cost Governor / Memory Tiers: PASS.
+- Business Twin / Merchant Genome / Decision Graph / Forecasting: PASS.
+- External research freshness/provenance: PASS.
+- Investment execution remains NOT_ADMITTED: PASS.
+- Tenant isolation / AI audit / prompt-injection / evaluation / learning-loop boundaries: PASS.
+- Runtime code / SDKs / migrations / credentials: NONE.
+- CRITICAL/HIGH: 0 / 0.
+- Disposition: `APPROVED_FOR_PLANNING_PROMOTION`.
