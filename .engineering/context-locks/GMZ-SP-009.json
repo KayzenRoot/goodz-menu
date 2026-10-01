@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "goodz.context-lock",
+  "workOrder": "GMZ-SP-009",
+  "issue": 31,
+  "repository": "KayzenRoot/goodz-menu",
+  "baseBranch": "main",
+  "baseSha": "1c326c0b5774ef260f125284ea503c56f506e58c",
+  "candidateBranch": "planning/gmz-sp-009-deployment-local-docker",
+  "gefVersion": "1.1.1",
+  "mode": "PLANNING_ONLY",
+  "writeAllowed": [
+    "docs/source-pack/DEPLOYMENT.md",
+    ".engineering/LOCAL-DOCKER-CONTRACT.md",
+    ".engineering/ENVIRONMENT-MATRIX.md",
+    ".engineering/work-orders/GMZ-SP-009.md",
+    ".engineering/context-locks/GMZ-SP-009.json",
+    ".engineering/CHECKPOINT.md",
+    ".engineering/CHECKPOINT.json",
+    ".engineering/evidence/GMZ-SP-009-EVIDENCE.md"
+  ],
+  "writeForbidden": [
+    ".gef/**",
+    "Dockerfile/compose implementation",
+    "Supabase initialization",
+    "migrations/schema implementation",
+    "package/dependency manifests",
+    "CI/CD workflow implementation",
+    "provider project creation",
+    "credentials/secrets",
+    "production deployment"
+  ],
+  "stopCondition": "GMZ_SP_009_DEPLOYMENT_LOCAL_DOCKER_READY_FOR_REVIEW"
+}
