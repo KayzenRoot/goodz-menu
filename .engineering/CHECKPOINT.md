@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `READY_FOR_DATA_MODEL_PLANNING`
+Status: `READY_FOR_UI_UX_AND_SECURITY`
 
 ## Current state
 - Project: Goodz Menu
@@ -12,18 +12,20 @@ Status: `READY_FOR_DATA_MODEL_PLANNING`
 - Source Pack: `ELABORATION_IN_PROGRESS`
 - Scope: `FROZEN_V0.1`
 - Requirements: `APPROVED_V0.1`
-- Architecture: `APPROVED_BASELINE_V0.1`
+- Architecture: `APPROVED_V0.1`
 - Security: `NOT_YET_FROZEN`
 - Test/Benchmark Plan: `NOT_YET_FROZEN`
 - Definition of Done: `NOT_YET_FROZEN`
 - Data Model: `APPROVED_V0.1`
+- API/Integration Contracts: `APPROVED_V0.1`
+- AI Architecture: `APPROVED_V0.1`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-SP-003` — Scope + Architecture + source preservation
-- Issue: `#6`
-- Branch: `planning/gmz-sp-003-scope-architecture`
-- Base: `10feef3f6976dcd8a6b36740e8711fb6234503b1`
+- Work Order: `GMZ-SP-005` — API/Integration + AI Architecture
+- Issue: `#13`
+- Branch: `planning/gmz-sp-005-api-ai-contracts`
+- Base: `c7f7c2a3081d9a3790fc51e1380f8c7df3038473`
 - Mode: planning only
 
 ## Progress accounting
@@ -128,3 +130,17 @@ STOP CONDITION: `GMZ_SP_003_SCOPE_ARCHITECTURE_READY_FOR_REVIEW`.
 - CRITICAL/HIGH: `0 / 0`
 - Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
 - Next governed increment: `GMZ-SP-005 — API/Integration + AI Architecture contracts`
+
+
+## GMZ-SP-005 audit
+- API/Integration Contracts: `APPROVED_V0.1`
+- AI Architecture: `APPROVED_V0.1`
+- provider-isolation/idempotency/retry/dead-letter/security contracts: `PASS`
+- iFood / 99Food assumptions: `CURRENT-DOC VERIFIED 2026-10-01`
+- AI truth/policy/proof/action boundaries: `PASS`
+- external-research freshness/provenance: `PASS`
+- investment execution: `NOT_ADMITTED`
+- runtime code / credentials / migrations: `NONE`
+- CRITICAL/HIGH: `0 / 0`
+- Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
+- Next governed increment: `GMZ-SP-006 — UI/UX Design System`
