@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `DEPLOYMENT_BASELINE_REVIEW_PENDING`
+Status: `READY_FOR_BACKLOG_DOD_AND_SOURCE_PACK_CLOSURE`
 
 ## Current state
 - Project: Goodz Menu
@@ -16,7 +16,7 @@ Status: `DEPLOYMENT_BASELINE_REVIEW_PENDING`
 - Security: `APPROVED_V0_1`
 - Test/Benchmark Plan: `APPROVED_V0.1`
 - Definition of Done: `NOT_YET_FROZEN`
-- Deployment: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+- Deployment: `APPROVED_V0.1`
 - Data Model: `APPROVED_V0.1`
 - API/Integration Contracts: `APPROVED_V0.1`
 - AI Architecture: `APPROVED_V0.1`
@@ -25,7 +25,7 @@ Status: `DEPLOYMENT_BASELINE_REVIEW_PENDING`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-SP-009` — Deployment + Local Docker Contract
+- Work Order: `GMZ-SP-009` — approved / promotion pending
 - Issue: `#31`
 - Branch: `planning/gmz-sp-009-deployment-local-docker`
 - Base: `1c326c0b5774ef260f125284ea503c56f506e58c`
@@ -227,10 +227,10 @@ STOP CONDITION: `GMZ_SP_008_TEST_BENCHMARK_PLAN_READY_FOR_REVIEW`.
 - Next governed increment: `GMZ-SP-009 — Deployment + Local Docker Contract`
 
 
-## GMZ-SP-009 current output
-- Deployment: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
-- Local Docker Contract: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
-- Environment Matrix: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+## GMZ-SP-009 promotion candidate
+- Deployment: `APPROVED_V0.1`
+- Local Docker Contract: `APPROVED_V0.1`
+- Environment Matrix: `APPROVED_V0.1`
 - local Supabase stack: `DEV/TEST ONLY`
 - public exposure of local stack: `PROHIBITED`
 - production provider lock-in: `NOT FROZEN`
@@ -238,3 +238,11 @@ STOP CONDITION: `GMZ_SP_008_TEST_BENCHMARK_PLAN_READY_FOR_REVIEW`.
 - next if approved: `GMZ-SP-010 — Backlog + DoD + Innovation Ledger`
 
 STOP CONDITION: `GMZ_SP_009_DEPLOYMENT_LOCAL_DOCKER_READY_FOR_REVIEW`.
+
+
+## GMZ-SP-009 audit
+- audited candidate head: `187faa259b808f8c46ceb2d6008d9972d828c4d0`
+- Socket Security checks: `SUCCESS`
+- CRITICAL/HIGH: `0 / 0`
+- Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
+- Next governed increment: `GMZ-SP-010 — Backlog + Definition of Done + Innovation Ledger`
