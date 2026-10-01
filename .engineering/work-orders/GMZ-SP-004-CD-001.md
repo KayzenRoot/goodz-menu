@@ -1,6 +1,6 @@
 # GMZ-SP-004-CD-001 — Stock Identity Correction
 
-Status: `ADMITTED / CORRECTION`  
+Status: `APPROVED / READY_FOR_PROMOTION`  
 Parent Work Order: `GMZ-SP-004`  
 Issue: `#15`  
 Risk: `MODERATE_PLANNING`
@@ -45,3 +45,12 @@ Add/clarify:
 - CRITICAL/HIGH = 0.
 
 STOP CONDITION: `GMZ_SP_004_CD_001_STOCK_IDENTITY_CORRECTED`
+
+
+## Audit disposition
+- corrected stock identity invariant: PASS
+- resale direct consumption: PASS
+- produced preparation stock path: PASS
+- ownership matrix synchronized: PASS
+- CRITICAL/HIGH: `0 / 0`
+- disposition: `APPROVED_FOR_CORRECTION_PROMOTION`
