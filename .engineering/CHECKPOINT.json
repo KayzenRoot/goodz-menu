@@ -2,13 +2,13 @@
   "schemaVersion": "1.0",
   "project": "Goodz Menu",
   "repository": "KayzenRoot/goodz-menu",
-  "status": "SCOPE_FROZEN_ARCHITECTURE_REVIEW_PENDING",
+  "status": "READY_FOR_DATA_MODEL_PLANNING",
   "gefVersion": "1.1.1",
   "ideation": "CLOSED",
   "sourcePack": "ELABORATION_IN_PROGRESS",
   "scope": "FROZEN_V0_1",
   "requirements": "APPROVED_V0_1",
-  "architecture": "BASELINE_V0_1_REVIEW_PENDING",
+  "architecture": "APPROVED_BASELINE_V0_1",
   "security": "NOT_YET_FROZEN",
   "testBenchmarkPlan": "NOT_YET_FROZEN",
   "definitionOfDone": "NOT_YET_FROZEN",
@@ -19,7 +19,7 @@
   "activeIssue": 6,
   "activeBranch": "planning/gmz-sp-003-scope-architecture",
   "baseSha": "10feef3f6976dcd8a6b36740e8711fb6234503b1",
-  "nextAction": "REVIEW_SCOPE_ARCHITECTURE_AND_PROMOTE",
+  "nextAction": "GMZ-SP-004_DATA_MODEL_BASELINE",
   "stopCondition": "GMZ_SP_003_SCOPE_ARCHITECTURE_READY_FOR_REVIEW",
   "lastAudit": {
     "workOrder": "GMZ-SP-002",
@@ -35,20 +35,20 @@
     "projectOverview": "APPROVED_V0_1",
     "requirements": "APPROVED_V0_1",
     "requirementCount": 110,
-    "traceability": "APPROVED_V0_1"
+    "traceability": "APPROVED_V0_1",
+    "scope": "FROZEN_V0_1",
+    "architecture": "APPROVED_BASELINE_V0_1",
+    "adrs": "ADR-0001..ADR-0004"
   },
   "sourceSeedArchive": {
-    "status": "IN_PROGRESS",
+    "id": "GMZ-SRC-001",
+    "status": "DELEGATED_TO_GMZ_SP_003A",
+    "issue": 9,
     "expectedSha256": "b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5",
     "expectedBytes": 79633,
     "expectedLines": 4770,
-    "completed": false
-  },
-  "sourceArchive": {
-    "id": "GMZ-SRC-001",
-    "status": "PENDING_GMZ_SP_003A",
-    "issue": 9,
-    "sha256": "b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5",
-    "blocksFinalSourcePackFreeze": true
+    "completed": false,
+    "blocksFinalSourcePackFreeze": true,
+    "blocksContinuedPlanning": false
   }
 }
