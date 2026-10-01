@@ -1,6 +1,6 @@
 # Goodz Menu — Requirements
 
-Status: `DOCUMENTED_V0.1 / REVIEW_PENDING`  
+Status: `APPROVED_V0.1`  
 Authority domain: `REQUIREMENT` after governed promotion.
 
 Requirement IDs are stable. Splitting/refining a requirement later must preserve traceability.
