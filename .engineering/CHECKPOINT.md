@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `READY_FOR_SCOPE_AND_ARCHITECTURE`
+Status: `SCOPE_FROZEN_ARCHITECTURE_REVIEW_PENDING`
 
 ## Current state
 - Project: Goodz Menu
@@ -10,19 +10,19 @@ Status: `READY_FOR_SCOPE_AND_ARCHITECTURE`
 - Ideation: `CLOSED`
 - Controlled Scope Delta 001: `ACCEPTED`
 - Source Pack: `ELABORATION_IN_PROGRESS`
-- Scope: `IN_DISCUSSION / NOT_FROZEN`
+- Scope: `FROZEN_V0.1`
 - Requirements: `APPROVED_V0.1`
-- Architecture: `NOT_YET_FROZEN`
+- Architecture: `BASELINE_V0.1 / REVIEW_PENDING`
 - Security: `NOT_YET_FROZEN`
 - Test/Benchmark Plan: `NOT_YET_FROZEN`
 - Definition of Done: `NOT_YET_FROZEN`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-SP-002` — Project Overview + Requirements
-- Issue: `#4`
-- Branch: `planning/gmz-sp-002-overview-requirements`
-- Base: `dd8c87e9883f4109509df5160ad6e0e58417f4c7`
+- Work Order: `GMZ-SP-003` — Scope + Architecture + source preservation
+- Issue: `#6`
+- Branch: `planning/gmz-sp-003-scope-architecture`
+- Base: `10feef3f6976dcd8a6b36740e8711fb6234503b1`
 - Mode: planning only
 
 ## Progress accounting
@@ -80,3 +80,12 @@ STOP CONDITION: `GMZ_SP_002_OVERVIEW_REQUIREMENTS_READY_FOR_REVIEW`.
 - CRITICAL/HIGH: `0 / 0`
 - Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
 - Next governed increment: `GMZ-SP-003 — Scope + Architecture Baseline`
+
+
+## GMZ-SP-003 current state
+- canonical Scope: `FROZEN_V0.1`
+- Architecture baseline: `V0.1 / REVIEW_PENDING`
+- foundational ADRs: `ADR-0001..ADR-0004`
+- master source local integrity: `VERIFIED`
+- master source repository archive: `IN_PROGRESS / NOT COMPLETE`
+- implementation authorization: `NO`
