@@ -2,12 +2,12 @@
   "schemaVersion": "1.0",
   "project": "Goodz Menu",
   "repository": "KayzenRoot/goodz-menu",
-  "status": "SOURCE_PACK_ELABORATION_IN_PROGRESS",
+  "status": "READY_FOR_SCOPE_AND_ARCHITECTURE",
   "gefVersion": "1.1.1",
   "ideation": "CLOSED",
   "sourcePack": "ELABORATION_IN_PROGRESS",
   "scope": "IN_DISCUSSION",
-  "requirements": "DOCUMENTED_V0_1_REVIEW_PENDING",
+  "requirements": "APPROVED_V0_1",
   "architecture": "NOT_YET_FROZEN",
   "security": "NOT_YET_FROZEN",
   "testBenchmarkPlan": "NOT_YET_FROZEN",
@@ -19,19 +19,22 @@
   "activeIssue": 4,
   "activeBranch": "planning/gmz-sp-002-overview-requirements",
   "baseSha": "dd8c87e9883f4109509df5160ad6e0e58417f4c7",
-  "nextAction": "REVIEW_PROJECT_OVERVIEW_AND_REQUIREMENTS",
-  "stopCondition": "GMZ_SP_001_PLANNING_BOOTSTRAP_READY_FOR_SOURCE_PACK_ELABORATION",
+  "nextAction": "GMZ-SP-003_SCOPE_AND_ARCHITECTURE_BASELINE",
+  "stopCondition": "GMZ_SP_002_OVERVIEW_REQUIREMENTS_READY_FOR_REVIEW",
   "lastAudit": {
-    "candidateHead": "fa29702bfcab8a344767616b4e47970fde738f3f",
+    "workOrder": "GMZ-SP-002",
+    "requirementCount": 110,
+    "duplicateRequirementIds": 0,
+    "requirementFamilies": 23,
     "critical": 0,
     "high": 0,
     "disposition": "APPROVED_FOR_PLANNING_PROMOTION",
     "independent": false
   },
   "currentOutputs": {
-    "projectOverview": "DOCUMENTED_REVIEW_PENDING",
-    "requirements": "DOCUMENTED_V0_1_REVIEW_PENDING",
+    "projectOverview": "APPROVED_V0_1",
+    "requirements": "APPROVED_V0_1",
     "requirementCount": 110,
-    "traceability": "DOCUMENTED_V0_1_REVIEW_PENDING"
+    "traceability": "APPROVED_V0_1"
   }
 }
