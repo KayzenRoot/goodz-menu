@@ -1,6 +1,6 @@
 # Goodz Menu — Canonical Data Model
 
-Status: `BASELINE_V0.1 / REVIEW_PENDING`  
+Status: `BASELINE_V0.1 / CORRECTION_APPLIED / REVIEW_PENDING`  
 Authority domain: `ARCHITECTURE + REQUIREMENT`
 
 This document defines the logical model only. It does **not** create SQL, migrations, indexes, RLS policies or physical column types.
@@ -196,7 +196,7 @@ Explicit conversion relation.
 Conversions that depend on product/ingredient density or packaging must be entity-specific instead of globally assumed.
 
 ### SupplierItem
-Supplier-specific purchasing reference for an ingredient/product.
+Supplier-specific purchasing reference for an InventoryItem/package.
 
 Stores:
 - supplier SKU;
@@ -281,8 +281,31 @@ Business entities point to MediaAsset, never directly depend on provider interna
 
 ## 10. Ingredients and recipe system
 
+### InventoryItem
+Canonical physical stock identity.
+
+Represents any item whose physical quantity may be controlled, including:
+- raw ingredient;
+- packaging;
+- resale merchandise;
+- produced/intermediate preparation when stocked;
+- operational consumable when admitted.
+
+`InventoryItem` is not itself a sellable catalog product and is not automatically an ingredient.
+
 ### Ingredient
-Stocked/consumed input.
+Culinary/recipe role linked to an `InventoryItem`.
+
+This preserves the invariant:
+
+```text
+Product ≠ Ingredient ≠ InventoryItem
+```
+
+while still allowing:
+- a recipe ingredient to consume an InventoryItem;
+- a resale Product/Variant to decrement an InventoryItem directly;
+- packaging to move in stock without pretending to be a food ingredient.
 
 ### IngredientUnitProfile
 Purchase/stock/usage units and conversions for that ingredient.
@@ -294,7 +317,7 @@ Versioned technical recipe/formula attached to product/variant or intermediate p
 Immutable historical recipe version after activation.
 
 ### RecipeItem
-Ingredient or sub-recipe quantity requirement.
+Ingredient/InventoryItem or sub-recipe quantity requirement, using an explicit consumption role.
 
 ### Preparation
 Intermediate/sub-recipe item that may itself consume inventory.
@@ -302,7 +325,24 @@ Intermediate/sub-recipe item that may itself consume inventory.
 ### YieldProfile
 Expected output, correction factor and loss assumptions.
 
-Sale economics and stock consumption must reference the effective recipe version or equivalent snapshot used at the time.
+### ProductInventoryConsumptionRule
+Defines direct stock consumption for products/variants that do not use a recipe, especially resale goods.
+
+Example:
+
+```text
+Product: Coca-Cola can 350ml
+→ consumes 1 InventoryItem: Coca-Cola can 350ml
+```
+
+This prevents resale merchandise from being modeled as a fake recipe ingredient.
+
+### ProductionRun
+Optional production/batch aggregate for an intermediate Preparation that is produced into stock.
+
+It links consumed InventoryItems/preparations to produced InventoryItem quantity through explicit inventory movements.
+
+Sale economics and stock consumption must reference the effective recipe/consumption rule version or equivalent snapshot used at the time.
 
 ## 11. Inventory
 
@@ -318,7 +358,7 @@ Canonical inventory ledger entry.
 Required semantics:
 - tenant/establishment/branch;
 - location;
-- ingredient/product stock item;
+- InventoryItem;
 - quantity delta;
 - unit;
 - movement type;
@@ -862,6 +902,16 @@ Customer PII retention/deletion/anonymization rules are governed by Privacy/LGPD
 
 ### AI data
 AI traces/recommendations have explicit retention and redaction policy. They do not silently become permanent customer/business truth.
+
+## 30A. Stock-identity invariants
+
+1. A Product is a commercial/sellable identity.
+2. An Ingredient is a recipe/culinary role.
+3. An InventoryItem is the physical stock identity.
+4. A resale Product/Variant may consume InventoryItem directly without becoming an Ingredient.
+5. A recipe-based Product consumes InventoryItems through Ingredient/Recipe relationships.
+6. Packaging may be an InventoryItem without being a Product or Ingredient.
+7. InventoryMovement always changes InventoryItem quantity, never an abstract Product price/catalog record.
 
 ## 31. Tenant-scope invariants
 
