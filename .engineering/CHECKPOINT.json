@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "project": "Goodz Menu",
   "repository": "KayzenRoot/goodz-menu",
-  "status": "IMPLEMENTATION_ADMISSION_REVIEW_PENDING",
+  "status": "GMZ_IMPL_001_ADMITTED_EXECUTION_BASE_BIND_PENDING",
   "gefVersion": "1.1.1",
   "ideation": "CLOSED",
   "sourcePack": "FROZEN_V0_1",
@@ -19,8 +19,8 @@
   "activeIssue": 36,
   "activeBranch": "implementation/gmz-impl-001-runtime-foundation",
   "baseSha": "aba0a70189c90f8b86c855a34a07332e7a8bc5ff",
-  "nextAction": "REVIEW_AND_PROMOTE_GMZ_IMPL_001_ADMISSION",
-  "stopCondition": "GMZ_IMPL_001_ADMISSION_READY_FOR_REVIEW",
+  "nextAction": "MERGE_ADMISSION_THEN_BIND_EXECUTION_BASE",
+  "stopCondition": "GMZ_IMPL_001_ADMISSION_PROMOTED_BASE_BIND_PENDING",
   "lastAudit": {
     "workOrder": "GMZ-SP-003A",
     "critical": 0,
@@ -82,7 +82,7 @@
   "productionEarned": 0,
   "activeImplementation": {
     "workOrder": "GMZ-IMPL-001",
-    "state": "ADMISSION_CANDIDATE",
+    "state": "ADMITTED_BASE_BIND_PENDING",
     "assurance": "ELEVATED",
     "executionBaseSha": null,
     "executionBaseState": "MUST_BIND_AFTER_ADMISSION_PROMOTION",
@@ -94,6 +94,13 @@
       "GMZ-M23": 1
     },
     "currentEarnedCredit": 0,
-    "businessDomainImplementationAuthorized": false
+    "businessDomainImplementationAuthorized": false,
+    "admissionAudit": {
+      "auditedHead": "e9f5d274f5316d223b0a6bb1ad632388e325e04f",
+      "critical": 0,
+      "high": 0,
+      "disposition": "APPROVED_FOR_ADMISSION_PROMOTION",
+      "runtimeCodeIntroduced": false
+    }
   }
 }
