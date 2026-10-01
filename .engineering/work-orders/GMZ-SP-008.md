@@ -1,6 +1,6 @@
 # GMZ-SP-008 — Test & Benchmark Plan Baseline
 
-Status: `ADMITTED / PLANNING_ONLY`  
+Status: `PROMOTED / MERGED`  
 Risk: `HIGH_ASSURANCE_PLANNING`  
 Issue: `#27`
 
@@ -53,3 +53,11 @@ Freeze the validation methodology and measurable quality/performance gates requi
 - no known HIGH/CRITICAL planning defect.
 
 STOP CONDITION: `GMZ_SP_008_TEST_BENCHMARK_PLAN_READY_FOR_REVIEW`
+
+
+## Promotion
+- PR: `#28`
+- audited head: `3cd9b85fe0893dcdf336a6a6d64f7c60e7fdef46`
+- merge: `f59a71f5d86144c4d3048416c4dcf740beed740e`
+- CRITICAL/HIGH: `0 / 0`
+- next: `GMZ-SP-009 — Deployment + Local Docker Contract`
