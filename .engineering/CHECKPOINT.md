@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `SOURCE_PACK_ELABORATION_IN_PROGRESS`
+Status: `READY_FOR_SCOPE_AND_ARCHITECTURE`
 
 ## Current state
 - Project: Goodz Menu
@@ -11,7 +11,7 @@ Status: `SOURCE_PACK_ELABORATION_IN_PROGRESS`
 - Controlled Scope Delta 001: `ACCEPTED`
 - Source Pack: `ELABORATION_IN_PROGRESS`
 - Scope: `IN_DISCUSSION / NOT_FROZEN`
-- Requirements: `DOCUMENTED_V0.1 / REVIEW_PENDING`
+- Requirements: `APPROVED_V0.1`
 - Architecture: `NOT_YET_FROZEN`
 - Security: `NOT_YET_FROZEN`
 - Test/Benchmark Plan: `NOT_YET_FROZEN`
@@ -52,7 +52,7 @@ Review and promote Project Overview + Requirements, then continue the canonical 
 
 No product code before the applicable planning contracts are frozen and the first implementation Work Order is admitted.
 
-STOP CONDITION: `GMZ_SP_001_PLANNING_BOOTSTRAP_READY_FOR_SOURCE_PACK_ELABORATION`.
+STOP CONDITION: `GMZ_SP_002_OVERVIEW_REQUIREMENTS_READY_FOR_REVIEW`.
 
 
 ## GMZ-SP-001 audit
@@ -66,8 +66,17 @@ STOP CONDITION: `GMZ_SP_001_PLANNING_BOOTSTRAP_READY_FOR_SOURCE_PACK_ELABORATION
 
 
 ## GMZ-SP-002 current output
-- Project Overview: `DOCUMENTED / REVIEW_PENDING`
-- Requirements: `DOCUMENTED_V0.1 / REVIEW_PENDING`
+- Project Overview: `APPROVED_V0.1`
+- Requirements: `APPROVED_V0.1`
 - Stable requirement IDs: `110`
-- Requirement traceability: `DOCUMENTED_V0.1 / REVIEW_PENDING`
+- Requirement traceability: `APPROVED_V0.1`
 - Product code: `NONE`
+
+
+## GMZ-SP-002 audit
+- Stable requirements: `110`
+- Duplicate IDs: `0`
+- Requirement families: `23`
+- CRITICAL/HIGH: `0 / 0`
+- Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
+- Next governed increment: `GMZ-SP-003 — Scope + Architecture Baseline`
