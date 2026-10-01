@@ -1,6 +1,6 @@
 # GMZ-IMPL-001 — Marathon Execution Pack
 
-Status: `ADMISSION_CANDIDATE`
+Status: `READY_FOR_EXECUTOR`
 
 ## 1. Mission
 Produce the smallest professional executable Goodz foundation that validates the runtime, visual system and local development contract without implementing business domains.
