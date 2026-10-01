@@ -1,6 +1,6 @@
 # GMZ-SP-003A — Byte-Exact Source Archive Evidence
 
-Status: `READY_FOR_REVIEW`
+Status: `APPROVED_FOR_PLANNING_PROMOTION`
 
 ## Binding
 - Repository: `KayzenRoot/goodz-menu`
@@ -36,13 +36,17 @@ The blob was fetched back from GitHub and independently re-hashed:
 ## Integrity rule
 No approximate, partial or normalized copy is accepted as GMZ-SRC-001.
 
-## Preliminary audit
+## Audit
 - byte identity: PASS
 - line identity: PASS
 - SHA-256: PASS
 - Git blob identity: PASS
 - runtime/product changes: NONE
+- candidate head: `645548fa1fc49bb2e533201def9a6392574c3179`
+- Socket Security Pull Request Alerts: `SUCCESS`
+- Socket Security Project Report: `SUCCESS`
 - CRITICAL: 0
 - HIGH: 0
+- disposition: `APPROVED_FOR_PLANNING_PROMOTION`
 
 STOP CONDITION: `GMZ_SRC_001_ARCHIVED_BYTE_EXACT`
