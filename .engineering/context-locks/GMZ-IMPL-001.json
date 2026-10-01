@@ -9,8 +9,8 @@
   "admissionBaseRef": "main",
   "admissionBaseSha": "aba0a70189c90f8b86c855a34a07332e7a8bc5ff",
   "workBranch": "implementation/gmz-impl-001-runtime-foundation",
-  "executionBaseSha": null,
-  "executionBaseState": "MUST_BIND_AFTER_ADMISSION_PROMOTION",
+  "executionBaseSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
+  "executionBaseState": "BOUND_FOR_EXECUTION",
   "sourcePack": "FROZEN_V0_1",
   "productionDenominator": 515,
   "maxSliceCredit": 8,
@@ -104,5 +104,15 @@
     "remote production infrastructure",
     "scope expansion"
   ],
-  "stopCondition": "GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT"
+  "stopCondition": "GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT",
+  "executionBranchHeadAtBind": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
+  "admissionMergeSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
+  "boundAt": "2026-10-01",
+  "preflight": {
+    "admissionMerged": true,
+    "branchFastForwardedToAdmissionMerge": true,
+    "sourcePackFrozen": true,
+    "implementationCodePresentAtBind": false,
+    "result": "PASS"
+  }
 }
