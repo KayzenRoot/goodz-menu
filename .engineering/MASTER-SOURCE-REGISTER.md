@@ -47,9 +47,8 @@ The original local artifact was revalidated on 2026-10-01:
 - lines: `4,770` — MATCH
 - SHA-256: `b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5` — MATCH
 
-Repository archival is complete under `docs/source-seeds/` as four deterministic gzip+base64 parts.
-`GMZ-SRC-001-MANIFEST.md` defines reconstruction and exact integrity verification.
+Byte-exact repository archival is delegated to `GMZ-SP-003A` / Issue `#9` after connector chunk transport failed exact blob verification. All invalid fragments were removed.
 
-The archive is acceptable only when reconstruction matches the registered byte count, line count and SHA-256.
+This gap remains blocking for final Source Pack freeze, not for continued canonical planning.
 
-STOP CONDITION: `GMZ_SRC_001_REGISTERED`.
+STOP CONDITION: `GMZ_SRC_001_REGISTERED_IDENTITY_VERIFIED_ARCHIVE_PENDING`.
