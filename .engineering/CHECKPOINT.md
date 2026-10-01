@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `READY_FOR_DEPLOYMENT_AND_SOURCE_PACK_CLOSURE`
+Status: `DEPLOYMENT_BASELINE_REVIEW_PENDING`
 
 ## Current state
 - Project: Goodz Menu
@@ -16,6 +16,7 @@ Status: `READY_FOR_DEPLOYMENT_AND_SOURCE_PACK_CLOSURE`
 - Security: `APPROVED_V0_1`
 - Test/Benchmark Plan: `APPROVED_V0.1`
 - Definition of Done: `NOT_YET_FROZEN`
+- Deployment: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
 - Data Model: `APPROVED_V0.1`
 - API/Integration Contracts: `APPROVED_V0.1`
 - AI Architecture: `APPROVED_V0.1`
@@ -24,10 +25,10 @@ Status: `READY_FOR_DEPLOYMENT_AND_SOURCE_PACK_CLOSURE`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-SP-008` — Test & Benchmark Plan
-- Issue: `#27`
-- Branch: `planning/gmz-sp-008-test-benchmark-plan`
-- Base: `7b1dec75847f2d882f9b94be2fad67e78811e71d`
+- Work Order: `GMZ-SP-009` — Deployment + Local Docker Contract
+- Issue: `#31`
+- Branch: `planning/gmz-sp-009-deployment-local-docker`
+- Base: `1c326c0b5774ef260f125284ea503c56f506e58c`
 - Mode: planning only
 
 ## Progress accounting
@@ -224,3 +225,16 @@ STOP CONDITION: `GMZ_SP_008_TEST_BENCHMARK_PLAN_READY_FOR_REVIEW`.
 - CRITICAL/HIGH: `0 / 0`
 - Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
 - Next governed increment: `GMZ-SP-009 — Deployment + Local Docker Contract`
+
+
+## GMZ-SP-009 current output
+- Deployment: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+- Local Docker Contract: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+- Environment Matrix: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+- local Supabase stack: `DEV/TEST ONLY`
+- public exposure of local stack: `PROHIBITED`
+- production provider lock-in: `NOT FROZEN`
+- implementation: `NONE`
+- next if approved: `GMZ-SP-010 — Backlog + DoD + Innovation Ledger`
+
+STOP CONDITION: `GMZ_SP_009_DEPLOYMENT_LOCAL_DOCKER_READY_FOR_REVIEW`.
