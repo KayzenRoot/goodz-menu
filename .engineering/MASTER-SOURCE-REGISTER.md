@@ -1,6 +1,6 @@
 # Goodz Menu — Master Source Register
 
-Status: `REGISTERED / ARCHIVE_PENDING_GMZ-SP-003A`
+Status: `ARCHIVED_BYTE_EXACT / PROMOTED`
 
 ## Seed GMZ-SRC-001
 - Name: `GOODZ-MENU-MASTER-IDEAS-v0.3-FINAL.md`
@@ -9,7 +9,7 @@ Status: `REGISTERED / ARCHIVE_PENDING_GMZ-SP-003A`
 - Line count: `4,770`
 - Byte size: `79,633`
 - SHA-256: `b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5`
-- Authority at this stage: `PLANNING_INPUT`
+- Authority at this stage: `CANONICAL_ARCHIVED_SEED`
 - Promotion target: canonical Source Pack documents + module map + decisions
 
 ## Required semantic coverage
@@ -47,8 +47,13 @@ The original local artifact was revalidated on 2026-10-01:
 - lines: `4,770` — MATCH
 - SHA-256: `b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5` — MATCH
 
-Byte-exact repository archival is delegated to `GMZ-SP-003A` / Issue `#9` after connector chunk transport failed exact blob verification. All invalid fragments were removed.
+Byte-exact repository archival candidate is present at:
+- path: `docs/source-archive/GOODZ-MENU-MASTER-IDEAS-v0.3-FINAL.md`
+- Git blob SHA-1: `12becc0f50e09a63f1b35fca1c04d769e9b7a486`
+- repository-recovered bytes: `79,633` — MATCH
+- repository-recovered lines: `4,770` — MATCH
+- repository-recovered SHA-256: `b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5` — MATCH
 
-This gap remains blocking for final Source Pack freeze, not for continued canonical planning.
+Exact-head candidate audit passed; final merge promotion is authorized.
 
-STOP CONDITION: `GMZ_SRC_001_REGISTERED_IDENTITY_VERIFIED_ARCHIVE_PENDING`.
+STOP CONDITION: `GMZ_SRC_001_ARCHIVED_BYTE_EXACT_REVIEW_PENDING`.

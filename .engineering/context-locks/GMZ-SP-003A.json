@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "goodz.context-lock",
+  "workOrder": "GMZ-SP-003A",
+  "issue": 9,
+  "repository": "KayzenRoot/goodz-menu",
+  "baseBranch": "main",
+  "baseSha": "0d247eb651995bcea2d9912dd4698d040503fda8",
+  "candidateBranch": "planning/gmz-sp-003a-source-archive",
+  "gefVersion": "1.1.1",
+  "mode": "SOURCE_ARCHIVE_ONLY",
+  "source": {
+    "id": "GMZ-SRC-001",
+    "path": "docs/source-archive/GOODZ-MENU-MASTER-IDEAS-v0.3-FINAL.md",
+    "bytes": 79633,
+    "lines": 4770,
+    "sha256": "b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5",
+    "gitBlobSha1": "12becc0f50e09a63f1b35fca1c04d769e9b7a486"
+  },
+  "writeAllowed": [
+    "docs/source-archive/**",
+    ".engineering/MASTER-SOURCE-REGISTER.md",
+    "docs/source-pack/README.md",
+    ".engineering/CHECKPOINT.md",
+    ".engineering/CHECKPOINT.json",
+    ".engineering/work-orders/GMZ-SP-003A.md",
+    ".engineering/context-locks/GMZ-SP-003A.json",
+    ".engineering/evidence/GMZ-SP-003A-EVIDENCE.md"
+  ],
+  "writeForbidden": [
+    ".gef/**",
+    "runtime/application code",
+    "schema/migrations",
+    "dependencies",
+    "CI/build/deployment implementation",
+    "semantic modification of GMZ-SRC-001"
+  ],
+  "stopCondition": "GMZ_SRC_001_ARCHIVED_BYTE_EXACT"
+}

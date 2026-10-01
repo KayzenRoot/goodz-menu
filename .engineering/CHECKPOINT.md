@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `SOURCE_PACK_READY_EXCEPT_SOURCE_ARCHIVE`
+Status: `SOURCE_PACK_FROZEN_READY_FOR_IMPLEMENTATION_ADMISSION`
 
 ## Current state
 - Project: Goodz Menu
@@ -9,7 +9,7 @@ Status: `SOURCE_PACK_READY_EXCEPT_SOURCE_ARCHIVE`
 - GEF init: `APPLIED / CONFIRMED`
 - Ideation: `CLOSED`
 - Controlled Scope Delta 001: `ACCEPTED`
-- Source Pack: `ELABORATION_IN_PROGRESS`
+- Source Pack: `FROZEN_V0.1`
 - Scope: `FROZEN_V0.1`
 - Requirements: `APPROVED_V0.1`
 - Architecture: `APPROVED_V0.1`
@@ -27,21 +27,30 @@ Status: `SOURCE_PACK_READY_EXCEPT_SOURCE_ARCHIVE`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-SP-010` — approved / promotion pending
-- Issue: `#33`
-- Branch: `planning/gmz-sp-010-backlog-dod-innovation`
-- Base: `c2b01875bff41eb1a6b122a7b9f04118e3d36ec4`
+- Work Order: `NONE`
+- Issue: `NONE`
+- Branch: `main after GMZ-SP-003A merge`
+- Base: `GMZ-SP-003A final merge state`
 - Mode: planning only
 
 ## Progress accounting
-Overall production completion: `NOT_YET_BASELINED`.
+Overall production completion: `0 / 515 = 0.00%`.
 
 Planning artifacts do not manufacture product-completion percentage.
 
-## Current source gap
-The master ideation artifact GMZ-SRC-001 identity is locally verified and digest-registered. Byte-exact repository archival is delegated to GMZ-SP-003A / Issue #9 and remains required before final Source Pack freeze.
+## Current source archive
+GMZ-SRC-001 is preserved byte-exact in repository truth:
+- bytes: `79,633`;
+- lines: `4,770`;
+- SHA-256: `b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5`;
+- Git blob: `12becc0f50e09a63f1b35fca1c04d769e9b7a486`.
+
+The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
+Admit the first implementation Work Order. Recommended scope: runtime + design shell + local Supabase connectivity + health smoke, with no business-feature completion claim.
+
+
 Review and promote Project Overview + Requirements, then continue the canonical Source Pack decomposition:
 1. Project Overview
 2. Requirements
@@ -272,3 +281,32 @@ STOP CONDITION: `GMZ_SP_010_BACKLOG_DOD_INNOVATION_READY_FOR_REVIEW`.
 - CRITICAL/HIGH: `0 / 0`
 - Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
 - Remaining blocker to final Source Pack freeze: `GMZ-SP-003A / Issue #9`
+
+
+## GMZ-SP-003A current output
+- archive path: `docs/source-archive/GOODZ-MENU-MASTER-IDEAS-v0.3-FINAL.md`
+- bytes: `79,633 / MATCH`
+- lines: `4,770 / MATCH`
+- SHA-256: `MATCH`
+- Git blob: `12becc0f50e09a63f1b35fca1c04d769e9b7a486 / MATCH`
+- Source Pack: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+- implementation: `NOT_AUTHORIZED`
+
+STOP CONDITION: `GMZ_SRC_001_ARCHIVED_BYTE_EXACT`.
+
+
+## GMZ-SP-003A audit
+- byte-exact archive: `PASS`
+- recovered bytes: `79,633 / MATCH`
+- recovered lines: `4,770 / MATCH`
+- recovered SHA-256: `MATCH`
+- Git blob: `MATCH`
+- Source Pack: `FROZEN_V0.1`
+- production denominator: `515`
+- production earned: `0`
+- implementation code introduced: `NONE`
+- CRITICAL/HIGH: `0 / 0`
+- disposition: `APPROVED_FOR_PLANNING_PROMOTION`
+- next: `ADMIT FIRST IMPLEMENTATION WORK ORDER`
+
+STOP CONDITION: `GMZ_SOURCE_PACK_V0_1_FROZEN`.
