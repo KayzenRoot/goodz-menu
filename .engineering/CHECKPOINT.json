@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "1.0",
+  "project": "Goodz Menu",
+  "repository": "KayzenRoot/goodz-menu",
+  "status": "READY_FOR_SOURCE_PACK_ELABORATION",
+  "gefVersion": "1.1.1",
+  "ideation": "CLOSED",
+  "sourcePack": "BOOTSTRAP_COMPLETE_ELABORATION_NEXT",
+  "scope": "IN_DISCUSSION",
+  "requirements": "NOT_YET_FROZEN",
+  "architecture": "NOT_YET_FROZEN",
+  "security": "NOT_YET_FROZEN",
+  "testBenchmarkPlan": "NOT_YET_FROZEN",
+  "definitionOfDone": "NOT_YET_FROZEN",
+  "implementationAuthorized": false,
+  "overallCompletionPercent": null,
+  "overallCompletionState": "NOT_YET_BASELINED",
+  "activeWorkOrder": "GMZ-SP-001",
+  "activeIssue": 2,
+  "activeBranch": "planning/gmz-sp-001-bootstrap",
+  "baseSha": "4ef67d1af85f400f893adee54f7fc19961730b70",
+  "nextAction": "GMZ-SP-002_PROJECT_OVERVIEW_AND_REQUIREMENTS",
+  "stopCondition": "GMZ_SP_001_PLANNING_BOOTSTRAP_READY_FOR_SOURCE_PACK_ELABORATION",
+  "lastAudit": {
+    "candidateHead": "fa29702bfcab8a344767616b4e47970fde738f3f",
+    "critical": 0,
+    "high": 0,
+    "disposition": "APPROVED_FOR_PLANNING_PROMOTION",
+    "independent": false
+  }
+}
