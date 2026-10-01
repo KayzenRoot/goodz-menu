@@ -1,6 +1,6 @@
 # GMZ-SP-009 — Evidence Bundle
 
-Status: `READY_FOR_REVIEW`
+Status: `APPROVED_FOR_PLANNING_PROMOTION`
 
 ## Binding
 - Repository: `KayzenRoot/goodz-menu`
@@ -43,9 +43,13 @@ Official Supabase local-development/deployment docs revalidated on 2026-10-01.
 ## Implementation boundary
 No Dockerfile, Compose implementation, Supabase init, migrations, dependencies, CI/CD or cloud deployment included.
 
-## Preliminary audit
+## Audit
+- audited candidate head: `187faa259b808f8c46ceb2d6008d9972d828c4d0`
+- Socket Security PR Alerts: `SUCCESS`
+- Socket Security Project Report: `SUCCESS`
 - CRITICAL: 0
 - HIGH: 0
 - known blocking planning gaps: 0
+- disposition: `APPROVED_FOR_PLANNING_PROMOTION`
 
 STOP CONDITION: `GMZ_SP_009_DEPLOYMENT_LOCAL_DOCKER_READY_FOR_REVIEW`
