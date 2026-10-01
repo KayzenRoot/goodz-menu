@@ -1,6 +1,6 @@
 # Goodz Menu — Master Source Register
 
-Status: `REGISTERED / ARCHIVED`
+Status: `REGISTERED / ARCHIVE_PENDING_GMZ-SP-003A`
 
 ## Seed GMZ-SRC-001
 - Name: `GOODZ-MENU-MASTER-IDEAS-v0.3-FINAL.md`
