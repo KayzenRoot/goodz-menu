@@ -1,6 +1,6 @@
 # GMZ-SP-003 — Scope Freeze + Architecture Baseline + Master Source Preservation
 
-Status: `ADMITTED / PLANNING_ONLY`  
+Status: `APPROVED / READY_FOR_PROMOTION`  
 Risk: `ELEVATED_PLANNING`  
 Issue: `#6`
 
@@ -65,3 +65,15 @@ The canonical seed identity remains:
 - bytes: `79,633`
 - lines: `4,770`
 - SHA-256: `b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5`
+
+
+## Audit disposition
+- Scope module coverage: `29 / 29`
+- Architecture invariants: `12`
+- foundational ADRs: `4`
+- source identity SHA-256: verified
+- byte-exact repository archive: delegated to `GMZ-SP-003A / Issue #9`
+- CRITICAL findings: `0`
+- HIGH findings: `0`
+- runtime/product code introduced: `NO`
+- disposition: `APPROVED_FOR_PLANNING_PROMOTION`
