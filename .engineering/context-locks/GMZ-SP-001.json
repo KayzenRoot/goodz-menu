@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "goodz.context-lock",
+  "workOrder": "GMZ-SP-001",
+  "issue": 2,
+  "repository": "KayzenRoot/goodz-menu",
+  "baseBranch": "main",
+  "baseSha": "4ef67d1af85f400f893adee54f7fc19961730b70",
+  "candidateBranch": "planning/gmz-sp-001-bootstrap",
+  "gefVersion": "1.1.1",
+  "seed": {
+    "id": "GMZ-SRC-001",
+    "name": "GOODZ-MENU-MASTER-IDEAS-v0.3-FINAL.md",
+    "sha256": "b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5",
+    "lines": 4770,
+    "bytes": 79633
+  },
+  "mode": "PLANNING_ONLY",
+  "writeAllowed": [
+    "README.md",
+    "AGENTS.md",
+    ".engineering/**",
+    "docs/source-pack/**"
+  ],
+  "writeForbidden": [
+    ".gef/**",
+    "application runtime code",
+    "database migrations",
+    "dependency manifests",
+    "CI/build workflows",
+    "deployment artifacts",
+    "secrets",
+    "main direct mutation"
+  ],
+  "stopCondition": "GMZ_SP_001_PLANNING_BOOTSTRAP_READY_FOR_SOURCE_PACK_ELABORATION"
+}
