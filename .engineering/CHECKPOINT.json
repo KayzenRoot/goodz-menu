@@ -18,14 +18,15 @@
   "activeWorkOrder": "GMZ-SP-004",
   "activeIssue": 10,
   "activeBranch": "planning/gmz-sp-004-data-model",
-  "baseSha": "10feef3f6976dcd8a6b36740e8711fb6234503b1",
+  "baseSha": "d63bfb0e13822710b8954f3ccc5c323954bfed3a",
   "nextAction": "GMZ-SP-005_API_INTEGRATION_AND_AI_ARCHITECTURE",
   "stopCondition": "GMZ_SP_004_DATA_MODEL_READY_FOR_REVIEW",
   "lastAudit": {
     "workOrder": "GMZ-SP-004",
     "requiredDataFamilies": 52,
     "missingFamilies": 0,
-    "ownershipRows": 42,
+    "ownershipRows": 45,
+    "stockIdentityInvariant": "Product != Ingredient != InventoryItem",
     "critical": 0,
     "high": 0,
     "disposition": "APPROVED_FOR_PLANNING_PROMOTION",
@@ -38,7 +39,9 @@
     "traceability": "APPROVED_V0_1",
     "scope": "FROZEN_V0_1",
     "architecture": "APPROVED_BASELINE_V0_1",
-    "adrs": "ADR-0001..ADR-0004"
+    "adrs": "ADR-0001..ADR-0004",
+    "dataModel": "APPROVED_V0_1",
+    "dataOwnershipMatrix": "APPROVED_V0_1"
   },
   "sourceSeedArchive": {
     "id": "GMZ-SRC-001",
