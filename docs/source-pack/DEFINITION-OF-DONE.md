@@ -1,6 +1,6 @@
 # Goodz Menu — Definition of Done
 
-Status: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`  
+Status: `APPROVED_V0.1`  
 Authority domain: `COMPLETION`
 
 ## 1. Core rule
