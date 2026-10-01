@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `SCOPE_FROZEN_ARCHITECTURE_REVIEW_PENDING`
+Status: `READY_FOR_DATA_MODEL_PLANNING`
 
 ## Current state
 - Project: Goodz Menu
@@ -12,7 +12,7 @@ Status: `SCOPE_FROZEN_ARCHITECTURE_REVIEW_PENDING`
 - Source Pack: `ELABORATION_IN_PROGRESS`
 - Scope: `FROZEN_V0.1`
 - Requirements: `APPROVED_V0.1`
-- Architecture: `BASELINE_V0.1 / REVIEW_PENDING`
+- Architecture: `APPROVED_BASELINE_V0.1`
 - Security: `NOT_YET_FROZEN`
 - Test/Benchmark Plan: `NOT_YET_FROZEN`
 - Definition of Done: `NOT_YET_FROZEN`
@@ -89,3 +89,17 @@ STOP CONDITION: `GMZ_SP_003_SCOPE_ARCHITECTURE_READY_FOR_REVIEW`.
 - master source local integrity: `VERIFIED`
 - master source repository archive: `PENDING_GMZ-SP-003A / ISSUE #9`
 - implementation authorization: `NO`
+
+
+## GMZ-SP-003 promotion
+- Scope: `FROZEN_V0.1`
+- Architecture: `APPROVED_BASELINE_V0.1`
+- ADRs: `ADR-0001..ADR-0004`
+- module coverage: `29 / 29`
+- architecture invariants: `12`
+- source-seed identity: `VERIFIED`
+- byte-exact repository archive: `PENDING GMZ-SP-003A / Issue #9`
+- final Source Pack freeze remains blocked by #9
+- continued planning: `AUTHORIZED`
+- implementation: `NOT_AUTHORIZED`
+- next: `GMZ-SP-004 — Data Model Baseline`
