@@ -1,6 +1,6 @@
 # Goodz Menu — Data Ownership & Tenant Scope Matrix
 
-Status: `BASELINE_V0.1 / CORRECTION_APPLIED / REVIEW_PENDING`
+Status: `APPROVED_V0.1`
 
 Legend:
 - P = platform scoped
