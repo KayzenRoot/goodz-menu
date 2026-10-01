@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_001_ADMITTED_EXECUTION_BASE_BIND_PENDING`
+Status: `GMZ_IMPL_001_READY_FOR_EXECUTOR`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,10 +27,10 @@ Status: `GMZ_IMPL_001_ADMITTED_EXECUTION_BASE_BIND_PENDING`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-001` — ADMITTED / execution-base bind pending
+- Work Order: `GMZ-IMPL-001` — READY_FOR_EXECUTOR
 - Issue: `#36`
 - Branch: `implementation/gmz-impl-001-runtime-foundation`
-- Base: `main@aba0a70189c90f8b86c855a34a07332e7a8bc5ff`
+- Base: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
 - Mode: planning only
 
 ## Progress accounting
@@ -320,8 +320,8 @@ STOP CONDITION: `GMZ_SOURCE_PACK_V0_1_FROZEN`.
 - current earned production credit: `0 / 515`
 - admitted modules: `M25(4), M04(1), M26(2), M23(1)`
 - business-domain implementation: `NOT ADMITTED`
-- executor production-code mutation: `BLOCKED UNTIL ADMISSION MERGE + EXECUTION BASE BIND`
-- exact execution base: `NOT_YET_BOUND`
+- executor production-code mutation: `AUTHORIZED WITHIN GMZ-IMPL-001 ONLY`
+- exact execution base: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
 
 STOP CONDITION: `GMZ_IMPL_001_ADMISSION_READY_FOR_REVIEW`.
 
@@ -337,3 +337,16 @@ STOP CONDITION: `GMZ_IMPL_001_ADMISSION_READY_FOR_REVIEW`.
 - CRITICAL/HIGH: `0 / 0`
 - disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
 - executor mutation remains blocked until exact admission merge SHA is bound.
+
+
+## GMZ-IMPL-001 execution-base bind
+- admission PR: `#37`
+- admission merge: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
+- branch fast-forward: `PASS`
+- Context Lock: `BOUND_FOR_EXECUTION`
+- implementation authorization: `YES, GMZ-IMPL-001 ONLY`
+- business-domain implementation: `NO`
+- current earned production credit: `0 / 515`
+- next action: `EXECUTE GMZ-IMPL-001`
+
+STOP CONDITION: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`.
