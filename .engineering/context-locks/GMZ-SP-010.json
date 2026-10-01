@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "goodz.context-lock",
+  "workOrder": "GMZ-SP-010",
+  "issue": 33,
+  "repository": "KayzenRoot/goodz-menu",
+  "baseBranch": "main",
+  "baseSha": "c2b01875bff41eb1a6b122a7b9f04118e3d36ec4",
+  "candidateBranch": "planning/gmz-sp-010-backlog-dod-innovation",
+  "gefVersion": "1.1.1",
+  "mode": "PLANNING_ONLY",
+  "writeAllowed": [
+    "docs/source-pack/BACKLOG.md",
+    "docs/source-pack/DEFINITION-OF-DONE.md",
+    "docs/source-pack/INNOVATION-LEDGER.md",
+    ".engineering/work-orders/GMZ-SP-010.md",
+    ".engineering/context-locks/GMZ-SP-010.json",
+    ".engineering/CHECKPOINT.md",
+    ".engineering/CHECKPOINT.json",
+    ".engineering/evidence/GMZ-SP-010-EVIDENCE.md"
+  ],
+  "writeForbidden": [
+    ".gef/**",
+    "runtime/application code",
+    "schema/migrations",
+    "test implementation",
+    "CI/build/deployment implementation",
+    "dependencies",
+    "credentials",
+    "false closure of GMZ-SP-003A/#9"
+  ],
+  "stopCondition": "GMZ_SP_010_BACKLOG_DOD_INNOVATION_READY_FOR_REVIEW"
+}
