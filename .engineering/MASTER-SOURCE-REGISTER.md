@@ -1,6 +1,6 @@
 # Goodz Menu — Master Source Register
 
-Status: `ARCHIVED_BYTE_EXACT / REVIEW_PENDING`
+Status: `ARCHIVED_BYTE_EXACT / PROMOTED`
 
 ## Seed GMZ-SRC-001
 - Name: `GOODZ-MENU-MASTER-IDEAS-v0.3-FINAL.md`
@@ -9,7 +9,7 @@ Status: `ARCHIVED_BYTE_EXACT / REVIEW_PENDING`
 - Line count: `4,770`
 - Byte size: `79,633`
 - SHA-256: `b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5`
-- Authority at this stage: `ARCHIVED_CANONICAL_SEED`
+- Authority at this stage: `CANONICAL_ARCHIVED_SEED`
 - Promotion target: canonical Source Pack documents + module map + decisions
 
 ## Required semantic coverage
@@ -54,6 +54,6 @@ Byte-exact repository archival candidate is present at:
 - repository-recovered lines: `4,770` — MATCH
 - repository-recovered SHA-256: `b18a7870bcefb73db6e6faad8e79eb10d1e7ee2af36d9ebd1eab2746474cd5f5` — MATCH
 
-Final promotion remains subject to exact-head PR audit.
+Exact-head candidate audit passed; final merge promotion is authorized.
 
 STOP CONDITION: `GMZ_SRC_001_ARCHIVED_BYTE_EXACT_REVIEW_PENDING`.
