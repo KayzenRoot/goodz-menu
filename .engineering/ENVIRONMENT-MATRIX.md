@@ -1,6 +1,6 @@
 # Goodz Menu — Environment Matrix
 
-Status: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+Status: `APPROVED_V0.1`
 
 | Concern | LOCAL_DEV | CI_TEST | PREVIEW/STAGING | PRODUCTION |
 |---|---|---|---|---|
