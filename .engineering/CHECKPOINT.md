@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `READY_FOR_API_AI_UX_SECURITY_CONTRACTS`
+Status: `READY_FOR_UI_UX_AND_SECURITY`
 
 ## Current state
 - Project: Goodz Menu
@@ -12,18 +12,20 @@ Status: `READY_FOR_API_AI_UX_SECURITY_CONTRACTS`
 - Source Pack: `ELABORATION_IN_PROGRESS`
 - Scope: `FROZEN_V0.1`
 - Requirements: `APPROVED_V0.1`
-- Architecture: `APPROVED_BASELINE_V0.1`
+- Architecture: `APPROVED_V0.1`
 - Security: `NOT_YET_FROZEN`
 - Test/Benchmark Plan: `NOT_YET_FROZEN`
 - Definition of Done: `NOT_YET_FROZEN`
 - Data Model: `APPROVED_V0.1`
+- API/Integration Contracts: `APPROVED_V0.1`
+- AI Architecture: `APPROVED_V0.1`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-SP-004-CD-001` — Stock Identity Correction
-- Issue: `#15`
-- Branch: `correction/gmz-sp-004-stock-identity`
-- Base: `c7f7c2a3081d9a3790fc51e1380f8c7df3038473`
+- Work Order: `GMZ-SP-005` — API/Integration + AI Architecture
+- Issue: `#13`
+- Branch: `planning/gmz-sp-005-promotion-v2`
+- Base: `0f5465f7a9a3926c2590e163fd5096b2b903142b`
 - Mode: planning only
 
 ## Progress accounting
@@ -53,7 +55,7 @@ Review and promote Project Overview + Requirements, then continue the canonical 
 
 No product code before the applicable planning contracts are frozen and the first implementation Work Order is admitted.
 
-STOP CONDITION: `GMZ_SP_004_CD_001_STOCK_IDENTITY_CORRECTED`.
+STOP CONDITION: `GMZ_SP_005_API_AI_CONTRACTS_READY_FOR_REVIEW`.
 
 
 ## GMZ-SP-001 audit
@@ -141,3 +143,18 @@ STOP CONDITION: `GMZ_SP_004_CD_001_STOCK_IDENTITY_CORRECTED`.
 - CRITICAL/HIGH: `0 / 0`
 - Disposition: `APPROVED_FOR_CORRECTION_PROMOTION`
 - Next: `GMZ-SP-005 — API/Integration + AI Architecture`
+
+
+## GMZ-SP-005 audit
+- API/Integration Contracts: `APPROVED_V0.1`
+- AI Architecture: `APPROVED_V0.1`
+- provider-isolation/idempotency/retry/dead-letter/security contracts: `PASS`
+- iFood / 99Food assumptions: `CURRENT-DOC VERIFIED 2026-10-01`
+- AI truth/policy/proof/action boundaries: `PASS`
+- external-research freshness/provenance: `PASS`
+- investment execution: `NOT_ADMITTED`
+- inherited SP-004-CD-001 stock-identity correction: `PRESERVED`
+- runtime code / credentials / migrations: `NONE`
+- CRITICAL/HIGH: `0 / 0`
+- Disposition: `APPROVED_FOR_PLANNING_PROMOTION`
+- Next governed increment: `GMZ-SP-006 — UI/UX Design System`
