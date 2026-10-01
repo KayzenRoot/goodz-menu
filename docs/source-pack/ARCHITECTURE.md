@@ -1,6 +1,6 @@
 # Goodz Menu — Architecture
 
-Status: `BASELINE_V0.1 / REVIEW_PENDING`  
+Status: `APPROVED_BASELINE_V0.1`  
 Authority domain: `ARCHITECTURE`
 
 ## 1. Architecture objective
