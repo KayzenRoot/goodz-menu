@@ -1,6 +1,6 @@
 # GMZ-SP-007 — Security, Privacy, RLS & Admin Guard Baseline
 
-Status: ADMITTED / PLANNING_ONLY
+Status: APPROVED / READY_FOR_PROMOTION
 Risk: HIGH_PLANNING_ASSURANCE
 Issue: #21
 
@@ -51,3 +51,17 @@ Freeze the security/privacy baseline and fail-closed control model before execut
 - no known HIGH/CRITICAL planning defect.
 
 STOP CONDITION: GMZ_SP_007_SECURITY_BASELINE_READY_FOR_REVIEW
+
+
+## Audit disposition
+- required Security coverage topics: PASS.
+- tenant isolation/RLS/authz boundaries: PASS.
+- session/MFA/Admin Guard/support mode: PASS.
+- secret/key/webhook/offline controls: PASS.
+- audit/log-redaction/LGPD/privacy lifecycle: PASS.
+- prompt-injection/AI tool security: PASS.
+- mandatory negative/security tests: PASS.
+- current Supabase guidance revalidated 2026-10-01.
+- RLS SQL/migrations/runtime/auth implementation: NONE.
+- CRITICAL/HIGH: 0 / 0.
+- Disposition: APPROVED_FOR_PLANNING_PROMOTION.
