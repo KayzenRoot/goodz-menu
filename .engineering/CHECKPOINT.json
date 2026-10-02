@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "project": "Goodz Menu",
   "repository": "KayzenRoot/goodz-menu",
-  "status": "GMZ_IMPL_001_PROMOTED_COMPLETE_READY_FOR_NEXT",
+  "status": "GMZ_IMPL_002_ADMITTED_EXECUTION_BASE_BIND_PENDING",
   "gefVersion": "1.1.1",
   "ideation": "CLOSED",
   "sourcePack": "FROZEN_V0_1",
@@ -15,12 +15,12 @@
   "implementationAuthorized": false,
   "overallCompletionPercent": 1.55,
   "overallCompletionState": "EVIDENCE_BACKED_PRODUCTION_CREDIT",
-  "activeWorkOrder": "NONE",
-  "activeIssue": null,
-  "activeBranch": null,
-  "baseSha": "04fa311e1839c7070b829438e90ddd670f9dbef1",
-  "nextAction": "ADMIT_NEXT_IMPLEMENTATION_WORK_ORDER",
-  "stopCondition": "GMZ_IMPL_001_PROMOTED_COMPLETE",
+  "activeWorkOrder": "GMZ-IMPL-002",
+  "activeIssue": 42,
+  "activeBranch": "implementation/gmz-impl-002-tenant-core",
+  "baseSha": "3f8bef75b40751b522aaed0dc6b7d09ad19ee110",
+  "nextAction": "MERGE_ADMISSION_THEN_BIND_EXECUTION_BASE",
+  "stopCondition": "GMZ_IMPL_002_ADMISSION_PROMOTED_BASE_BIND_PENDING",
   "lastAudit": {
     "workOrder": "GMZ-IMPL-001",
     "critical": 0,
@@ -81,63 +81,29 @@
   "productionDenominator": 515,
   "productionEarned": 8,
   "activeImplementation": {
-    "workOrder": "GMZ-IMPL-001",
-    "state": "PROMOTED_COMPLETE",
-    "assurance": "ELEVATED",
-    "executionBaseSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
-    "executionBaseState": "BOUND_FOR_EXECUTION",
-    "maxSliceCredit": 8,
+    "workOrder": "GMZ-IMPL-002",
+    "state": "ADMITTED_BASE_BIND_PENDING",
+    "assurance": "HIGH",
+    "executionBaseSha": null,
+    "executionBaseState": "MUST_BIND_AFTER_ADMISSION_PROMOTION",
+    "maxSliceCredit": 11,
     "creditAllocation": {
-      "GMZ-M25": 4,
-      "GMZ-M04": 1,
-      "GMZ-M26": 2,
-      "GMZ-M23": 1
+      "GMZ-M01": 10,
+      "GMZ-M26": 1
     },
     "currentEarnedCredit": 8,
-    "pullRequest": {
-      "number": 38,
-      "url": "https://github.com/KayzenRoot/goodz-menu/pull/38",
-      "base": "main",
-      "state": "MERGED",
-      "mergePerformed": true,
-      "mergeSha": "04fa311e1839c7070b829438e90ddd670f9dbef1"
-    },
-    "executorPreflight": {
-      "result": "PASS",
-      "lockedSourceFingerprints": "14/14 MATCH",
-      "executionBaseSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585"
-    },
     "businessDomainImplementationAuthorized": false,
+    "authMembershipRbacAuthorized": false,
+    "migrationWorkflow": "IMPERATIVE_MIGRATION_FIRST",
+    "tenantAccessPosture": "RLS_ENABLED_FAIL_CLOSED_NO_MEMBERSHIP_POLICY",
     "admissionAudit": {
-      "auditedHead": "e9f5d274f5316d223b0a6bb1ad632388e325e04f",
+      "auditedHead": "6f63b2efee74c114316e4b03fd61f822e4716f56",
       "critical": 0,
       "high": 0,
-      "disposition": "APPROVED_FOR_ADMISSION_PROMOTION",
-      "runtimeCodeIntroduced": false
-    },
-    "implementationAuthorized": false,
-    "admissionMergeSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
-    "objectiveAudit": {
-      "validatedHead": "a3df631b4ca8d0798fcdbe60434c5f0b954b1f32",
-      "critical": 0,
-      "high": 0,
-      "medium": 0,
-      "correctedLow": 4,
-      "acceptedResidualLow": 1,
-      "residualIssue": 39,
-      "disposition": "APPROVED_FOR_PROMOTION",
-      "eligibleCreditAfterMerge": 8
-    },
-    "cd005": {
-      "severity": "LOW",
-      "finding": "stale status refresh race",
-      "fixApplied": true,
-      "regressionTestAdded": true,
-      "exactHeadL5Required": false,
-      "validatedHead": "a3df631b4ca8d0798fcdbe60434c5f0b954b1f32",
-      "exactHeadL5Result": "PASS"
-    },
-    "completed": true,
-    "mergeSha": "04fa311e1839c7070b829438e90ddd670f9dbef1"
+      "stableSourceFingerprints": "14/14 MATCH",
+      "socketChecks": "SUCCESS",
+      "runtimeOrSchemaCodeIntroduced": false,
+      "disposition": "APPROVED_FOR_ADMISSION_PROMOTION"
+    }
   }
 }
