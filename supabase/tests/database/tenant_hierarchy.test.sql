@@ -132,8 +132,14 @@ SELECT ok(NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND 
 SELECT ok(NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'branches'), 'branches have no tenant policy before GMZ-M02');
 
 SELECT ok(
-  bool_and(NOT has_table_privilege(access.role_name, access.table_name, privilege.privilege_name)),
-  format('%s has no direct CRUD privileges on %s', access.role_name, access.table_name)
+  bool_and(
+    NOT has_table_privilege(access.role_name, access.table_name, privilege.privilege_name)
+    AND (
+      privilege.privilege_name NOT IN ('SELECT', 'INSERT', 'UPDATE', 'REFERENCES')
+      OR NOT has_any_column_privilege(access.role_name, access.table_name, privilege.privilege_name)
+    )
+  ),
+  format('%s has no table or column privileges on %s', access.role_name, access.table_name)
 )
 FROM (VALUES
   ('anon', 'public.organizations'),
@@ -143,7 +149,7 @@ FROM (VALUES
   ('anon', 'public.branches'),
   ('authenticated', 'public.branches')
 ) AS access(role_name, table_name)
-CROSS JOIN (VALUES ('SELECT'), ('INSERT'), ('UPDATE'), ('DELETE')) AS privilege(privilege_name)
+CROSS JOIN (VALUES ('SELECT'), ('INSERT'), ('UPDATE'), ('DELETE'), ('TRUNCATE'), ('REFERENCES'), ('TRIGGER')) AS privilege(privilege_name)
 GROUP BY access.role_name, access.table_name
 ORDER BY access.role_name, access.table_name;
 
