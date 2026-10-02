@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_002_CD_001_EXACT_HEAD_L5_PENDING`
+Status: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`
 
 ## Current state
 - Project: Goodz Menu
@@ -499,11 +499,14 @@ STOP CONDITION: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`.
 - generated Supabase type file CPD exclusion: `APPLIED`
 - branch tenant-parent composite index: `ADDED`
 - pgTAP index proof: `ADDED`
-- runtime/schema/test/config changed after prior L5: `YES`
-- previous L5 evidence: `STALE`
+- duplicate SQL assertion blocks consolidated into table-driven checks; all pgTAP cases retained: `YES / 57`
+- SonarCloud Quality Gate after correction: `PASS / 0 duplicated lines / 0.0%`
+- exact-head L5 after CD-001: `PASS` at code candidate `3fa2f915d6c74e7bb5eecc8b7e31e2a1c6640a1c`
+- pgTAP including tenant-parent index assertion: `57 / 57 PASS`
+- frozen install, lint, typecheck, unit, build, E2E, Docker, local Supabase, DB lint/advisor, audit, secret-pattern scan: `PASS`
+- final documentation-closeout head and repeated L5: recorded in PR `#44` after the evidence/checkpoint commit
 - current production credit: `8 / 515`
-- exact-head L5 after CD-001: `PENDING`
-- next: `RERUN COMPLETE PREFLIGHT + L5`
-- disposition: `CORRECTION_REQUIRED`
+- next: `OBJECTIVE_AUDIT_GMZ_IMPL_002`
+- disposition: `READY_FOR_OBJECTIVE_AUDIT`
 
-STOP CONDITION: `GMZ_IMPL_002_CD_001_EXACT_HEAD_L5_REQUIRED`.
+STOP CONDITION: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`.

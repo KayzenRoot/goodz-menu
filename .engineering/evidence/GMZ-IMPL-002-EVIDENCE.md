@@ -1,41 +1,46 @@
 # GMZ-IMPL-002 — Executor Evidence
 
-Status: `SUPERSEDED_BY_GMZ-IMPL-002-CD-001`
+Status: `READY_FOR_OBJECTIVE_AUDIT` after GMZ-IMPL-002-CD-001 validation
 Repository: `KayzenRoot/goodz-menu`
 Branch: `implementation/gmz-impl-002-tenant-core`
 Work Order: `GMZ-IMPL-002` (Issue #42)
 Context Lock: `.engineering/context-locks/GMZ-IMPL-002.json`
 Execution base: `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`
-Implementation candidate validated: `9e84c7008e55dc6a162af088f08730f1081028a4`
+CD-001 code candidate fully validated: `3fa2f915d6c74e7bb5eecc8b7e31e2a1c6640a1c`
 Pull request: [#44 — GMZ-IMPL-002](https://github.com/KayzenRoot/goodz-menu/pull/44), draft, target `main`
+
+The final closeout commit contains only this evidence and checkpoint updates. Its exact head and repeated exact-head L5 results are recorded in the PR description.
 
 ## Scope delivered
 
-- Created `public.organizations`, `public.establishments`, and `public.branches` with UUID identities, required lifecycle/name/timestamp fields, and database constraints.
-- Added explicit `organization_id` propagation and a composite branch-to-establishment foreign key that prevents cross-organization parent substitution.
-- Enabled RLS on all three tables, created no tenant access policies, and revoked all table privileges from `PUBLIC`, `anon`, and `authenticated`.
-- Added one deterministic, synthetic local hierarchy and transactional pgTAP coverage.
+- Created `public.organizations`, `public.establishments`, and `public.branches` with UUID identities, lifecycle/name/timestamp constraints, and tenant-safe foreign keys.
+- Added `branches_organization_establishment_idx (organization_id, establishment_id)` for the branch tenant-parent lookup.
+- Enabled RLS on all three tables, created no tenant access policies, and revoked direct table privileges from `PUBLIC`, `anon`, and `authenticated`.
+- Added one deterministic synthetic local hierarchy and transactional pgTAP coverage, including an assertion for the index's exact ordered columns.
+- Consolidated repeated pgTAP catalog/privilege SQL into table-driven assertions; all 57 assertions remain independent and pass.
 - Generated local TypeScript database types and added local-only package scripts for database tests and type generation.
+- Excluded only generated `src/lib/supabase/database.types.ts` from Sonar copy/paste detection; it remains in normal issue/security analysis. No test file or other source was excluded.
 - No Auth, Membership, Roles, Permissions, onboarding, or business-domain modules were implemented.
 
 ## Preflight — GEF Bootstrap 1.1.1
 
-Preflight ran before mutation on the latest authorized branch state.
+Reran before any validation or mutation on the fetched correction branch.
 
 | Gate | Result |
 |---|---|
-| Repository / remote | `PASS` — `KayzenRoot/goodz-menu` |
-| Authorized branch | `PASS` — `implementation/gmz-impl-002-tenant-core` |
-| Initial branch head | `PASS` — `41e5ea8487bc734287a098a775dc60c8296fdd55`, equal to the latest remote branch head at preflight |
-| Execution base | `PASS` — `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`, equal to `main` and an ancestor of the branch |
-| Working tree before mutation | `PASS` — clean |
-| Governance snapshot | `PASS` — expected/current checkpoint blob `1eab4eaacda056ea94cd7ec5da29a183449d4b4d` |
+| Repository / remote | `PASS` — `https://github.com/KayzenRoot/goodz-menu.git` |
+| Authenticated GitHub account | `PASS` — `KayzenRoot` |
+| Authorized branch and fetched head | `PASS` — `implementation/gmz-impl-002-tenant-core`, `8962f3957a61b40fac45277ca5bb0a2e2bacafc9` |
+| Legal execution base | `PASS` — `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`, unchanged and an ancestor of the branch |
+| Working tree before validation | `PASS` — clean |
+| Governance snapshot | `PASS` — expected/current checkpoint blob `ec73b9fddcad3deeada3a8c268f7510091d1000d`; status matched `GMZ_IMPL_002_CD_001_EXACT_HEAD_L5_PENDING` |
 | Stable locked source fingerprints | `PASS` — `14 / 14 MATCH` |
-| `.gef` state | `PASS` — product version `1.1.1`, init `APPLIED`, receipt `CONFIRMED`, no worktree or base diff |
-| Migration history before this Work Order | `PASS` — none at the execution base |
+| `.gef` state | `PASS` — product version `1.1.1`, init `APPLIED`, receipt `CONFIRMED`, no worktree or execution-base diff |
+| Correction Delta binding | `PASS` — `GMZ-IMPL-002-CD-001`; remote Supabase and production deployment remain forbidden |
+| PR state | `PASS` — PR `#44` is `OPEN`, draft, against `main`, and points to the fetched branch head |
 | Supabase remote link | `PASS` — no local project reference file; no remote project operation used |
 
-Locked source fingerprints at preflight:
+Stable locked source fingerprints:
 
 | Source | Git blob SHA |
 |---|---|
@@ -54,67 +59,78 @@ Locked source fingerprints at preflight:
 | `.engineering/adrs/ADR-0002-SUPABASE-POSTGRES-AUTH-BASELINE.md` | `707427e952cead6b2b3cf2fb1497e0cb5595795f` |
 | `.engineering/PROGRESS-LEDGER.md` | `c59cbf5f1740b35f3d4744b585172d5608751a9a` |
 
-Runtime versions at preflight: Node `v24.19.0`; pnpm `12.8.1`; Supabase CLI `2.119.0`; Docker Engine `29.8.1`; Docker Compose `5.5.1`.
+Runtime versions: Node `v24.19.0`; pnpm `12.8.1`; Supabase CLI `2.119.0`; Docker Engine `29.8.1`; Docker Compose `5.5.1`.
 
-## Schema and migration evidence
+## Schema, migration, and correction evidence
 
-- Migration generated by the installed CLI: `supabase/migrations/20261002093358_tenant_hierarchy.sql`.
-- Objects: `public.organizations`, `public.establishments`, and `public.branches` only.
-- IDs are UUID primary keys generated by `gen_random_uuid()`; lifecycle defaults to `active`; created timestamps default to `now()`.
-- Display names reject whitespace-only values and values longer than 120 characters; lifecycle is restricted to `active`, `suspended`, or `archived`.
-- Establishments reference organizations with `ON DELETE RESTRICT` and provide `(organization_id, id)` as a unique candidate key.
-- Branches reference organizations and establishments; the composite foreign key is `(organization_id, establishment_id) → establishments(organization_id, id)` with `ON DELETE RESTRICT`.
-- The exact-column tests confirm there are no owner, membership, role, plan, settings, or business-domain fields.
-- RLS is enabled on every table. There are no policies. Effective CRUD privileges for both `anon` and `authenticated` are absent.
-- Seed contains exactly one synthetic organization, establishment, and branch with stable UUIDs.
-- Migration reset and pgTAP were repeated after final corrections; the reset restored the same deterministic hierarchy each time.
+- CLI-generated migration: `supabase/migrations/20261002093358_tenant_hierarchy.sql`.
+- Tables: `public.organizations`, `public.establishments`, and `public.branches` only.
+- IDs are generated UUID primary keys; lifecycle defaults to `active`; creation timestamps default to `now()`.
+- Display names reject whitespace-only values and values longer than 120 characters; lifecycle is limited to `active`, `suspended`, or `archived`.
+- Establishments reference organizations with `ON DELETE RESTRICT` and expose `(organization_id, id)` as a unique candidate key.
+- Branches use an organization-safe composite FK `(organization_id, establishment_id) → establishments(organization_id, id)` with `ON DELETE RESTRICT`, plus the referencing-side index `(organization_id, establishment_id)`.
+- pgTAP proves the named index exists with exactly the ordered columns `organization_id`, `establishment_id`.
+- RLS is enabled on every table; there are no tenant policies; `anon` and `authenticated` have no direct CRUD privileges.
+- Reset/seed produce exactly one synthetic organization, establishment, and branch.
+- Tests confirm there are no owner, membership, role, plan, settings, or business-domain fields.
 
-## L5 exact-head results
+SonarCloud initially failed on the correction head because the pgTAP file itself contained repeated SQL blocks. The generated-types CPD exclusion worked: Sonar reports `0` duplicated lines for `database.types.ts`. The repeated test queries were consolidated into table-driven checks while preserving all 57 pgTAP assertions and their per-case results. On candidate `3fa2f915d6c74e7bb5eecc8b7e31e2a1c6640a1c`, SonarCloud reports `0` new duplicated lines, `0.0%` new-code duplication, and `Quality Gate PASS`.
 
-The complete suite passed at implementation candidate `9e84c7008e55dc6a162af088f08730f1081028a4`.
+## L5 exact-head results — CD-001 code candidate
+
+Complete suite passed on `3fa2f915d6c74e7bb5eecc8b7e31e2a1c6640a1c`.
 
 | Check | Result |
 |---|---|
-| `pnpm install --frozen-lockfile --strict-peer-dependencies` | `PASS` — lockfile unchanged; no peer failure |
+| `pnpm install --frozen-lockfile --strict-peer-dependencies` | `PASS` — lockfile unchanged; peer check clean |
 | Lint | `PASS` |
 | Typecheck | `PASS` |
 | Unit tests | `PASS` — 2 files, 6 tests |
 | Production build | `PASS` — Next.js 16.3.8 |
-| Full E2E | `PASS` — 8 desktop/mobile tests |
-| Local `supabase db reset --local` | `PASS` — migration and seed applied |
-| Local `supabase test db --local` | `PASS` — 1 file, 56 assertions |
-| Local migration list | `PASS` — `20261002093358` in filesystem and local database |
-| Local type generation | `PASS` — `pnpm supabase:types`; generated types formatted with Oxfmt 0.71.0 |
+| Full E2E | `PASS` — 8 desktop/mobile tests, including Axe, malformed-health and stale-refresh regressions |
+| Local `supabase db reset --local` | `PASS` — migration and deterministic seed applied |
+| Local `supabase test db --local` | `PASS` — 1 file, `57 / 57` assertions, including tenant-parent index columns |
+| Local migration list/status | `PASS` — migration `20261002093358` present in repository and local database |
+| Local TypeScript type generation | `PASS` — formatted Oxfmt 0.71.0 output matches committed `database.types.ts` exactly |
 | Local database lint | `PASS` — no schema errors |
-| Local security advisor | `PASS` — no issues found |
-| Dependency audit | `PASS` — no known vulnerabilities |
-| Peer check | `PASS` — frozen install with strict peer dependencies |
-| Changed-file secret scan | `PASS` — 8 high-confidence credential patterns, 0 findings across 11 files from base to candidate |
+| Local security advisor | `PASS` — no findings |
+| Dependency audit | `PASS` — no known vulnerabilities at high severity threshold |
+| Peer dependency check | `PASS` — strict frozen install |
+| Secret-pattern scan | `PASS` — 0 findings across 14 changed files; no standalone Gitleaks/TruffleHog/detect-secrets executable available |
+| SonarCloud | `PASS` — Quality Gate; `0` new duplicated lines, `0.0%` new-code duplication |
+| Socket Security | `PASS` — Project Report and Pull Request Alerts |
 | Docker Compose config/build/up | `PASS` |
-| Docker web health | `PASS` — HTTP 200, `status=ok`, `runtime=docker`, revision `9e84c70`; container healthy |
-| Web readiness | `PASS` — HTTP 200, `status=ready`, local Supabase dependency `available`, revision `9e84c70` |
-| Local Supabase health | `PASS` — Auth health HTTP 200; Postgres ready; database, Auth, and gateway containers healthy |
-| Runtime logs | `PASS` — health/readiness events present; 0 severe errors in inspected web logs |
-| `.gef` integrity | `PASS` — unchanged; 14/14 locked fingerprints still match |
+| Docker web health | `PASS` — healthy; HTTP 200, `status=ok`, `runtime=docker`, exact revision `3fa2f915d6c74e7bb5eecc8b7e31e2a1c6640a1c` |
+| Web readiness | `PASS` — HTTP 200, `status=ready`, Supabase `available`, exact revision `3fa2f915d6c74e7bb5eecc8b7e31e2a1c6640a1c` |
+| Local Supabase | `PASS` — loopback API/database; database, Auth and gateway healthy; Auth health HTTP 200; Postgres ready |
+| Runtime logs | `PASS` — health/readiness events present; 0 severe errors |
+| `.gef` integrity | `PASS` — unchanged; stable source fingerprints `14 / 14 MATCH` |
 
-No standalone secret-scanner executable was available on the host. The changed-file scan checked private-key markers, AWS/GitHub/Slack/Supabase tokens, JWTs, credential URLs, and credential assignments; it reported no findings. No dependency or lockfile changes were made.
+The high-confidence secret scan checked private-key markers, AWS/GitHub/Slack/Supabase tokens, JWTs, credential URLs, and credential assignments. No dependency or lockfile changes were made.
 
-The exact closeout-head L5 rerun is also recorded in the current PR description for the final PR head, which includes this evidence and checkpoint commit.
+## Changed files and requirement mapping
+
+- Governance/admission/evidence: `.engineering/CHECKPOINT.md`, `.engineering/CHECKPOINT.json`, `.engineering/context-locks/GMZ-IMPL-002.json`, `.engineering/evidence/GMZ-IMPL-002-ADMISSION.md`, `.engineering/evidence/GMZ-IMPL-002-CD-001-EVIDENCE.md`, `.engineering/evidence/GMZ-IMPL-002-EVIDENCE.md`, `.engineering/execution-packs/GMZ-IMPL-002.md`, `.engineering/work-orders/GMZ-IMPL-002.md`.
+- Quality configuration and local app tooling: `.sonarcloud.properties`, `package.json`, `src/lib/supabase/database.types.ts`.
+- Tenant schema and database tests: `supabase/migrations/20261002093358_tenant_hierarchy.sql`, `supabase/seed.sql`, `supabase/tests/database/tenant_hierarchy.test.sql`.
+- `GMZ-REQ-PLAT-001` / `003`: organization hierarchy, explicit tenant keys, cross-tenant parent rejection, and parent lookup index.
+- `GMZ-REQ-GOV-001..004`: exact-base execution, reproducible validation, evidence and review boundary.
+- `GMZ-REQ-PLAT-002`: deny-by-default database posture only; membership-aware authorization remains out of scope and unimplemented.
 
 ## Security, compatibility, and limits
 
-- Security posture is deliberately fail-closed until GMZ-M02: no anon/authenticated CRUD, no tenant policy, and no service-role credential in application code.
-- The schema is additive. No existing application API, UI, dependency version, or package lock changed.
-- Supabase operations used only the local stack (`--local` for reset, tests, migration list, lint, advisor, and type generation). No remote project link, remote database write, or production deployment occurred.
-- Local PostgreSQL is configured as major version 17. The reviewed PostgreSQL 17.11 notes concern `ltree`, legacy `pgcrypto` ciphers, `btree_gist` float indexes, and custom operators; this migration uses none of them.
-- Objective audit is still pending. This evidence does not claim approval or production credit.
-- Production credit remains `8 / 515`; up to `11` for GMZ-M01/GMZ-M26 is eligible only after governed acceptance and merge.
+- RLS stays enabled, no tenant access policy is introduced, and no service-role secret enters application code.
+- The schema change is additive; no existing application API/UI or dependency version changed.
+- Supabase commands used only the local stack. No remote project link, remote database write, or production deployment occurred.
+- No Auth, Membership, Roles, Permissions, business-domain tables, or business modules were added.
+- Objective audit remains pending. This evidence does not claim approval or additional production credit. Current earned credit remains `8 / 515`; up to `11` is eligible only after governed acceptance and merge.
 
 ## Review disposition and stop
 
 - Executor disposition: `READY_FOR_OBJECTIVE_AUDIT`.
-- PR: [#44](https://github.com/KayzenRoot/goodz-menu/pull/44), draft against `main`.
-- Required next action: objective audit of the exact PR head. No merge has been performed.
+- PR: [#44](https://github.com/KayzenRoot/goodz-menu/pull/44), open draft against `main`; not merged.
+- Required next action: objective audit of PR `#44`.
+- Exact final closeout head and repeated complete L5 results are recorded in the PR description.
 - Stop condition: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`.
 
 ## Current official references consulted
@@ -122,16 +138,4 @@ The exact closeout-head L5 rerun is also recorded in the current PR description 
 - [Supabase local database migrations](https://supabase.com/docs/guides/deployment/database-migrations)
 - [Supabase local database testing and linting](https://supabase.com/docs/guides/local-development/cli/testing-and-linting)
 - [Supabase pgTAP testing](https://supabase.com/docs/guides/database/extensions/pgtap)
-- [PostgreSQL 15.19 / 17.11 changelog](https://supabase.com/changelog/postgres-15-19-17-11-breaking-changes)
-
-
-## Supersession
-The prior objective-audit evidence is stale because CD-001 changed:
-- migration SQL;
-- pgTAP test SQL;
-- Sonar duplication scope configuration.
-
-A complete exact-head L5 rerun is required before objective approval.
-
-Superseded reason:
-`GMZ_IMPL_002_CD_001_EXACT_HEAD_L5_REQUIRED`
+- [SonarQube Cloud duplication exclusions](https://docs.sonarsource.com/sonarqube-cloud/managing-your-projects/project-analysis/setting-analysis-scope/exclude-from-coverage-duplication)
