@@ -3,6 +3,7 @@ import { spawn } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { assertPasswordGrantIdentity } from "./password-grant-identity.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const supabaseCli = resolve(repositoryRoot, "node_modules/supabase/dist/supabase.js");
@@ -116,6 +117,8 @@ async function createAuthenticatedUser(api, label, data = {}) {
   if (!tokenResponse.ok || !tokenBody.access_token) {
     throw new Error(`Local synthetic Auth password-token flow failed with HTTP ${tokenResponse.status}.`);
   }
+  assertPasswordGrantIdentity(tokenBody, identity);
+  record("password-grant token subject matches signup identity");
 
   return { id: identity.id, accessToken: tokenBody.access_token };
 }
