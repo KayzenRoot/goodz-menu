@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_001_CD_005_EXACT_HEAD_L5_PENDING`
+Status: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,7 +27,7 @@ Status: `GMZ_IMPL_001_CD_005_EXACT_HEAD_L5_PENDING`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-001` — CORRECTION_REQUIRED / CD-005
+- Work Order: `GMZ-IMPL-001` — READY_FOR_OBJECTIVE_AUDIT / CD-005 L5 PASS
 - Issue: `#36`
 - Branch: `implementation/gmz-impl-001-runtime-foundation`
 - Base: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
@@ -384,9 +384,12 @@ STOP CONDITION: `GMZ_IMPL_001_OBJECTIVE_AUDIT_APPROVED_PROMOTION_PENDING`.
 - regression test: `ADDED`
 - runtime files changed after prior L5: `YES`
 - prior objective approval: `SUPERSEDED`
-- exact-head L5 after CD-005: `PENDING`
+- complete GEF 1.1.1 preflight: `PASS`; locked source fingerprints: `14 / 14 MATCH`
+- legal execution base: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585` unchanged; `.gef`: `UNCHANGED`
+- exact-head L5 after CD-005: `PASS` at corrected runtime candidate `ae8696200876495c5acb1a662a8893e8d6b842d4`
+- final checkpoint/evidence closeout head: complete L5 repeated; exact SHA and results are recorded in PR `#38`
 - production credit: `0 / 515`
-- next action: `RERUN COMPLETE PREFLIGHT + L5`
-- disposition: `CORRECTION_REQUIRED`
+- next action: `OBJECTIVE_AUDIT_GMZ_IMPL_001`
+- disposition: `READY_FOR_OBJECTIVE_AUDIT`
 
-STOP CONDITION: `GMZ_IMPL_001_CD_005_EXACT_HEAD_L5_REQUIRED`.
+STOP CONDITION: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`.

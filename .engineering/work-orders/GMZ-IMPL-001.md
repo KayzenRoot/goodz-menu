@@ -1,6 +1,6 @@
 # GMZ-IMPL-001 — Executable Local Runtime Foundation
 
-Status: `CORRECTION_REQUIRED / GMZ-IMPL-001-CD-005`  
+Status: `READY_FOR_OBJECTIVE_AUDIT / GMZ-IMPL-001-CD-005 L5 PASS`
 Issue: `#36`  
 Assurance: `ELEVATED`  
 Base branch: `main`  
@@ -418,5 +418,7 @@ Stop only when implementation is committed/pushed, PR is open against `main`, fi
 - regression test: delayed older health/readiness request vs newer refresh
 - scope expansion: `NO`
 - production credit: `0 / 515`
-- required next: `complete exact-head L5 rerun`
-- disposition: `CORRECTION_REQUIRED`
+- exact-head L5 at corrected runtime candidate `ae8696200876495c5acb1a662a8893e8d6b842d4`: `PASS`
+- stale-refresh race E2E: `PASS` on desktop and mobile
+- post-closeout full exact-head L5: repeated on final evidence/checkpoint commit; exact SHA and results recorded in PR `#38`
+- disposition: `CORRECTION_VALIDATED / READY_FOR_OBJECTIVE_AUDIT`

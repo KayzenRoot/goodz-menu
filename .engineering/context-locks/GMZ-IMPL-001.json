@@ -23,7 +23,7 @@
   "lockedSources": [
     {
       "path": ".engineering/CHECKPOINT.json",
-      "gitBlobSha": "089e640ebf5a01885ebcdaf6f2dec278aa345d4f"
+      "gitBlobSha": "731d0edda91d1cb124e591c20629c37f18a400d4"
     },
     {
       "path": ".engineering/SOURCE-HIERARCHY.md",
@@ -175,13 +175,15 @@
       "id": "GMZ-IMPL-001-CD-005",
       "reason": "Final objective review found an overlapping status-refresh race. Runtime correction and regression coverage require a new exact-head L5 before promotion.",
       "oldCheckpointGitBlobSha": "f1e6bcfda8dd6a95f6ce99a59d744635beb43236",
-      "newCheckpointGitBlobSha": "089e640ebf5a01885ebcdaf6f2dec278aa345d4f",
+      "newCheckpointGitBlobSha": "731d0edda91d1cb124e591c20629c37f18a400d4",
       "semanticScopeChange": false,
       "executionBaseChanged": false,
       "executionBaseSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
       "runtimeCodeTouched": true,
       "validationRequiredOnNewHead": true,
-      "disposition": "CORRECTION_APPLIED_EXACT_HEAD_L5_PENDING"
+      "validatedHead": "ae8696200876495c5acb1a662a8893e8d6b842d4",
+      "exactHeadL5Result": "PASS",
+      "disposition": "CORRECTION_VALIDATED_EXACT_HEAD_L5_PASS"
     }
   ]
 }
