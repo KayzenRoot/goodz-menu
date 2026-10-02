@@ -5,9 +5,10 @@ Denominator: `515`
 
 This ledger records evidence-backed production credit after successful governed merge and promotion.
 
-| Increment | Merge SHA | M25 | M04 | M26 | M23 | Earned | Cumulative | Completion |
-|---|---|---:|---:|---:|---:|---:|---:|---:|
-| GMZ-IMPL-001 | `04fa311e1839c7070b829438e90ddd670f9dbef1` | 4 | 1 | 2 | 1 | 8 | 8 / 515 | 1.55% |
+| Increment | Merge SHA | M01 | M25 | M04 | M26 | M23 | Earned | Cumulative | Completion |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| GMZ-IMPL-001 | `04fa311e1839c7070b829438e90ddd670f9dbef1` | 0 | 4 | 1 | 2 | 1 | 8 | 8 / 515 | 1.55% |
+| GMZ-IMPL-002 | `8481193e367a68fc02213d61446f0faed9306e13` | 10 | 0 | 0 | 1 | 0 | 11 | 19 / 515 | 3.69% |
 
 ## Rules
 - no credit before merge;
