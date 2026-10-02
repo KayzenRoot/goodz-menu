@@ -127,19 +127,23 @@ SELECT ok(
 SELECT ok((SELECT relrowsecurity FROM pg_class WHERE oid = 'public.organizations'::regclass), 'organizations have RLS enabled');
 SELECT ok((SELECT relrowsecurity FROM pg_class WHERE oid = 'public.establishments'::regclass), 'establishments have RLS enabled');
 SELECT ok((SELECT relrowsecurity FROM pg_class WHERE oid = 'public.branches'::regclass), 'branches have RLS enabled');
-SELECT ok(NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'organizations'), 'organizations have no tenant policy before GMZ-M02');
-SELECT ok(NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'establishments'), 'establishments have no tenant policy before GMZ-M02');
-SELECT ok(NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'branches'), 'branches have no tenant policy before GMZ-M02');
+SELECT ok(EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'organizations' AND cmd = 'SELECT' AND roles = ARRAY['authenticated']::name[]), 'organizations use the admitted authenticated membership-aware SELECT policy');
+SELECT ok(EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'establishments' AND cmd = 'SELECT' AND roles = ARRAY['authenticated']::name[]), 'establishments use the admitted authenticated membership-aware SELECT policy');
+SELECT ok(EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'branches' AND cmd = 'SELECT' AND roles = ARRAY['authenticated']::name[]), 'branches use the admitted authenticated membership-aware SELECT policy');
 
 SELECT ok(
   bool_and(
-    NOT has_table_privilege(access.role_name, access.table_name, privilege.privilege_name)
-    AND (
-      privilege.privilege_name NOT IN ('SELECT', 'INSERT', 'UPDATE', 'REFERENCES')
-      OR NOT has_any_column_privilege(access.role_name, access.table_name, privilege.privilege_name)
-    )
+    CASE
+      WHEN access.role_name = 'authenticated' AND privilege.privilege_name = 'SELECT'
+        THEN has_table_privilege(access.role_name, access.table_name, privilege.privilege_name)
+      ELSE NOT has_table_privilege(access.role_name, access.table_name, privilege.privilege_name)
+        AND (
+          privilege.privilege_name NOT IN ('SELECT', 'INSERT', 'UPDATE', 'REFERENCES')
+          OR NOT has_any_column_privilege(access.role_name, access.table_name, privilege.privilege_name)
+        )
+    END
   ),
-  format('%s has no table or column privileges on %s', access.role_name, access.table_name)
+  format('%s has only the admitted table-level SELECT privilege on %s', access.role_name, access.table_name)
 )
 FROM (VALUES
   ('anon', 'public.organizations'),
