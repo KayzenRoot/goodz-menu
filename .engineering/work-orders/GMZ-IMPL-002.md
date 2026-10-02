@@ -1,6 +1,6 @@
 # GMZ-IMPL-002 — Tenant Hierarchy and Isolation Foundation
 
-Status: `READY_FOR_EXECUTOR`  
+Status: `CORRECTION_REQUIRED / GMZ-IMPL-002-CD-001`  
 Issue: `#42`  
 Assurance: `HIGH`  
 Base branch: `main`  
@@ -352,3 +352,19 @@ Stop only when implementation is committed/pushed, PR is open against main, exac
 - stable source fingerprints: `14 / 14 MATCH`
 - execution authority: `ACTIVE FOR GMZ-IMPL-002 ONLY`
 - self-merge authority: `NO`
+
+
+## GMZ-IMPL-002-CD-001 — Objective review correction
+- trigger 1: `SonarCloud Quality Gate FAILURE`
+- Sonar condition: `18.3% new-code duplication > 3%`
+- correction: generated `src/lib/supabase/database.types.ts` excluded only from CPD duplication scoring via `.sonarcloud.properties`
+- generated types remain in normal source/security analysis
+- trigger 2: branch tenant-parent lookup lacked an explicit referencing-side index
+- correction: `branches_organization_establishment_idx (organization_id, establishment_id)`
+- regression: pgTAP assertion added for exact index columns
+- semantic product scope change: `NO`
+- Auth/Membership/RBAC scope change: `NO`
+- execution base change: `NO`
+- production credit: `8 / 515`
+- exact-head L5 after correction: `REQUIRED`
+- disposition: `CORRECTION_REQUIRED`
