@@ -15,9 +15,9 @@ const fixture = {
   organizations: { a: randomUUID(), b: randomUUID() },
   establishments: { a1: randomUUID(), a2: randomUUID(), b1: randomUUID() },
   branches: { a11: randomUUID(), a12: randomUUID(), a21: randomUUID(), b11: randomUUID() },
-  roles: { organization: randomUUID(), branch: randomUUID(), empty: randomUUID(), foreign: randomUUID() },
+  roles: { organization: randomUUID(), establishment: randomUUID(), branch: randomUUID(), empty: randomUUID(), foreign: randomUUID() },
   memberships: {
-    organization: randomUUID(), branch: randomUUID(), empty: randomUUID(),
+    organization: randomUUID(), establishment: randomUUID(), branch: randomUUID(), empty: randomUUID(),
     suspended: randomUUID(), revoked: randomUUID(), foreign: randomUUID(),
   },
   membershipRoles: Array.from({ length: 7 }, () => randomUUID()),
@@ -158,17 +158,20 @@ INSERT INTO public.branches (id, organization_id, establishment_id, display_name
   ('${branch.b11}', '${org.b}', '${est.b1}', 'Synthetic branch B1-1');
 INSERT INTO public.tenant_roles (id, organization_id, role_key, display_name) VALUES
   ('${role.organization}', '${org.a}', 'gmz003-organization-reader', 'Synthetic organization reader'),
+  ('${role.establishment}', '${org.a}', 'gmz003-establishment-reader', 'Synthetic establishment reader'),
   ('${role.branch}', '${org.a}', 'gmz003-branch-reader', 'Synthetic branch reader'),
   ('${role.empty}', '${org.a}', 'gmz003-no-permission', 'Synthetic role without permission'),
   ('${role.foreign}', '${org.b}', 'gmz003-foreign-reader', 'Synthetic foreign reader');
 INSERT INTO public.role_permissions (organization_id, role_id, permission_key) VALUES
   ('${org.a}', '${role.organization}', '${permissionKey}'),
+  ('${org.a}', '${role.establishment}', '${permissionKey}'),
   ('${org.a}', '${role.branch}', '${permissionKey}'),
   ('${org.b}', '${role.foreign}', '${permissionKey}');
 INSERT INTO public.organization_memberships (
   id, organization_id, user_id, status, default_establishment_id, default_branch_id
 ) VALUES
   ('${membership.organization}', '${org.a}', '${user.organization}', 'active', NULL, NULL),
+  ('${membership.establishment}', '${org.a}', '${user.establishment}', 'active', '${est.a1}', NULL),
   ('${membership.branch}', '${org.a}', '${user.branch}', 'active', '${est.a1}', '${branch.a11}'),
   ('${membership.empty}', '${org.a}', '${user.noPermission}', 'active', NULL, NULL),
   ('${membership.suspended}', '${org.a}', '${user.suspended}', 'active', NULL, NULL),
@@ -178,6 +181,7 @@ INSERT INTO public.membership_roles (
   id, organization_id, membership_id, role_id, scope_type, establishment_id, branch_id
 ) VALUES
   ('${mr[0]}', '${org.a}', '${membership.organization}', '${role.organization}', 'organization', NULL, NULL),
+  ('${mr[6]}', '${org.a}', '${membership.establishment}', '${role.establishment}', 'establishment', '${est.a1}', NULL),
   ('${mr[1]}', '${org.a}', '${membership.branch}', '${role.branch}', 'branch', '${est.a1}', '${branch.a11}'),
   ('${mr[2]}', '${org.a}', '${membership.empty}', '${role.empty}', 'organization', NULL, NULL),
   ('${mr[3]}', '${org.a}', '${membership.suspended}', '${role.organization}', 'organization', NULL, NULL),
@@ -260,6 +264,7 @@ async function run() {
   const orgB = fixture.organizations.b;
 
   users.organization = await createAuthenticatedUser(api, "organization-reader");
+  users.establishment = await createAuthenticatedUser(api, "establishment-reader");
   users.branch = await createAuthenticatedUser(api, "branch-reader");
   users.noMembership = await createAuthenticatedUser(api, "no-membership", {
     organization_id: orgA,
@@ -290,6 +295,15 @@ async function run() {
   await expectDeniedRead(api, "branch role cannot enumerate sibling branches", "branches", { id: fixture.branches.a12 }, users.branch.accessToken);
   await expectDeniedRead(api, "branch role cannot read another establishment branch", "branches", { id: fixture.branches.a21 }, users.branch.accessToken);
   await expectDeniedRead(api, "branch role cannot substitute a foreign branch", "branches", { id: fixture.branches.b11 }, users.branch.accessToken);
+
+  await expectCount(api, "establishment role reads its parent organization context as allowed by the current policy", "organizations", { id: orgA }, users.establishment.accessToken, 1);
+  await expectDeniedRead(api, "establishment role cannot read a foreign parent organization", "organizations", { id: orgB }, users.establishment.accessToken);
+  await expectCount(api, "establishment role reads its assigned establishment", "establishments", { id: fixture.establishments.a1 }, users.establishment.accessToken, 1);
+  await expectCount(api, "establishment role reads every branch in its assigned establishment", "branches", { establishment_id: fixture.establishments.a1 }, users.establishment.accessToken, 2);
+  await expectDeniedRead(api, "establishment role cannot read a sibling establishment", "establishments", { id: fixture.establishments.a2 }, users.establishment.accessToken);
+  await expectDeniedRead(api, "establishment role cannot read a branch in a sibling establishment", "branches", { id: fixture.branches.a21 }, users.establishment.accessToken);
+  await expectDeniedRead(api, "establishment role cannot read an establishment in another tenant", "establishments", { id: fixture.establishments.b1 }, users.establishment.accessToken);
+  await expectDeniedRead(api, "establishment role cannot read a branch in another tenant", "branches", { id: fixture.branches.b11 }, users.establishment.accessToken);
 
   await expectCount(api, "suspension control starts authorized", "organizations", { id: orgA }, users.suspended.accessToken, 1);
   await setMembershipStatus(api, fixture.memberships.suspended, "suspended");

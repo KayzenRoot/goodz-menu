@@ -6,6 +6,7 @@ SET LOCAL search_path = extensions, public;
 CREATE TEMP TABLE gmz003_test_constants AS
 SELECT
   '20000000-0000-4000-8000-000000000001'::uuid AS c_user_org,
+  '20000000-0000-4000-8000-000000000008'::uuid AS c_user_establishment,
   '20000000-0000-4000-8000-000000000003'::uuid AS c_user_no_membership,
   '10000000-0000-4000-8000-000000000001'::uuid AS c_organization_a,
   '10000000-0000-4000-8000-000000000002'::uuid AS c_organization_b,
@@ -13,14 +14,17 @@ SELECT
   '10000000-0000-4000-8000-000000000004'::uuid AS c_establishment_a2,
   '10000000-0000-4000-8000-000000000005'::uuid AS c_establishment_b1,
   '10000000-0000-4000-8000-000000000006'::uuid AS c_branch_a11,
+  '10000000-0000-4000-8000-000000000008'::uuid AS c_branch_a21,
   '10000000-0000-4000-8000-000000000009'::uuid AS c_branch_b11,
   '30000000-0000-4000-8000-000000000001'::uuid AS c_role_org,
   '30000000-0000-4000-8000-000000000002'::uuid AS c_role_branch,
   '30000000-0000-4000-8000-000000000003'::uuid AS c_role_empty,
   '30000000-0000-4000-8000-000000000004'::uuid AS c_role_foreign,
+  '30000000-0000-4000-8000-000000000005'::uuid AS c_role_establishment,
   '40000000-0000-4000-8000-000000000001'::uuid AS c_membership_org,
   '40000000-0000-4000-8000-000000000002'::uuid AS c_membership_branch,
   '40000000-0000-4000-8000-000000000003'::uuid AS c_membership_empty,
+  '40000000-0000-4000-8000-000000000007'::uuid AS c_membership_establishment,
   '23503'::text AS c_fk_violation,
   '23514'::text AS c_check_violation,
   '42501'::text AS c_insufficient_privilege,
@@ -32,6 +36,7 @@ SELECT
   'SELECT'::text AS c_select_privilege,
   'UPDATE'::text AS c_update_privilege,
   'organization'::text AS c_organization_scope,
+  'establishment'::text AS c_establishment_scope,
   'organization_memberships'::text AS c_membership_table_name,
   'organizations'::text AS c_organizations_table_name,
   'establishments'::text AS c_establishments_table_name,
@@ -60,6 +65,7 @@ INSERT INTO auth.users (
 VALUES
   ((SELECT c_user_org FROM pg_temp.gmz003_test_constants), (SELECT c_authenticated_role FROM pg_temp.gmz003_test_constants), (SELECT c_authenticated_role FROM pg_temp.gmz003_test_constants), 'gmz003-org@example.invalid', now(), '{}', '{}', now(), now()),
   ('20000000-0000-4000-8000-000000000002', (SELECT c_authenticated_role FROM pg_temp.gmz003_test_constants), (SELECT c_authenticated_role FROM pg_temp.gmz003_test_constants), 'gmz003-branch@example.invalid', now(), '{}', '{}', now(), now()),
+  ((SELECT c_user_establishment FROM pg_temp.gmz003_test_constants), (SELECT c_authenticated_role FROM pg_temp.gmz003_test_constants), (SELECT c_authenticated_role FROM pg_temp.gmz003_test_constants), 'gmz003-establishment@example.invalid', now(), '{}', '{}', now(), now()),
   ((SELECT c_user_no_membership FROM pg_temp.gmz003_test_constants), (SELECT c_authenticated_role FROM pg_temp.gmz003_test_constants), (SELECT c_authenticated_role FROM pg_temp.gmz003_test_constants), 'gmz003-nomembership@example.invalid', now(), '{}', '{"organization_id":"10000000-0000-4000-8000-000000000001","role":"owner","permissions":["tenant.hierarchy.read"]}', now(), now()),
   ('20000000-0000-4000-8000-000000000004', (SELECT c_authenticated_role FROM pg_temp.gmz003_test_constants), (SELECT c_authenticated_role FROM pg_temp.gmz003_test_constants), 'gmz003-nopermission@example.invalid', now(), '{}', '{}', now(), now()),
   ('20000000-0000-4000-8000-000000000005', (SELECT c_authenticated_role FROM pg_temp.gmz003_test_constants), (SELECT c_authenticated_role FROM pg_temp.gmz003_test_constants), 'gmz003-suspended@example.invalid', now(), '{}', '{}', now(), now()),
@@ -266,6 +272,7 @@ INSERT INTO public.tenant_roles (id, organization_id, role_key, display_name)
 VALUES
   ((SELECT c_role_org FROM pg_temp.gmz003_test_constants), (SELECT c_organization_a FROM pg_temp.gmz003_test_constants), 'hierarchy-reader', 'Hierarchy Reader'),
   ((SELECT c_role_branch FROM pg_temp.gmz003_test_constants), (SELECT c_organization_a FROM pg_temp.gmz003_test_constants), 'branch-reader', 'Branch Reader'),
+  ((SELECT c_role_establishment FROM pg_temp.gmz003_test_constants), (SELECT c_organization_a FROM pg_temp.gmz003_test_constants), 'establishment-reader', 'Establishment Reader'),
   ((SELECT c_role_empty FROM pg_temp.gmz003_test_constants), (SELECT c_organization_a FROM pg_temp.gmz003_test_constants), 'empty-role', 'No Permission'),
   ((SELECT c_role_foreign FROM pg_temp.gmz003_test_constants), (SELECT c_organization_b FROM pg_temp.gmz003_test_constants), 'foreign-reader', 'Foreign Hierarchy Reader');
 
@@ -273,6 +280,7 @@ INSERT INTO public.role_permissions (organization_id, role_id, permission_key)
 VALUES
   ((SELECT c_organization_a FROM pg_temp.gmz003_test_constants), (SELECT c_role_org FROM pg_temp.gmz003_test_constants), (SELECT c_hierarchy_read_permission FROM pg_temp.gmz003_test_constants)),
   ((SELECT c_organization_a FROM pg_temp.gmz003_test_constants), (SELECT c_role_branch FROM pg_temp.gmz003_test_constants), (SELECT c_hierarchy_read_permission FROM pg_temp.gmz003_test_constants)),
+  ((SELECT c_organization_a FROM pg_temp.gmz003_test_constants), (SELECT c_role_establishment FROM pg_temp.gmz003_test_constants), (SELECT c_hierarchy_read_permission FROM pg_temp.gmz003_test_constants)),
   ((SELECT c_organization_b FROM pg_temp.gmz003_test_constants), (SELECT c_role_foreign FROM pg_temp.gmz003_test_constants), (SELECT c_hierarchy_read_permission FROM pg_temp.gmz003_test_constants));
 
 SELECT throws_ok(
@@ -293,6 +301,7 @@ INSERT INTO public.organization_memberships (
 VALUES
   ((SELECT c_membership_org FROM pg_temp.gmz003_test_constants), (SELECT c_organization_a FROM pg_temp.gmz003_test_constants), (SELECT c_user_org FROM pg_temp.gmz003_test_constants), (SELECT c_active_status FROM pg_temp.gmz003_test_constants), NULL, NULL, NULL),
   ((SELECT c_membership_branch FROM pg_temp.gmz003_test_constants), (SELECT c_organization_a FROM pg_temp.gmz003_test_constants), '20000000-0000-4000-8000-000000000002', (SELECT c_active_status FROM pg_temp.gmz003_test_constants), (SELECT c_establishment_a1 FROM pg_temp.gmz003_test_constants), (SELECT c_branch_a11 FROM pg_temp.gmz003_test_constants), NULL),
+  ((SELECT c_membership_establishment FROM pg_temp.gmz003_test_constants), (SELECT c_organization_a FROM pg_temp.gmz003_test_constants), (SELECT c_user_establishment FROM pg_temp.gmz003_test_constants), (SELECT c_active_status FROM pg_temp.gmz003_test_constants), (SELECT c_establishment_a1 FROM pg_temp.gmz003_test_constants), NULL, NULL),
   ((SELECT c_membership_empty FROM pg_temp.gmz003_test_constants), (SELECT c_organization_a FROM pg_temp.gmz003_test_constants), '20000000-0000-4000-8000-000000000004', (SELECT c_active_status FROM pg_temp.gmz003_test_constants), NULL, NULL, NULL),
   ('40000000-0000-4000-8000-000000000004', (SELECT c_organization_a FROM pg_temp.gmz003_test_constants), '20000000-0000-4000-8000-000000000005', 'suspended', NULL, NULL, NULL),
   ('40000000-0000-4000-8000-000000000005', (SELECT c_organization_a FROM pg_temp.gmz003_test_constants), '20000000-0000-4000-8000-000000000006', 'revoked', NULL, NULL, now()),
@@ -321,6 +330,7 @@ INSERT INTO public.membership_roles (id, organization_id, membership_id, role_id
 VALUES
   ('50000000-0000-4000-8000-000000000001', (SELECT c_organization_a FROM pg_temp.gmz003_test_constants), (SELECT c_membership_org FROM pg_temp.gmz003_test_constants), (SELECT c_role_org FROM pg_temp.gmz003_test_constants), (SELECT c_organization_scope FROM pg_temp.gmz003_test_constants), NULL, NULL),
   ('50000000-0000-4000-8000-000000000002', (SELECT c_organization_a FROM pg_temp.gmz003_test_constants), (SELECT c_membership_branch FROM pg_temp.gmz003_test_constants), (SELECT c_role_branch FROM pg_temp.gmz003_test_constants), 'branch', (SELECT c_establishment_a1 FROM pg_temp.gmz003_test_constants), (SELECT c_branch_a11 FROM pg_temp.gmz003_test_constants)),
+  ('50000000-0000-4000-8000-000000000008', (SELECT c_organization_a FROM pg_temp.gmz003_test_constants), (SELECT c_membership_establishment FROM pg_temp.gmz003_test_constants), (SELECT c_role_establishment FROM pg_temp.gmz003_test_constants), (SELECT c_establishment_scope FROM pg_temp.gmz003_test_constants), (SELECT c_establishment_a1 FROM pg_temp.gmz003_test_constants), NULL),
   ('50000000-0000-4000-8000-000000000003', (SELECT c_organization_a FROM pg_temp.gmz003_test_constants), (SELECT c_membership_branch FROM pg_temp.gmz003_test_constants), (SELECT c_role_empty FROM pg_temp.gmz003_test_constants), (SELECT c_organization_scope FROM pg_temp.gmz003_test_constants), NULL, NULL),
   ('50000000-0000-4000-8000-000000000004', (SELECT c_organization_a FROM pg_temp.gmz003_test_constants), (SELECT c_membership_empty FROM pg_temp.gmz003_test_constants), (SELECT c_role_empty FROM pg_temp.gmz003_test_constants), (SELECT c_organization_scope FROM pg_temp.gmz003_test_constants), NULL, NULL),
   ('50000000-0000-4000-8000-000000000005', (SELECT c_organization_a FROM pg_temp.gmz003_test_constants), '40000000-0000-4000-8000-000000000004', (SELECT c_role_org FROM pg_temp.gmz003_test_constants), (SELECT c_organization_scope FROM pg_temp.gmz003_test_constants), NULL, NULL),
@@ -396,6 +406,23 @@ SELECT is((SELECT count(*)::integer FROM public.branches WHERE id = (SELECT c_br
 SELECT is((SELECT count(*)::integer FROM public.branches WHERE id = '10000000-0000-4000-8000-000000000007'), 0, 'branch-scoped role cannot read a sibling branch');
 SELECT is((SELECT count(*)::integer FROM public.branches WHERE id = '10000000-0000-4000-8000-000000000008'), 0, 'branch-scoped role cannot read a branch in another establishment');
 SELECT is((SELECT count(*)::integer FROM public.branches WHERE id = (SELECT c_branch_b11 FROM pg_temp.gmz003_test_constants)), 0, 'branch-scoped role cannot read a foreign tenant branch');
+
+SELECT set_config(
+  (SELECT c_jwt_claims_setting FROM pg_temp.gmz003_test_constants),
+  jsonb_build_object(
+    'sub', (SELECT c_user_establishment FROM pg_temp.gmz003_test_constants)::text,
+    'role', (SELECT c_authenticated_role FROM pg_temp.gmz003_test_constants)
+  )::text,
+  true
+);
+SELECT is((SELECT count(*)::integer FROM public.organizations WHERE id = (SELECT c_organization_a FROM pg_temp.gmz003_test_constants)), 1, 'establishment-scoped role reads the parent organization context allowed by the current policy');
+SELECT is((SELECT count(*)::integer FROM public.organizations WHERE id = (SELECT c_organization_b FROM pg_temp.gmz003_test_constants)), 0, 'establishment-scoped role cannot read a foreign parent organization');
+SELECT is((SELECT count(*)::integer FROM public.establishments WHERE id = (SELECT c_establishment_a1 FROM pg_temp.gmz003_test_constants)), 1, 'establishment-scoped role reads its assigned establishment');
+SELECT is((SELECT count(*)::integer FROM public.branches WHERE establishment_id = (SELECT c_establishment_a1 FROM pg_temp.gmz003_test_constants)), 2, 'establishment-scoped role reads every branch in its assigned establishment');
+SELECT is((SELECT count(*)::integer FROM public.establishments WHERE id = (SELECT c_establishment_a2 FROM pg_temp.gmz003_test_constants)), 0, 'establishment-scoped role cannot read a sibling establishment');
+SELECT is((SELECT count(*)::integer FROM public.branches WHERE id = (SELECT c_branch_a21 FROM pg_temp.gmz003_test_constants)), 0, 'establishment-scoped role cannot read a branch in a sibling establishment');
+SELECT is((SELECT count(*)::integer FROM public.establishments WHERE id = (SELECT c_establishment_b1 FROM pg_temp.gmz003_test_constants)), 0, 'establishment-scoped role cannot read an establishment in another tenant');
+SELECT is((SELECT count(*)::integer FROM public.branches WHERE id = (SELECT c_branch_b11 FROM pg_temp.gmz003_test_constants)), 0, 'establishment-scoped role cannot read a branch in another tenant');
 
 SELECT set_config((SELECT c_jwt_claims_setting FROM pg_temp.gmz003_test_constants), '{"sub":"20000000-0000-4000-8000-000000000004","role":"authenticated"}', true);
 SELECT is((SELECT count(*)::integer FROM public.organizations WHERE id = (SELECT c_organization_a FROM pg_temp.gmz003_test_constants)), 0, 'active membership and assigned role without permission remain denied');
