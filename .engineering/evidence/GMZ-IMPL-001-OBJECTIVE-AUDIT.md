@@ -1,6 +1,6 @@
 # GMZ-IMPL-001 — Objective Audit Evidence
 
-Status: `APPROVED_FOR_PROMOTION`
+Status: `SUPERSEDED_BY_GMZ-IMPL-001-CD-005`
 
 ## Binding
 - Work Order: `GMZ-IMPL-001`
@@ -76,8 +76,13 @@ Upon successful merge only:
 
 Credit before merge remains `0 / 515`.
 
+## Supersession
+This audit was valid for runtime/test head `b231ecd0a8fb62c8c6330671a38133f4df12dc37`.
+
+A later CodeRabbit review identified one additional LOW functional-correctness finding in the status refresh loop. Runtime code changed under `GMZ-IMPL-001-CD-005`, therefore this approval is no longer the active merge authority.
+
 ## Disposition
-`APPROVED_FOR_PROMOTION`
+`SUPERSEDED_BY_GMZ-IMPL-001-CD-005`
 
 CRITICAL/HIGH: `0 / 0`
 
