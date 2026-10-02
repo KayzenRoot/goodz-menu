@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_001_OBJECTIVE_AUDIT_APPROVED_PROMOTION_PENDING`
+Status: `GMZ_IMPL_001_PROMOTED_COMPLETE_READY_FOR_NEXT`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,14 +27,14 @@ Status: `GMZ_IMPL_001_OBJECTIVE_AUDIT_APPROVED_PROMOTION_PENDING`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-001` — OBJECTIVE_AUDIT_APPROVED / PROMOTION_PENDING
-- Issue: `#36`
-- Branch: `implementation/gmz-impl-001-runtime-foundation`
+- Work Order: `NONE`
+- Issue: `NONE`
+- Branch: `main after promotion sync`
 - Base: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
-- Mode: implementation objective audit
+- Mode: no active implementation Work Order
 
 ## Progress accounting
-Overall production completion: `0 / 515 = 0.00%`.
+Overall production completion: `8 / 515 = 1.55%`.
 
 Planning artifacts do not manufacture product-completion percentage.
 
@@ -48,9 +48,9 @@ GMZ-SRC-001 is preserved byte-exact in repository truth:
 The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
-Complete the objective audit of PR #38 on its exact final head. If corrections are required, keep them inside GMZ-IMPL-001, rerun the exact-head validation ladder, and do not award production credit before governed promotion.
+Admit the next implementation Work Order from the frozen backlog. No implementation is authorized until a new Work Order and Context Lock are admitted.
 
-STOP CONDITION: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`.
+STOP CONDITION: `GMZ_IMPL_001_PROMOTED_COMPLETE`.
 
 
 
@@ -413,3 +413,19 @@ STOP CONDITION: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`.
 - next: `MERGE PR #38`
 
 STOP CONDITION: `GMZ_IMPL_001_OBJECTIVE_AUDIT_APPROVED_PROMOTION_PENDING`.
+
+
+## GMZ-IMPL-001 post-merge promotion
+- implementation PR: `#38`
+- merge SHA: `04fa311e1839c7070b829438e90ddd670f9dbef1`
+- objective audit: `APPROVED`
+- production credit: `8 / 515 = 1.55%`
+- M25: `4`
+- M04: `1`
+- M26: `2`
+- M23: `1`
+- Issue #39: `OPEN / residual LOW hardening`
+- active implementation authorization: `NO`
+- next: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
+
+STOP CONDITION: `GMZ_IMPL_001_PROMOTED_COMPLETE`.
