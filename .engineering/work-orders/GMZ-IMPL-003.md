@@ -1,6 +1,6 @@
 # GMZ-IMPL-003 — Membership & Tenant Authorization Foundation
 
-Status: `READY_FOR_OBJECTIVE_AUDIT`
+Status: `PROMOTED / COMPLETE`
 Issue: `#47`
 Assurance: `HIGH_ASSURANCE`
 Base branch: `main`
@@ -400,3 +400,22 @@ STOP CONDITION:
 - CodeRabbit local at implementation candidate `63a6d37` also identified a stale latest-candidate reference, corrected in this documentation-only closeout. Its separate minor request to broaden the pre-existing pgTAP policy-role assertion is outside CD-003 and is deferred without modifying that matrix.
 - PR `#49` remains OPEN/DRAFT against `main`; merge was not performed; objective audit remains pending.
 - Correction completion token: `GMZ_IMPL_003_CD_003_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## POST-MERGE PROMOTION
+
+- implementation PR: `#49`
+- exact accepted candidate: `daecb0497d70ff43f4f71d7eaa960f45e8734e1f`
+- merge SHA: `b74be258fa6bff47c7f2ec69db79289a601a2151`
+- objective audit: `APPROVED_FOR_PROMOTION`
+- incremental production credit awarded: `12 / 515`
+- credit allocation:
+  - GMZ-M02: `10`
+  - GMZ-M26: `2`
+- cumulative production credit: `31 / 515 = 6.02%`
+- implementation authorization: `NO`
+- state: `PROMOTED_COMPLETE`
+- next: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
+
+STOP CONDITION:
+`GMZ_IMPL_003_PROMOTED_COMPLETE`
