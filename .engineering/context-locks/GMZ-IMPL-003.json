@@ -147,7 +147,7 @@
     "remote Supabase",
     "production infrastructure"
   ],
-  "stopCondition": "GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT",
+  "stopCondition": "GMZ_IMPL_003_PROMOTED_COMPLETE",
   "admissionAudit": {
     "auditedHead": "5cfdcfbd6811b2cda2d3caa4d141a5b3018ae710",
     "admissionPr": 48,
@@ -160,5 +160,15 @@
     "high": 0,
     "runtimeOrSchemaCodeIntroduced": false,
     "disposition": "APPROVED_FOR_ADMISSION_PROMOTION"
+  },
+  "finalPromotion": {
+    "implementationPr": 49,
+    "acceptedCandidate": "daecb0497d70ff43f4f71d7eaa960f45e8734e1f",
+    "mergeSha": "b74be258fa6bff47c7f2ec69db79289a601a2151",
+    "productionEarned": 31,
+    "incrementalCredit": 12,
+    "denominator": 515,
+    "completionPercent": 6.02,
+    "state": "PROMOTED_COMPLETE"
   }
 }
