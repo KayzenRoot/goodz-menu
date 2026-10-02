@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`
+Status: `GMZ_IMPL_001_OBJECTIVE_AUDIT_APPROVED_PROMOTION_PENDING`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,7 +27,7 @@ Status: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-001` — READY_FOR_OBJECTIVE_AUDIT / CD-005 L5 PASS
+- Work Order: `GMZ-IMPL-001` — OBJECTIVE_AUDIT_APPROVED / PROMOTION_PENDING
 - Issue: `#36`
 - Branch: `implementation/gmz-impl-001-runtime-foundation`
 - Base: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
@@ -393,3 +393,23 @@ STOP CONDITION: `GMZ_IMPL_001_OBJECTIVE_AUDIT_APPROVED_PROMOTION_PENDING`.
 - disposition: `READY_FOR_OBJECTIVE_AUDIT`
 
 STOP CONDITION: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-001 final objective audit after CD-005
+- exact accepted candidate: `a3df631b4ca8d0798fcdbe60434c5f0b954b1f32`
+- complete L5: `PASS`
+- locked source fingerprints: `14 / 14 MATCH`
+- unit: `6 / 6 PASS`
+- E2E: `8 / 8 PASS`
+- Docker/Supabase: `PASS`
+- accessibility: `0 violations`
+- Socket Security: `SUCCESS`
+- unresolved review threads: `0`
+- CRITICAL/HIGH: `0 / 0`
+- residual LOW hardening: `Issue #39`
+- production credit before merge: `0 / 515`
+- eligible after merge: `8 / 515`
+- disposition: `APPROVED_FOR_PROMOTION`
+- next: `MERGE PR #38`
+
+STOP CONDITION: `GMZ_IMPL_001_OBJECTIVE_AUDIT_APPROVED_PROMOTION_PENDING`.
