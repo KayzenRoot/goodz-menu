@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "project": "Goodz Menu",
   "repository": "KayzenRoot/goodz-menu",
-  "status": "GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT",
+  "status": "GMZ_IMPL_002_PROMOTED_COMPLETE_READY_FOR_NEXT",
   "gefVersion": "1.1.1",
   "ideation": "CLOSED",
   "sourcePack": "FROZEN_V0_1",
@@ -12,24 +12,24 @@
   "security": "APPROVED_V0_1",
   "testBenchmarkPlan": "APPROVED_V0_1",
   "definitionOfDone": "APPROVED_V0_1",
-  "implementationAuthorized": true,
-  "overallCompletionPercent": 1.55,
+  "implementationAuthorized": false,
+  "overallCompletionPercent": 3.69,
   "overallCompletionState": "EVIDENCE_BACKED_PRODUCTION_CREDIT",
-  "activeWorkOrder": "GMZ-IMPL-002",
-  "activeIssue": 42,
-  "activeBranch": "implementation/gmz-impl-002-tenant-core",
-  "baseSha": "4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9",
-  "nextAction": "OBJECTIVE_AUDIT_GMZ_IMPL_002",
-  "stopCondition": "GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT",
+  "activeWorkOrder": "NONE",
+  "activeIssue": null,
+  "activeBranch": null,
+  "baseSha": "8481193e367a68fc02213d61446f0faed9306e13",
+  "nextAction": "ADMIT_NEXT_IMPLEMENTATION_WORK_ORDER",
+  "stopCondition": "GMZ_IMPL_002_PROMOTED_COMPLETE",
   "lastAudit": {
-    "workOrder": "GMZ-IMPL-001",
+    "workOrder": "GMZ-IMPL-002",
     "critical": 0,
     "high": 0,
     "disposition": "APPROVED_AND_PROMOTED",
     "independent": false,
-    "auditedHead": "a3df631b4ca8d0798fcdbe60434c5f0b954b1f32",
-    "finalMergeCandidate": "d4af7a5cf9d18000e6b1231f2bad6707f9c877e9",
-    "mergeSha": "04fa311e1839c7070b829438e90ddd670f9dbef1"
+    "auditedHead": "cbb6d5d913f4522c2e82051c56b108880e586ffb",
+    "finalMergeCandidate": "cbb6d5d913f4522c2e82051c56b108880e586ffb",
+    "mergeSha": "8481193e367a68fc02213d61446f0faed9306e13"
   },
   "currentOutputs": {
     "projectOverview": "APPROVED_V0_1",
@@ -51,7 +51,7 @@
     "definitionOfDone": "APPROVED_V0_1",
     "innovationLedger": "APPROVED_V0_1",
     "productionDenominator": 515,
-    "productionEarned": 8
+    "productionEarned": 19
   },
   "sourceSeedArchive": {
     "id": "GMZ-SRC-001",
@@ -79,10 +79,10 @@
   "backlogBaseline": "APPROVED_V0_1",
   "innovationLedger": "APPROVED_V0_1",
   "productionDenominator": 515,
-  "productionEarned": 8,
+  "productionEarned": 19,
   "activeImplementation": {
     "workOrder": "GMZ-IMPL-002",
-    "state": "READY_FOR_OBJECTIVE_AUDIT",
+    "state": "PROMOTED_COMPLETE",
     "assurance": "HIGH",
     "executionBaseSha": "4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9",
     "executionBaseState": "BOUND_FOR_EXECUTION",
@@ -91,7 +91,7 @@
       "GMZ-M01": 10,
       "GMZ-M26": 1
     },
-    "currentEarnedCredit": 8,
+    "currentEarnedCredit": 19,
     "businessDomainImplementationAuthorized": false,
     "authMembershipRbacAuthorized": false,
     "migrationWorkflow": "IMPERATIVE_MIGRATION_FIRST",
@@ -105,7 +105,7 @@
       "runtimeOrSchemaCodeIntroduced": false,
       "disposition": "APPROVED_FOR_ADMISSION_PROMOTION"
     },
-    "implementationAuthorized": true,
+    "implementationAuthorized": false,
     "admissionMergeSha": "4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9",
     "cd001": {
       "sonarQualityGateBefore": "FAIL",
@@ -114,7 +114,7 @@
       "branchTenantParentIndexAdded": true,
       "pgtapIndexRegressionAdded": true,
       "sonarQualityGateAfter": "PASS",
-      "sonarNewCodeDuplicationPercentAfter": 0.0,
+      "sonarNewCodeDuplicationPercentAfter": 0,
       "sonarNewDuplicatedLinesAfter": 0,
       "validatedCodeCandidate": "3fa2f915d6c74e7bb5eecc8b7e31e2a1c6640a1c",
       "pgTapAssertions": 57,
@@ -139,7 +139,10 @@
         "UPDATE",
         "REFERENCES"
       ],
-      "rolesCovered": ["anon", "authenticated"],
+      "rolesCovered": [
+        "anon",
+        "authenticated"
+      ],
       "tenantTablesCovered": [
         "public.organizations",
         "public.establishments",
@@ -184,6 +187,27 @@
       "high": 0,
       "disposition": "READY_FOR_OBJECTIVE_AUDIT",
       "stopCondition": "GMZ_IMPL_002_CD_003_READY_FOR_OBJECTIVE_AUDIT"
-    }
+    },
+    "pullRequest": {
+      "number": 44,
+      "url": "https://github.com/KayzenRoot/goodz-menu/pull/44",
+      "base": "main",
+      "state": "MERGED",
+      "mergePerformed": true,
+      "mergeSha": "8481193e367a68fc02213d61446f0faed9306e13"
+    },
+    "objectiveAudit": {
+      "validatedHead": "cbb6d5d913f4522c2e82051c56b108880e586ffb",
+      "exactHeadL5": "PASS",
+      "codeRabbit": "SUCCESS_NO_ACTIONABLE_COMMENTS",
+      "sonarCloud": "PASS",
+      "socketSecurity": "PASS",
+      "unresolvedReviewThreads": 0,
+      "critical": 0,
+      "high": 0,
+      "disposition": "APPROVED_FOR_PROMOTION"
+    },
+    "completed": true,
+    "mergeSha": "8481193e367a68fc02213d61446f0faed9306e13"
   }
 }

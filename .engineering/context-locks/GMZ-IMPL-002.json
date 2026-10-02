@@ -30,7 +30,7 @@
     },
     {
       "path": "docs/source-pack/BACKLOG.md",
-      "gitBlobSha": "00c70f6bcd8a739598dc0f5e199ce1621da4ee37"
+      "gitBlobSha": "eb3c4a496b9f3a06106368e26ad3d19e77519caa"
     },
     {
       "path": "docs/source-pack/REQUIREMENTS.md",
@@ -74,14 +74,14 @@
     },
     {
       "path": ".engineering/PROGRESS-LEDGER.md",
-      "gitBlobSha": "c59cbf5f1740b35f3d4744b585172d5608751a9a"
+      "gitBlobSha": "05b34d50775916e08018f3a2cb562ba3b1abea00"
     }
   ],
   "governanceSnapshot": {
     "checkpointPath": ".engineering/CHECKPOINT.json",
-    "checkpointGitBlobSha": "ec73b9fddcad3deeada3a8c268f7510091d1000d",
-    "status": "GMZ_IMPL_002_CD_001_EXACT_HEAD_L5_PENDING",
-    "note": "Mutable governance snapshot; stable lockedSources remain unchanged."
+    "checkpointGitBlobSha": "f6878534ae218b2bda05d225136016b5da443f3c",
+    "status": "GMZ_IMPL_002_PROMOTED_COMPLETE_READY_FOR_NEXT",
+    "note": "Final post-merge promotion snapshot; stable source semantics unchanged and dynamic accounting fingerprints rebound."
   },
   "implementationContract": {
     "hierarchy": [
@@ -112,8 +112,8 @@
     "Executor does not merge its own PR"
   ],
   "executor": "GEF heavy executor / Codex",
-  "codexAllowed": true,
-  "codexAuthorizedScope": "Only GMZ-IMPL-002 after executionBaseSha is bound and branch descends from it.",
+  "codexAllowed": false,
+  "codexAuthorizedScope": "CLOSED — GMZ-IMPL-002 promoted complete.",
   "codexProhibited": [
     "main direct mutation",
     "merge",
@@ -124,7 +124,7 @@
     "production infrastructure",
     "business-domain expansion"
   ],
-  "stopCondition": "GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT",
+  "stopCondition": "GMZ_IMPL_002_PROMOTED_COMPLETE",
   "admissionAudit": {
     "auditedHead": "6f63b2efee74c114316e4b03fd61f822e4716f56",
     "stableSourceFingerprints": "14/14 MATCH",
@@ -167,6 +167,17 @@
       "remoteSupabaseUsed": false,
       "validationRequiredOnNewHead": true,
       "disposition": "CORRECTION_APPLIED_EXACT_HEAD_L5_PENDING"
+    },
+    {
+      "id": "GMZ-IMPL-002-PROMOTION-SYNC",
+      "reason": "Post-merge promotion synchronizes earned credit and closes the implementation Work Order; dynamic checkpoint/backlog/progress fingerprints rebound for archived final state.",
+      "checkpointGitBlobSha": "f6878534ae218b2bda05d225136016b5da443f3c",
+      "backlogGitBlobSha": "eb3c4a496b9f3a06106368e26ad3d19e77519caa",
+      "progressLedgerGitBlobSha": "05b34d50775916e08018f3a2cb562ba3b1abea00",
+      "semanticScopeChange": false,
+      "denominatorChanged": false,
+      "runtimeCodeTouched": false,
+      "disposition": "POST_MERGE_PROMOTION_SYNC"
     }
   ],
   "writeScopeCorrections": [
@@ -175,5 +186,14 @@
       "addedPath": ".sonarcloud.properties",
       "reason": "Narrow quality-tool configuration required to remove generated Supabase types from duplication scoring only."
     }
-  ]
+  ],
+  "finalPromotion": {
+    "implementationPr": 44,
+    "mergeSha": "8481193e367a68fc02213d61446f0faed9306e13",
+    "productionEarned": 19,
+    "incrementalCredit": 11,
+    "denominator": 515,
+    "completionPercent": 3.69,
+    "state": "PROMOTED_COMPLETE"
+  }
 }
