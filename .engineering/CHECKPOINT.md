@@ -54,16 +54,17 @@ STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
 
 
 ## GMZ-IMPL-003 executor closeout
-- implementation code candidate: `b3c18f9dde2b85ddd425c8794f798be2ee6e9487`
+- latest implementation code candidate: `8f71f571c7fc08746e5b0fcae5b8e6f620d8c0bf`
 - execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`
 - implementation PR: `#49` — https://github.com/KayzenRoot/goodz-menu/pull/49; draft, base `main`, not merged
-- GEF 1.1.1 preflight: `PASS`; stable source fingerprints: `16 / 16 MATCH`
-- Context Lock at execution: `BOUND_FOR_EXECUTION`; governance snapshot at entry: `MATCH`; `.gef`: `UNCHANGED`
-- implementation candidate L5: `PASS`; pgTAP `120 / 120`; local Auth/Data API `34 / 34`; unit `8 / 8`; E2E `8 / 8`
-- lint, typecheck, build, generated-type equivalence, DB lint/security advisor, dependency and secret checks: `PASS`
-- Docker build/up/health/readiness, local Auth/Postgres/Supabase, runtime logs: `PASS`
-- SonarCloud: `PASS`; Socket Project Report and Pull Request Alerts: `PASS`; CodeRabbit CLI: `0 issues`
-- executor exact-head L5 is repeated after this evidence/checkpoint closeout; its exact HEAD and repeated results are in the PR description
+- GEF 1.1.1 preflight and exact-state revalidation: `PASS`; stable source fingerprints `16 / 16 MATCH`; Context Lock `BOUND_FOR_EXECUTION`; entry governance snapshot `MATCH`; `.gef` `UNCHANGED`
+- Sonar objective-review correction: `COMPLETE`; after 48 SQL maintainability HIGH findings were fixed, the current issue API reports `0` open issues and `0` CRITICAL/HIGH
+- exact-head code-candidate L5 at `d3054b2`: `PASS`; pgTAP `117 / 117`; local Auth/Data API `34 / 34`; unit `8 / 8`; E2E `8 / 8`
+- final code-only pgTAP refinement at `8f71f57`: `PASS`; pgTAP remains `117 / 117`; per-table authenticated SELECT policy count is asserted
+- lint, typecheck, production build, generated-type equivalence, DB lint/security advisor, dependency audit, and secret-pattern scan: `PASS` at `d3054b2`
+- Docker build/up/health/readiness, local Auth/Postgres/Supabase status, and runtime logs: `PASS` at `d3054b2`; 13 structured health/readiness events at the exact runtime revision; zero severe errors
+- SonarCloud and Socket at `8f71f57`: `PASS`; CodeRabbit CLI: `0 issues` on the full 12-file PR diff at `d3054b2` and `0 issues` on the final one-file test delta
+- complete exact-head L5 is repeated after this evidence/checkpoint synchronization; the final documentation-closeout SHA and repeat results are recorded in PR #49
 - no remote Supabase, production deployment, business-domain implementation, or merge
 - production credit remains `19 / 515`; no GMZ-IMPL-003 credit is earned before objective acceptance and merge
 - disposition: `READY_FOR_OBJECTIVE_AUDIT`; objective audit: `PENDING`

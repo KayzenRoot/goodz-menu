@@ -9,12 +9,12 @@ Status: `READY_FOR_OBJECTIVE_AUDIT`
 - Work Order: `GMZ-IMPL-003`, Issue `#47`
 - Context Lock: `.engineering/context-locks/GMZ-IMPL-003.json`
 - Execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`
-- Implementation code candidate: `b3c18f9dde2b85ddd425c8794f798be2ee6e9487`
+- Latest implementation code candidate: `8f71f571c7fc08746e5b0fcae5b8e6f620d8c0bf`
 - Implementation PR: [#49 — GMZ-IMPL-003](https://github.com/KayzenRoot/goodz-menu/pull/49), draft, target `main`
 - Exact documentation-closeout HEAD and its repeated complete L5 are recorded in the updated PR description. The full applicable suite is repeated after the evidence/checkpoint commit before the executor stops.
 - Merge: `NOT PERFORMED`; objective audit: `PENDING`.
 
-The execution branch includes five previously committed admission/binding governance commits followed by the implementation candidate. The branch descends from the exact required execution base. The implementation candidate is the code commit identified above; the final closeout commit adds only Work Order, checkpoint, and evidence state.
+The execution branch includes the previously committed admission/binding governance commits followed by the implementation and its bounded review corrections. The branch descends from the exact required execution base. The latest code candidate is the code commit identified above; the final closeout commit adds only Work Order, checkpoint, and evidence state.
 
 ## GEF Bootstrap 1.1.1 preflight
 
@@ -69,7 +69,7 @@ RLS stays enabled on every authorization table and the tenant hierarchy. Authent
 
 The helper does not use `user_metadata` or JWT custom role claims as authorization truth. It evaluates current database membership and permission state for each request. The `private` schema is not in the configured Data API exposed schemas.
 
-## Complete validation — implementation candidate
+## Initial complete validation — implementation candidate `b3c18f9dde2b85ddd425c8794f798be2ee6e9487`
 
 The following checks passed at implementation candidate `b3c18f9dde2b85ddd425c8794f798be2ee6e9487`:
 
@@ -95,12 +95,37 @@ The following checks passed at implementation candidate `b3c18f9dde2b85ddd425c87
 | Docker health/readiness | `PASS` — HTTP 200; `ok`/`ready`; exact implementation revision; Supabase dependency `available` |
 | Local Supabase API/Auth/Postgres | `PASS` — status JSON exit 0 and loopback API; Auth health HTTP 200; Postgres accepting connections on local port 5432; local Auth/Data API integration succeeded |
 | Runtime logs | `PASS` — 10 structured health/readiness events; zero severe errors |
-| SonarCloud | `PASS` — PR check `SonarCloud Code Analysis` succeeded |
+| SonarCloud | `PASS` — initial PR quality-gate check succeeded; a later issue-API inspection found duplicated-literal maintainability issues, corrected below |
 | Socket | `PASS` — Project Report and Pull Request Alerts succeeded |
 | CodeRabbit | `PASS` — authenticated CLI review covered all six changed implementation files and returned `0 issues`; GitHub PR check was skipped because the PR is a draft |
 | `.gef` integrity | `PASS` — unchanged; 16/16 locked source fingerprints still match |
 
-The complete exact-head L5 is repeated after this evidence/checkpoint closeout. The final closeout HEAD and its repeat results are recorded in the PR description. All remaining mutations are limited to the authorized branch and local test/runtime state.
+The initial candidate's L5 is retained here as historical evidence. Current review corrections and their validations are recorded below. The complete exact-head L5 is repeated after this evidence/checkpoint synchronization; the final closeout HEAD and repeat results are recorded in the PR description.
+
+## Objective-review correction — Sonar and SQL test literals
+
+The SonarCloud quality-gate check initially passed at `f2f97e88089eb71d3633e733545f618a1900d172`, but its issue API exposed 48 duplicated-literal issues in the new SQL files. Sonar's legacy severity field labeled them `CRITICAL`; the current impact model classified them as `MAINTAINABILITY:HIGH`. Two additional integration-helper issues were `MAJOR` and `MINOR`. These findings were corrected within GMZ-IMPL-003 and no scope was added.
+
+Correction commits:
+
+- `1703abbcee2e45bc6795cb35064df7a4cceff76b` — reused immutable authorization-status/scope predicates, centralized SQL fixture literals, and removed the nested-template/await-in-loop findings.
+- `d3054b2d37988b26cdfd3fe77002c43e9fcbc3da` — centralized repeated hierarchy privilege literals.
+- `8f71f571c7fc08746e5b0fcae5b8e6f620d8c0bf` — made the pgTAP policy assertion prove exactly one authenticated SELECT policy per hierarchy table.
+
+| Correction evidence | Result |
+|---|---|
+| Exact-head branch/preflight revalidation at `d3054b2` | `PASS` — correct repository/branch/identity; execution base remained an ancestor; 16/16 locked fingerprints MATCH; entry governance snapshot and Context Lock MATCH; clean tree; `.gef` unchanged; no local Supabase remote reference |
+| SonarCloud at `d3054b2` and `8f71f57` | `PASS` — required PR check passed; issue API at current `8f71f57` reports `0` open issues and `0` CRITICAL/HIGH |
+| Socket at `8f71f57` | `PASS` — Project Report and Pull Request Alerts |
+| CodeRabbit CLI | `PASS` — full PR diff against execution base reviewed 12 files with `0 issues` at `d3054b2`; the final pgTAP assertion delta reviewed one file with `0 issues` before `8f71f57` was committed |
+| Local database tests at `d3054b2` and `8f71f57` | `PASS` — 2 pgTAP files, `117 / 117` assertions |
+| Local Auth/Data API at `d3054b2` | `PASS` — synthetic identity and tenant authorization integration, `34 / 34` checks |
+| Exact-head full L5 at `d3054b2` | `PASS` — frozen strict-peer install, lint, typecheck, unit `8 / 8`, production build, full E2E `8 / 8`, local DB reset, pgTAP, Auth/Data API, migration status, generated-type equivalence, DB lint/advisor, dependency audit, Docker build/up/health/readiness, local Supabase/Auth/Postgres, runtime logs, and GEF integrity |
+| Docker runtime at `d3054b2` | `PASS` — container healthy; `/api/health` and `/api/ready` HTTP 200; status `ok`/`ready`; exact revision `d3054b2`; dependency available; 13 structured runtime health/readiness events at that revision; zero severe errors |
+| Generated database types at `d3054b2` | `PASS` — safe generator plus Oxfmt `0.71.0`; formatted output matched the tracked file exactly (SHA-256 `FC3AF6B2C25584365F3642F02B5027F3C77FAEC6A936DD7A3B9483B4CDADEBBF`) |
+| Dependency/secret checks at `d3054b2` | `PASS` — no known high-severity dependency vulnerabilities; no secret-pattern matches in the four correction files |
+
+The last code-only delta after the full `d3054b2` L5 changes only the pgTAP assertion described above; it passed pgTAP, CodeRabbit CLI, SonarCloud, and Socket at `8f71f57`. After this evidence/checkpoint synchronization, the entire exact-head L5 is rerun. Its exact documentation-closeout SHA and complete results are recorded in PR #49. The PR remains draft/open/unmerged; objective audit is still pending.
 
 ## Changed files and scope
 
@@ -128,7 +153,7 @@ The PR also carries the previously committed GMZ-IMPL-003 admission/bind changes
 
 ## Findings, credit, and proposed checkpoint delta
 
-- Executed automated CRITICAL/HIGH findings: `0 / 0`; CodeRabbit CLI actionable issues: `0`.
+- Current Sonar issue API at `8f71f57`: `0` open issues, `0` CRITICAL/HIGH after correction; CodeRabbit CLI actionable issues: `0` on the full PR diff plus the final SQL-test delta.
 - Independent objective audit: `PENDING`; this bundle is executor evidence, not an approval.
 - Current earned production credit remains `19 / 515 = 3.69%`.
 - GMZ-IMPL-003 has predeclared additional eligibility of up to `12 / 515` only after separate governed acceptance and merge; no credit is earned here.
