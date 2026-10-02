@@ -8,9 +8,9 @@
   "assurance": "HIGH_ASSURANCE",
   "admissionBaseRef": "main",
   "admissionBaseSha": "45ab857e7a509bf1867d6e53b948346f425c754a",
-  "workBranch": "implementation/gmz-impl-004-auth-session-entry",
-  "executionBaseSha": null,
-  "executionBaseState": "MUST_BIND_AFTER_ADMISSION_PROMOTION",
+  "workBranch": "execution/gmz-impl-004-auth-session-entry",
+  "executionBaseSha": "e43d4b791b9bcabf806d115424218a4b0240647c",
+  "executionBaseState": "BOUND_FOR_EXECUTION",
   "sourcePack": "FROZEN_V0_1",
   "productionDenominator": 515,
   "productionEarnedAtAdmission": 31,
@@ -88,9 +88,9 @@
   ],
   "governanceSnapshot": {
     "checkpointPath": ".engineering/CHECKPOINT.json",
-    "checkpointGitBlobSha": "52f08a26d4ed4013a16abdbc94517b51cfa8e191",
-    "status": "GMZ_IMPL_003_PROMOTED_COMPLETE_READY_FOR_NEXT",
-    "note": "Mutable governance snapshot; intentionally excluded from stable lockedSources."
+    "checkpointGitBlobSha": "0e599f77ca5967a7ecd7d325fcc62fa6b6397f04",
+    "status": "GMZ_IMPL_004_BOUND_FOR_EXECUTION",
+    "note": "Execution-base bind snapshot after admission merge; stable sources remain independently fingerprinted."
   },
   "implementationContract": {
     "authIdentity": "SUPABASE_AUTH_USER_ID",
@@ -130,8 +130,8 @@
     "Executor does not merge its own PR"
   ],
   "executor": "GEF heavy executor / Codex",
-  "codexAllowed": false,
-  "codexAuthorizedScope": "BLOCKED until admission merge SHA is bound as executionBaseSha and execution branch descends from it.",
+  "codexAllowed": true,
+  "codexAuthorizedScope": "Only GMZ-IMPL-004 on execution/gmz-impl-004-auth-session-entry, descended from exact executionBaseSha e43d4b791b9bcabf806d115424218a4b0240647c. No merge.",
   "codexProhibited": [
     "main direct mutation",
     "merge",
@@ -149,5 +149,16 @@
     "production infrastructure",
     "unrelated cleanup"
   ],
-  "stopCondition": "GMZ_IMPL_004_ADMISSION_READY_FOR_REVIEW"
+  "stopCondition": "GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT",
+  "admissionAudit": {
+    "auditedHead": "2093d0057bb664ec696591d5344ea60023da7f20",
+    "critical": 0,
+    "high": 0,
+    "stableSourceFingerprints": "16/16 MATCH",
+    "codeRabbit": "SUCCESS",
+    "unresolvedReviewThreads": 0,
+    "runtimeOrSchemaCodeIntroduced": false,
+    "disposition": "APPROVED_FOR_ADMISSION_PROMOTION"
+  },
+  "admissionMergeSha": "e43d4b791b9bcabf806d115424218a4b0240647c"
 }
