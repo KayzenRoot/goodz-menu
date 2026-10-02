@@ -139,6 +139,7 @@
       "id": "GMZ-IMPL-003-CD-003",
       "state": "READY_FOR_OBJECTIVE_AUDIT",
       "scope": "local_auth_jwt_subject_identity_binding_proof_only",
+      "implementationCodeCandidate": "63a6d3770b2e692ee3e0d9b7d34672a1e8165ad6",
       "identityGuardRegression": "10/10 PASS",
       "localAuthDataApi": "50/50 PASS",
       "migrationSchemaPolicyChanged": false,

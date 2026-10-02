@@ -9,7 +9,7 @@ Status: `READY_FOR_OBJECTIVE_AUDIT`
 - Work Order: `GMZ-IMPL-003`, Issue `#47`
 - Context Lock: `.engineering/context-locks/GMZ-IMPL-003.json`
 - Execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`
-- Latest implementation code candidate: `8f71f571c7fc08746e5b0fcae5b8e6f620d8c0bf`
+- Latest implementation code candidate after GMZ-IMPL-003-CD-003: `63a6d3770b2e692ee3e0d9b7d34672a1e8165ad6`
 - Implementation PR: [#49 — GMZ-IMPL-003](https://github.com/KayzenRoot/goodz-menu/pull/49), draft, target `main`
 - Exact documentation-closeout HEAD and its repeated complete L5 are recorded in the updated PR description. The full applicable suite is repeated after the evidence/checkpoint commit before the executor stops.
 - Merge: `NOT PERFORMED`; objective audit: `PENDING`.
@@ -268,5 +268,7 @@ The integration continues to call the same guard before exposing each token to t
 | Changed-file secret-pattern scan | `PASS` — zero matches |
 
 The complete exact-head HIGH_ASSURANCE L5 is rerun after this evidence/checkpoint synchronization. Its final exact HEAD and all results are recorded in PR `#49`. The CodeRabbit review thread is resolved only after successful full validation. PR remains OPEN/DRAFT and unmerged pending the separate objective audit.
+
+The CodeRabbit local review at code candidate `63a6d37` also found a stale latest-candidate reference, corrected in this documentation-only closeout. Its separate minor request to broaden a pre-existing pgTAP policy-role assertion is outside CD-003 and is deferred without modifying the authorization-test matrix.
 
 Correction completion token: `GMZ_IMPL_003_CD_003_READY_FOR_OBJECTIVE_AUDIT`.

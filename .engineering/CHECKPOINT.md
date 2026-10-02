@@ -54,7 +54,7 @@ STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
 
 
 ## GMZ-IMPL-003 executor closeout
-- latest implementation code candidate: `8f71f571c7fc08746e5b0fcae5b8e6f620d8c0bf`
+- latest implementation code candidate after GMZ-IMPL-003-CD-003: `63a6d3770b2e692ee3e0d9b7d34672a1e8165ad6`
 - execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`
 - implementation PR: `#49` — https://github.com/KayzenRoot/goodz-menu/pull/49; draft, base `main`, not merged
 - GEF 1.1.1 preflight and exact-state revalidation: `PASS`; stable source fingerprints `16 / 16 MATCH`; Context Lock `BOUND_FOR_EXECUTION`; entry governance snapshot `MATCH`; `.gef` `UNCHANGED`
@@ -114,6 +114,7 @@ STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
 - Scope: local test-harness proof only; migrations/schema/RLS/policies/production authorization semantics/dependencies/`.gef`/business scope unchanged.
 - Preflight: GEF `1.1.1` PASS; `16 / 16` locked fingerprints MATCH; bind snapshot MATCH; `.gef` unchanged.
 - Complete exact-head HIGH_ASSURANCE L5 is repeated after this closeout and recorded at its exact SHA in PR `#49`.
+- CodeRabbit local at implementation candidate `63a6d37` found and prompted correction of the stale latest-candidate reference; its separate minor request to broaden the existing pgTAP policy-role assertion is outside CD-003 and is deferred without changing the authorization-test matrix.
 - Resolve the CodeRabbit identity-subject thread only after that full validation passes.
 - PR `#49`: OPEN/DRAFT against `main`, not merged; objective audit pending.
 - Correction completion token: `GMZ_IMPL_003_CD_003_READY_FOR_OBJECTIVE_AUDIT`.

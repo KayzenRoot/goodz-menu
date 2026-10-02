@@ -339,7 +339,7 @@ STOP CONDITION:
 
 ## EXECUTOR CLOSEOUT
 - initial implementation code candidate: `b3c18f9dde2b85ddd425c8794f798be2ee6e9487`
-- latest code candidate after objective-review correction: `8f71f571c7fc08746e5b0fcae5b8e6f620d8c0bf`
+- latest implementation code candidate after GMZ-IMPL-003-CD-003: `63a6d3770b2e692ee3e0d9b7d34672a1e8165ad6`
 - execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`
 - implementation PR: `#49`, open draft against `main`; not merged
 - complete GEF 1.1.1 preflight: `PASS`; locked source fingerprints: `16 / 16 MATCH`; Context Lock was `BOUND_FOR_EXECUTION`; governance snapshot matched; `.gef` unchanged
@@ -397,5 +397,6 @@ STOP CONDITION:
 - GEF preflight before mutation: PASS; correct repository/account/branch, exact execution base and bind snapshot, Context Lock `BOUND_FOR_EXECUTION`, `16 / 16` stable fingerprints MATCH, clean tree, and `.gef` unchanged.
 - Complete exact-head HIGH_ASSURANCE L5 is rerun after evidence/checkpoint synchronization; exact final HEAD and full results are recorded in PR `#49`.
 - The actionable CodeRabbit thread is resolved only after the correction passes its complete exact-head validation.
+- CodeRabbit local at implementation candidate `63a6d37` also identified a stale latest-candidate reference, corrected in this documentation-only closeout. Its separate minor request to broaden the pre-existing pgTAP policy-role assertion is outside CD-003 and is deferred without modifying that matrix.
 - PR `#49` remains OPEN/DRAFT against `main`; merge was not performed; objective audit remains pending.
 - Correction completion token: `GMZ_IMPL_003_CD_003_READY_FOR_OBJECTIVE_AUDIT`.
