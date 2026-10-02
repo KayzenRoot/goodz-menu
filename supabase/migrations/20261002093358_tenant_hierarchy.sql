@@ -49,6 +49,9 @@ CREATE TABLE public.branches (
     CHECK (status IN ('active', 'suspended', 'archived'))
 );
 
+CREATE INDEX branches_organization_establishment_idx
+  ON public.branches (organization_id, establishment_id);
+
 ALTER TABLE public.organizations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.establishments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.branches ENABLE ROW LEVEL SECURITY;
