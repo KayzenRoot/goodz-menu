@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "project": "Goodz Menu",
   "repository": "KayzenRoot/goodz-menu",
-  "status": "GMZ_IMPL_002_ADMITTED_EXECUTION_BASE_BIND_PENDING",
+  "status": "GMZ_IMPL_002_READY_FOR_EXECUTOR",
   "gefVersion": "1.1.1",
   "ideation": "CLOSED",
   "sourcePack": "FROZEN_V0_1",
@@ -12,15 +12,15 @@
   "security": "APPROVED_V0_1",
   "testBenchmarkPlan": "APPROVED_V0_1",
   "definitionOfDone": "APPROVED_V0_1",
-  "implementationAuthorized": false,
+  "implementationAuthorized": true,
   "overallCompletionPercent": 1.55,
   "overallCompletionState": "EVIDENCE_BACKED_PRODUCTION_CREDIT",
   "activeWorkOrder": "GMZ-IMPL-002",
   "activeIssue": 42,
   "activeBranch": "implementation/gmz-impl-002-tenant-core",
-  "baseSha": "3f8bef75b40751b522aaed0dc6b7d09ad19ee110",
-  "nextAction": "MERGE_ADMISSION_THEN_BIND_EXECUTION_BASE",
-  "stopCondition": "GMZ_IMPL_002_ADMISSION_PROMOTED_BASE_BIND_PENDING",
+  "baseSha": "4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9",
+  "nextAction": "EXECUTE_GMZ_IMPL_002",
+  "stopCondition": "GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT",
   "lastAudit": {
     "workOrder": "GMZ-IMPL-001",
     "critical": 0,
@@ -82,10 +82,10 @@
   "productionEarned": 8,
   "activeImplementation": {
     "workOrder": "GMZ-IMPL-002",
-    "state": "ADMITTED_BASE_BIND_PENDING",
+    "state": "READY_FOR_EXECUTOR",
     "assurance": "HIGH",
-    "executionBaseSha": null,
-    "executionBaseState": "MUST_BIND_AFTER_ADMISSION_PROMOTION",
+    "executionBaseSha": "4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9",
+    "executionBaseState": "BOUND_FOR_EXECUTION",
     "maxSliceCredit": 11,
     "creditAllocation": {
       "GMZ-M01": 10,
@@ -104,6 +104,8 @@
       "socketChecks": "SUCCESS",
       "runtimeOrSchemaCodeIntroduced": false,
       "disposition": "APPROVED_FOR_ADMISSION_PROMOTION"
-    }
+    },
+    "implementationAuthorized": true,
+    "admissionMergeSha": "4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9"
   }
 }
