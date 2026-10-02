@@ -1,11 +1,12 @@
 # GMZ-IMPL-003 — Admission Evidence
 
-Status: `ADMISSION_CANDIDATE`
+Status: `APPROVED_FOR_ADMISSION_PROMOTION / EXECUTION_BASE_BOUND`
 
 ## Binding
 - Issue: `#47`
 - admission base: `main@81ff6d87c2af25ebf5cd55ba8038bcad5a86b83a`
-- branch: `implementation/gmz-impl-003-membership-authz`
+- admission branch: `implementation/gmz-impl-003-membership-authz`
+- execution branch: `execution/gmz-impl-003-membership-authz`
 - GEF: `1.1.1`
 - assurance: `HIGH_ASSURANCE`
 - current production credit: `19 / 515 = 3.69%`
@@ -77,3 +78,28 @@ Executor mutation remains blocked until:
 
 STOP CONDITION:
 `GMZ_IMPL_003_ADMISSION_READY_FOR_REVIEW`
+
+
+## Admission audit
+- PR: `#48`
+- exact reviewed head: `5cfdcfbd6811b2cda2d3caa4d141a5b3018ae710`
+- SonarCloud: `PASS`
+- CodeRabbit: `SUCCESS / NO ACTIONABLE COMMENTS`
+- unresolved review threads: `0`
+- stable source fingerprints: `16 / 16 MATCH`
+- runtime/schema/dependency change in admission: `NONE`
+- CRITICAL/HIGH: `0 / 0`
+- disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
+
+## Execution-base bind
+- admission merge SHA: `c08e385dee86eb7af1c133f730e74951891b63f8`
+- executionBaseSha: `c08e385dee86eb7af1c133f730e74951891b63f8`
+- execution branch: `execution/gmz-impl-003-membership-authz`
+- branch lineage: `EXACT DESCENDANT / PASS`
+- Context Lock: `BOUND_FOR_EXECUTION`
+- Codex scope: `GMZ-IMPL-003 ONLY`
+- current earned production credit remains: `19 / 515`
+- no implementation credit awarded by admission/bind.
+
+STOP CONDITION:
+`GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`
