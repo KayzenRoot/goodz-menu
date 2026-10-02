@@ -65,11 +65,22 @@ A score is not “importance”. It estimates delivery/proof burden.
 ## 4. Current production credit
 
 As of this baseline:
-- evidence-backed product implementation credit: `0 / 515`;
-- production completion: `0.00%`;
+- evidence-backed product implementation credit: `8 / 515`;
+- production completion: `1.55%`;
 - planning/source-pack progress is tracked separately and does not create product credit.
 
 This is intentionally strict.
+
+## 4.1 Accepted production slices
+
+| Increment | Module slice | Credit | Merge |
+|---|---|---:|---|
+| GMZ-IMPL-001 | GMZ-M25 Runtime/Docker/Deployment | 4 | `04fa311e1839c7070b829438e90ddd670f9dbef1` |
+| GMZ-IMPL-001 | GMZ-M04 Design System shell | 1 | `04fa311e1839c7070b829438e90ddd670f9dbef1` |
+| GMZ-IMPL-001 | GMZ-M26 Validation/Quality Engineering | 2 | `04fa311e1839c7070b829438e90ddd670f9dbef1` |
+| GMZ-IMPL-001 | GMZ-M23 Observability/correlation bootstrap | 1 | `04fa311e1839c7070b829438e90ddd670f9dbef1` |
+
+Cumulative accepted credit: `8 / 515 = 1.55%`.
 
 ## 5. Weight rationale classes
 
