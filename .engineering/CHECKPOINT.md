@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`
+Status: `GMZ_IMPL_002_CD_001_EXACT_HEAD_L5_PENDING`
 
 ## Current state
 - Project: Goodz Menu
@@ -492,3 +492,18 @@ STOP CONDITION: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`.
 - next action: `OBJECTIVE_AUDIT_GMZ_IMPL_002`
 
 STOP CONDITION: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-002-CD-001
+- SonarCloud Quality Gate at prior head: `FAIL / 18.3% duplication on new code`
+- generated Supabase type file CPD exclusion: `APPLIED`
+- branch tenant-parent composite index: `ADDED`
+- pgTAP index proof: `ADDED`
+- runtime/schema/test/config changed after prior L5: `YES`
+- previous L5 evidence: `STALE`
+- current production credit: `8 / 515`
+- exact-head L5 after CD-001: `PENDING`
+- next: `RERUN COMPLETE PREFLIGHT + L5`
+- disposition: `CORRECTION_REQUIRED`
+
+STOP CONDITION: `GMZ_IMPL_002_CD_001_EXACT_HEAD_L5_REQUIRED`.
