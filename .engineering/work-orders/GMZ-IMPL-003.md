@@ -1,11 +1,11 @@
 # GMZ-IMPL-003 — Membership & Tenant Authorization Foundation
 
-Status: `ADMISSION_CANDIDATE`
+Status: `ADMITTED / BOUND_FOR_EXECUTION`
 Issue: `#47`
 Assurance: `HIGH_ASSURANCE`
 Base branch: `main`
 Admission base: `81ff6d87c2af25ebf5cd55ba8038bcad5a86b83a`
-Work branch: `implementation/gmz-impl-003-membership-authz`
+Work branch: `execution/gmz-impl-003-membership-authz`
 
 ## OBJECTIVE
 
@@ -189,7 +189,7 @@ This Work Order does not implement tenant-facing permission/admin mutation, MFA/
 
 - GEF Bootstrap `1.1.1` remains unchanged.
 - admission base is immutable until admission promotion.
-- executor mutation is BLOCKED until admission merge SHA is bound.
+- executor mutation is AUTHORIZED only inside this Work Order after preflight confirms the exact bound execution base and all stable fingerprints.
 - no force push/history rewrite.
 - no direct main mutation.
 - no self-merge by executor.
@@ -315,4 +315,23 @@ During admission:
 `GMZ_IMPL_003_ADMISSION_READY_FOR_REVIEW`
 
 After exact execution-base bind:
+`GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## ADMISSION AUDIT + EXECUTION-BASE BIND
+- admission PR: `#48`
+- audited admission head: `5cfdcfbd6811b2cda2d3caa4d141a5b3018ae710`
+- admission checks: `SonarCloud PASS / CodeRabbit SUCCESS / 0 unresolved threads`
+- CRITICAL/HIGH: `0 / 0`
+- admission disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
+- admission merge / exact execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`
+- execution branch: `execution/gmz-impl-003-membership-authz`
+- branch lineage from exact merge SHA: `YES`
+- stable source fingerprints: `16 / 16 MATCH`
+- Context Lock: `BOUND_FOR_EXECUTION`
+- executor/Codex: `AUTHORIZED FOR GMZ-IMPL-003 ONLY`
+- current production credit: `19 / 515 = 3.69%`
+- merge authority for executor: `NO`
+
+STOP CONDITION:
 `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`
