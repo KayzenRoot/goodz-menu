@@ -26,29 +26,35 @@ SELECT ok(
 );
 
 SELECT ok(
-  (SELECT a.atttypid = 'uuid'::regtype AND a.attnotnull
-          AND EXISTS (SELECT 1 FROM pg_constraint c WHERE c.conrelid = a.attrelid AND c.contype = 'p' AND cardinality(c.conkey) = 1 AND a.attnum = ANY (c.conkey))
-          AND pg_get_expr(d.adbin, d.adrelid) LIKE '%gen_random_uuid%'
-   FROM pg_attribute a JOIN pg_attrdef d ON d.adrelid = a.attrelid AND d.adnum = a.attnum
-   WHERE a.attrelid = 'public.organizations'::regclass AND a.attname = 'id' AND NOT a.attisdropped),
-  'organizations id is a non-null UUID primary key with a generated default'
-);
-SELECT ok(
-  (SELECT a.atttypid = 'uuid'::regtype AND a.attnotnull
-          AND EXISTS (SELECT 1 FROM pg_constraint c WHERE c.conrelid = a.attrelid AND c.contype = 'p' AND cardinality(c.conkey) = 1 AND a.attnum = ANY (c.conkey))
-          AND pg_get_expr(d.adbin, d.adrelid) LIKE '%gen_random_uuid%'
-   FROM pg_attribute a JOIN pg_attrdef d ON d.adrelid = a.attrelid AND d.adnum = a.attnum
-   WHERE a.attrelid = 'public.establishments'::regclass AND a.attname = 'id' AND NOT a.attisdropped),
-  'establishments id is a non-null UUID primary key with a generated default'
-);
-SELECT ok(
-  (SELECT a.atttypid = 'uuid'::regtype AND a.attnotnull
-          AND EXISTS (SELECT 1 FROM pg_constraint c WHERE c.conrelid = a.attrelid AND c.contype = 'p' AND cardinality(c.conkey) = 1 AND a.attnum = ANY (c.conkey))
-          AND pg_get_expr(d.adbin, d.adrelid) LIKE '%gen_random_uuid%'
-   FROM pg_attribute a JOIN pg_attrdef d ON d.adrelid = a.attrelid AND d.adnum = a.attnum
-   WHERE a.attrelid = 'public.branches'::regclass AND a.attname = 'id' AND NOT a.attisdropped),
-  'branches id is a non-null UUID primary key with a generated default'
-);
+  COALESCE(
+    id_column.atttypid = 'uuid'::regtype
+      AND id_column.attnotnull
+      AND primary_key.oid IS NOT NULL
+      AND pg_get_expr(id_default.adbin, id_default.adrelid) LIKE '%gen_random_uuid%',
+    FALSE
+  ),
+  format('%s id is a non-null UUID primary key with a generated default', tenancy.table_name)
+)
+FROM (VALUES ('organizations'), ('establishments'), ('branches')) AS tenancy(table_name)
+LEFT JOIN pg_class AS relation
+  ON relation.oid = to_regclass('public.' || tenancy.table_name)
+LEFT JOIN pg_attribute AS id_column
+  ON id_column.attrelid = relation.oid
+  AND id_column.attname = 'id'
+  AND NOT id_column.attisdropped
+LEFT JOIN pg_attrdef AS id_default
+  ON id_default.adrelid = id_column.attrelid
+  AND id_default.adnum = id_column.attnum
+LEFT JOIN pg_constraint AS primary_key
+  ON primary_key.conrelid = relation.oid
+  AND primary_key.contype = 'p'
+  AND cardinality(primary_key.conkey) = 1
+  AND id_column.attnum = ANY(primary_key.conkey)
+ORDER BY CASE tenancy.table_name
+  WHEN 'organizations' THEN 1
+  WHEN 'establishments' THEN 2
+  ELSE 3
+END;
 
 SELECT ok(
   (SELECT is_nullable = 'YES' FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'organizations' AND column_name = 'legal_name'),
@@ -69,25 +75,37 @@ SELECT ok(EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = 'public.establish
 SELECT ok(EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = 'public.branches'::regclass AND conname = 'branches_display_name_check' AND contype = 'c'), 'branch bounded nonblank name constraint exists');
 
 SELECT ok(
-  EXISTS (SELECT 1 FROM pg_constraint c
-    WHERE c.conrelid = 'public.establishments'::regclass AND c.confrelid = 'public.organizations'::regclass
-      AND c.contype = 'f' AND c.confdeltype = 'r'
-      AND ARRAY(SELECT a.attname FROM unnest(c.conkey) WITH ORDINALITY AS key(attnum, ord)
-        JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = key.attnum ORDER BY key.ord) = ARRAY['organization_id']::name[]
-      AND ARRAY(SELECT a.attname FROM unnest(c.confkey) WITH ORDINALITY AS key(attnum, ord)
-        JOIN pg_attribute a ON a.attrelid = c.confrelid AND a.attnum = key.attnum ORDER BY key.ord) = ARRAY['id']::name[]),
-  'establishments reference organizations with RESTRICT delete behavior'
-);
-SELECT ok(
-  EXISTS (SELECT 1 FROM pg_constraint c
-    WHERE c.conrelid = 'public.branches'::regclass AND c.confrelid = 'public.organizations'::regclass
-      AND c.contype = 'f' AND c.confdeltype = 'r'
-      AND ARRAY(SELECT a.attname FROM unnest(c.conkey) WITH ORDINALITY AS key(attnum, ord)
-        JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = key.attnum ORDER BY key.ord) = ARRAY['organization_id']::name[]
-      AND ARRAY(SELECT a.attname FROM unnest(c.confkey) WITH ORDINALITY AS key(attnum, ord)
-        JOIN pg_attribute a ON a.attrelid = c.confrelid AND a.attnum = key.attnum ORDER BY key.ord) = ARRAY['id']::name[]),
-  'branches reference organizations with RESTRICT delete behavior'
-);
+  EXISTS (
+    SELECT 1
+    FROM pg_constraint AS constraint_row
+    WHERE constraint_row.conrelid = to_regclass('public.' || tenancy.child_table)
+      AND constraint_row.confrelid = 'public.organizations'::regclass
+      AND constraint_row.contype = 'f'
+      AND constraint_row.confdeltype = 'r'
+      AND ARRAY(
+        SELECT attribute.attname
+        FROM unnest(constraint_row.conkey) WITH ORDINALITY AS key(attnum, ord)
+        JOIN pg_attribute AS attribute
+          ON attribute.attrelid = constraint_row.conrelid
+          AND attribute.attnum = key.attnum
+        ORDER BY key.ord
+      ) = ARRAY[tenancy.child_column]::name[]
+      AND ARRAY(
+        SELECT attribute.attname
+        FROM unnest(constraint_row.confkey) WITH ORDINALITY AS key(attnum, ord)
+        JOIN pg_attribute AS attribute
+          ON attribute.attrelid = constraint_row.confrelid
+          AND attribute.attnum = key.attnum
+        ORDER BY key.ord
+      ) = ARRAY[tenancy.parent_column]::name[]
+  ),
+  format('%s reference organizations with RESTRICT delete behavior', tenancy.child_table)
+)
+FROM (VALUES
+  ('establishments', 'organization_id', 'id'),
+  ('branches', 'organization_id', 'id')
+) AS tenancy(child_table, child_column, parent_column)
+ORDER BY tenancy.child_table;
 SELECT ok(
   EXISTS (SELECT 1 FROM pg_constraint c
     WHERE c.conrelid = 'public.establishments'::regclass AND c.contype = 'u'
@@ -114,47 +132,20 @@ SELECT ok(NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND 
 SELECT ok(NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'branches'), 'branches have no tenant policy before GMZ-M02');
 
 SELECT ok(
-  NOT has_table_privilege('anon', 'public.organizations', 'SELECT')
-  AND NOT has_table_privilege('anon', 'public.organizations', 'INSERT')
-  AND NOT has_table_privilege('anon', 'public.organizations', 'UPDATE')
-  AND NOT has_table_privilege('anon', 'public.organizations', 'DELETE'),
-  'anon has no direct CRUD privileges on organizations'
-);
-SELECT ok(
-  NOT has_table_privilege('authenticated', 'public.organizations', 'SELECT')
-  AND NOT has_table_privilege('authenticated', 'public.organizations', 'INSERT')
-  AND NOT has_table_privilege('authenticated', 'public.organizations', 'UPDATE')
-  AND NOT has_table_privilege('authenticated', 'public.organizations', 'DELETE'),
-  'authenticated has no direct CRUD privileges on organizations'
-);
-SELECT ok(
-  NOT has_table_privilege('anon', 'public.establishments', 'SELECT')
-  AND NOT has_table_privilege('anon', 'public.establishments', 'INSERT')
-  AND NOT has_table_privilege('anon', 'public.establishments', 'UPDATE')
-  AND NOT has_table_privilege('anon', 'public.establishments', 'DELETE'),
-  'anon has no direct CRUD privileges on establishments'
-);
-SELECT ok(
-  NOT has_table_privilege('authenticated', 'public.establishments', 'SELECT')
-  AND NOT has_table_privilege('authenticated', 'public.establishments', 'INSERT')
-  AND NOT has_table_privilege('authenticated', 'public.establishments', 'UPDATE')
-  AND NOT has_table_privilege('authenticated', 'public.establishments', 'DELETE'),
-  'authenticated has no direct CRUD privileges on establishments'
-);
-SELECT ok(
-  NOT has_table_privilege('anon', 'public.branches', 'SELECT')
-  AND NOT has_table_privilege('anon', 'public.branches', 'INSERT')
-  AND NOT has_table_privilege('anon', 'public.branches', 'UPDATE')
-  AND NOT has_table_privilege('anon', 'public.branches', 'DELETE'),
-  'anon has no direct CRUD privileges on branches'
-);
-SELECT ok(
-  NOT has_table_privilege('authenticated', 'public.branches', 'SELECT')
-  AND NOT has_table_privilege('authenticated', 'public.branches', 'INSERT')
-  AND NOT has_table_privilege('authenticated', 'public.branches', 'UPDATE')
-  AND NOT has_table_privilege('authenticated', 'public.branches', 'DELETE'),
-  'authenticated has no direct CRUD privileges on branches'
-);
+  bool_and(NOT has_table_privilege(access.role_name, access.table_name, privilege.privilege_name)),
+  format('%s has no direct CRUD privileges on %s', access.role_name, access.table_name)
+)
+FROM (VALUES
+  ('anon', 'public.organizations'),
+  ('authenticated', 'public.organizations'),
+  ('anon', 'public.establishments'),
+  ('authenticated', 'public.establishments'),
+  ('anon', 'public.branches'),
+  ('authenticated', 'public.branches')
+) AS access(role_name, table_name)
+CROSS JOIN (VALUES ('SELECT'), ('INSERT'), ('UPDATE'), ('DELETE')) AS privilege(privilege_name)
+GROUP BY access.role_name, access.table_name
+ORDER BY access.role_name, access.table_name;
 
 SELECT ok((SELECT count(*) = 1 FROM public.organizations) AND EXISTS (SELECT 1 FROM public.organizations WHERE id = '00000000-0000-4000-8000-000000000001' AND display_name = 'Goodz Local Demo Organization' AND status = 'active'), 'reset seeds only one deterministic synthetic organization');
 SELECT ok((SELECT count(*) = 1 FROM public.establishments) AND EXISTS (SELECT 1 FROM public.establishments WHERE id = '00000000-0000-4000-8000-000000000002' AND organization_id = '00000000-0000-4000-8000-000000000001' AND display_name = 'Goodz Local Demo Establishment' AND status = 'active'), 'reset seeds only one deterministic establishment under the organization');
