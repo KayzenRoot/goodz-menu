@@ -83,3 +83,66 @@ test("status cards isolate malformed health responses from readiness state", asy
   await expect(applicationCard).toContainText("Verificando");
   await expect(supabaseCard).toContainText("Disponível");
 });
+
+
+test("status cards keep the newest refresh when an older request finishes late", async ({ page }) => {
+  let healthCalls = 0;
+  let readyCalls = 0;
+
+  await page.route("**/api/health", async (route) => {
+    healthCalls += 1;
+    if (healthCalls === 1) {
+      await new Promise((resolve) => setTimeout(resolve, 16_500));
+      await route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({ status: "not_ok", environment: "local", runtime: "docker", revision: "test" }),
+      });
+      return;
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ status: "ok", environment: "local", runtime: "docker", revision: "test" }),
+    });
+  });
+
+  await page.route("**/api/ready", async (route) => {
+    readyCalls += 1;
+    if (readyCalls === 1) {
+      await new Promise((resolve) => setTimeout(resolve, 16_500));
+      await route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({
+          status: "not_ready",
+          dependencies: { supabase: { status: "unavailable", reason: "timeout" } },
+        }),
+      });
+      return;
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        status: "ready",
+        dependencies: { supabase: { status: "available" } },
+      }),
+    });
+  });
+
+  await page.goto("/");
+
+  const applicationCard = page.locator(".status-card").filter({ hasText: "Aplicação" });
+  const supabaseCard = page.locator(".status-card").filter({ hasText: "Supabase local" });
+
+  await expect(applicationCard).toContainText("Respondendo", { timeout: 16_000 });
+  await expect(supabaseCard).toContainText("Disponível", { timeout: 16_000 });
+
+  await page.waitForTimeout(2_000);
+
+  await expect(applicationCard).toContainText("Respondendo");
+  await expect(supabaseCard).toContainText("Disponível");
+});
