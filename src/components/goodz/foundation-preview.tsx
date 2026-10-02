@@ -81,13 +81,24 @@ function StatusPanel() {
         fetch("/api/health", { cache: "no-store" }),
         fetch("/api/ready", { cache: "no-store" }),
       ]);
+
+      const readJson = async <T,>(response: PromiseSettledResult<Response>): Promise<T | null> => {
+        if (response.status !== "fulfilled") return null;
+        try {
+          return await response.value.json() as T;
+        } catch {
+          return null;
+        }
+      };
+
+      const [nextHealth, nextReady] = await Promise.all([
+        readJson<Health>(healthResponse),
+        readJson<Ready>(readyResponse),
+      ]);
+
       if (!active) return;
-      if (healthResponse.status === "fulfilled") {
-        setHealth(await healthResponse.value.json() as Health);
-      }
-      if (readyResponse.status === "fulfilled") {
-        setReady(await readyResponse.value.json() as Ready);
-      }
+      setHealth(nextHealth);
+      setReady(nextReady);
     };
     void refresh();
     const timer = window.setInterval(() => void refresh(), 15_000);
