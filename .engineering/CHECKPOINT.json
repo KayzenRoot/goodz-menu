@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "project": "Goodz Menu",
   "repository": "KayzenRoot/goodz-menu",
-  "status": "GMZ_IMPL_003_ADMITTED_EXECUTION_BASE_BIND_PENDING",
+  "status": "GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT",
   "gefVersion": "1.1.1",
   "ideation": "CLOSED",
   "sourcePack": "FROZEN_V0_1",
@@ -12,24 +12,23 @@
   "security": "APPROVED_V0_1",
   "testBenchmarkPlan": "APPROVED_V0_1",
   "definitionOfDone": "APPROVED_V0_1",
-  "implementationAuthorized": false,
+  "implementationAuthorized": true,
   "overallCompletionPercent": 3.69,
   "overallCompletionState": "EVIDENCE_BACKED_PRODUCTION_CREDIT",
   "activeWorkOrder": "GMZ-IMPL-003",
   "activeIssue": 47,
-  "activeBranch": "implementation/gmz-impl-003-membership-authz",
-  "baseSha": "81ff6d87c2af25ebf5cd55ba8038bcad5a86b83a",
-  "nextAction": "AUDIT_AND_MERGE_GMZ_IMPL_003_ADMISSION_THEN_BIND_EXECUTION_BASE",
-  "stopCondition": "GMZ_IMPL_003_ADMISSION_READY_FOR_REVIEW",
+  "activeBranch": "execution/gmz-impl-003-membership-authz",
+  "baseSha": "c08e385dee86eb7af1c133f730e74951891b63f8",
+  "nextAction": "OBJECTIVE_AUDIT_GMZ_IMPL_003",
+  "stopCondition": "GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT",
   "lastAudit": {
-    "workOrder": "GMZ-IMPL-002",
+    "workOrder": "GMZ-IMPL-003",
+    "stage": "ADMISSION",
     "critical": 0,
     "high": 0,
-    "disposition": "APPROVED_AND_PROMOTED",
-    "independent": false,
-    "auditedHead": "cbb6d5d913f4522c2e82051c56b108880e586ffb",
-    "finalMergeCandidate": "cbb6d5d913f4522c2e82051c56b108880e586ffb",
-    "mergeSha": "8481193e367a68fc02213d61446f0faed9306e13"
+    "disposition": "APPROVED_FOR_ADMISSION_PROMOTION",
+    "auditedHead": "5cfdcfbd6811b2cda2d3caa4d141a5b3018ae710",
+    "mergeSha": "c08e385dee86eb7af1c133f730e74951891b63f8"
   },
   "currentOutputs": {
     "projectOverview": "APPROVED_V0_1",
@@ -82,11 +81,11 @@
   "productionEarned": 19,
   "activeImplementation": {
     "workOrder": "GMZ-IMPL-003",
-    "state": "ADMISSION_CANDIDATE_BASE_BIND_PENDING",
+    "state": "READY_FOR_OBJECTIVE_AUDIT",
     "assurance": "HIGH_ASSURANCE",
     "admissionBaseSha": "81ff6d87c2af25ebf5cd55ba8038bcad5a86b83a",
-    "executionBaseSha": null,
-    "executionBaseState": "MUST_BIND_AFTER_ADMISSION_PROMOTION",
+    "executionBaseSha": "c08e385dee86eb7af1c133f730e74951891b63f8",
+    "executionBaseState": "BOUND_FOR_EXECUTION",
     "maxSliceCredit": 12,
     "creditAllocation": {
       "GMZ-M02": 10,
@@ -95,21 +94,57 @@
     "currentEarnedCredit": 19,
     "projectedEarnedIfAccepted": 31,
     "businessDomainImplementationAuthorized": false,
-    "authMembershipRbacAuthorized": false,
+    "authMembershipRbacAuthorized": true,
     "tenantAuthorizationReadSliceAdmitted": true,
     "tenantMutationAuthorized": false,
     "platformAdminAuthorized": false,
     "mfaAdminGuardAuthorized": false,
     "remoteSupabaseAuthorized": false,
     "migrationWorkflow": "IMPERATIVE_MIGRATION_FIRST",
-    "tenantAccessPosture": "CURRENTLY_FAIL_CLOSED_TO_TRANSITION_TO_MEMBERSHIP_AWARE_SELECT_ONLY",
+    "tenantAccessPosture": "MEMBERSHIP_AWARE_SELECT_ONLY_PENDING_OBJECTIVE_AUDIT",
     "admissionAudit": {
-      "critical": null,
-      "high": null,
-      "stableSourceFingerprints": "PENDING",
+      "auditedHead": "5cfdcfbd6811b2cda2d3caa4d141a5b3018ae710",
+      "critical": 0,
+      "high": 0,
+      "stableSourceFingerprints": "16/16 MATCH",
+      "sonarCloud": "PASS",
+      "codeRabbit": "SUCCESS_NO_ACTIONABLE_COMMENTS",
+      "unresolvedReviewThreads": 0,
       "runtimeOrSchemaCodeIntroduced": false,
-      "disposition": "PENDING_OBJECTIVE_ADMISSION_AUDIT"
+      "disposition": "APPROVED_FOR_ADMISSION_PROMOTION"
     },
-    "implementationAuthorized": false
+    "implementationAuthorized": true,
+    "admissionMergeSha": "c08e385dee86eb7af1c133f730e74951891b63f8",
+    "executionBranch": "execution/gmz-impl-003-membership-authz",
+    "correctionHistory": [
+      {
+        "id": "GMZ-IMPL-003-CD-001",
+        "state": "READY_FOR_OBJECTIVE_AUDIT",
+        "scope": "establishment_scope_authorization_evidence_only",
+        "pgTap": "125/125 PASS",
+        "localAuthDataApi": "42/42 PASS",
+        "migrationSchemaPolicyChanged": false
+      },
+      {
+        "id": "GMZ-IMPL-003-CD-002",
+        "state": "READY_FOR_OBJECTIVE_AUDIT",
+        "scope": "local_auth_password_grant_identity_binding_proof_only",
+        "identityGuardRegression": "3/3 PASS",
+        "localAuthDataApi": "50/50 PASS",
+        "migrationSchemaPolicyChanged": false,
+        "dependenciesGefBusinessScopeChanged": false
+      }
+    ],
+    "latestCorrectionDelta": {
+      "id": "GMZ-IMPL-003-CD-003",
+      "state": "READY_FOR_OBJECTIVE_AUDIT",
+      "scope": "local_auth_jwt_subject_identity_binding_proof_only",
+      "implementationCodeCandidate": "63a6d3770b2e692ee3e0d9b7d34672a1e8165ad6",
+      "identityGuardRegression": "10/10 PASS",
+      "localAuthDataApi": "50/50 PASS",
+      "migrationSchemaPolicyChanged": false,
+      "dependenciesGefBusinessScopeChanged": false
+    },
+    "stopCondition": "GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT"
   }
 }

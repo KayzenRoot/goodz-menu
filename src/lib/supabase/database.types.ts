@@ -77,6 +77,126 @@ export type Database = {
           },
         ];
       };
+      membership_roles: {
+        Row: {
+          branch_id: string | null;
+          created_at: string;
+          establishment_id: string | null;
+          id: string;
+          membership_id: string;
+          organization_id: string;
+          role_id: string;
+          scope_type: string;
+        };
+        Insert: {
+          branch_id?: string | null;
+          created_at?: string;
+          establishment_id?: string | null;
+          id?: string;
+          membership_id: string;
+          organization_id: string;
+          role_id: string;
+          scope_type: string;
+        };
+        Update: {
+          branch_id?: string | null;
+          created_at?: string;
+          establishment_id?: string | null;
+          id?: string;
+          membership_id?: string;
+          organization_id?: string;
+          role_id?: string;
+          scope_type?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "membership_roles_branch_fkey";
+            columns: ["organization_id", "establishment_id", "branch_id"];
+            isOneToOne: false;
+            referencedRelation: "branches";
+            referencedColumns: ["organization_id", "establishment_id", "id"];
+          },
+          {
+            foreignKeyName: "membership_roles_establishment_fkey";
+            columns: ["organization_id", "establishment_id"];
+            isOneToOne: false;
+            referencedRelation: "establishments";
+            referencedColumns: ["organization_id", "id"];
+          },
+          {
+            foreignKeyName: "membership_roles_membership_fkey";
+            columns: ["organization_id", "membership_id"];
+            isOneToOne: false;
+            referencedRelation: "organization_memberships";
+            referencedColumns: ["organization_id", "id"];
+          },
+          {
+            foreignKeyName: "membership_roles_role_fkey";
+            columns: ["organization_id", "role_id"];
+            isOneToOne: false;
+            referencedRelation: "tenant_roles";
+            referencedColumns: ["organization_id", "id"];
+          },
+        ];
+      };
+      organization_memberships: {
+        Row: {
+          accepted_at: string;
+          created_at: string;
+          default_branch_id: string | null;
+          default_establishment_id: string | null;
+          id: string;
+          organization_id: string;
+          revoked_at: string | null;
+          status: string;
+          user_id: string;
+        };
+        Insert: {
+          accepted_at?: string;
+          created_at?: string;
+          default_branch_id?: string | null;
+          default_establishment_id?: string | null;
+          id?: string;
+          organization_id: string;
+          revoked_at?: string | null;
+          status?: string;
+          user_id: string;
+        };
+        Update: {
+          accepted_at?: string;
+          created_at?: string;
+          default_branch_id?: string | null;
+          default_establishment_id?: string | null;
+          id?: string;
+          organization_id?: string;
+          revoked_at?: string | null;
+          status?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "organization_memberships_default_branch_fkey";
+            columns: ["organization_id", "default_establishment_id", "default_branch_id"];
+            isOneToOne: false;
+            referencedRelation: "branches";
+            referencedColumns: ["organization_id", "establishment_id", "id"];
+          },
+          {
+            foreignKeyName: "organization_memberships_default_establishment_fkey";
+            columns: ["organization_id", "default_establishment_id"];
+            isOneToOne: false;
+            referencedRelation: "establishments";
+            referencedColumns: ["organization_id", "id"];
+          },
+          {
+            foreignKeyName: "organization_memberships_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       organizations: {
         Row: {
           created_at: string;
@@ -100,6 +220,92 @@ export type Database = {
           status?: string;
         };
         Relationships: [];
+      };
+      permissions: {
+        Row: {
+          created_at: string;
+          display_name: string;
+          permission_key: string;
+        };
+        Insert: {
+          created_at?: string;
+          display_name: string;
+          permission_key: string;
+        };
+        Update: {
+          created_at?: string;
+          display_name?: string;
+          permission_key?: string;
+        };
+        Relationships: [];
+      };
+      role_permissions: {
+        Row: {
+          created_at: string;
+          organization_id: string;
+          permission_key: string;
+          role_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          organization_id: string;
+          permission_key: string;
+          role_id: string;
+        };
+        Update: {
+          created_at?: string;
+          organization_id?: string;
+          permission_key?: string;
+          role_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_key_fkey";
+            columns: ["permission_key"];
+            isOneToOne: false;
+            referencedRelation: "permissions";
+            referencedColumns: ["permission_key"];
+          },
+          {
+            foreignKeyName: "role_permissions_role_fkey";
+            columns: ["organization_id", "role_id"];
+            isOneToOne: false;
+            referencedRelation: "tenant_roles";
+            referencedColumns: ["organization_id", "id"];
+          },
+        ];
+      };
+      tenant_roles: {
+        Row: {
+          created_at: string;
+          display_name: string;
+          id: string;
+          organization_id: string;
+          role_key: string;
+        };
+        Insert: {
+          created_at?: string;
+          display_name: string;
+          id?: string;
+          organization_id: string;
+          role_key: string;
+        };
+        Update: {
+          created_at?: string;
+          display_name?: string;
+          id?: string;
+          organization_id?: string;
+          role_key?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_roles_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     Views: {

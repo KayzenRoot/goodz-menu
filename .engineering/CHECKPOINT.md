@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_003_ADMITTED_EXECUTION_BASE_BIND_PENDING`
+Status: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,11 +27,11 @@ Status: `GMZ_IMPL_003_ADMITTED_EXECUTION_BASE_BIND_PENDING`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-003` — ADMISSION CANDIDATE / execution-base bind pending
+- Work Order: `GMZ-IMPL-003` — READY_FOR_OBJECTIVE_AUDIT
 - Issue: `#47`
-- Branch: `implementation/gmz-impl-003-membership-authz`
-- Base: `main@81ff6d87c2af25ebf5cd55ba8038bcad5a86b83a`
-- Mode: HIGH_ASSURANCE membership/RBAC admission review
+- Branch: `execution/gmz-impl-003-membership-authz`
+- Execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`
+- Mode: HIGH_ASSURANCE membership/RBAC implementation
 
 ## Progress accounting
 Overall production completion: `19 / 515 = 3.69%`.
@@ -48,9 +48,78 @@ GMZ-SRC-001 is preserved byte-exact in repository truth:
 The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
-Audit the GMZ-IMPL-003 admission-only PR. Executor mutation remains blocked until admission promotion and exact execution-base binding.
+Run the separate objective audit for PR `#49`. Do not merge.
 
-STOP CONDITION: `GMZ_IMPL_003_ADMISSION_READY_FOR_REVIEW`.
+STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-003 executor closeout
+- latest implementation code candidate after GMZ-IMPL-003-CD-003: `63a6d3770b2e692ee3e0d9b7d34672a1e8165ad6`
+- execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`
+- implementation PR: `#49` — https://github.com/KayzenRoot/goodz-menu/pull/49; draft, base `main`, not merged
+- GEF 1.1.1 preflight and exact-state revalidation: `PASS`; stable source fingerprints `16 / 16 MATCH`; Context Lock `BOUND_FOR_EXECUTION`; entry governance snapshot `MATCH`; `.gef` `UNCHANGED`
+- Sonar objective-review correction: `COMPLETE`; after 48 SQL maintainability HIGH findings were fixed, the current issue API reports `0` open issues and `0` CRITICAL/HIGH
+- exact-head code-candidate L5 at `d3054b2`: `PASS`; pgTAP `117 / 117`; local Auth/Data API `34 / 34`; unit `8 / 8`; E2E `8 / 8`
+- final code-only pgTAP refinement at `8f71f57`: `PASS`; pgTAP remains `117 / 117`; per-table authenticated SELECT policy count is asserted
+- lint, typecheck, production build, generated-type equivalence, DB lint/security advisor, dependency audit, and secret-pattern scan: `PASS` at `d3054b2`
+- Docker build/up/health/readiness, local Auth/Postgres/Supabase status, and runtime logs: `PASS` at `d3054b2`; 13 structured health/readiness events at the exact runtime revision; zero severe errors
+- SonarCloud and Socket at `8f71f57`: `PASS`; CodeRabbit CLI: `0 issues` on the full 12-file PR diff at `d3054b2` and `0 issues` on the final one-file test delta
+- complete exact-head L5 is repeated after this evidence/checkpoint synchronization; the final documentation-closeout SHA and repeat results are recorded in PR #49
+- no remote Supabase, production deployment, business-domain implementation, or merge
+- production credit remains `19 / 515`; no GMZ-IMPL-003 credit is earned before objective acceptance and merge
+- disposition: `READY_FOR_OBJECTIVE_AUDIT`; objective audit: `PENDING`
+- next action: `OBJECTIVE_AUDIT_GMZ_IMPL_003`
+
+STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-003-CD-001
+
+- Objective-review gap: establishment-scoped access lacked direct pgTAP and local authenticated Auth/Data API proof.
+- Added synthetic establishment-scoped user, membership, role with `tenant.hierarchy.read`, and membership-role assignment.
+- Established the current parent Organization context behavior explicitly; assigned establishment and all two branches allowed; sibling and foreign-tenant establishment/branch reads denied.
+- Existing authorization matrices retained; no migration, schema, policy, `.gef`, dependency, or business-scope changes.
+- Targeted pgTAP: `PASS`, `125 / 125`; local Auth/Data API real-token integration: `PASS`, `42 / 42`.
+- Frozen install (`pnpm 12.8.1`), lint, typecheck, unit, and changed-file secret scan: `PASS`.
+- Complete final exact-head L5 rerun and its exact SHA/results are documented in PR `#49`.
+- Correction completion token: `GMZ_IMPL_003_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
+- CodeRabbit alignment at `08fcc4d`: its minor finding about this block's stop declaration conflicting with the active JSON checkpoint stop condition is corrected here.
+- PR `#49`: OPEN/DRAFT, not merged; objective audit remains pending.
+
+STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-003-CD-002
+
+- Finding: local Auth password-grant did not bind the returned token subject to the signup identity.
+- Correction: the test flow now requires `tokenBody.user?.id === identity.id` before returning the access token and fails closed on mismatch or absent subject.
+- Deterministic regression: `3 / 3` PASS (matching subject accepted; mismatched and absent subject rejected).
+- Local Auth/Data API integration: `50 / 50` PASS, including the subject check for all eight synthetic users.
+- Scope: test-harness identity proof only; no migration/schema/RLS/policy/dependency/`.gef`/business-scope changes.
+- Preflight: GEF `1.1.1` PASS; `16 / 16` locked fingerprints MATCH; bind governance snapshot MATCH; `.gef` unchanged.
+- Complete exact-head HIGH_ASSURANCE L5 is repeated after this closeout; exact final HEAD and results are recorded in PR `#49`.
+- PR `#49`: OPEN/DRAFT, base `main`, not merged; objective audit pending.
+- Correction completion token: `GMZ_IMPL_003_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
+
+STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-003-CD-003
+
+- Finding: response `user.id` alone did not prove the JWT subject used by Data API/RLS was the signup identity.
+- Correction: safely decode the compact JWT payload and require `payload.sub === identity.id`, while retaining `tokenBody.user?.id === identity.id`; the shared guard still runs before access-token return and authorization assertions.
+- Fail-closed behavior: absent identity/token, malformed JWT/base64url, invalid or non-object payload, missing/mismatched JWT `sub`, and missing/mismatched response `user.id` return the same generic error without sensitive values.
+- Deterministic identity-guard regression: `10 / 10` PASS, including the six required cases.
+- Local Auth/Data API: `50 / 50` PASS using eight synthetic password-grant users through the same guard.
+- Scope: local test-harness proof only; migrations/schema/RLS/policies/production authorization semantics/dependencies/`.gef`/business scope unchanged.
+- Preflight: GEF `1.1.1` PASS; `16 / 16` locked fingerprints MATCH; bind snapshot MATCH; `.gef` unchanged.
+- Complete exact-head HIGH_ASSURANCE L5 is repeated after this closeout and recorded at its exact SHA in PR `#49`.
+- CodeRabbit local at implementation candidate `63a6d37` found and prompted correction of the stale latest-candidate reference; its separate minor request to broaden the existing pgTAP policy-role assertion is outside CD-003 and is deferred without changing the authorization-test matrix.
+- Resolve the CodeRabbit identity-subject thread only after that full validation passes.
+- PR `#49`: OPEN/DRAFT against `main`, not merged; objective audit pending.
+- Correction completion token: `GMZ_IMPL_003_CD_003_READY_FOR_OBJECTIVE_AUDIT`.
+
+STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
 
 
 
@@ -597,3 +666,31 @@ STOP CONDITION: `GMZ_IMPL_002_PROMOTED_COMPLETE`.
 - checkpoint tracked as mutable governance snapshot
 
 STOP CONDITION: `GMZ_IMPL_003_ADMISSION_READY_FOR_REVIEW`.
+
+
+## GMZ-IMPL-003 admission audit
+- admission PR: `#48`
+- audited head: `5cfdcfbd6811b2cda2d3caa4d141a5b3018ae710`
+- changed files: `6 governance-only`
+- SonarCloud: `PASS / 0 new issues / 0 Security Hotspots / 0.0% duplication`
+- CodeRabbit: `SUCCESS / NO ACTIONABLE COMMENTS / Minimal risk`
+- unresolved review threads: `0`
+- runtime/schema/dependency change: `NONE`
+- CRITICAL/HIGH: `0 / 0`
+- disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
+
+## GMZ-IMPL-003 execution-base bind
+- admission merge: `c08e385dee86eb7af1c133f730e74951891b63f8`
+- execution branch: `execution/gmz-impl-003-membership-authz`
+- branch descended exactly from admission merge: `PASS`
+- stable source fingerprints: `16 / 16 MATCH`
+- Context Lock: `BOUND_FOR_EXECUTION`
+- implementation authorization: `YES, GMZ-IMPL-003 ONLY`
+- tenant authorization read slice: `AUTHORIZED`
+- tenant self-service mutation: `NO`
+- Platform Admin / MFA / Admin Guard / support mode: `NO`
+- remote Supabase / deployment: `NO`
+- current earned production credit: `19 / 515`
+- next action: `EXECUTE GMZ-IMPL-003`
+
+STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.

@@ -1,11 +1,11 @@
 # GMZ-IMPL-003 — Membership & Tenant Authorization Foundation
 
-Status: `ADMISSION_CANDIDATE`
+Status: `READY_FOR_OBJECTIVE_AUDIT`
 Issue: `#47`
 Assurance: `HIGH_ASSURANCE`
 Base branch: `main`
 Admission base: `81ff6d87c2af25ebf5cd55ba8038bcad5a86b83a`
-Work branch: `implementation/gmz-impl-003-membership-authz`
+Work branch: `execution/gmz-impl-003-membership-authz`
 
 ## OBJECTIVE
 
@@ -189,7 +189,7 @@ This Work Order does not implement tenant-facing permission/admin mutation, MFA/
 
 - GEF Bootstrap `1.1.1` remains unchanged.
 - admission base is immutable until admission promotion.
-- executor mutation is BLOCKED until admission merge SHA is bound.
+- executor mutation is AUTHORIZED only inside this Work Order after preflight confirms the exact bound execution base and all stable fingerprints.
 - no force push/history rewrite.
 - no direct main mutation.
 - no self-merge by executor.
@@ -316,3 +316,87 @@ During admission:
 
 After exact execution-base bind:
 `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## ADMISSION AUDIT + EXECUTION-BASE BIND
+- admission PR: `#48`
+- audited admission head: `5cfdcfbd6811b2cda2d3caa4d141a5b3018ae710`
+- admission checks: `SonarCloud PASS / CodeRabbit SUCCESS / 0 unresolved threads`
+- CRITICAL/HIGH: `0 / 0`
+- admission disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
+- admission merge / exact execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`
+- execution branch: `execution/gmz-impl-003-membership-authz`
+- branch lineage from exact merge SHA: `YES`
+- stable source fingerprints: `16 / 16 MATCH`
+- Context Lock: `BOUND_FOR_EXECUTION`
+- executor/Codex: `AUTHORIZED FOR GMZ-IMPL-003 ONLY`
+- current production credit: `19 / 515 = 3.69%`
+- merge authority for executor: `NO`
+
+STOP CONDITION:
+`GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## EXECUTOR CLOSEOUT
+- initial implementation code candidate: `b3c18f9dde2b85ddd425c8794f798be2ee6e9487`
+- latest implementation code candidate after GMZ-IMPL-003-CD-003: `63a6d3770b2e692ee3e0d9b7d34672a1e8165ad6`
+- execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`
+- implementation PR: `#49`, open draft against `main`; not merged
+- complete GEF 1.1.1 preflight: `PASS`; locked source fingerprints: `16 / 16 MATCH`; Context Lock was `BOUND_FOR_EXECUTION`; governance snapshot matched; `.gef` unchanged
+- objective-review correction: Sonar initially reported 48 duplicated SQL-literal maintainability findings at CRITICAL/HIGH impact plus two integration-helper issues; these were fixed in three bounded commits without changing the admitted scope
+- exact-head code-candidate L5 at `d3054b2`: `PASS`; frozen strict-peer install, lint, typecheck, unit `8 / 8`, production build, E2E `8 / 8`, database reset, pgTAP `117 / 117`, Auth/Data API `34 / 34`, migration status, generated-type equivalence, DB lint/security advisor, dependency audit, secret-pattern scan, Docker health/readiness, local Supabase/Auth/Postgres, runtime logs, and GEF integrity
+- final code-only test delta at `8f71f57`: pgTAP `117 / 117`; per-table policy assertion; SonarCloud `PASS` with issue API `0` open and `0` CRITICAL/HIGH; Socket `PASS`
+- CodeRabbit CLI: `0 issues` across the complete 12-file PR diff at `d3054b2` and `0 issues` for the final SQL test delta before `8f71f57`; GitHub CodeRabbit check is skipped while the PR remains draft
+- complete exact-head L5 is repeated after evidence/checkpoint synchronization; its final documentation-closeout SHA and repeated results are recorded in the PR description
+- current CRITICAL/HIGH findings: `0 / 0`; independent objective audit remains `PENDING`
+- current earned production credit remains `19 / 515`; no implementation credit is awarded by executor closeout
+- next action: `OBJECTIVE_AUDIT_GMZ_IMPL_003`
+
+STOP CONDITION:
+`GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-003-CD-001 — Establishment-scope authorization proof
+
+- Objective-review finding: establishment-scoped access was not independently covered by the pgTAP or local authenticated Auth/Data API matrices.
+- Correction: added one synthetic Auth user, active organization membership, tenant role with `tenant.hierarchy.read`, and `MembershipRole(scope_type = establishment)` assigned to establishment A1.
+- Database proof: the scoped identity reads its assigned establishment and all two descendant branches; it is denied a sibling establishment and its branch, a foreign-tenant establishment and branch, and a foreign parent organization. Its parent organization remains readable, matching the existing policy's parent-context semantics.
+- Local Auth/Data API proof: the same matrix passes through a real local password-grant access token.
+- Existing organization/branch-scope, no-membership, no-permission, suspended/revoked, metadata-spoof, cross-tenant, and write-denial tests are retained.
+- Scope guard: no migration, schema, RLS policy, permission behavior, dependency, `.gef`, or business module changed.
+- Targeted validation: frozen install `pnpm 12.8.1`, lint, typecheck, and unit tests passed; pgTAP `125 / 125`; local Auth/Data API `42 / 42`; changed-file secret-pattern scan `0` matches.
+- CodeRabbit at `08fcc4d` identified one minor checkpoint stop-declaration inconsistency; it was aligned with the canonical active JSON checkpoint value. The final exact-head review is repeated after this correction.
+- Complete exact-head L5 is rerun after the evidence/checkpoint closeout. The final closeout SHA and the complete exact-head results are recorded in PR `#49`.
+- PR remains OPEN/DRAFT and unmerged. Objective audit remains a separate pending action.
+
+STOP CONDITION:
+`GMZ_IMPL_003_CD_001_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-003-CD-002 — Local Auth token identity binding
+
+- Objective-review finding: the local Auth password-grant flow checked for an access token but did not prove its `user.id` matched the signup identity used by the synthetic membership fixture.
+- Bounded correction: before returning the access token, require `tokenBody.user?.id === identity.id`; missing or mismatched token identity throws a generic error and fails closed.
+- Deterministic regression: matching identity accepted; mismatched and absent token subjects rejected (`3 / 3` Node tests PASS).
+- Local Auth/Data API: all eight synthetic password-grant identities passed the new subject check; complete integration `50 / 50` PASS.
+- Scope guard: no migration, schema, RLS/policy, authorization semantics, dependency, `.gef`, or business-domain change.
+- GEF preflight before mutation: PASS; correct repository/identity/branch, exact execution base and bind snapshot, Context Lock `BOUND_FOR_EXECUTION`, `16 / 16` stable fingerprints MATCH, clean tree, and `.gef` unchanged.
+- Complete exact-head HIGH_ASSURANCE L5 is rerun after this evidence/checkpoint synchronization; its exact final HEAD and results are recorded in PR `#49`.
+- PR `#49` remains OPEN/DRAFT against `main`; merge was not performed; objective audit remains pending.
+- Correction completion token: `GMZ_IMPL_003_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-003-CD-003 — Password-grant JWT subject binding
+
+- Objective-review finding: checking only `tokenBody.user?.id` did not prove the `access_token` used for Data API/RLS requests had the same JWT `sub` as the signup identity.
+- Bounded correction: safely parse the compact JWT header and payload from `tokenBody.access_token`; require `payload.sub === identity.id` and retain `tokenBody.user?.id === identity.id` before the integration returns the access token.
+- Fail-closed cases share one generic error with no token, subject, or identity value: absent identity ID, absent token, malformed compact JWT/base64url, invalid/non-object JSON payload, absent/different JWT subject, and absent/different response user ID.
+- Deterministic regression: matching response user and JWT subject accepted; response user mismatch/missing, JWT subject mismatch/missing, malformed token, missing identity/token, and invalid/non-object payload rejected (`10 / 10` Node tests PASS).
+- Real local Auth/Data API continues to call the same guard before returning each token and before authorization assertions; integration `50 / 50` PASS with eight synthetic users.
+- Scope guard: no migration, schema, RLS/policy, production authorization semantics, dependency, `.gef`, or business-domain change.
+- GEF preflight before mutation: PASS; correct repository/account/branch, exact execution base and bind snapshot, Context Lock `BOUND_FOR_EXECUTION`, `16 / 16` stable fingerprints MATCH, clean tree, and `.gef` unchanged.
+- Complete exact-head HIGH_ASSURANCE L5 is rerun after evidence/checkpoint synchronization; exact final HEAD and full results are recorded in PR `#49`.
+- The actionable CodeRabbit thread is resolved only after the correction passes its complete exact-head validation.
+- CodeRabbit local at implementation candidate `63a6d37` also identified a stale latest-candidate reference, corrected in this documentation-only closeout. Its separate minor request to broaden the pre-existing pgTAP policy-role assertion is outside CD-003 and is deferred without modifying that matrix.
+- PR `#49` remains OPEN/DRAFT against `main`; merge was not performed; objective audit remains pending.
+- Correction completion token: `GMZ_IMPL_003_CD_003_READY_FOR_OBJECTIVE_AUDIT`.

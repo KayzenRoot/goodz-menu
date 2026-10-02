@@ -8,9 +8,9 @@
   "assurance": "HIGH_ASSURANCE",
   "admissionBaseRef": "main",
   "admissionBaseSha": "81ff6d87c2af25ebf5cd55ba8038bcad5a86b83a",
-  "workBranch": "implementation/gmz-impl-003-membership-authz",
-  "executionBaseSha": null,
-  "executionBaseState": "MUST_BIND_AFTER_ADMISSION_PROMOTION",
+  "workBranch": "execution/gmz-impl-003-membership-authz",
+  "executionBaseSha": "c08e385dee86eb7af1c133f730e74951891b63f8",
+  "executionBaseState": "BOUND_FOR_EXECUTION",
   "sourcePack": "FROZEN_V0_1",
   "productionDenominator": 515,
   "productionEarnedAtAdmission": 19,
@@ -88,9 +88,9 @@
   ],
   "governanceSnapshot": {
     "checkpointPath": ".engineering/CHECKPOINT.json",
-    "checkpointGitBlobSha": "a0c7f3c8371cb6eec5ce76b218c00609f6e26b07",
-    "status": "GMZ_IMPL_003_ADMITTED_EXECUTION_BASE_BIND_PENDING",
-    "note": "Mutable governance snapshot; intentionally excluded from stable lockedSources."
+    "checkpointGitBlobSha": "a8e0c6711a6c2d7601497895806a5b9f326888d9",
+    "status": "GMZ_IMPL_003_BOUND_FOR_EXECUTION",
+    "note": "Execution-base bind snapshot after admission merge; stable sources remain independently fingerprinted."
   },
   "implementationContract": {
     "authIdentity": "SUPABASE_AUTH_USER_ID",
@@ -132,10 +132,9 @@
     "Executor does not merge its own PR"
   ],
   "executor": "GEF heavy executor / Codex",
-  "codexAllowed": false,
-  "codexAuthorizedScope": "BLOCKED until admission merge SHA is bound as executionBaseSha and branch descends from it.",
+  "codexAllowed": true,
+  "codexAuthorizedScope": "Only GMZ-IMPL-003 on execution/gmz-impl-003-membership-authz, descended from exact executionBaseSha c08e385dee86eb7af1c133f730e74951891b63f8. No merge.",
   "codexProhibited": [
-    "mutation before execution-base bind",
     "main direct mutation",
     "merge",
     "force push",
@@ -148,5 +147,18 @@
     "remote Supabase",
     "production infrastructure"
   ],
-  "stopCondition": "GMZ_IMPL_003_ADMISSION_READY_FOR_REVIEW"
+  "stopCondition": "GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT",
+  "admissionAudit": {
+    "auditedHead": "5cfdcfbd6811b2cda2d3caa4d141a5b3018ae710",
+    "admissionPr": 48,
+    "mergeSha": "c08e385dee86eb7af1c133f730e74951891b63f8",
+    "stableSourceFingerprints": "16/16 MATCH",
+    "sonarCloud": "PASS",
+    "codeRabbit": "SUCCESS_NO_ACTIONABLE_COMMENTS",
+    "unresolvedReviewThreads": 0,
+    "critical": 0,
+    "high": 0,
+    "runtimeOrSchemaCodeIntroduced": false,
+    "disposition": "APPROVED_FOR_ADMISSION_PROMOTION"
+  }
 }
