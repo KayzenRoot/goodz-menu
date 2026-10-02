@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_001_ADMITTED_EXECUTION_BASE_BIND_PENDING`
+Status: `GMZ_IMPL_001_OBJECTIVE_AUDIT_APPROVED_PROMOTION_PENDING`
 
 ## Current state
 - Project: Goodz Menu
@@ -24,14 +24,14 @@ Status: `GMZ_IMPL_001_ADMITTED_EXECUTION_BASE_BIND_PENDING`
 - AI Architecture: `APPROVED_V0.1`
 - UI/UX Design System: `APPROVED_V0.1`
 - Security Control Matrix: `APPROVED_V0.1`
-- Product implementation: `NOT_AUTHORIZED`
+- Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-001` — ADMITTED / execution-base bind pending
+- Work Order: `GMZ-IMPL-001` — OBJECTIVE_AUDIT_APPROVED / PROMOTION_PENDING
 - Issue: `#36`
 - Branch: `implementation/gmz-impl-001-runtime-foundation`
-- Base: `main@aba0a70189c90f8b86c855a34a07332e7a8bc5ff`
-- Mode: planning only
+- Base: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
+- Mode: implementation objective audit
 
 ## Progress accounting
 Overall production completion: `0 / 515 = 0.00%`.
@@ -48,28 +48,10 @@ GMZ-SRC-001 is preserved byte-exact in repository truth:
 The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
-Admit the first implementation Work Order. Recommended scope: runtime + design shell + local Supabase connectivity + health smoke, with no business-feature completion claim.
+Complete the objective audit of PR #38 on its exact final head. If corrections are required, keep them inside GMZ-IMPL-001, rerun the exact-head validation ladder, and do not award production credit before governed promotion.
 
+STOP CONDITION: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`.
 
-Review and promote Project Overview + Requirements, then continue the canonical Source Pack decomposition:
-1. Project Overview
-2. Requirements
-3. frozen Scope
-4. Architecture
-5. Data Model
-6. API/Integration contracts
-7. AI Architecture
-8. UI/UX Design System
-9. Security
-10. Test & Benchmark Plan
-11. Deployment
-12. Backlog baseline
-13. Definition of Done
-14. Innovation Ledger
-
-No product code before the applicable planning contracts are frozen and the first implementation Work Order is admitted.
-
-STOP CONDITION: `GMZ_SP_007_SECURITY_BASELINE_READY_FOR_REVIEW`.
 
 
 ## GMZ-SP-001 audit
@@ -320,8 +302,8 @@ STOP CONDITION: `GMZ_SOURCE_PACK_V0_1_FROZEN`.
 - current earned production credit: `0 / 515`
 - admitted modules: `M25(4), M04(1), M26(2), M23(1)`
 - business-domain implementation: `NOT ADMITTED`
-- executor production-code mutation: `BLOCKED UNTIL ADMISSION MERGE + EXECUTION BASE BIND`
-- exact execution base: `NOT_YET_BOUND`
+- executor production-code mutation: `AUTHORIZED WITHIN GMZ-IMPL-001 ONLY`
+- exact execution base: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
 
 STOP CONDITION: `GMZ_IMPL_001_ADMISSION_READY_FOR_REVIEW`.
 
@@ -337,3 +319,97 @@ STOP CONDITION: `GMZ_IMPL_001_ADMISSION_READY_FOR_REVIEW`.
 - CRITICAL/HIGH: `0 / 0`
 - disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
 - executor mutation remains blocked until exact admission merge SHA is bound.
+
+
+## GMZ-IMPL-001 execution-base bind
+- admission PR: `#37`
+- admission merge: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
+- branch fast-forward: `PASS`
+- Context Lock: `BOUND_FOR_EXECUTION`
+- implementation authorization: `YES, GMZ-IMPL-001 ONLY`
+- business-domain implementation: `NO`
+- current earned production credit: `0 / 515`
+- next action: `EXECUTE GMZ-IMPL-001`
+
+STOP CONDITION: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-001 executor closeout
+- Status: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`
+- Implementation commit: `72046ac7cf54d96ae3b85b8a4ccb9b4a2032caf7`
+- PR: `#38` — https://github.com/KayzenRoot/goodz-menu/pull/38
+- PR base/state: `main / OPEN`; merge: `NOT PERFORMED`
+- Executor GEF preflight: `PASS`; locked source fingerprints: `14 / 14 MATCH`
+- Foundation checks: lint/typecheck/unit/build/E2E/audit/peer check/Docker/Supabase: `PASS`
+- Docker web: `HEALTHY` on loopback `127.0.0.1:3001`; Supabase readiness: `AVAILABLE`
+- Critical / High findings: `0 / 0`; independent objective audit: `PENDING`
+- `productionEarned`: `0 / 515`; no module marked complete
+- Next action: `OBJECTIVE_AUDIT_GMZ_IMPL_001`
+
+The final executor sweep is repeated after this checkpoint/evidence closeout commit. Its exact PR head is reported by the executor; the PR remains open for the separate objective audit.
+
+STOP CONDITION: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-001 objective review correction
+- Correction Delta: `GMZ-IMPL-001-CD-003`
+- CRITICAL/HIGH/MEDIUM/LOW: `0 / 0 / 0 / 3`
+- stale human checkpoint state: `FIXED`
+- stale closeout checkpoint fingerprint: `FIXED`
+- status response stale-state bug: `FIXED`
+- regression E2E: `ADDED`
+- exact-head L5 after CD-003: `PASS`
+- disposition before CD-005: `APPROVED_FOR_PROMOTION / SUPERSEDED`
+
+
+## GMZ-IMPL-001 final objective audit
+- exact runtime/test head: `b231ecd0a8fb62c8c6330671a38133f4df12dc37`
+- L5: `PASS`
+- locked source fingerprints: `14 / 14 MATCH`
+- Socket Security: `SUCCESS`
+- unresolved review threads: `0`
+- CRITICAL/HIGH: `0 / 0`
+- accepted residual LOW hardening: `GMZ-HARDEN-001 / Issue #39`
+- credit eligible after merge: `8 / 515`
+- credit earned before merge: `0 / 515`
+- disposition: `APPROVED_FOR_PROMOTION`
+- next: `MERGE PR #38, THEN PROMOTION SYNC`
+
+STOP CONDITION: `GMZ_IMPL_001_OBJECTIVE_AUDIT_APPROVED_PROMOTION_PENDING`.
+
+
+## GMZ-IMPL-001-CD-005
+- new finding: `LOW / stale refresh race`
+- code fix: `APPLIED`
+- regression test: `ADDED`
+- runtime files changed after prior L5: `YES`
+- prior objective approval: `SUPERSEDED`
+- complete GEF 1.1.1 preflight: `PASS`; locked source fingerprints: `14 / 14 MATCH`
+- legal execution base: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585` unchanged; `.gef`: `UNCHANGED`
+- exact-head L5 after CD-005: `PASS` at corrected runtime candidate `ae8696200876495c5acb1a662a8893e8d6b842d4`
+- final checkpoint/evidence closeout head: complete L5 repeated; exact SHA and results are recorded in PR `#38`
+- production credit: `0 / 515`
+- next action: `OBJECTIVE_AUDIT_GMZ_IMPL_001`
+- disposition: `READY_FOR_OBJECTIVE_AUDIT`
+
+STOP CONDITION: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-001 final objective audit after CD-005
+- exact accepted candidate: `a3df631b4ca8d0798fcdbe60434c5f0b954b1f32`
+- complete L5: `PASS`
+- locked source fingerprints: `14 / 14 MATCH`
+- unit: `6 / 6 PASS`
+- E2E: `8 / 8 PASS`
+- Docker/Supabase: `PASS`
+- accessibility: `0 violations`
+- Socket Security: `SUCCESS`
+- unresolved review threads: `0`
+- CRITICAL/HIGH: `0 / 0`
+- residual LOW hardening: `Issue #39`
+- production credit before merge: `0 / 515`
+- eligible after merge: `8 / 515`
+- disposition: `APPROVED_FOR_PROMOTION`
+- next: `MERGE PR #38`
+
+STOP CONDITION: `GMZ_IMPL_001_OBJECTIVE_AUDIT_APPROVED_PROMOTION_PENDING`.

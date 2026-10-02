@@ -1,0 +1,1 @@
+-- No business-domain seed data is in scope for GMZ-IMPL-001.

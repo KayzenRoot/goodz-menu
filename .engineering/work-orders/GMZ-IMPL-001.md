@@ -1,6 +1,6 @@
 # GMZ-IMPL-001 — Executable Local Runtime Foundation
 
-Status: `ADMITTED / EXECUTION_BASE_BIND_PENDING`  
+Status: `OBJECTIVE_AUDIT_APPROVED / PROMOTION_PENDING`
 Issue: `#36`  
 Assurance: `ELEVATED`  
 Base branch: `main`  
@@ -73,12 +73,15 @@ Current official source checks on 2026-10-01:
 
 ## EXECUTION BASE BINDING
 
-The executor MUST NOT begin production-code mutation until this admission packet is merged/promoted and the branch is fast-forwarded to the resulting admission merge.
+Execution base is now bound:
 
-The post-admission Context Lock must record the exact execution base SHA.
+- admission merge: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
+- legal executor base: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
+- work branch was fast-forwarded to that merge before post-admission bind.
+- executor mutation is authorized only inside this Work Order and its WRITE_ALLOWED surface.
 
-If that binding has not occurred, STOP with:
-`GMZ_IMPL_001_EXECUTION_BASE_NOT_BOUND`.
+If executor starts from a different lineage, STOP with:
+`GMZ_IMPL_001_EXECUTION_BASE_MISMATCH`.
 
 ## MUST READ FIRST
 
@@ -382,3 +385,56 @@ Stop only when implementation is committed/pushed, PR is open against `main`, fi
 - CRITICAL/HIGH: `0 / 0`
 - disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
 - executor remains blocked until the admission merge SHA is written to Context Lock.
+
+
+## EXECUTOR ADMISSION
+- admission PR: `#37`
+- admission final head: `59bc67a4555cfee164d17ea2dc17a8b9fd2cc5ae`
+- admission merge / execution base: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
+- final admission checks: `SUCCESS`
+- execution authority: `ACTIVE FOR GMZ-IMPL-001 ONLY`
+- self-merge authority: `NO`
+
+
+## OBJECTIVE AUDIT FINAL
+- exact runtime/test head: `b231ecd0a8fb62c8c6330671a38133f4df12dc37`
+- final L5: `PASS`
+- GEF fingerprints: `14 / 14 MATCH`
+- Socket Security: `SUCCESS`
+- unresolved review threads: `0`
+- historical LOW findings: `3 / FIXED`
+- accepted residual LOW hardening: `Issue #39`
+- CRITICAL/HIGH: `0 / 0`
+- eligible credit after merge: `8 / 515`
+- credit before merge: `0 / 515`
+- disposition: `APPROVED_FOR_PROMOTION`
+
+
+## GMZ-IMPL-001-CD-005
+- source: final CodeRabbit review after CD-003
+- finding: overlapping 15s status refreshes could complete out of order and allow an older result to overwrite a newer state
+- severity: `LOW`
+- correction: refresh sequence guard with stale-result discard
+- regression test: delayed older health/readiness request vs newer refresh
+- scope expansion: `NO`
+- production credit: `0 / 515`
+- exact-head L5 at corrected runtime candidate `ae8696200876495c5acb1a662a8893e8d6b842d4`: `PASS`
+- stale-refresh race E2E: `PASS` on desktop and mobile
+- post-closeout full exact-head L5: repeated on final evidence/checkpoint commit; exact SHA and results recorded in PR `#38`
+- disposition: `CORRECTION_VALIDATED / READY_FOR_OBJECTIVE_AUDIT`
+
+
+## FINAL OBJECTIVE AUDIT — CD-005 CLOSED
+- exact accepted candidate: `a3df631b4ca8d0798fcdbe60434c5f0b954b1f32`
+- final L5: `PASS`
+- fingerprints: `14 / 14 MATCH`
+- E2E: `8 / 8 PASS`
+- accessibility: `0 violations`
+- Socket Security: `SUCCESS`
+- unresolved review threads: `0`
+- CRITICAL/HIGH: `0 / 0`
+- corrected LOW: `4`
+- residual LOW: `Issue #39 / non-blocking local-only`
+- eligible credit after merge: `8 / 515`
+- credit before merge: `0 / 515`
+- disposition: `APPROVED_FOR_PROMOTION`

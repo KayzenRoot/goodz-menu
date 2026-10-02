@@ -9,8 +9,8 @@
   "admissionBaseRef": "main",
   "admissionBaseSha": "aba0a70189c90f8b86c855a34a07332e7a8bc5ff",
   "workBranch": "implementation/gmz-impl-001-runtime-foundation",
-  "executionBaseSha": null,
-  "executionBaseState": "MUST_BIND_AFTER_ADMISSION_PROMOTION",
+  "executionBaseSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
+  "executionBaseState": "BOUND_FOR_EXECUTION",
   "sourcePack": "FROZEN_V0_1",
   "productionDenominator": 515,
   "maxSliceCredit": 8,
@@ -23,7 +23,7 @@
   "lockedSources": [
     {
       "path": ".engineering/CHECKPOINT.json",
-      "gitBlobSha": "491b659c406aa3cf17af439abb9f7b756a4cc293"
+      "gitBlobSha": "f5c54d5e98cc5d6583d4338a1b5d02cb774a3d6c"
     },
     {
       "path": ".engineering/SOURCE-HIERARCHY.md",
@@ -104,5 +104,96 @@
     "remote production infrastructure",
     "scope expansion"
   ],
-  "stopCondition": "GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT"
+  "stopCondition": "GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT",
+  "executionBranchHeadAtBind": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
+  "admissionMergeSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
+  "boundAt": "2026-10-01",
+  "preflight": {
+    "admissionMerged": true,
+    "branchFastForwardedToAdmissionMerge": true,
+    "sourcePackFrozen": true,
+    "implementationCodePresentAtBind": false,
+    "result": "PASS"
+  },
+  "correctionDeltas": [
+    {
+      "id": "GMZ-IMPL-001-CD-001",
+      "reason": "Post-admission execution-base bind updated CHECKPOINT.json after the provisional Context Lock was compiled, leaving only its checkpoint fingerprint stale.",
+      "oldCheckpointGitBlobSha": "491b659c406aa3cf17af439abb9f7b756a4cc293",
+      "newCheckpointGitBlobSha": "7afe278acf8097eb4908a8414b56e4814e8be194",
+      "semanticScopeChange": false,
+      "executionBaseChanged": false,
+      "executionBaseSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
+      "implementationCodeTouched": false,
+      "disposition": "LOCK_REBOUND_TO_PROMOTED_READY_FOR_EXECUTOR_CHECKPOINT"
+    },
+    {
+      "id": "GMZ-IMPL-001-CD-002",
+      "reason": "Executor closeout legitimately advanced CHECKPOINT.json to READY_FOR_OBJECTIVE_AUDIT after implementation, leaving the bind-time checkpoint fingerprint stale for objective review.",
+      "oldCheckpointGitBlobSha": "7afe278acf8097eb4908a8414b56e4814e8be194",
+      "newCheckpointGitBlobSha": "7f56a379324a9de55178ca9e4b2859cfb5750d83",
+      "semanticScopeChange": false,
+      "executionBaseChanged": false,
+      "executionBaseSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
+      "implementationCodeTouched": false,
+      "stopCondition": "GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT",
+      "disposition": "LOCK_REBOUND_TO_EXECUTOR_CLOSEOUT_CHECKPOINT"
+    },
+    {
+      "id": "GMZ-IMPL-001-CD-003",
+      "reason": "Objective review found three MINOR issues: stale human checkpoint state, stale closeout checkpoint fingerprint, and StatusPanel coupled JSON parsing that could preserve stale success state.",
+      "findings": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 3
+      },
+      "fixes": [
+        "Synchronize CHECKPOINT.md current state to READY_FOR_OBJECTIVE_AUDIT",
+        "Rebind locked CHECKPOINT.json fingerprint to executor closeout blob without changing execution base",
+        "Parse health/readiness responses independently and clear failed/stale state",
+        "Add E2E regression for malformed health JSON with healthy readiness"
+      ],
+      "semanticScopeChange": false,
+      "executionBaseChanged": false,
+      "executionBaseSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
+      "runtimeCodeTouched": true,
+      "validationRequiredOnNewHead": true,
+      "disposition": "CORRECTION_APPLIED_EXACT_HEAD_L5_PENDING"
+    },
+    {
+      "id": "GMZ-IMPL-001-CD-004",
+      "reason": "Objective audit approval advanced the machine checkpoint to promotion-pending; rebind only the checkpoint fingerprint for final governance promotion.",
+      "oldCheckpointGitBlobSha": "7f56a379324a9de55178ca9e4b2859cfb5750d83",
+      "newCheckpointGitBlobSha": "f1e6bcfda8dd6a95f6ce99a59d744635beb43236",
+      "semanticScopeChange": false,
+      "executionBaseChanged": false,
+      "runtimeCodeTouched": false,
+      "disposition": "PROMOTION_CHECKPOINT_REBOUND"
+    },
+    {
+      "id": "GMZ-IMPL-001-CD-005",
+      "reason": "Final objective review found an overlapping status-refresh race. Runtime correction and regression coverage require a new exact-head L5 before promotion.",
+      "oldCheckpointGitBlobSha": "f1e6bcfda8dd6a95f6ce99a59d744635beb43236",
+      "newCheckpointGitBlobSha": "731d0edda91d1cb124e591c20629c37f18a400d4",
+      "semanticScopeChange": false,
+      "executionBaseChanged": false,
+      "executionBaseSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
+      "runtimeCodeTouched": true,
+      "validationRequiredOnNewHead": true,
+      "validatedHead": "ae8696200876495c5acb1a662a8893e8d6b842d4",
+      "exactHeadL5Result": "PASS",
+      "disposition": "CORRECTION_VALIDATED_EXACT_HEAD_L5_PASS"
+    },
+    {
+      "id": "GMZ-IMPL-001-CD-006",
+      "reason": "Final objective-audit promotion advances CHECKPOINT.json only; rebind checkpoint fingerprint for merge candidate governance state.",
+      "oldCheckpointGitBlobSha": "731d0edda91d1cb124e591c20629c37f18a400d4",
+      "newCheckpointGitBlobSha": "f5c54d5e98cc5d6583d4338a1b5d02cb774a3d6c",
+      "semanticScopeChange": false,
+      "executionBaseChanged": false,
+      "runtimeCodeTouched": false,
+      "disposition": "FINAL_PROMOTION_CHECKPOINT_REBOUND"
+    }
+  ]
 }
