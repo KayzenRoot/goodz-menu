@@ -204,3 +204,35 @@ No migration, schema, RLS policy, authorization behavior, dependency, `.gef`, or
 The complete exact-head L5 is rerun after this evidence/checkpoint closeout. PR `#49` records the final exact HEAD and the full rerun results. The PR remains OPEN/DRAFT, no merge occurred, and objective audit remains pending.
 
 STOP CONDITION: `GMZ_IMPL_003_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-003-CD-002 — Auth password-grant principal integrity
+
+### Finding and bounded correction
+
+The objective-review finding identified that the local synthetic Auth flow returned a password-grant access token without asserting the token response subject was the same identity returned by signup. The test harness now checks `tokenBody.user?.id === identity.id` after a successful token response and before returning the access token. Missing or different subjects throw a generic error; no token or identity value is included in the failure message.
+
+A focused regression exercises the shared guard directly: the matching subject is accepted, while a mismatched subject and a missing subject fail closed. The real local Auth/Data API flow also exercises the guard for each synthetic user before its authorization matrix proceeds.
+
+Only these Auth test-harness paths changed:
+
+- `tests/supabase/tenant-authorization.integration.mjs`
+- `tests/supabase/password-grant-identity.mjs`
+- `tests/supabase/password-grant-identity.test.mjs`
+
+No migration, schema, RLS/policy, authorization semantics, dependency, `.gef`, or business-domain file changed.
+
+### CD-002 focused validation
+
+| Check | Result |
+|---|---|
+| GEF 1.1.1 preflight before mutation | `PASS` — KayzenRoot repository/account, authorized branch, exact execution base and bind snapshot, Context Lock bound, `16 / 16` locked sources MATCH, clean tree, `.gef` unchanged, PR `#49` OPEN/DRAFT/unmerged |
+| Deterministic identity-guard regression | `PASS` — Node test runner `3 / 3` (matching, mismatched, and absent token subject cases) |
+| Local Auth/Data API integration | `PASS` — `50 / 50` checks; eight synthetic password-grant token subjects matched their signup identities |
+| Changed-file lint and whitespace checks | `PASS` |
+| Changed-file secret-pattern scan | `PASS` — zero matches |
+| Dependency and `.gef` scope check | `PASS` — manifests unchanged; `.gef` unchanged |
+
+The complete exact-head HIGH_ASSURANCE L5 is rerun after this evidence/checkpoint synchronization. Its exact final HEAD and full results are recorded in PR `#49`; the PR remains OPEN/DRAFT and unmerged while the separate objective audit is pending.
+
+Correction completion token: `GMZ_IMPL_003_CD_002_READY_FOR_OBJECTIVE_AUDIT`.

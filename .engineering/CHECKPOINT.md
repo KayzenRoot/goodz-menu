@@ -89,6 +89,21 @@ STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
 STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
 
 
+## GMZ-IMPL-003-CD-002
+
+- Finding: local Auth password-grant did not bind the returned token subject to the signup identity.
+- Correction: the test flow now requires `tokenBody.user?.id === identity.id` before returning the access token and fails closed on mismatch or absent subject.
+- Deterministic regression: `3 / 3` PASS (matching subject accepted; mismatched and absent subject rejected).
+- Local Auth/Data API integration: `50 / 50` PASS, including the subject check for all eight synthetic users.
+- Scope: test-harness identity proof only; no migration/schema/RLS/policy/dependency/`.gef`/business-scope changes.
+- Preflight: GEF `1.1.1` PASS; `16 / 16` locked fingerprints MATCH; bind governance snapshot MATCH; `.gef` unchanged.
+- Complete exact-head HIGH_ASSURANCE L5 is repeated after this closeout; exact final HEAD and results are recorded in PR `#49`.
+- PR `#49`: OPEN/DRAFT, base `main`, not merged; objective audit pending.
+- Correction completion token: `GMZ_IMPL_003_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
+
+STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
+
+
 
 ## GMZ-SP-001 audit
 - Audited planning candidate: `fa29702bfcab8a344767616b4e47970fde738f3f`

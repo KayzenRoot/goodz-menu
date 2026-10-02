@@ -371,3 +371,16 @@ STOP CONDITION:
 
 STOP CONDITION:
 `GMZ_IMPL_003_CD_001_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-003-CD-002 — Local Auth token identity binding
+
+- Objective-review finding: the local Auth password-grant flow checked for an access token but did not prove its `user.id` matched the signup identity used by the synthetic membership fixture.
+- Bounded correction: before returning the access token, require `tokenBody.user?.id === identity.id`; missing or mismatched token identity throws a generic error and fails closed.
+- Deterministic regression: matching identity accepted; mismatched and absent token subjects rejected (`3 / 3` Node tests PASS).
+- Local Auth/Data API: all eight synthetic password-grant identities passed the new subject check; complete integration `50 / 50` PASS.
+- Scope guard: no migration, schema, RLS/policy, authorization semantics, dependency, `.gef`, or business-domain change.
+- GEF preflight before mutation: PASS; correct repository/identity/branch, exact execution base and bind snapshot, Context Lock `BOUND_FOR_EXECUTION`, `16 / 16` stable fingerprints MATCH, clean tree, and `.gef` unchanged.
+- Complete exact-head HIGH_ASSURANCE L5 is rerun after this evidence/checkpoint synchronization; its exact final HEAD and results are recorded in PR `#49`.
+- PR `#49` remains OPEN/DRAFT against `main`; merge was not performed; objective audit remains pending.
+- Correction completion token: `GMZ_IMPL_003_CD_002_READY_FOR_OBJECTIVE_AUDIT`.

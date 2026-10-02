@@ -116,13 +116,24 @@
     "implementationAuthorized": true,
     "admissionMergeSha": "c08e385dee86eb7af1c133f730e74951891b63f8",
     "executionBranch": "execution/gmz-impl-003-membership-authz",
+    "correctionHistory": [
+      {
+        "id": "GMZ-IMPL-003-CD-001",
+        "state": "READY_FOR_OBJECTIVE_AUDIT",
+        "scope": "establishment_scope_authorization_evidence_only",
+        "pgTap": "125/125 PASS",
+        "localAuthDataApi": "42/42 PASS",
+        "migrationSchemaPolicyChanged": false
+      }
+    ],
     "latestCorrectionDelta": {
-      "id": "GMZ-IMPL-003-CD-001",
+      "id": "GMZ-IMPL-003-CD-002",
       "state": "READY_FOR_OBJECTIVE_AUDIT",
-      "scope": "establishment_scope_authorization_evidence_only",
-      "pgTap": "125/125 PASS",
-      "localAuthDataApi": "42/42 PASS",
-      "migrationSchemaPolicyChanged": false
+      "scope": "local_auth_password_grant_identity_binding_proof_only",
+      "identityGuardRegression": "3/3 PASS",
+      "localAuthDataApi": "50/50 PASS",
+      "migrationSchemaPolicyChanged": false,
+      "dependenciesGefBusinessScopeChanged": false
     },
     "stopCondition": "GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT"
   }
