@@ -138,6 +138,28 @@
       "implementationCodeTouched": false,
       "stopCondition": "GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT",
       "disposition": "LOCK_REBOUND_TO_EXECUTOR_CLOSEOUT_CHECKPOINT"
+    },
+    {
+      "id": "GMZ-IMPL-001-CD-003",
+      "reason": "Objective review found three MINOR issues: stale human checkpoint state, stale closeout checkpoint fingerprint, and StatusPanel coupled JSON parsing that could preserve stale success state.",
+      "findings": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 3
+      },
+      "fixes": [
+        "Synchronize CHECKPOINT.md current state to READY_FOR_OBJECTIVE_AUDIT",
+        "Rebind locked CHECKPOINT.json fingerprint to executor closeout blob without changing execution base",
+        "Parse health/readiness responses independently and clear failed/stale state",
+        "Add E2E regression for malformed health JSON with healthy readiness"
+      ],
+      "semanticScopeChange": false,
+      "executionBaseChanged": false,
+      "executionBaseSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
+      "runtimeCodeTouched": true,
+      "validationRequiredOnNewHead": true,
+      "disposition": "CORRECTION_APPLIED_EXACT_HEAD_L5_PENDING"
     }
   ]
 }
