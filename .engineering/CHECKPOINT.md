@@ -73,6 +73,20 @@ STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
 STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
 
 
+## GMZ-IMPL-003-CD-001
+
+- Objective-review gap: establishment-scoped access lacked direct pgTAP and local authenticated Auth/Data API proof.
+- Added synthetic establishment-scoped user, membership, role with `tenant.hierarchy.read`, and membership-role assignment.
+- Established the current parent Organization context behavior explicitly; assigned establishment and all two branches allowed; sibling and foreign-tenant establishment/branch reads denied.
+- Existing authorization matrices retained; no migration, schema, policy, `.gef`, dependency, or business-scope changes.
+- Targeted pgTAP: `PASS`, `125 / 125`; local Auth/Data API real-token integration: `PASS`, `42 / 42`.
+- Frozen install (`pnpm 12.8.1`), lint, typecheck, unit, and changed-file secret scan: `PASS`.
+- Complete final exact-head L5 rerun and its exact SHA/results are documented in PR `#49`.
+- PR `#49`: OPEN/DRAFT, not merged; objective audit remains pending.
+
+STOP CONDITION: `GMZ_IMPL_003_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
+
+
 
 ## GMZ-SP-001 audit
 - Audited planning candidate: `fa29702bfcab8a344767616b4e47970fde738f3f`

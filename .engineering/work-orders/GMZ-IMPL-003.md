@@ -354,3 +354,19 @@ STOP CONDITION:
 
 STOP CONDITION:
 `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-003-CD-001 — Establishment-scope authorization proof
+
+- Objective-review finding: establishment-scoped access was not independently covered by the pgTAP or local authenticated Auth/Data API matrices.
+- Correction: added one synthetic Auth user, active organization membership, tenant role with `tenant.hierarchy.read`, and `MembershipRole(scope_type = establishment)` assigned to establishment A1.
+- Database proof: the scoped identity reads its assigned establishment and all two descendant branches; it is denied a sibling establishment and its branch, a foreign-tenant establishment and branch, and a foreign parent organization. Its parent organization remains readable, matching the existing policy's parent-context semantics.
+- Local Auth/Data API proof: the same matrix passes through a real local password-grant access token.
+- Existing organization/branch-scope, no-membership, no-permission, suspended/revoked, metadata-spoof, cross-tenant, and write-denial tests are retained.
+- Scope guard: no migration, schema, RLS policy, permission behavior, dependency, `.gef`, or business module changed.
+- Targeted validation: frozen install `pnpm 12.8.1`, lint, typecheck, and unit tests passed; pgTAP `125 / 125`; local Auth/Data API `42 / 42`; changed-file secret-pattern scan `0` matches.
+- Complete exact-head L5 is rerun after the evidence/checkpoint closeout. The final closeout SHA and the complete exact-head results are recorded in PR `#49`.
+- PR remains OPEN/DRAFT and unmerged. Objective audit remains a separate pending action.
+
+STOP CONDITION:
+`GMZ_IMPL_003_CD_001_READY_FOR_OBJECTIVE_AUDIT`

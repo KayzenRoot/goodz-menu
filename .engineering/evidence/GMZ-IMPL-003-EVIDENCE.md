@@ -166,3 +166,40 @@ The PR also carries the previously committed GMZ-IMPL-003 admission/bind changes
 - [Supabase changelog](https://supabase.com/changelog?types=breaking-change)
 
 STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-003-CD-001 — Establishment-scope proof correction
+
+### Finding and bounded change
+
+The current objective-review finding identified a proof gap for the admitted establishment scope: prior tests exercised organization and branch scope, but did not create an establishment-scoped authorization assignment. The correction adds only synthetic fixture and test assertions in:
+
+- `supabase/tests/database/membership_authorization.test.sql`
+- `tests/supabase/tenant-authorization.integration.mjs`
+
+The pgTAP fixture now includes a synthetic Auth user, active organization membership, tenant role with `tenant.hierarchy.read`, and `MembershipRole(scope_type = establishment)` for the assigned establishment. Both the SQL suite and local Auth/Data API integration prove:
+
+- the assigned establishment and all two branches beneath it are readable;
+- a sibling establishment and its branch are denied;
+- an establishment and branch in a different tenant are denied;
+- the parent Organization remains readable for same-tenant context, as the current policy allows, while a foreign parent Organization is denied.
+
+The local integration obtains and uses an actual synthetic Auth password-grant token. Organization scope, branch scope, no membership, no permission, suspended/revoked membership, metadata spoofing, cross-tenant denial, and authenticated write denial tests remain in place.
+
+No migration, schema, RLS policy, authorization behavior, dependency, `.gef`, or business-domain file was changed.
+
+### Correction validation
+
+| Check | Result |
+|---|---|
+| GEF 1.1.1 preflight | `PASS` — correct repository/identity/branch; exact execution base ancestor; 16/16 fingerprints MATCH; bound Context Lock; entry governance snapshot MATCH; clean starting tree; `.gef` unchanged |
+| Frozen strict-peer install | `PASS` — pnpm `12.8.1`; lockfile unchanged |
+| Lint / typecheck / unit tests | `PASS`; unit `8 / 8` |
+| Local database reset | `PASS` |
+| Complete pgTAP suite | `PASS` — 2 files, `125 / 125` assertions |
+| Local Auth/Data API | `PASS` — `42 / 42` checks using synthetic local Auth tokens |
+| Changed-file secret-pattern scan | `PASS` — 2 changed test files, 0 matches |
+
+The complete exact-head L5 is rerun after this evidence/checkpoint closeout. PR `#49` records the final exact HEAD and the full rerun results. The PR remains OPEN/DRAFT, no merge occurred, and objective audit remains pending.
+
+STOP CONDITION: `GMZ_IMPL_003_CD_001_READY_FOR_OBJECTIVE_AUDIT`.

@@ -116,6 +116,14 @@
     "implementationAuthorized": true,
     "admissionMergeSha": "c08e385dee86eb7af1c133f730e74951891b63f8",
     "executionBranch": "execution/gmz-impl-003-membership-authz",
+    "latestCorrectionDelta": {
+      "id": "GMZ-IMPL-003-CD-001",
+      "state": "READY_FOR_OBJECTIVE_AUDIT",
+      "scope": "establishment_scope_authorization_evidence_only",
+      "pgTap": "125/125 PASS",
+      "localAuthDataApi": "42/42 PASS",
+      "migrationSchemaPolicyChanged": false
+    },
     "stopCondition": "GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT"
   }
 }
