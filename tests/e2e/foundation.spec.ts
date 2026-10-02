@@ -54,3 +54,32 @@ test("feedback examples remain clearly labeled as previews", async ({ page }) =>
   await expect(page.getByRole("status")).toContainText("Exemplo de erro recuperável.");
   await expect(page.getByText("EXEMPLO", { exact: true })).toBeVisible();
 });
+
+
+test("status cards isolate malformed health responses from readiness state", async ({ page }) => {
+  await page.route("**/api/health", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: "{not-valid-json",
+    });
+  });
+  await page.route("**/api/ready", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        status: "ready",
+        dependencies: { supabase: { status: "available" } },
+      }),
+    });
+  });
+
+  await page.goto("/");
+
+  const applicationCard = page.locator(".status-card").filter({ hasText: "Aplicação" });
+  const supabaseCard = page.locator(".status-card").filter({ hasText: "Supabase local" });
+
+  await expect(applicationCard).toContainText("Verificando");
+  await expect(supabaseCard).toContainText("Disponível");
+});
