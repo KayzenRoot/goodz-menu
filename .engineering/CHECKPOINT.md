@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_003_ADMITTED_EXECUTION_BASE_BIND_PENDING`
+Status: `GMZ_IMPL_003_BOUND_FOR_EXECUTION`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,11 +27,11 @@ Status: `GMZ_IMPL_003_ADMITTED_EXECUTION_BASE_BIND_PENDING`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-003` — ADMISSION CANDIDATE / execution-base bind pending
+- Work Order: `GMZ-IMPL-003` — BOUND_FOR_EXECUTION
 - Issue: `#47`
-- Branch: `implementation/gmz-impl-003-membership-authz`
-- Base: `main@81ff6d87c2af25ebf5cd55ba8038bcad5a86b83a`
-- Mode: HIGH_ASSURANCE membership/RBAC admission review
+- Branch: `execution/gmz-impl-003-membership-authz`
+- Execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`
+- Mode: HIGH_ASSURANCE membership/RBAC implementation
 
 ## Progress accounting
 Overall production completion: `19 / 515 = 3.69%`.
@@ -48,9 +48,9 @@ GMZ-SRC-001 is preserved byte-exact in repository truth:
 The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
-Audit the GMZ-IMPL-003 admission-only PR. Executor mutation remains blocked until admission promotion and exact execution-base binding.
+Execute only GMZ-IMPL-003 from the bound execution branch. Do not merge. Stop after exact-head evidence is ready for objective audit.
 
-STOP CONDITION: `GMZ_IMPL_003_ADMISSION_READY_FOR_REVIEW`.
+STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
 
 
 
@@ -597,3 +597,31 @@ STOP CONDITION: `GMZ_IMPL_002_PROMOTED_COMPLETE`.
 - checkpoint tracked as mutable governance snapshot
 
 STOP CONDITION: `GMZ_IMPL_003_ADMISSION_READY_FOR_REVIEW`.
+
+
+## GMZ-IMPL-003 admission audit
+- admission PR: `#48`
+- audited head: `5cfdcfbd6811b2cda2d3caa4d141a5b3018ae710`
+- changed files: `6 governance-only`
+- SonarCloud: `PASS / 0 new issues / 0 Security Hotspots / 0.0% duplication`
+- CodeRabbit: `SUCCESS / NO ACTIONABLE COMMENTS / Minimal risk`
+- unresolved review threads: `0`
+- runtime/schema/dependency change: `NONE`
+- CRITICAL/HIGH: `0 / 0`
+- disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
+
+## GMZ-IMPL-003 execution-base bind
+- admission merge: `c08e385dee86eb7af1c133f730e74951891b63f8`
+- execution branch: `execution/gmz-impl-003-membership-authz`
+- branch descended exactly from admission merge: `PASS`
+- stable source fingerprints: `16 / 16 MATCH`
+- Context Lock: `BOUND_FOR_EXECUTION`
+- implementation authorization: `YES, GMZ-IMPL-003 ONLY`
+- tenant authorization read slice: `AUTHORIZED`
+- tenant self-service mutation: `NO`
+- Platform Admin / MFA / Admin Guard / support mode: `NO`
+- remote Supabase / deployment: `NO`
+- current earned production credit: `19 / 515`
+- next action: `EXECUTE GMZ-IMPL-003`
+
+STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
