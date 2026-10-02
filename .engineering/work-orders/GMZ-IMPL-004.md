@@ -1,6 +1,6 @@
 # GMZ-IMPL-004 — Auth Session & Tenant Entry Foundation
 
-Status: `ADMISSION_CANDIDATE`
+Status: `ADMITTED / EXECUTION AUTHORIZED`
 Issue: `#52`
 Assurance: `HIGH_ASSURANCE`
 Admission branch: `implementation/gmz-impl-004-auth-session-entry`
@@ -250,4 +250,22 @@ Admission stage:
 `GMZ_IMPL_004_ADMISSION_READY_FOR_REVIEW`
 
 Execution stage after governed admission promotion and execution-base bind:
+`GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## EXECUTION-BASE BIND
+
+- admission PR: `#53`
+- admission disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
+- exact execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`
+- execution branch: `execution/gmz-impl-004-auth-session-entry`
+- Context Lock: `BOUND_FOR_EXECUTION`
+- stable source fingerprints: `16 / 16 MATCH`
+- executor/Codex authorization: `YES, GMZ-IMPL-004 ONLY`
+- merge authority: `NO`
+- production credit remains `31 / 515 = 6.02%`
+
+The executor must inspect the repository before mutation, execute the complete Work Order, run the HIGH_ASSURANCE evidence suite, correct failures introduced by the increment, commit/push to this execution branch, update the same PR, and stop for separate objective audit.
+
+STOP CONDITION:
 `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`
