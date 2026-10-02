@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_002_ADMITTED_EXECUTION_BASE_BIND_PENDING`
+Status: `GMZ_IMPL_002_READY_FOR_EXECUTOR`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,10 +27,10 @@ Status: `GMZ_IMPL_002_ADMITTED_EXECUTION_BASE_BIND_PENDING`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-002` — ADMITTED / execution-base bind pending
+- Work Order: `GMZ-IMPL-002` — READY_FOR_EXECUTOR
 - Issue: `#42`
 - Branch: `implementation/gmz-impl-002-tenant-core`
-- Base: `main@3f8bef75b40751b522aaed0dc6b7d09ad19ee110`
+- Base: `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`
 - Mode: implementation admission review
 
 ## Progress accounting
@@ -441,7 +441,7 @@ STOP CONDITION: `GMZ_IMPL_001_PROMOTED_COMPLETE`.
 - business migrations before WO: `NONE`
 - Auth/Membership/RBAC: `NOT ADMITTED`
 - RLS posture: `ENABLE + FAIL CLOSED / NO TENANT POLICY YET`
-- executor mutation: `BLOCKED UNTIL ADMISSION MERGE + EXECUTION BASE BIND`
+- executor mutation: `AUTHORIZED WITHIN GMZ-IMPL-002 ONLY`
 - stable source fingerprints: `14`
 - checkpoint tracked as governance snapshot, not stable-source fingerprint
 
@@ -462,3 +462,18 @@ STOP CONDITION: `GMZ_IMPL_002_ADMISSION_READY_FOR_REVIEW`.
 - CRITICAL/HIGH: `0 / 0`
 - disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
 - executor remains blocked until admission merge SHA is bound.
+
+
+## GMZ-IMPL-002 execution-base bind
+- admission PR: `#43`
+- admission merge: `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`
+- branch fast-forward: `PASS`
+- Context Lock target state: `BOUND_FOR_EXECUTION`
+- implementation authorization: `YES, GMZ-IMPL-002 ONLY`
+- Auth/Membership/RBAC: `NOT AUTHORIZED`
+- remote Supabase: `NOT AUTHORIZED`
+- current earned production credit: `8 / 515`
+- max future slice credit: `11`
+- next action: `EXECUTE GMZ-IMPL-002`
+
+STOP CONDITION: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`.
