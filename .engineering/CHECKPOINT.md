@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_001_PROMOTED_COMPLETE_READY_FOR_NEXT`
+Status: `GMZ_IMPL_002_ADMISSION_REVIEW_PENDING`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,11 +27,11 @@ Status: `GMZ_IMPL_001_PROMOTED_COMPLETE_READY_FOR_NEXT`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `NONE`
-- Issue: `NONE`
-- Branch: `main after promotion sync`
-- Base: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
-- Mode: no active implementation Work Order
+- Work Order: `GMZ-IMPL-002` — admission candidate
+- Issue: `#42`
+- Branch: `implementation/gmz-impl-002-tenant-core`
+- Base: `main@3f8bef75b40751b522aaed0dc6b7d09ad19ee110`
+- Mode: implementation admission review
 
 ## Progress accounting
 Overall production completion: `8 / 515 = 1.55%`.
@@ -429,3 +429,20 @@ STOP CONDITION: `GMZ_IMPL_001_OBJECTIVE_AUDIT_APPROVED_PROMOTION_PENDING`.
 - next: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
 
 STOP CONDITION: `GMZ_IMPL_001_PROMOTED_COMPLETE`.
+
+
+## GMZ-IMPL-002 admission candidate
+- objective: `Tenant Hierarchy and Isolation Foundation`
+- Source Pack: `FROZEN_V0.1`
+- assurance: `HIGH`
+- current earned production credit: `8 / 515 = 1.55%`
+- max additional slice credit after acceptance: `11`
+- allocation: `M01(10), M26(1)`
+- business migrations before WO: `NONE`
+- Auth/Membership/RBAC: `NOT ADMITTED`
+- RLS posture: `ENABLE + FAIL CLOSED / NO TENANT POLICY YET`
+- executor mutation: `BLOCKED UNTIL ADMISSION MERGE + EXECUTION BASE BIND`
+- stable source fingerprints: `14`
+- checkpoint tracked as governance snapshot, not stable-source fingerprint
+
+STOP CONDITION: `GMZ_IMPL_002_ADMISSION_READY_FOR_REVIEW`.
