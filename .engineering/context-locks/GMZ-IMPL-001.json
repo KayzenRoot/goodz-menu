@@ -67,7 +67,7 @@
     },
     {
       "path": "docs/source-pack/BACKLOG.md",
-      "gitBlobSha": "a535ec1809ce7aa97de31cb2abd3ea4ffe81404f"
+      "gitBlobSha": "00c70f6bcd8a739598dc0f5e199ce1621da4ee37"
     },
     {
       "path": ".engineering/LOCAL-DOCKER-CONTRACT.md",
@@ -204,6 +204,16 @@
       "executionBaseChanged": false,
       "runtimeCodeTouched": false,
       "disposition": "POST_MERGE_PROMOTION_SYNC"
+    },
+    {
+      "id": "GMZ-IMPL-001-CD-008",
+      "reason": "Post-merge promotion updated BACKLOG.md dynamic production-credit accounting from 0/515 to 8/515; rebind only the backlog fingerprint for archived final state.",
+      "oldBacklogGitBlobSha": "a535ec1809ce7aa97de31cb2abd3ea4ffe81404f",
+      "newBacklogGitBlobSha": "00c70f6bcd8a739598dc0f5e199ce1621da4ee37",
+      "semanticScopeChange": false,
+      "denominatorChanged": false,
+      "runtimeCodeTouched": false,
+      "disposition": "POST_MERGE_BACKLOG_CREDIT_FINGERPRINT_REBOUND"
     }
   ],
   "finalPromotion": {
