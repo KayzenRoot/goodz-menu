@@ -3,6 +3,12 @@ BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET LOCAL search_path = extensions, public;
 
+CREATE TEMP TABLE gmz003_hierarchy_constants AS
+SELECT
+  'authenticated'::text AS authenticated_role,
+  'SELECT'::text AS select_privilege;
+GRANT SELECT ON TABLE pg_temp.gmz003_hierarchy_constants TO PUBLIC;
+
 SELECT no_plan();
 
 SELECT ok(to_regclass('public.organizations') IS NOT NULL, 'organizations table exists');
@@ -131,11 +137,11 @@ SELECT ok((SELECT relrowsecurity FROM pg_class WHERE oid = 'public.branches'::re
 SELECT ok(
   bool_and(
     CASE
-      WHEN access.role_name = 'authenticated' AND privilege.privilege_name = 'SELECT'
+      WHEN access.role_name = (SELECT authenticated_role FROM pg_temp.gmz003_hierarchy_constants) AND privilege.privilege_name = (SELECT select_privilege FROM pg_temp.gmz003_hierarchy_constants)
         THEN has_table_privilege(access.role_name, access.table_name, privilege.privilege_name)
       ELSE NOT has_table_privilege(access.role_name, access.table_name, privilege.privilege_name)
         AND (
-          privilege.privilege_name NOT IN ('SELECT', 'INSERT', 'UPDATE', 'REFERENCES')
+          privilege.privilege_name NOT IN ((SELECT select_privilege FROM pg_temp.gmz003_hierarchy_constants), 'INSERT', 'UPDATE', 'REFERENCES')
           OR NOT has_any_column_privilege(access.role_name, access.table_name, privilege.privilege_name)
         )
     END
@@ -144,13 +150,13 @@ SELECT ok(
 )
 FROM (VALUES
   ('anon', 'public.organizations'),
-  ('authenticated', 'public.organizations'),
+  ((SELECT authenticated_role FROM pg_temp.gmz003_hierarchy_constants), 'public.organizations'),
   ('anon', 'public.establishments'),
-  ('authenticated', 'public.establishments'),
+  ((SELECT authenticated_role FROM pg_temp.gmz003_hierarchy_constants), 'public.establishments'),
   ('anon', 'public.branches'),
-  ('authenticated', 'public.branches')
+  ((SELECT authenticated_role FROM pg_temp.gmz003_hierarchy_constants), 'public.branches')
 ) AS access(role_name, table_name)
-CROSS JOIN (VALUES ('SELECT'), ('INSERT'), ('UPDATE'), ('DELETE'), ('TRUNCATE'), ('REFERENCES'), ('TRIGGER')) AS privilege(privilege_name)
+CROSS JOIN (VALUES ((SELECT select_privilege FROM pg_temp.gmz003_hierarchy_constants)), ('INSERT'), ('UPDATE'), ('DELETE'), ('TRUNCATE'), ('REFERENCES'), ('TRIGGER')) AS privilege(privilege_name)
 GROUP BY access.role_name, access.table_name
 ORDER BY access.role_name, access.table_name;
 
