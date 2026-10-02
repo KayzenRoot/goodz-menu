@@ -1,6 +1,6 @@
 # GMZ-IMPL-001 — Executable Local Runtime Foundation
 
-Status: `OBJECTIVE_AUDIT_APPROVED / PROMOTION_PENDING`  
+Status: `CORRECTION_REQUIRED / GMZ-IMPL-001-CD-005`  
 Issue: `#36`  
 Assurance: `ELEVATED`  
 Base branch: `main`  
@@ -408,3 +408,15 @@ Stop only when implementation is committed/pushed, PR is open against `main`, fi
 - eligible credit after merge: `8 / 515`
 - credit before merge: `0 / 515`
 - disposition: `APPROVED_FOR_PROMOTION`
+
+
+## GMZ-IMPL-001-CD-005
+- source: final CodeRabbit review after CD-003
+- finding: overlapping 15s status refreshes could complete out of order and allow an older result to overwrite a newer state
+- severity: `LOW`
+- correction: refresh sequence guard with stale-result discard
+- regression test: delayed older health/readiness request vs newer refresh
+- scope expansion: `NO`
+- production credit: `0 / 515`
+- required next: `complete exact-head L5 rerun`
+- disposition: `CORRECTION_REQUIRED`
