@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_001_READY_FOR_EXECUTOR`
+Status: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,11 +27,11 @@ Status: `GMZ_IMPL_001_READY_FOR_EXECUTOR`
 - Product implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-001` — READY_FOR_EXECUTOR
+- Work Order: `GMZ-IMPL-001` — READY_FOR_OBJECTIVE_AUDIT
 - Issue: `#36`
 - Branch: `implementation/gmz-impl-001-runtime-foundation`
 - Base: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
-- Mode: planning only
+- Mode: implementation objective audit
 
 ## Progress accounting
 Overall production completion: `0 / 515 = 0.00%`.
@@ -48,28 +48,10 @@ GMZ-SRC-001 is preserved byte-exact in repository truth:
 The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
-Admit the first implementation Work Order. Recommended scope: runtime + design shell + local Supabase connectivity + health smoke, with no business-feature completion claim.
+Complete the objective audit of PR #38 on its exact final head. If corrections are required, keep them inside GMZ-IMPL-001, rerun the exact-head validation ladder, and do not award production credit before governed promotion.
 
+STOP CONDITION: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`.
 
-Review and promote Project Overview + Requirements, then continue the canonical Source Pack decomposition:
-1. Project Overview
-2. Requirements
-3. frozen Scope
-4. Architecture
-5. Data Model
-6. API/Integration contracts
-7. AI Architecture
-8. UI/UX Design System
-9. Security
-10. Test & Benchmark Plan
-11. Deployment
-12. Backlog baseline
-13. Definition of Done
-14. Innovation Ledger
-
-No product code before the applicable planning contracts are frozen and the first implementation Work Order is admitted.
-
-STOP CONDITION: `GMZ_SP_007_SECURITY_BASELINE_READY_FOR_REVIEW`.
 
 
 ## GMZ-SP-001 audit
