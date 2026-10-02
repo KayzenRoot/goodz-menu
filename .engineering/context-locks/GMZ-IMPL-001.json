@@ -23,7 +23,7 @@
   "lockedSources": [
     {
       "path": ".engineering/CHECKPOINT.json",
-      "gitBlobSha": "f5c54d5e98cc5d6583d4338a1b5d02cb774a3d6c"
+      "gitBlobSha": "49447f9011000e0cc55ba86ffa0ae971a113e8ef"
     },
     {
       "path": ".engineering/SOURCE-HIERARCHY.md",
@@ -194,6 +194,23 @@
       "executionBaseChanged": false,
       "runtimeCodeTouched": false,
       "disposition": "FINAL_PROMOTION_CHECKPOINT_REBOUND"
+    },
+    {
+      "id": "GMZ-IMPL-001-CD-007",
+      "reason": "Post-merge promotion synchronizes earned credit and closes the implementation Work Order; checkpoint fingerprint rebound for archived final state.",
+      "oldCheckpointGitBlobSha": "f5c54d5e98cc5d6583d4338a1b5d02cb774a3d6c",
+      "newCheckpointGitBlobSha": "49447f9011000e0cc55ba86ffa0ae971a113e8ef",
+      "semanticScopeChange": false,
+      "executionBaseChanged": false,
+      "runtimeCodeTouched": false,
+      "disposition": "POST_MERGE_PROMOTION_SYNC"
     }
-  ]
+  ],
+  "finalPromotion": {
+    "mergeSha": "04fa311e1839c7070b829438e90ddd670f9dbef1",
+    "productionEarned": 8,
+    "denominator": 515,
+    "completionPercent": 1.55,
+    "state": "PROMOTED_COMPLETE"
+  }
 }
