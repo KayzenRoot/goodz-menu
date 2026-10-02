@@ -186,5 +186,26 @@ SELECT throws_ok($$INSERT INTO public.organizations (id, display_name) VALUES ('
 SELECT throws_ok($$INSERT INTO public.establishments (id, organization_id, display_name) VALUES ('10000000-0000-4000-8000-000000000013', '10000000-0000-4000-8000-000000000001', repeat('x', 121))$$, '23514', NULL, 'establishment rejects a display name beyond the length bound');
 SELECT throws_ok($$INSERT INTO public.branches (id, organization_id, establishment_id, display_name) VALUES ('10000000-0000-4000-8000-000000000014', '10000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000003', repeat('x', 121))$$, '23514', NULL, 'branch rejects a display name beyond the length bound');
 
+
+SELECT ok(
+  EXISTS (
+    SELECT 1
+    FROM pg_index i
+    JOIN pg_class idx ON idx.oid = i.indexrelid
+    WHERE i.indrelid = 'public.branches'::regclass
+      AND idx.relname = 'branches_organization_establishment_idx'
+      AND ARRAY(
+        SELECT a.attname
+        FROM unnest(i.indkey::smallint[]) WITH ORDINALITY AS key(attnum, ord)
+        JOIN pg_attribute a
+          ON a.attrelid = i.indrelid
+         AND a.attnum = key.attnum
+        WHERE key.attnum > 0
+        ORDER BY key.ord
+      ) = ARRAY['organization_id', 'establishment_id']::name[]
+  ),
+  'branches has a tenant-parent index on organization_id and establishment_id'
+);
+
 SELECT * FROM finish();
 ROLLBACK;
