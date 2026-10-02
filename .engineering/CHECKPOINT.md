@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`
+Status: `GMZ_IMPL_003_PROMOTED_COMPLETE_READY_FOR_NEXT`
 
 ## Current state
 - Project: Goodz Menu
@@ -34,7 +34,7 @@ Status: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`
 - Mode: HIGH_ASSURANCE membership/RBAC implementation
 
 ## Progress accounting
-Overall production completion: `19 / 515 = 3.69%`.
+Overall production completion: `31 / 515 = 6.02%`.
 
 Planning artifacts do not manufacture product-completion percentage.
 
@@ -694,3 +694,22 @@ STOP CONDITION: `GMZ_IMPL_003_ADMISSION_READY_FOR_REVIEW`.
 - next action: `EXECUTE GMZ-IMPL-003`
 
 STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-003 post-merge promotion
+
+- exact accepted candidate: `daecb0497d70ff43f4f71d7eaa960f45e8734e1f`
+- implementation PR: `#49`
+- merge SHA: `b74be258fa6bff47c7f2ec69db79289a601a2151`
+- objective audit: `APPROVED_FOR_PROMOTION`
+- incremental credit:
+  - GMZ-M02: `10`
+  - GMZ-M26: `2`
+  - total: `12 / 515`
+- production credit: `31 / 515 = 6.02%`
+- active implementation authorization: `NO`
+- unresolved review threads: `0`
+- CRITICAL/HIGH: `0 / 0`
+- next: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
+
+STOP CONDITION: `GMZ_IMPL_003_PROMOTED_COMPLETE`.
