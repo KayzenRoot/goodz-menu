@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "project": "Goodz Menu",
   "repository": "KayzenRoot/goodz-menu",
-  "status": "GMZ_IMPL_001_READY_FOR_EXECUTOR",
+  "status": "GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT",
   "gefVersion": "1.1.1",
   "ideation": "CLOSED",
   "sourcePack": "FROZEN_V0_1",
@@ -19,7 +19,7 @@
   "activeIssue": 36,
   "activeBranch": "implementation/gmz-impl-001-runtime-foundation",
   "baseSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
-  "nextAction": "EXECUTE_GMZ_IMPL_001",
+  "nextAction": "OBJECTIVE_AUDIT_GMZ_IMPL_001",
   "stopCondition": "GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT",
   "lastAudit": {
     "workOrder": "GMZ-SP-003A",
@@ -82,7 +82,7 @@
   "productionEarned": 0,
   "activeImplementation": {
     "workOrder": "GMZ-IMPL-001",
-    "state": "READY_FOR_EXECUTOR",
+    "state": "READY_FOR_OBJECTIVE_AUDIT",
     "assurance": "ELEVATED",
     "executionBaseSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
     "executionBaseState": "BOUND_FOR_EXECUTION",
@@ -94,6 +94,18 @@
       "GMZ-M23": 1
     },
     "currentEarnedCredit": 0,
+    "pullRequest": {
+      "number": 38,
+      "url": "https://github.com/KayzenRoot/goodz-menu/pull/38",
+      "base": "main",
+      "state": "OPEN",
+      "mergePerformed": false
+    },
+    "executorPreflight": {
+      "result": "PASS",
+      "lockedSourceFingerprints": "14/14 MATCH",
+      "executionBaseSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585"
+    },
     "businessDomainImplementationAuthorized": false,
     "admissionAudit": {
       "auditedHead": "e9f5d274f5316d223b0a6bb1ad632388e325e04f",

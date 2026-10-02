@@ -47,7 +47,7 @@
 
 ## Validação e comandos
 
-Os comandos abaixo foram executados no código candidato desta branch. A repetição L5 será executada e conferida no head final publicado no PR.
+Os comandos abaixo passaram no código candidato. A repetição L5 exata será executada depois do commit de fechamento; o head final e o resultado dessa repetição serão registrados na descrição do PR e no relatório do executor.
 
 | Nível | Comando/checagem | Exit | Resultado |
 |---|---|---:|---|
@@ -97,7 +97,56 @@ O objetivo de LCP/INP/CLS p75 dos requisitos de storefront é uma medição de c
 
 ## Arquivos do incremento
 
-Incluem runtime, design shell, Docker, configuração Supabase local, testes, documentação local e estas evidências/capturas. `AGENTS.md` contém apenas o bloco de orientação Next.js gerado pelo framework. `.gef/**`, Source Pack congelado e módulos de negócio não fazem parte do delta. O inventário final será atualizado após o fechamento.
+Incluem runtime, design shell, Docker, configuração Supabase local, testes, documentação local e estas evidências/capturas. `AGENTS.md` contém apenas o bloco de orientação Next.js gerado pelo framework. `.gef/**`, Source Pack congelado e módulos de negócio não fazem parte do delta.
+
+Inventário versionado deste incremento (44 paths):
+
+```text
+.dockerignore
+.engineering/CHECKPOINT.json
+.engineering/CHECKPOINT.md
+.engineering/evidence/GMZ-IMPL-001-EVIDENCE.md
+.engineering/evidence/GMZ-IMPL-001/screenshots/dark-desktop.png
+.engineering/evidence/GMZ-IMPL-001/screenshots/dark-mobile.png
+.engineering/evidence/GMZ-IMPL-001/screenshots/light-desktop.png
+.engineering/evidence/GMZ-IMPL-001/screenshots/light-mobile.png
+.env.example
+.gitignore
+AGENTS.md
+Dockerfile
+components.json
+compose.yaml
+docs/LOCAL-DEVELOPMENT.md
+eslint.config.mjs
+next.config.ts
+package.json
+playwright.config.ts
+pnpm-lock.yaml
+pnpm-workspace.yaml
+postcss.config.mjs
+public/goodz-mark.svg
+scripts/start.mjs
+src/app/api/health/route.ts
+src/app/api/ready/route.ts
+src/app/favicon.ico
+src/app/globals.css
+src/app/layout.tsx
+src/app/page.tsx
+src/components/goodz/foundation-preview.tsx
+src/components/goodz/theme-provider.tsx
+src/lib/env/runtime-env.test.ts
+src/lib/env/runtime-env.ts
+src/lib/observability/correlation.test.ts
+src/lib/observability/correlation.ts
+src/lib/observability/runtime-log.ts
+src/lib/runtime/readiness.ts
+supabase/.gitignore
+supabase/config.toml
+supabase/seed.sql
+tests/e2e/foundation.spec.ts
+tsconfig.json
+vitest.config.mts
+```
 
 ## Rastreabilidade e crédito
 
@@ -128,7 +177,8 @@ Incluem runtime, design shell, Docker, configuração Supabase local, testes, do
 - Findings do executor por severidade: CRITICAL `0`, HIGH `0`, MEDIUM `0`, LOW `0`; auditoria objetiva continua pendente e é uma revisão separada.
 - Sem login/signup de produto, tenant/RBAC, CRUD, POS, inventário, finanças, pedidos, marketplace, IA, billing, tabelas de negócio, integração externa, projeto Supabase remoto ou deployment de produção.
 - Reset destrutivo do banco (`supabase db reset`) não foi executado. O guia documenta seu uso intencional; dados/volumes existentes foram preservados.
-- Estado do checkpoint, número/URL/head do PR e inventário final de arquivos serão preenchidos no fechamento após push. PR final deve permanecer aberto contra `main`; sem merge.
+- PR de execução: [#38](https://github.com/KayzenRoot/goodz-menu/pull/38), aberto contra `main`, branch `implementation/gmz-impl-001-runtime-foundation`, sem merge. O commit de implementação é `72046ac7cf54d96ae3b85b8a4ccb9b4a2032caf7`; o head exato após este fechamento será publicado na descrição do PR e no relatório final.
+- O checkpoint será atualizado para `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT` e `OBJECTIVE_AUDIT_GMZ_IMPL_001` neste fechamento, com crédito ainda zero.
 - `productionEarned=0`; nenhum módulo foi marcado como concluído.
 
 **Stop condition:** `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`.
