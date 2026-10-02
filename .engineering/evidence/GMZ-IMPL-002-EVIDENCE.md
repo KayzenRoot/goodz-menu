@@ -1,6 +1,6 @@
 # GMZ-IMPL-002 — Executor Evidence
 
-Status: `READY_FOR_OBJECTIVE_AUDIT` after GMZ-IMPL-002-CD-002 validation
+Status: `READY_FOR_OBJECTIVE_AUDIT` after GMZ-IMPL-002-CD-003 validation
 Repository: `KayzenRoot/goodz-menu`
 Branch: `implementation/gmz-impl-002-tenant-core`
 Work Order: `GMZ-IMPL-002` (Issue #42)
@@ -9,7 +9,15 @@ Execution base: `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`
 CD-001 code candidate fully validated: `3fa2f915d6c74e7bb5eecc8b7e31e2a1c6640a1c`
 Pull request: [#44 — GMZ-IMPL-002](https://github.com/KayzenRoot/goodz-menu/pull/44), draft, target `main`
 
-CD-001 history is preserved. The CD-002 correction, candidate L5, and preflight are recorded in [GMZ-IMPL-002-CD-002-EVIDENCE.md](GMZ-IMPL-002-CD-002-EVIDENCE.md). The final documentation-closeout head and repeated exact-head L5 results are recorded in the PR description.
+CD-001 and CD-002 history are preserved. The CD-002 record is in [GMZ-IMPL-002-CD-002-EVIDENCE.md](GMZ-IMPL-002-CD-002-EVIDENCE.md); CD-003 workflow correction and targeted proof are in [GMZ-IMPL-002-CD-003-EVIDENCE.md](GMZ-IMPL-002-CD-003-EVIDENCE.md). The final documentation-closeout head and exact-head L5 results for the active correction are recorded in the PR description.
+
+## Latest correction — GMZ-IMPL-002-CD-003
+
+- Changed `supabase:types` to run a Node workflow that directs Supabase CLI output to a unique same-directory temporary file and replaces `database.types.ts` only after a successful non-empty generation.
+- Windows uses `ComSpec` / `cmd.exe` to run the Supabase `.cmd` shim with `spawn` shell disabled; the real local CLI completed successfully on Windows.
+- Added regression tests for target replacement on success and preservation/temporary cleanup on failure; `2 / 2 PASS`.
+- No schema, migration, seed, business-domain, Context Lock, or `.gef` changes.
+- The final documentation-closeout head and complete exact-head L5 results are recorded in PR `#44` after validation.
 
 ## Latest correction — GMZ-IMPL-002-CD-002
 

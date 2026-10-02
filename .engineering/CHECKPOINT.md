@@ -526,3 +526,19 @@ STOP CONDITION: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`.
 - disposition: `READY_FOR_OBJECTIVE_AUDIT`
 
 STOP CONDITION: `GMZ_IMPL_002_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-002-CD-003
+- CodeRabbit finding `4166278998`: `supabase:types` did not update tracked generated types and lacked failure-safe replacement
+- workflow: Supabase CLI stdout is written to a unique same-directory temporary file; tracked target is replaced only after successful, non-empty generation
+- Windows: explicit `ComSpec` / `cmd.exe /d /s /c` invocation with Node `spawn` shell disabled; real local CLI run passed
+- regression tests: successful output replaces the target; exit failure preserves existing target and cleans temporary output; `2 / 2 PASS`
+- generated-types file: real command updated the tracked path; Oxfmt `0.71.0` restored canonical formatting; no generated schema delta
+- migration/seed/schema/business scope/`.gef`: `UNCHANGED`
+- preflight at bound starting head: `PASS`; correct repo/branch/base, `14 / 14 MATCH`, checkpoint semantic state ready, `.gef` intact; historic mutable snapshot noted in evidence
+- final documentation-closeout head and complete exact-head L5: recorded in PR `#44` after validation
+- CodeRabbit thread: resolve after final push; PR remains draft
+- current production credit: `8 / 515`; no merge
+- disposition: `READY_FOR_OBJECTIVE_AUDIT`
+
+STOP CONDITION: `GMZ_IMPL_002_CD_003_READY_FOR_OBJECTIVE_AUDIT`.

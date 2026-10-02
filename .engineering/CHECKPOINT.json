@@ -157,6 +157,33 @@
       "high": 0,
       "disposition": "READY_FOR_OBJECTIVE_AUDIT",
       "stopCondition": "GMZ_IMPL_002_CD_002_READY_FOR_OBJECTIVE_AUDIT"
+    },
+    "cd003": {
+      "codeRabbitFinding": 4166278998,
+      "workflow": "node scripts/generate-supabase-types.mjs",
+      "temporaryFileSameDirectory": true,
+      "replaceOnlyAfterSuccessfulNonEmptyGeneration": true,
+      "preservesExistingTargetOnFailure": true,
+      "cleansTemporaryFileOnFailure": true,
+      "windowsInvocation": "ComSpec/cmd.exe /d /s /c with spawn shell=false",
+      "generationTests": {
+        "successReplacesTarget": "PASS",
+        "failurePreservesTarget": "PASS",
+        "passed": 2,
+        "total": 2
+      },
+      "actualWindowsCliRun": "PASS",
+      "schemaChanged": false,
+      "migrationChanged": false,
+      "seedChanged": false,
+      "gefChanged": false,
+      "codeCandidate": "dcbf3ba",
+      "finalExactHeadL5": "RECORDED_IN_PR_44_DESCRIPTION_AFTER_VALIDATION",
+      "codeRabbitThreadResolvedAfterPush": true,
+      "critical": 0,
+      "high": 0,
+      "disposition": "READY_FOR_OBJECTIVE_AUDIT",
+      "stopCondition": "GMZ_IMPL_002_CD_003_READY_FOR_OBJECTIVE_AUDIT"
     }
   }
 }

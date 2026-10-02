@@ -386,3 +386,20 @@ Stop only when implementation is committed/pushed, PR is open against main, exac
 
 STOP CONDITION:
 `GMZ_IMPL_002_CD_002_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-002-CD-003 — Objective review correction
+- trigger: CodeRabbit finding `4166278998`; `supabase:types` printed generated output without updating the tracked file, and direct redirection could truncate it on failure
+- correction: `supabase:types` now invokes `scripts/generate-supabase-types.mjs`; output goes to a unique temporary file beside `database.types.ts`, and `rename` replaces the target only after exit code 0 and non-empty output
+- failure handling: preserve the existing target and remove the temporary file on CLI, write, or replacement failure
+- Windows compatibility: invoke the Supabase `.cmd` shim using `ComSpec` / `cmd.exe /d /s /c` with `spawn(..., shell: false)`; validated against the local CLI on Windows
+- regression proof: success replaces the target; non-zero generator exit preserves existing contents and cleans temporary output; `2 / 2 PASS`
+- actual Windows `pnpm supabase:types`: `PASS`; generated output was formatted with the established Oxfmt `0.71.0` workflow afterward
+- code candidate: `dcbf3ba`; final documentation-closeout head and complete exact-head L5 results are recorded in PR `#44`
+- schema/migration/seed/business scope/`.gef`: `UNCHANGED`
+- Context Lock, execution base, branch, and CD-002 history: `UNCHANGED`
+- evidence: `.engineering/evidence/GMZ-IMPL-002-CD-003-EVIDENCE.md`
+- disposition: `READY_FOR_OBJECTIVE_AUDIT`
+
+STOP CONDITION:
+`GMZ_IMPL_002_CD_003_READY_FOR_OBJECTIVE_AUDIT`
