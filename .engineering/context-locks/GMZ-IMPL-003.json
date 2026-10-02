@@ -1,0 +1,152 @@
+{
+  "schemaVersion": "1.1",
+  "kind": "goodz.implementation-context-lock",
+  "workOrderId": "GMZ-IMPL-003",
+  "issue": 47,
+  "repository": "KayzenRoot/goodz-menu",
+  "gefVersion": "1.1.1",
+  "assurance": "HIGH_ASSURANCE",
+  "admissionBaseRef": "main",
+  "admissionBaseSha": "81ff6d87c2af25ebf5cd55ba8038bcad5a86b83a",
+  "workBranch": "implementation/gmz-impl-003-membership-authz",
+  "executionBaseSha": null,
+  "executionBaseState": "MUST_BIND_AFTER_ADMISSION_PROMOTION",
+  "sourcePack": "FROZEN_V0_1",
+  "productionDenominator": 515,
+  "productionEarnedAtAdmission": 19,
+  "maxSliceCredit": 12,
+  "creditAllocation": {
+    "GMZ-M02": 10,
+    "GMZ-M26": 2
+  },
+  "projectedEarnedIfAccepted": 31,
+  "lockedSources": [
+    {
+      "path": ".engineering/SOURCE-HIERARCHY.md",
+      "gitBlobSha": "189109435a264fe5a7306d6d10fc3ea62145dab2"
+    },
+    {
+      "path": ".engineering/MODULE-MAP.md",
+      "gitBlobSha": "c70a041da273787eb0d6f3ce43a6bc3a7260eeb0"
+    },
+    {
+      "path": "docs/source-pack/BACKLOG.md",
+      "gitBlobSha": "eb3c4a496b9f3a06106368e26ad3d19e77519caa"
+    },
+    {
+      "path": "docs/source-pack/REQUIREMENTS.md",
+      "gitBlobSha": "2e179c00446980a481e56dd02fe71865a7237f59"
+    },
+    {
+      "path": "docs/source-pack/ARCHITECTURE.md",
+      "gitBlobSha": "a82ff873264a1ba77fa37e6914f321a48e0a75f5"
+    },
+    {
+      "path": "docs/source-pack/DATA-MODEL.md",
+      "gitBlobSha": "51d59b4d4b96dd5ccd246a55d34d9172d9b82eb0"
+    },
+    {
+      "path": "docs/source-pack/SECURITY.md",
+      "gitBlobSha": "24e98825a54313a47e46abc32661f4ebaa6894d7"
+    },
+    {
+      "path": "docs/source-pack/TEST-BENCHMARK-PLAN.md",
+      "gitBlobSha": "1531d1a9abd4d9470cac2d8d24847e4258c91e45"
+    },
+    {
+      "path": "docs/source-pack/DEFINITION-OF-DONE.md",
+      "gitBlobSha": "a3d1652a7dc9edfabafcb98151b9db8aed417888"
+    },
+    {
+      "path": "docs/source-pack/DEPLOYMENT.md",
+      "gitBlobSha": "b8f730179337a5c26ba34cdf9da43dab4b5e3b83"
+    },
+    {
+      "path": ".engineering/LOCAL-DOCKER-CONTRACT.md",
+      "gitBlobSha": "0379ca20ebc767d450c74e4d54058410745b948d"
+    },
+    {
+      "path": ".engineering/DATA-OWNERSHIP-MATRIX.md",
+      "gitBlobSha": "0deb322cfa871f93410810ab1fc82933aca05213"
+    },
+    {
+      "path": ".engineering/SECURITY-CONTROL-MATRIX.md",
+      "gitBlobSha": "e8888a50cb68230822f6c1352f63d33d19705df7"
+    },
+    {
+      "path": ".engineering/adrs/ADR-0002-SUPABASE-POSTGRES-AUTH-BASELINE.md",
+      "gitBlobSha": "707427e952cead6b2b3cf2fb1497e0cb5595795f"
+    },
+    {
+      "path": ".engineering/TEST-COVERAGE-MATRIX.md",
+      "gitBlobSha": "5fcf44880b1b3725273505a2a7efd4e1e4c7aa9d"
+    },
+    {
+      "path": ".engineering/PROGRESS-LEDGER.md",
+      "gitBlobSha": "05b34d50775916e08018f3a2cb562ba3b1abea00"
+    }
+  ],
+  "governanceSnapshot": {
+    "checkpointPath": ".engineering/CHECKPOINT.json",
+    "checkpointGitBlobSha": "a0c7f3c8371cb6eec5ce76b218c00609f6e26b07",
+    "status": "GMZ_IMPL_003_ADMITTED_EXECUTION_BASE_BIND_PENDING",
+    "note": "Mutable governance snapshot; intentionally excluded from stable lockedSources."
+  },
+  "implementationContract": {
+    "authIdentity": "SUPABASE_AUTH_USER_ID",
+    "authorizationSource": "CANONICAL_DB_MEMBERSHIP_ROLE_PERMISSION_RESOURCE_SCOPE",
+    "userMetadataAuthorization": "FORBIDDEN",
+    "jwtRoleClaimPrimaryAuthority": "NOT_ADMITTED",
+    "tenantRoles": "ADMITTED",
+    "platformAdmin": "NOT_ADMITTED",
+    "membershipLifecycle": "ACTIVE_SUSPENDED_REVOKED_MINIMUM",
+    "hierarchyRead": "MEMBERSHIP_PERMISSION_SCOPE_AWARE",
+    "hierarchyWrites": "NOT_ADMITTED",
+    "authzTableSelfServiceWrites": "NOT_ADMITTED",
+    "branchScope": "ADMITTED_WITH_DB_TENANT_INTEGRITY",
+    "rls": "REQUIRED",
+    "anonAccess": "DENIED",
+    "remoteSupabase": "FORBIDDEN",
+    "productionDeployment": "FORBIDDEN",
+    "loginUi": "NOT_ADMITTED",
+    "mfaAdminGuard": "NOT_ADMITTED"
+  },
+  "stalePolicy": "If any of the 16 stable locked source blobs change incompatibly before executor mutation, mark GMZ-IMPL-003 STALE and stop for recompile/rebind. Checkpoint changes alone do not invalidate stable-source fingerprints; they must match the separately tracked governance snapshot.",
+  "invariants": [
+    "Authentication alone never grants tenant data access",
+    "Membership/Role/Permission remain owned by GMZ-M02",
+    "Organization/Establishment/Branch remain owned by GMZ-M01",
+    "Canonical DB membership is authorization truth for this slice",
+    "No user_metadata authorization",
+    "Tenant roles never imply platform authority",
+    "RLS remains enabled on exposed tenant tables",
+    "anon remains denied",
+    "Authenticated tenant hierarchy writes remain denied",
+    "Authenticated users cannot self-grant membership/roles/permissions",
+    "Branch/establishment role scope cannot cross organization boundaries",
+    "No service-role exposure or authorization shortcut",
+    "No remote Supabase operation",
+    "No business-domain expansion",
+    "CRITICAL/HIGH findings block progression",
+    "No force push/history rewrite",
+    "Executor does not merge its own PR"
+  ],
+  "executor": "GEF heavy executor / Codex",
+  "codexAllowed": false,
+  "codexAuthorizedScope": "BLOCKED until admission merge SHA is bound as executionBaseSha and branch descends from it.",
+  "codexProhibited": [
+    "mutation before execution-base bind",
+    "main direct mutation",
+    "merge",
+    "force push",
+    "history rewrite",
+    "signup/onboarding/login UI",
+    "membership or role management UI/API",
+    "Platform Admin/Super Admin",
+    "MFA/Admin Guard/support mode",
+    "business-domain data",
+    "remote Supabase",
+    "production infrastructure"
+  ],
+  "stopCondition": "GMZ_IMPL_003_ADMISSION_READY_FOR_REVIEW"
+}
