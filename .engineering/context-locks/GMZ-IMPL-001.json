@@ -23,7 +23,7 @@
   "lockedSources": [
     {
       "path": ".engineering/CHECKPOINT.json",
-      "gitBlobSha": "731d0edda91d1cb124e591c20629c37f18a400d4"
+      "gitBlobSha": "f5c54d5e98cc5d6583d4338a1b5d02cb774a3d6c"
     },
     {
       "path": ".engineering/SOURCE-HIERARCHY.md",
@@ -184,6 +184,16 @@
       "validatedHead": "ae8696200876495c5acb1a662a8893e8d6b842d4",
       "exactHeadL5Result": "PASS",
       "disposition": "CORRECTION_VALIDATED_EXACT_HEAD_L5_PASS"
+    },
+    {
+      "id": "GMZ-IMPL-001-CD-006",
+      "reason": "Final objective-audit promotion advances CHECKPOINT.json only; rebind checkpoint fingerprint for merge candidate governance state.",
+      "oldCheckpointGitBlobSha": "731d0edda91d1cb124e591c20629c37f18a400d4",
+      "newCheckpointGitBlobSha": "f5c54d5e98cc5d6583d4338a1b5d02cb774a3d6c",
+      "semanticScopeChange": false,
+      "executionBaseChanged": false,
+      "runtimeCodeTouched": false,
+      "disposition": "FINAL_PROMOTION_CHECKPOINT_REBOUND"
     }
   ]
 }
