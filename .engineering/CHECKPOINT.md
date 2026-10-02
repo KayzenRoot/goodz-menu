@@ -510,3 +510,19 @@ STOP CONDITION: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`.
 - disposition: `READY_FOR_OBJECTIVE_AUDIT`
 
 STOP CONDITION: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-002-CD-002
+- Work Order current status synchronized: `READY_FOR_OBJECTIVE_AUDIT`; CD-001 `CORRECTION_REQUIRED` retained in its historical section
+- table privilege regressions: anon/authenticated × 3 tenant tables × SELECT/INSERT/UPDATE/DELETE/TRUNCATE/REFERENCES/TRIGGER
+- column privilege regressions: anon/authenticated × 3 tenant tables × SELECT/INSERT/UPDATE/REFERENCES via `has_any_column_privilege`
+- migration/seed changed by CD-002: `NO`
+- pgTAP: `57 / 57 PASS`
+- GEF 1.1.1 preflight: `PASS` for repository, branch, legal base, identity, 14/14 stable fingerprints and `.gef`; mutable checkpoint snapshot history and pre-correction Work Order status recorded in CD-002 evidence
+- exact-head L5 on code candidate `d1da032e29760156bd08acdd45f04cfba7b13dbc`: `PASS`
+- final documentation-closeout head and repeated exact-head L5: recorded in PR `#44`
+- production credit: `8 / 515`; no merge or scope expansion
+- next action: `OBJECTIVE_AUDIT_GMZ_IMPL_002`
+- disposition: `READY_FOR_OBJECTIVE_AUDIT`
+
+STOP CONDITION: `GMZ_IMPL_002_CD_002_READY_FOR_OBJECTIVE_AUDIT`.

@@ -1,6 +1,6 @@
 # GMZ-IMPL-002 — Executor Evidence
 
-Status: `READY_FOR_OBJECTIVE_AUDIT` after GMZ-IMPL-002-CD-001 validation
+Status: `READY_FOR_OBJECTIVE_AUDIT` after GMZ-IMPL-002-CD-002 validation
 Repository: `KayzenRoot/goodz-menu`
 Branch: `implementation/gmz-impl-002-tenant-core`
 Work Order: `GMZ-IMPL-002` (Issue #42)
@@ -9,7 +9,16 @@ Execution base: `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`
 CD-001 code candidate fully validated: `3fa2f915d6c74e7bb5eecc8b7e31e2a1c6640a1c`
 Pull request: [#44 — GMZ-IMPL-002](https://github.com/KayzenRoot/goodz-menu/pull/44), draft, target `main`
 
-The final closeout commit contains only this evidence and checkpoint updates. Its exact head and repeated exact-head L5 results are recorded in the PR description.
+CD-001 history is preserved. The CD-002 correction, candidate L5, and preflight are recorded in [GMZ-IMPL-002-CD-002-EVIDENCE.md](GMZ-IMPL-002-CD-002-EVIDENCE.md). The final documentation-closeout head and repeated exact-head L5 results are recorded in the PR description.
+
+## Latest correction — GMZ-IMPL-002-CD-002
+
+- Synchronized the current Work Order status to `READY_FOR_OBJECTIVE_AUDIT`; retained the CD-001 `CORRECTION_REQUIRED` entry as historical record.
+- Extended the pgTAP privilege assertion to cover seven table-level privileges and four column-level privileges for `anon` and `authenticated` across all three tenant tables.
+- The migration and seed are unchanged. The current fail-closed privilege state remains the same.
+- Candidate exact-head L5 passed at `d1da032e29760156bd08acdd45f04cfba7b13dbc`; pgTAP remains `57 / 57`.
+- The final documentation-closeout head and repeated exact-head L5 results are recorded in PR `#44` after that validation.
+- Dedicated correction record: [GMZ-IMPL-002-CD-002-EVIDENCE.md](GMZ-IMPL-002-CD-002-EVIDENCE.md).
 
 ## Scope delivered
 

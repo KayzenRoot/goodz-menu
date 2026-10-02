@@ -1,6 +1,6 @@
 # GMZ-IMPL-002 — Tenant Hierarchy and Isolation Foundation
 
-Status: `CORRECTION_REQUIRED / GMZ-IMPL-002-CD-001`  
+Status: `READY_FOR_OBJECTIVE_AUDIT`
 Issue: `#42`  
 Assurance: `HIGH`  
 Base branch: `main`  
@@ -368,3 +368,21 @@ Stop only when implementation is committed/pushed, PR is open against main, exac
 - production credit: `8 / 515`
 - exact-head L5 after correction: `REQUIRED`
 - disposition: `CORRECTION_REQUIRED`
+
+
+## GMZ-IMPL-002-CD-002 — Objective review correction
+- trigger 1: top-level Work Order status remained `CORRECTION_REQUIRED / GMZ-IMPL-002-CD-001` after CD-001 validation; current status synchronized to `READY_FOR_OBJECTIVE_AUDIT` while preserving CD-001 above as historical record
+- trigger 2: pgTAP privilege regression covered only table CRUD and did not cover TRUNCATE, REFERENCES, TRIGGER, or column-level privileges
+- correction: table-level checks cover SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, and TRIGGER for anon/authenticated on all three tenancy tables
+- correction: has_any_column_privilege checks cover SELECT, INSERT, UPDATE, and REFERENCES for anon/authenticated on all three tenancy tables
+- migration and seed changes: `NONE`
+- production privilege posture: unchanged; current revocations remain in the migration
+- pgTAP count: `57 / 57 PASS`
+- candidate exact-head L5 after the test correction: `PASS`; final documentation-closeout head is retested and recorded in PR `#44`
+- scope/base/Auth/Membership/RBAC/remote Supabase/production: `UNCHANGED / NOT IMPLEMENTED / NOT USED`
+- production credit: `8 / 515`
+- evidence: `.engineering/evidence/GMZ-IMPL-002-CD-002-EVIDENCE.md`
+- disposition: `READY_FOR_OBJECTIVE_AUDIT`
+
+STOP CONDITION:
+`GMZ_IMPL_002_CD_002_READY_FOR_OBJECTIVE_AUDIT`
