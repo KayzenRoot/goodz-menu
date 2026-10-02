@@ -9,8 +9,8 @@
   "admissionBaseRef": "main",
   "admissionBaseSha": "3f8bef75b40751b522aaed0dc6b7d09ad19ee110",
   "workBranch": "implementation/gmz-impl-002-tenant-core",
-  "executionBaseSha": null,
-  "executionBaseState": "MUST_BIND_AFTER_ADMISSION_PROMOTION",
+  "executionBaseSha": "4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9",
+  "executionBaseState": "BOUND_FOR_EXECUTION",
   "sourcePack": "FROZEN_V0_1",
   "productionDenominator": 515,
   "productionEarnedAtAdmission": 8,
@@ -79,8 +79,8 @@
   ],
   "governanceSnapshot": {
     "checkpointPath": ".engineering/CHECKPOINT.json",
-    "checkpointGitBlobSha": "af06a70977523db7caeac2b096d80200bde38189",
-    "status": "GMZ_IMPL_002_ADMITTED_EXECUTION_BASE_BIND_PENDING",
+    "checkpointGitBlobSha": "1eab4eaacda056ea94cd7ec5da29a183449d4b4d",
+    "status": "GMZ_IMPL_002_READY_FOR_EXECUTOR",
     "note": "Mutable governance snapshot; intentionally excluded from stable lockedSources."
   },
   "implementationContract": {
@@ -132,5 +132,15 @@
     "critical": 0,
     "high": 0,
     "disposition": "APPROVED_FOR_ADMISSION_PROMOTION"
+  },
+  "executionBranchHeadAtBind": "4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9",
+  "admissionMergeSha": "4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9",
+  "preflight": {
+    "admissionMerged": true,
+    "branchFastForwardedToAdmissionMerge": true,
+    "stableSourceFingerprintsExpected": 14,
+    "sourcePackFrozen": true,
+    "implementationCodePresentAtBind": false,
+    "result": "PASS"
   }
 }
