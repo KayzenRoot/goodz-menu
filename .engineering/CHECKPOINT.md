@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_003_PROMOTED_COMPLETE_READY_FOR_NEXT`
+Status: `GMZ_IMPL_004_ADMITTED_EXECUTION_BASE_BIND_PENDING`
 
 ## Current state
 - Project: Goodz Menu
@@ -713,3 +713,22 @@ STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
 - next: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
 
 STOP CONDITION: `GMZ_IMPL_003_PROMOTED_COMPLETE`.
+
+
+## GMZ-IMPL-004 admission candidate
+
+- Work Order: `GMZ-IMPL-004 — Auth Session & Tenant Entry Foundation`
+- Issue: `#52`
+- admission base: `45ab857e7a509bf1867d6e53b948346f425c754a`
+- branch: `implementation/gmz-impl-004-auth-session-entry`
+- assurance: `HIGH_ASSURANCE`
+- current production credit: `31 / 515 = 6.02%`
+- maximum future accepted slice credit: `7 / 515`
+  - GMZ-M02: `5`
+  - GMZ-M26: `2`
+- projected cumulative only if later accepted: `38 / 515 = 7.38%`
+- executor mutation: `BLOCKED` pending objective admission audit + admission merge + exact execution-base bind
+- admission diff: governance-only
+- next action: `AUDIT_AND_MERGE_GMZ_IMPL_004_ADMISSION_THEN_BIND_EXECUTION_BASE`
+
+STOP CONDITION: `GMZ_IMPL_004_ADMISSION_READY_FOR_REVIEW`.
