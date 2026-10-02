@@ -23,7 +23,7 @@
   "lockedSources": [
     {
       "path": ".engineering/CHECKPOINT.json",
-      "gitBlobSha": "7afe278acf8097eb4908a8414b56e4814e8be194"
+      "gitBlobSha": "7f56a379324a9de55178ca9e4b2859cfb5750d83"
     },
     {
       "path": ".engineering/SOURCE-HIERARCHY.md",
@@ -126,6 +126,18 @@
       "executionBaseSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
       "implementationCodeTouched": false,
       "disposition": "LOCK_REBOUND_TO_PROMOTED_READY_FOR_EXECUTOR_CHECKPOINT"
+    },
+    {
+      "id": "GMZ-IMPL-001-CD-002",
+      "reason": "Executor closeout legitimately advanced CHECKPOINT.json to READY_FOR_OBJECTIVE_AUDIT after implementation, leaving the bind-time checkpoint fingerprint stale for objective review.",
+      "oldCheckpointGitBlobSha": "7afe278acf8097eb4908a8414b56e4814e8be194",
+      "newCheckpointGitBlobSha": "7f56a379324a9de55178ca9e4b2859cfb5750d83",
+      "semanticScopeChange": false,
+      "executionBaseChanged": false,
+      "executionBaseSha": "0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585",
+      "implementationCodeTouched": false,
+      "stopCondition": "GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT",
+      "disposition": "LOCK_REBOUND_TO_EXECUTOR_CLOSEOUT_CHECKPOINT"
     }
   ]
 }
