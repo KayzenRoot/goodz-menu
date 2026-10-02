@@ -384,3 +384,18 @@ STOP CONDITION:
 - Complete exact-head HIGH_ASSURANCE L5 is rerun after this evidence/checkpoint synchronization; its exact final HEAD and results are recorded in PR `#49`.
 - PR `#49` remains OPEN/DRAFT against `main`; merge was not performed; objective audit remains pending.
 - Correction completion token: `GMZ_IMPL_003_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-003-CD-003 — Password-grant JWT subject binding
+
+- Objective-review finding: checking only `tokenBody.user?.id` did not prove the `access_token` used for Data API/RLS requests had the same JWT `sub` as the signup identity.
+- Bounded correction: safely parse the compact JWT header and payload from `tokenBody.access_token`; require `payload.sub === identity.id` and retain `tokenBody.user?.id === identity.id` before the integration returns the access token.
+- Fail-closed cases share one generic error with no token, subject, or identity value: absent identity ID, absent token, malformed compact JWT/base64url, invalid/non-object JSON payload, absent/different JWT subject, and absent/different response user ID.
+- Deterministic regression: matching response user and JWT subject accepted; response user mismatch/missing, JWT subject mismatch/missing, malformed token, missing identity/token, and invalid/non-object payload rejected (`10 / 10` Node tests PASS).
+- Real local Auth/Data API continues to call the same guard before returning each token and before authorization assertions; integration `50 / 50` PASS with eight synthetic users.
+- Scope guard: no migration, schema, RLS/policy, production authorization semantics, dependency, `.gef`, or business-domain change.
+- GEF preflight before mutation: PASS; correct repository/account/branch, exact execution base and bind snapshot, Context Lock `BOUND_FOR_EXECUTION`, `16 / 16` stable fingerprints MATCH, clean tree, and `.gef` unchanged.
+- Complete exact-head HIGH_ASSURANCE L5 is rerun after evidence/checkpoint synchronization; exact final HEAD and full results are recorded in PR `#49`.
+- The actionable CodeRabbit thread is resolved only after the correction passes its complete exact-head validation.
+- PR `#49` remains OPEN/DRAFT against `main`; merge was not performed; objective audit remains pending.
+- Correction completion token: `GMZ_IMPL_003_CD_003_READY_FOR_OBJECTIVE_AUDIT`.

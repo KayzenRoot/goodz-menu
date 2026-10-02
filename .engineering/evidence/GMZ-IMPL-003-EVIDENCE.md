@@ -236,3 +236,37 @@ No migration, schema, RLS/policy, authorization semantics, dependency, `.gef`, o
 The complete exact-head HIGH_ASSURANCE L5 is rerun after this evidence/checkpoint synchronization. Its exact final HEAD and full results are recorded in PR `#49`; the PR remains OPEN/DRAFT and unmerged while the separate objective audit is pending.
 
 Correction completion token: `GMZ_IMPL_003_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-003-CD-003 — JWT subject identity proof
+
+### Finding and bounded correction
+
+The latest CodeRabbit review showed that the CD-002 response field check alone did not prove the identity that the Data API actually sees from the bearer token. The shared password-grant guard now validates the compact JWT structure, safely decodes UTF-8/base64url JSON, and requires both `payload.sub === identity.id` and `tokenBody.user?.id === identity.id`. It runs after a successful local password grant, before returning the access token, and therefore before any authorization assertion uses it.
+
+Missing identity/token, malformed segments or base64url, invalid/non-object header or payload, missing/different JWT subject, and missing/different response user ID all fail with one generic error. Tests assert the error does not contain the token or known identity/subject values.
+
+Changed for CD-003:
+
+- `tests/supabase/password-grant-identity.mjs`
+- `tests/supabase/password-grant-identity.test.mjs`
+- `.engineering/work-orders/GMZ-IMPL-003.md`
+- `.engineering/CHECKPOINT.md`
+- `.engineering/CHECKPOINT.json`
+- `.engineering/evidence/GMZ-IMPL-003-EVIDENCE.md`
+
+The integration continues to call the same guard before exposing each token to the Auth/Data API authorization matrix. CD-001 and CD-002 remain preserved in the Work Order, checkpoint correction history, and Evidence Bundle. No migration, schema, RLS/policy, production authorization semantics, dependency, `.gef`, or business-domain changes were made.
+
+### CD-003 focused validation
+
+| Check | Result |
+|---|---|
+| GEF 1.1.1 preflight before mutation | `PASS` — correct KayzenRoot repository/account/branch, unchanged execution base, bound Context Lock, bind snapshot MATCH, `16 / 16` locked fingerprints MATCH, clean tree, `.gef` unchanged, PR `#49` OPEN/DRAFT/unmerged |
+| Deterministic identity-guard regression | `PASS` — Node test runner `10 / 10`; includes all six required cases and missing identity/token plus invalid/non-object payload |
+| Local Auth/Data API | `PASS` — `50 / 50` checks; all eight synthetic password-grant JWT subjects matched signup identity |
+| Focused lint and whitespace checks | `PASS` |
+| Changed-file secret-pattern scan | `PASS` — zero matches |
+
+The complete exact-head HIGH_ASSURANCE L5 is rerun after this evidence/checkpoint synchronization. Its final exact HEAD and all results are recorded in PR `#49`. The CodeRabbit review thread is resolved only after successful full validation. PR remains OPEN/DRAFT and unmerged pending the separate objective audit.
+
+Correction completion token: `GMZ_IMPL_003_CD_003_READY_FOR_OBJECTIVE_AUDIT`.

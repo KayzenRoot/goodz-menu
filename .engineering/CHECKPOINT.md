@@ -104,6 +104,23 @@ STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
 STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
 
 
+## GMZ-IMPL-003-CD-003
+
+- Finding: response `user.id` alone did not prove the JWT subject used by Data API/RLS was the signup identity.
+- Correction: safely decode the compact JWT payload and require `payload.sub === identity.id`, while retaining `tokenBody.user?.id === identity.id`; the shared guard still runs before access-token return and authorization assertions.
+- Fail-closed behavior: absent identity/token, malformed JWT/base64url, invalid or non-object payload, missing/mismatched JWT `sub`, and missing/mismatched response `user.id` return the same generic error without sensitive values.
+- Deterministic identity-guard regression: `10 / 10` PASS, including the six required cases.
+- Local Auth/Data API: `50 / 50` PASS using eight synthetic password-grant users through the same guard.
+- Scope: local test-harness proof only; migrations/schema/RLS/policies/production authorization semantics/dependencies/`.gef`/business scope unchanged.
+- Preflight: GEF `1.1.1` PASS; `16 / 16` locked fingerprints MATCH; bind snapshot MATCH; `.gef` unchanged.
+- Complete exact-head HIGH_ASSURANCE L5 is repeated after this closeout and recorded at its exact SHA in PR `#49`.
+- Resolve the CodeRabbit identity-subject thread only after that full validation passes.
+- PR `#49`: OPEN/DRAFT against `main`, not merged; objective audit pending.
+- Correction completion token: `GMZ_IMPL_003_CD_003_READY_FOR_OBJECTIVE_AUDIT`.
+
+STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
+
+
 
 ## GMZ-SP-001 audit
 - Audited planning candidate: `fa29702bfcab8a344767616b4e47970fde738f3f`

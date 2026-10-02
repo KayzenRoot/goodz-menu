@@ -124,13 +124,22 @@
         "pgTap": "125/125 PASS",
         "localAuthDataApi": "42/42 PASS",
         "migrationSchemaPolicyChanged": false
+      },
+      {
+        "id": "GMZ-IMPL-003-CD-002",
+        "state": "READY_FOR_OBJECTIVE_AUDIT",
+        "scope": "local_auth_password_grant_identity_binding_proof_only",
+        "identityGuardRegression": "3/3 PASS",
+        "localAuthDataApi": "50/50 PASS",
+        "migrationSchemaPolicyChanged": false,
+        "dependenciesGefBusinessScopeChanged": false
       }
     ],
     "latestCorrectionDelta": {
-      "id": "GMZ-IMPL-003-CD-002",
+      "id": "GMZ-IMPL-003-CD-003",
       "state": "READY_FOR_OBJECTIVE_AUDIT",
-      "scope": "local_auth_password_grant_identity_binding_proof_only",
-      "identityGuardRegression": "3/3 PASS",
+      "scope": "local_auth_jwt_subject_identity_binding_proof_only",
+      "identityGuardRegression": "10/10 PASS",
       "localAuthDataApi": "50/50 PASS",
       "migrationSchemaPolicyChanged": false,
       "dependenciesGefBusinessScopeChanged": false
