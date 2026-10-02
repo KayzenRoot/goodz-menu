@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`
+Status: `GMZ_IMPL_002_PROMOTED_COMPLETE_READY_FOR_NEXT`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,14 +27,14 @@ Status: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-002` — READY_FOR_OBJECTIVE_AUDIT
-- Issue: `#42`
-- Branch: `implementation/gmz-impl-002-tenant-core`
+- Work Order: `NONE`
+- Issue: `NONE`
+- Branch: `main after promotion sync`
 - Base: `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`
-- Mode: objective audit of PR `#44`
+- Mode: no active implementation Work Order
 
 ## Progress accounting
-Overall production completion: `8 / 515 = 1.55%`.
+Overall production completion: `19 / 515 = 3.69%`.
 
 Planning artifacts do not manufacture product-completion percentage.
 
@@ -48,9 +48,9 @@ GMZ-SRC-001 is preserved byte-exact in repository truth:
 The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
-Perform the objective audit of PR `#44`. Merge authority has not been granted.
+Admit the next implementation Work Order from the frozen backlog. No implementation is authorized until a new Work Order and Context Lock are admitted.
 
-STOP CONDITION: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`.
+STOP CONDITION: `GMZ_IMPL_002_PROMOTED_COMPLETE`.
 
 
 
@@ -542,3 +542,36 @@ STOP CONDITION: `GMZ_IMPL_002_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
 - disposition: `READY_FOR_OBJECTIVE_AUDIT`
 
 STOP CONDITION: `GMZ_IMPL_002_CD_003_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-002 final objective audit
+- exact accepted candidate: `cbb6d5d913f4522c2e82051c56b108880e586ffb`
+- complete L5: `PASS`
+- stable source fingerprints: `14 / 14 MATCH`
+- unit: `8 / 8 PASS`
+- E2E: `8 / 8 PASS`
+- pgTAP: `57 / 57 PASS`
+- Docker/Supabase: `PASS`
+- SonarCloud: `PASS`
+- Socket Security: `PASS`
+- CodeRabbit: `SUCCESS / NO ACTIONABLE COMMENTS`
+- unresolved review threads: `0`
+- CRITICAL/HIGH: `0 / 0`
+- eligible incremental credit after merge: `11 / 515`
+- disposition: `APPROVED_FOR_PROMOTION`
+
+STOP CONDITION: `GMZ_IMPL_002_OBJECTIVE_AUDIT_APPROVED_PROMOTION_PENDING`.
+
+
+## GMZ-IMPL-002 post-merge promotion
+- implementation PR: `#44`
+- merge SHA: `8481193e367a68fc02213d61446f0faed9306e13`
+- objective audit: `APPROVED`
+- incremental credit: `11 / 515`
+- production credit: `19 / 515 = 3.69%`
+- M01: `10`
+- M26: `1`
+- active implementation authorization: `NO`
+- next: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
+
+STOP CONDITION: `GMZ_IMPL_002_PROMOTED_COMPLETE`.
