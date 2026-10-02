@@ -82,9 +82,11 @@ STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
 - Targeted pgTAP: `PASS`, `125 / 125`; local Auth/Data API real-token integration: `PASS`, `42 / 42`.
 - Frozen install (`pnpm 12.8.1`), lint, typecheck, unit, and changed-file secret scan: `PASS`.
 - Complete final exact-head L5 rerun and its exact SHA/results are documented in PR `#49`.
+- Correction completion token: `GMZ_IMPL_003_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
+- CodeRabbit alignment at `08fcc4d`: its minor finding about this block's stop declaration conflicting with the active JSON checkpoint stop condition is corrected here.
 - PR `#49`: OPEN/DRAFT, not merged; objective audit remains pending.
 
-STOP CONDITION: `GMZ_IMPL_003_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
+STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
 
 
 

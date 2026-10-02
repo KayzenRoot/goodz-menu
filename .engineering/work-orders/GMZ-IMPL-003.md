@@ -365,6 +365,7 @@ STOP CONDITION:
 - Existing organization/branch-scope, no-membership, no-permission, suspended/revoked, metadata-spoof, cross-tenant, and write-denial tests are retained.
 - Scope guard: no migration, schema, RLS policy, permission behavior, dependency, `.gef`, or business module changed.
 - Targeted validation: frozen install `pnpm 12.8.1`, lint, typecheck, and unit tests passed; pgTAP `125 / 125`; local Auth/Data API `42 / 42`; changed-file secret-pattern scan `0` matches.
+- CodeRabbit at `08fcc4d` identified one minor checkpoint stop-declaration inconsistency; it was aligned with the canonical active JSON checkpoint value. The final exact-head review is repeated after this correction.
 - Complete exact-head L5 is rerun after the evidence/checkpoint closeout. The final closeout SHA and the complete exact-head results are recorded in PR `#49`.
 - PR remains OPEN/DRAFT and unmerged. Objective audit remains a separate pending action.
 

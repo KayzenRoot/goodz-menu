@@ -199,6 +199,7 @@ No migration, schema, RLS policy, authorization behavior, dependency, `.gef`, or
 | Complete pgTAP suite | `PASS` — 2 files, `125 / 125` assertions |
 | Local Auth/Data API | `PASS` — `42 / 42` checks using synthetic local Auth tokens |
 | Changed-file secret-pattern scan | `PASS` — 2 changed test files, 0 matches |
+| CodeRabbit at `08fcc4d` | `1 minor` checkpoint stop-declaration mismatch; corrected by aligning the new block to the canonical JSON checkpoint condition; final exact-head review is rerun after closeout |
 
 The complete exact-head L5 is rerun after this evidence/checkpoint closeout. PR `#49` records the final exact HEAD and the full rerun results. The PR remains OPEN/DRAFT, no merge occurred, and objective audit remains pending.
 
