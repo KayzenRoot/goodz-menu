@@ -1,6 +1,6 @@
 # GMZ-IMPL-002 — Tenant Hierarchy and Isolation Foundation
 
-Status: `ADMISSION_CANDIDATE`  
+Status: `ADMITTED / EXECUTION_BASE_BIND_PENDING`  
 Issue: `#42`  
 Assurance: `HIGH`  
 Base branch: `main`  
@@ -323,3 +323,13 @@ Known CRITICAL/HIGH defect blocks progression and credit.
 Stop only when implementation is committed/pushed, PR is open against main, exact-head evidence is complete, and executor reports:
 
 `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## ADMISSION AUDIT
+- reviewed candidate: `6f63b2efee74c114316e4b03fd61f822e4716f56`
+- governance-only delta: `PASS`
+- stable source fingerprints: `14 / 14 MATCH`
+- Socket Security checks: `SUCCESS`
+- CRITICAL/HIGH: `0 / 0`
+- disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
+- executor remains blocked until the admission merge SHA is bound.
