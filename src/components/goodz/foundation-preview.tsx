@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { motion } from "motion/react";
 import { useTheme } from "next-themes";
 import {
@@ -73,10 +73,12 @@ function EnvironmentBadge() {
 function StatusPanel() {
   const [health, setHealth] = useState<Health | null>(null);
   const [ready, setReady] = useState<Ready | null>(null);
+  const refreshSequence = useRef(0);
 
   useEffect(() => {
     let active = true;
     const refresh = async () => {
+      const sequence = ++refreshSequence.current;
       const [healthResponse, readyResponse] = await Promise.allSettled([
         fetch("/api/health", { cache: "no-store" }),
         fetch("/api/ready", { cache: "no-store" }),
@@ -96,13 +98,17 @@ function StatusPanel() {
         readJson<Ready>(readyResponse),
       ]);
 
-      if (!active) return;
+      if (!active || sequence !== refreshSequence.current) return;
       setHealth(nextHealth);
       setReady(nextReady);
     };
     void refresh();
     const timer = window.setInterval(() => void refresh(), 15_000);
-    return () => { active = false; window.clearInterval(timer); };
+    return () => {
+      active = false;
+      refreshSequence.current += 1;
+      window.clearInterval(timer);
+    };
   }, []);
 
   const webUp = health?.status === "ok";
