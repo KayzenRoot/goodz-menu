@@ -1,6 +1,6 @@
 # GMZ-IMPL-002 — Executor Evidence
 
-Status: `READY_FOR_OBJECTIVE_AUDIT`
+Status: `SUPERSEDED_BY_GMZ-IMPL-002-CD-001`
 Repository: `KayzenRoot/goodz-menu`
 Branch: `implementation/gmz-impl-002-tenant-core`
 Work Order: `GMZ-IMPL-002` (Issue #42)
@@ -123,3 +123,15 @@ The exact closeout-head L5 rerun is also recorded in the current PR description 
 - [Supabase local database testing and linting](https://supabase.com/docs/guides/local-development/cli/testing-and-linting)
 - [Supabase pgTAP testing](https://supabase.com/docs/guides/database/extensions/pgtap)
 - [PostgreSQL 15.19 / 17.11 changelog](https://supabase.com/changelog/postgres-15-19-17-11-breaking-changes)
+
+
+## Supersession
+The prior objective-audit evidence is stale because CD-001 changed:
+- migration SQL;
+- pgTAP test SQL;
+- Sonar duplication scope configuration.
+
+A complete exact-head L5 rerun is required before objective approval.
+
+Superseded reason:
+`GMZ_IMPL_002_CD_001_EXACT_HEAD_L5_REQUIRED`
