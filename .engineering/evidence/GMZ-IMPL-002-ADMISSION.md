@@ -1,6 +1,6 @@
 # GMZ-IMPL-002 — Admission Evidence
 
-Status: `ADMISSION_CANDIDATE`
+Status: `APPROVED_FOR_ADMISSION_PROMOTION`
 
 ## Binding
 - Issue: `#42`
@@ -43,3 +43,16 @@ Executor mutation remains blocked until:
 
 STOP CONDITION:
 `GMZ_IMPL_002_ADMISSION_READY_FOR_REVIEW`
+
+
+## Admission audit
+- audited head: `6f63b2efee74c114316e4b03fd61f822e4716f56`
+- stable source fingerprints: `14 / 14 MATCH`
+- checkpoint snapshot: `MATCH`
+- Socket Security checks: `SUCCESS`
+- runtime/schema/migration code: `NONE`
+- CRITICAL/HIGH: `0 / 0`
+- disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
+
+STOP CONDITION:
+`GMZ_IMPL_002_ADMISSION_PROMOTED_BASE_BIND_PENDING`
