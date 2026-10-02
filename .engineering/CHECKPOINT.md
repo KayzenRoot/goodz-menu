@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_004_ADMITTED_EXECUTION_BASE_BIND_PENDING`
+Status: `GMZ_IMPL_004_BOUND_FOR_EXECUTION`
 
 ## Current state
 - Project: Goodz Menu
@@ -732,3 +732,19 @@ STOP CONDITION: `GMZ_IMPL_003_PROMOTED_COMPLETE`.
 - next action: `AUDIT_AND_MERGE_GMZ_IMPL_004_ADMISSION_THEN_BIND_EXECUTION_BASE`
 
 STOP CONDITION: `GMZ_IMPL_004_ADMISSION_READY_FOR_REVIEW`.
+
+
+## GMZ-IMPL-004 execution-base bind
+
+- admission PR: `#53`
+- admission audited head: `2093d0057bb664ec696591d5344ea60023da7f20`
+- admission merge / exact execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`
+- execution branch: `execution/gmz-impl-004-auth-session-entry`
+- Context Lock stable sources: `16 / 16 MATCH`
+- assurance: `HIGH_ASSURANCE`
+- executor/Codex: `AUTHORIZED FOR GMZ-IMPL-004 ONLY`
+- current earned production credit: `31 / 515 = 6.02%`
+- maximum eligible after later acceptance/merge/promotion: `7 / 515`
+- next action: `EXECUTE GMZ-IMPL-004`
+
+STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.
