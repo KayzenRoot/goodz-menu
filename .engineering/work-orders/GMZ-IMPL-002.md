@@ -1,6 +1,6 @@
 # GMZ-IMPL-002 — Tenant Hierarchy and Isolation Foundation
 
-Status: `ADMITTED / EXECUTION_BASE_BIND_PENDING`  
+Status: `READY_FOR_OBJECTIVE_AUDIT`
 Issue: `#42`  
 Assurance: `HIGH`  
 Base branch: `main`  
@@ -44,6 +44,16 @@ Partial prerequisite boundary only:
 - `GMZ-REQ-PLAT-002` Tenant-safe authorization
 
 This WO proves a deny-by-default database boundary. Membership-aware authorization remains owned by GMZ-M02 and is NOT claimed complete here.
+
+## EXECUTION BASE BINDING
+
+- admission merge: `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`
+- legal execution base: `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`
+- branch fast-forwarded to that merge before executor authorization.
+- executor mutation is authorized only inside GMZ-IMPL-002 WRITE_ALLOWED scope.
+
+If executor starts from a different lineage, STOP with:
+`GMZ_IMPL_002_EXECUTION_BASE_MISMATCH`.
 
 ## SOURCE MODEL BINDING
 
@@ -333,3 +343,63 @@ Stop only when implementation is committed/pushed, PR is open against main, exac
 - CRITICAL/HIGH: `0 / 0`
 - disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
 - executor remains blocked until the admission merge SHA is bound.
+
+
+## EXECUTOR ADMISSION
+- admission PR: `#43`
+- admission merge / execution base: `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`
+- final admission checks: `SonarCloud + Socket = SUCCESS`
+- stable source fingerprints: `14 / 14 MATCH`
+- execution authority: `ACTIVE FOR GMZ-IMPL-002 ONLY`
+- self-merge authority: `NO`
+
+
+## GMZ-IMPL-002-CD-001 — Objective review correction
+- trigger 1: `SonarCloud Quality Gate FAILURE`
+- Sonar condition: `18.3% new-code duplication > 3%`
+- correction: generated `src/lib/supabase/database.types.ts` excluded only from CPD duplication scoring via `.sonarcloud.properties`
+- generated types remain in normal source/security analysis
+- trigger 2: branch tenant-parent lookup lacked an explicit referencing-side index
+- correction: `branches_organization_establishment_idx (organization_id, establishment_id)`
+- regression: pgTAP assertion added for exact index columns
+- semantic product scope change: `NO`
+- Auth/Membership/RBAC scope change: `NO`
+- execution base change: `NO`
+- production credit: `8 / 515`
+- exact-head L5 after correction: `REQUIRED`
+- disposition: `CORRECTION_REQUIRED`
+
+
+## GMZ-IMPL-002-CD-002 — Objective review correction
+- trigger 1: top-level Work Order status remained `CORRECTION_REQUIRED / GMZ-IMPL-002-CD-001` after CD-001 validation; current status synchronized to `READY_FOR_OBJECTIVE_AUDIT` while preserving CD-001 above as historical record
+- trigger 2: pgTAP privilege regression covered only table CRUD and did not cover TRUNCATE, REFERENCES, TRIGGER, or column-level privileges
+- correction: table-level checks cover SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, and TRIGGER for anon/authenticated on all three tenancy tables
+- correction: has_any_column_privilege checks cover SELECT, INSERT, UPDATE, and REFERENCES for anon/authenticated on all three tenancy tables
+- migration and seed changes: `NONE`
+- production privilege posture: unchanged; current revocations remain in the migration
+- pgTAP count: `57 / 57 PASS`
+- candidate exact-head L5 after the test correction: `PASS`; final documentation-closeout head is retested and recorded in PR `#44`
+- scope/base/Auth/Membership/RBAC/remote Supabase/production: `UNCHANGED / NOT IMPLEMENTED / NOT USED`
+- production credit: `8 / 515`
+- evidence: `.engineering/evidence/GMZ-IMPL-002-CD-002-EVIDENCE.md`
+- disposition: `READY_FOR_OBJECTIVE_AUDIT`
+
+STOP CONDITION:
+`GMZ_IMPL_002_CD_002_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-002-CD-003 — Objective review correction
+- trigger: CodeRabbit finding `4166278998`; `supabase:types` printed generated output without updating the tracked file, and direct redirection could truncate it on failure
+- correction: `supabase:types` now invokes `scripts/generate-supabase-types.mjs`; output goes to a unique temporary file beside `database.types.ts`, and `rename` replaces the target only after exit code 0 and non-empty output
+- failure handling: preserve the existing target and remove the temporary file on CLI, write, or replacement failure
+- Windows compatibility: invoke the Supabase `.cmd` shim using `ComSpec` / `cmd.exe /d /s /c` with `spawn(..., shell: false)`; validated against the local CLI on Windows
+- regression proof: success replaces the target; non-zero generator exit preserves existing contents and cleans temporary output; `2 / 2 PASS`
+- actual Windows `pnpm supabase:types`: `PASS`; generated output was formatted with the established Oxfmt `0.71.0` workflow afterward
+- code candidate: `dcbf3ba`; final documentation-closeout head and complete exact-head L5 results are recorded in PR `#44`
+- schema/migration/seed/business scope/`.gef`: `UNCHANGED`
+- Context Lock, execution base, branch, and CD-002 history: `UNCHANGED`
+- evidence: `.engineering/evidence/GMZ-IMPL-002-CD-003-EVIDENCE.md`
+- disposition: `READY_FOR_OBJECTIVE_AUDIT`
+
+STOP CONDITION:
+`GMZ_IMPL_002_CD_003_READY_FOR_OBJECTIVE_AUDIT`

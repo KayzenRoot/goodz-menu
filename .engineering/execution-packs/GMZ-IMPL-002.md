@@ -1,6 +1,6 @@
 # GMZ-IMPL-002 — Execution Pack
 
-Status: `ADMISSION_CANDIDATE`
+Status: `READY_FOR_EXECUTOR`
 
 ## Mission
 

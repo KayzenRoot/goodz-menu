@@ -56,3 +56,13 @@ STOP CONDITION:
 
 STOP CONDITION:
 `GMZ_IMPL_002_ADMISSION_PROMOTED_BASE_BIND_PENDING`
+
+
+## Admission promotion
+- PR: `#43`
+- admission merge: `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`
+- branch fast-forward to merge: `PASS`
+- execution-base bind: `PASS`
+- stable source fingerprints: `14 / 14 MATCH`
+- executor state: `READY_FOR_EXECUTOR`
+- implementation code present before bind: `NO`

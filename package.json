@@ -16,7 +16,9 @@
     "supabase:start": "supabase start",
     "supabase:status": "supabase status",
     "supabase:stop": "supabase stop",
-    "supabase:reset": "supabase db reset"
+    "supabase:reset": "supabase db reset",
+    "supabase:test:db": "supabase test db --local",
+    "supabase:types": "node scripts/generate-supabase-types.mjs"
   },
   "dependencies": {
     "@tailwindcss/postcss": "4.3.3",

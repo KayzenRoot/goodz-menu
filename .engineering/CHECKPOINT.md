@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_002_ADMITTED_EXECUTION_BASE_BIND_PENDING`
+Status: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,11 +27,11 @@ Status: `GMZ_IMPL_002_ADMITTED_EXECUTION_BASE_BIND_PENDING`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-002` — ADMITTED / execution-base bind pending
+- Work Order: `GMZ-IMPL-002` — READY_FOR_OBJECTIVE_AUDIT
 - Issue: `#42`
 - Branch: `implementation/gmz-impl-002-tenant-core`
-- Base: `main@3f8bef75b40751b522aaed0dc6b7d09ad19ee110`
-- Mode: implementation admission review
+- Base: `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`
+- Mode: objective audit of PR `#44`
 
 ## Progress accounting
 Overall production completion: `8 / 515 = 1.55%`.
@@ -48,9 +48,9 @@ GMZ-SRC-001 is preserved byte-exact in repository truth:
 The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
-Admit the next implementation Work Order from the frozen backlog. No implementation is authorized until a new Work Order and Context Lock are admitted.
+Perform the objective audit of PR `#44`. Merge authority has not been granted.
 
-STOP CONDITION: `GMZ_IMPL_001_PROMOTED_COMPLETE`.
+STOP CONDITION: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`.
 
 
 
@@ -441,7 +441,7 @@ STOP CONDITION: `GMZ_IMPL_001_PROMOTED_COMPLETE`.
 - business migrations before WO: `NONE`
 - Auth/Membership/RBAC: `NOT ADMITTED`
 - RLS posture: `ENABLE + FAIL CLOSED / NO TENANT POLICY YET`
-- executor mutation: `BLOCKED UNTIL ADMISSION MERGE + EXECUTION BASE BIND`
+- executor mutation: `AUTHORIZED WITHIN GMZ-IMPL-002 ONLY`
 - stable source fingerprints: `14`
 - checkpoint tracked as governance snapshot, not stable-source fingerprint
 
@@ -462,3 +462,83 @@ STOP CONDITION: `GMZ_IMPL_002_ADMISSION_READY_FOR_REVIEW`.
 - CRITICAL/HIGH: `0 / 0`
 - disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
 - executor remains blocked until admission merge SHA is bound.
+
+
+## GMZ-IMPL-002 execution-base bind
+- admission PR: `#43`
+- admission merge: `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`
+- branch fast-forward: `PASS`
+- Context Lock target state: `BOUND_FOR_EXECUTION`
+- implementation authorization: `YES, GMZ-IMPL-002 ONLY`
+- Auth/Membership/RBAC: `NOT AUTHORIZED`
+- remote Supabase: `NOT AUTHORIZED`
+- current earned production credit: `8 / 515`
+- max future slice credit: `11`
+- next action: `EXECUTE GMZ-IMPL-002`
+
+STOP CONDITION: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-002 executor closeout
+- implementation candidate: `9e84c7008e55dc6a162af088f08730f1081028a4`
+- execution base: `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`
+- implementation PR: `#44` — https://github.com/KayzenRoot/goodz-menu/pull/44
+- preflight: `PASS`; stable source fingerprints: `14 / 14 MATCH`; governance snapshot: `MATCH`; `.gef`: `UNCHANGED`
+- L5 on implementation candidate: `PASS`; unit `6 / 6`; E2E `8 / 8`; pgTAP `56 / 56`
+- Docker/Supabase local runtime: `PASS`; health/readiness `200 / 200`; local Auth health `200`; local Postgres ready
+- dependency audit: `PASS`; changed-file secret pattern scan: `PASS`; local DB lint/advisor: `PASS`
+- implementation credit: `8 / 515` earned before this Work Order; up to `11` remains eligible only after governed acceptance and merge
+- final evidence: `.engineering/evidence/GMZ-IMPL-002-EVIDENCE.md`; final closeout-head L5 and exact PR head are recorded in PR `#44`
+- next action: `OBJECTIVE_AUDIT_GMZ_IMPL_002`
+
+STOP CONDITION: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-002-CD-001
+- SonarCloud Quality Gate at prior head: `FAIL / 18.3% duplication on new code`
+- generated Supabase type file CPD exclusion: `APPLIED`
+- branch tenant-parent composite index: `ADDED`
+- pgTAP index proof: `ADDED`
+- duplicate SQL assertion blocks consolidated into table-driven checks; all pgTAP cases retained: `YES / 57`
+- SonarCloud Quality Gate after correction: `PASS / 0 duplicated lines / 0.0%`
+- exact-head L5 after CD-001: `PASS` at code candidate `3fa2f915d6c74e7bb5eecc8b7e31e2a1c6640a1c`
+- pgTAP including tenant-parent index assertion: `57 / 57 PASS`
+- frozen install, lint, typecheck, unit, build, E2E, Docker, local Supabase, DB lint/advisor, audit, secret-pattern scan: `PASS`
+- final documentation-closeout head and repeated L5: recorded in PR `#44` after the evidence/checkpoint commit
+- current production credit: `8 / 515`
+- next: `OBJECTIVE_AUDIT_GMZ_IMPL_002`
+- disposition: `READY_FOR_OBJECTIVE_AUDIT`
+
+STOP CONDITION: `GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-002-CD-002
+- Work Order current status synchronized: `READY_FOR_OBJECTIVE_AUDIT`; CD-001 `CORRECTION_REQUIRED` retained in its historical section
+- table privilege regressions: anon/authenticated × 3 tenant tables × SELECT/INSERT/UPDATE/DELETE/TRUNCATE/REFERENCES/TRIGGER
+- column privilege regressions: anon/authenticated × 3 tenant tables × SELECT/INSERT/UPDATE/REFERENCES via `has_any_column_privilege`
+- migration/seed changed by CD-002: `NO`
+- pgTAP: `57 / 57 PASS`
+- GEF 1.1.1 preflight: `PASS` for repository, branch, legal base, identity, 14/14 stable fingerprints and `.gef`; mutable checkpoint snapshot history and pre-correction Work Order status recorded in CD-002 evidence
+- exact-head L5 on code candidate `d1da032e29760156bd08acdd45f04cfba7b13dbc`: `PASS`
+- final documentation-closeout head and repeated exact-head L5: recorded in PR `#44`
+- production credit: `8 / 515`; no merge or scope expansion
+- next action: `OBJECTIVE_AUDIT_GMZ_IMPL_002`
+- disposition: `READY_FOR_OBJECTIVE_AUDIT`
+
+STOP CONDITION: `GMZ_IMPL_002_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-002-CD-003
+- CodeRabbit finding `4166278998`: `supabase:types` did not update tracked generated types and lacked failure-safe replacement
+- workflow: Supabase CLI stdout is written to a unique same-directory temporary file; tracked target is replaced only after successful, non-empty generation
+- Windows: explicit `ComSpec` / `cmd.exe /d /s /c` invocation with Node `spawn` shell disabled; real local CLI run passed
+- regression tests: successful output replaces the target; exit failure preserves existing target and cleans temporary output; `2 / 2 PASS`
+- generated-types file: real command updated the tracked path; Oxfmt `0.71.0` restored canonical formatting; no generated schema delta
+- migration/seed/schema/business scope/`.gef`: `UNCHANGED`
+- preflight at bound starting head: `PASS`; correct repo/branch/base, `14 / 14 MATCH`, checkpoint semantic state ready, `.gef` intact; historic mutable snapshot noted in evidence
+- final documentation-closeout head and complete exact-head L5: recorded in PR `#44` after validation
+- CodeRabbit thread: resolve after final push; PR remains draft
+- current production credit: `8 / 515`; no merge
+- disposition: `READY_FOR_OBJECTIVE_AUDIT`
+
+STOP CONDITION: `GMZ_IMPL_002_CD_003_READY_FOR_OBJECTIVE_AUDIT`.
