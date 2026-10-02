@@ -1,6 +1,6 @@
 # GMZ-IMPL-002 — Tenant Hierarchy and Isolation Foundation
 
-Status: `ADMITTED / EXECUTION_BASE_BIND_PENDING`  
+Status: `READY_FOR_EXECUTOR`  
 Issue: `#42`  
 Assurance: `HIGH`  
 Base branch: `main`  
@@ -44,6 +44,16 @@ Partial prerequisite boundary only:
 - `GMZ-REQ-PLAT-002` Tenant-safe authorization
 
 This WO proves a deny-by-default database boundary. Membership-aware authorization remains owned by GMZ-M02 and is NOT claimed complete here.
+
+## EXECUTION BASE BINDING
+
+- admission merge: `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`
+- legal execution base: `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`
+- branch fast-forwarded to that merge before executor authorization.
+- executor mutation is authorized only inside GMZ-IMPL-002 WRITE_ALLOWED scope.
+
+If executor starts from a different lineage, STOP with:
+`GMZ_IMPL_002_EXECUTION_BASE_MISMATCH`.
 
 ## SOURCE MODEL BINDING
 
@@ -333,3 +343,12 @@ Stop only when implementation is committed/pushed, PR is open against main, exac
 - CRITICAL/HIGH: `0 / 0`
 - disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
 - executor remains blocked until the admission merge SHA is bound.
+
+
+## EXECUTOR ADMISSION
+- admission PR: `#43`
+- admission merge / execution base: `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`
+- final admission checks: `SonarCloud + Socket = SUCCESS`
+- stable source fingerprints: `14 / 14 MATCH`
+- execution authority: `ACTIVE FOR GMZ-IMPL-002 ONLY`
+- self-merge authority: `NO`
