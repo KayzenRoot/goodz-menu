@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_001_OBJECTIVE_AUDIT_APPROVED_PROMOTION_PENDING`
+Status: `GMZ_IMPL_001_CD_005_EXACT_HEAD_L5_PENDING`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,7 +27,7 @@ Status: `GMZ_IMPL_001_OBJECTIVE_AUDIT_APPROVED_PROMOTION_PENDING`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-001` — OBJECTIVE_AUDIT_APPROVED / PROMOTION_PENDING
+- Work Order: `GMZ-IMPL-001` — CORRECTION_REQUIRED / CD-005
 - Issue: `#36`
 - Branch: `implementation/gmz-impl-001-runtime-foundation`
 - Base: `0932c46134ad5e94cf1b5d29c8e7e8ac65d2e585`
@@ -358,8 +358,8 @@ STOP CONDITION: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`.
 - stale closeout checkpoint fingerprint: `FIXED`
 - status response stale-state bug: `FIXED`
 - regression E2E: `ADDED`
-- exact-head L5 after correction: `PASS`
-- disposition: `APPROVED_FOR_PROMOTION`
+- exact-head L5 after CD-003: `PASS`
+- disposition before CD-005: `APPROVED_FOR_PROMOTION / SUPERSEDED`
 
 
 ## GMZ-IMPL-001 final objective audit
@@ -376,3 +376,17 @@ STOP CONDITION: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`.
 - next: `MERGE PR #38, THEN PROMOTION SYNC`
 
 STOP CONDITION: `GMZ_IMPL_001_OBJECTIVE_AUDIT_APPROVED_PROMOTION_PENDING`.
+
+
+## GMZ-IMPL-001-CD-005
+- new finding: `LOW / stale refresh race`
+- code fix: `APPLIED`
+- regression test: `ADDED`
+- runtime files changed after prior L5: `YES`
+- prior objective approval: `SUPERSEDED`
+- exact-head L5 after CD-005: `PENDING`
+- production credit: `0 / 515`
+- next action: `RERUN COMPLETE PREFLIGHT + L5`
+- disposition: `CORRECTION_REQUIRED`
+
+STOP CONDITION: `GMZ_IMPL_001_CD_005_EXACT_HEAD_L5_REQUIRED`.
