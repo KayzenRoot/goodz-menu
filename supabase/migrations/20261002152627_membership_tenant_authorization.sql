@@ -1,6 +1,56 @@
 CREATE SCHEMA IF NOT EXISTS private;
 REVOKE ALL ON SCHEMA private FROM PUBLIC, anon, authenticated;
 
+CREATE FUNCTION private.active_membership_status()
+RETURNS text
+LANGUAGE sql
+IMMUTABLE
+PARALLEL SAFE
+SET search_path = ''
+AS $function$
+  SELECT 'active'::text;
+$function$;
+
+CREATE FUNCTION private.is_organization_scope(p_scope_type text)
+RETURNS boolean
+LANGUAGE sql
+IMMUTABLE
+PARALLEL SAFE
+SET search_path = ''
+AS $function$
+  SELECT p_scope_type = 'organization';
+$function$;
+
+CREATE FUNCTION private.is_establishment_scope(p_scope_type text)
+RETURNS boolean
+LANGUAGE sql
+IMMUTABLE
+PARALLEL SAFE
+SET search_path = ''
+AS $function$
+  SELECT p_scope_type = 'establishment';
+$function$;
+
+CREATE FUNCTION private.is_branch_scope(p_scope_type text)
+RETURNS boolean
+LANGUAGE sql
+IMMUTABLE
+PARALLEL SAFE
+SET search_path = ''
+AS $function$
+  SELECT p_scope_type = 'branch';
+$function$;
+
+REVOKE ALL ON FUNCTION private.active_membership_status() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION private.is_organization_scope(text) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION private.is_establishment_scope(text) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION private.is_branch_scope(text) FROM PUBLIC, anon, authenticated;
+GRANT USAGE ON SCHEMA private TO service_role;
+GRANT EXECUTE ON FUNCTION private.active_membership_status() TO service_role;
+GRANT EXECUTE ON FUNCTION private.is_organization_scope(text) TO service_role;
+GRANT EXECUTE ON FUNCTION private.is_establishment_scope(text) TO service_role;
+GRANT EXECUTE ON FUNCTION private.is_branch_scope(text) TO service_role;
+
 ALTER TABLE public.branches
   ADD CONSTRAINT branches_organization_establishment_id_key
   UNIQUE (organization_id, establishment_id, id);
@@ -9,7 +59,7 @@ CREATE TABLE public.organization_memberships (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id uuid NOT NULL,
   user_id uuid NOT NULL,
-  status text NOT NULL DEFAULT 'active',
+  status text NOT NULL DEFAULT private.active_membership_status(),
   default_establishment_id uuid,
   default_branch_id uuid,
   accepted_at timestamptz NOT NULL DEFAULT now(),
@@ -28,7 +78,7 @@ CREATE TABLE public.organization_memberships (
   CONSTRAINT organization_memberships_organization_user_key
     UNIQUE (organization_id, user_id),
   CONSTRAINT organization_memberships_status_check
-    CHECK (status IN ('active', 'suspended', 'revoked')),
+    CHECK (status IN (private.active_membership_status(), 'suspended', 'revoked')),
   CONSTRAINT organization_memberships_revocation_state_check
     CHECK ((status = 'revoked') = (revoked_at IS NOT NULL)),
   CONSTRAINT organization_memberships_default_scope_check
@@ -129,9 +179,9 @@ CREATE TABLE public.membership_roles (
     CHECK (scope_type IN ('organization', 'establishment', 'branch')),
   CONSTRAINT membership_roles_scope_shape_check
     CHECK (
-      (scope_type = 'organization' AND establishment_id IS NULL AND branch_id IS NULL)
-      OR (scope_type = 'establishment' AND establishment_id IS NOT NULL AND branch_id IS NULL)
-      OR (scope_type = 'branch' AND establishment_id IS NOT NULL AND branch_id IS NOT NULL)
+      (private.is_organization_scope(scope_type) AND establishment_id IS NULL AND branch_id IS NULL)
+      OR (private.is_establishment_scope(scope_type) AND establishment_id IS NOT NULL AND branch_id IS NULL)
+      OR (private.is_branch_scope(scope_type) AND establishment_id IS NOT NULL AND branch_id IS NOT NULL)
     ),
   CONSTRAINT membership_roles_establishment_fkey
     FOREIGN KEY (organization_id, establishment_id)
@@ -145,13 +195,13 @@ CREATE TABLE public.membership_roles (
 
 CREATE UNIQUE INDEX membership_roles_organization_assignment_key
   ON public.membership_roles (organization_id, membership_id, role_id)
-  WHERE scope_type = 'organization';
+  WHERE private.is_organization_scope(scope_type);
 CREATE UNIQUE INDEX membership_roles_establishment_assignment_key
   ON public.membership_roles (organization_id, membership_id, role_id, establishment_id)
-  WHERE scope_type = 'establishment';
+  WHERE private.is_establishment_scope(scope_type);
 CREATE UNIQUE INDEX membership_roles_branch_assignment_key
   ON public.membership_roles (organization_id, membership_id, role_id, establishment_id, branch_id)
-  WHERE scope_type = 'branch';
+  WHERE private.is_branch_scope(scope_type);
 CREATE INDEX membership_roles_role_idx
   ON public.membership_roles (organization_id, role_id);
 CREATE INDEX membership_roles_establishment_scope_idx
@@ -231,24 +281,27 @@ AS $function$
         AND role_permission.role_id = membership_role.role_id
       WHERE membership.user_id = (SELECT auth.uid())
         AND membership.organization_id = p_organization_id
-        AND membership.status = 'active'
+        AND membership.status = private.active_membership_status()
         AND role_permission.permission_key = 'tenant.hierarchy.read'
         AND CASE
           WHEN p_branch_id IS NOT NULL THEN
-            membership_role.scope_type = 'organization'
+            private.is_organization_scope(membership_role.scope_type)
             OR (
-              membership_role.scope_type = 'establishment'
+              private.is_establishment_scope(membership_role.scope_type)
               AND membership_role.establishment_id = p_establishment_id
             )
             OR (
-              membership_role.scope_type = 'branch'
+              private.is_branch_scope(membership_role.scope_type)
               AND membership_role.establishment_id = p_establishment_id
               AND membership_role.branch_id = p_branch_id
             )
           WHEN p_establishment_id IS NOT NULL THEN
-            membership_role.scope_type = 'organization'
+            private.is_organization_scope(membership_role.scope_type)
             OR (
-              membership_role.scope_type IN ('establishment', 'branch')
+              (
+                private.is_establishment_scope(membership_role.scope_type)
+                OR private.is_branch_scope(membership_role.scope_type)
+              )
               AND membership_role.establishment_id = p_establishment_id
             )
           ELSE TRUE

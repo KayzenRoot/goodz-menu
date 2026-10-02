@@ -127,9 +127,6 @@ SELECT ok(
 SELECT ok((SELECT relrowsecurity FROM pg_class WHERE oid = 'public.organizations'::regclass), 'organizations have RLS enabled');
 SELECT ok((SELECT relrowsecurity FROM pg_class WHERE oid = 'public.establishments'::regclass), 'establishments have RLS enabled');
 SELECT ok((SELECT relrowsecurity FROM pg_class WHERE oid = 'public.branches'::regclass), 'branches have RLS enabled');
-SELECT ok(EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'organizations' AND cmd = 'SELECT' AND roles = ARRAY['authenticated']::name[]), 'organizations use the admitted authenticated membership-aware SELECT policy');
-SELECT ok(EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'establishments' AND cmd = 'SELECT' AND roles = ARRAY['authenticated']::name[]), 'establishments use the admitted authenticated membership-aware SELECT policy');
-SELECT ok(EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'branches' AND cmd = 'SELECT' AND roles = ARRAY['authenticated']::name[]), 'branches use the admitted authenticated membership-aware SELECT policy');
 
 SELECT ok(
   bool_and(

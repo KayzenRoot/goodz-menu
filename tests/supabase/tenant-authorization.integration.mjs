@@ -37,7 +37,7 @@ function runSupabase(args) {
     child.once("error", rejectRun);
     child.once("close", (code, signal) => {
       if (code === 0) resolveRun({ stdout, stderr });
-      else rejectRun(new Error(`Supabase CLI failed (${signal || `exit ${code}`}). ${sanitizeCliError(stdout, stderr)}`));
+      else rejectRun(new Error("Supabase CLI failed (" + (signal || "exit " + code) + "). " + sanitizeCliError(stdout, stderr)));
     });
   });
 }
@@ -131,11 +131,12 @@ function assertLocalIds() {
   }
 }
 
-async function executeFixtureSql(sql) {
+function executeFixtureSql(sql) {
   const statements = sql.split(";").map((statement) => statement.trim()).filter(Boolean);
-  for (const statement of statements) {
-    await runSupabase(["db", "query", "--local", statement]);
-  }
+  return statements.reduce(
+    (pending, statement) => pending.then(() => runSupabase(["db", "query", "--local", statement])),
+    Promise.resolve(),
+  );
 }
 
 function fixtureSetupSql() {
