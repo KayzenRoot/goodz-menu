@@ -23,7 +23,7 @@
   "lockedSources": [
     {
       "path": ".engineering/CHECKPOINT.json",
-      "gitBlobSha": "7f56a379324a9de55178ca9e4b2859cfb5750d83"
+      "gitBlobSha": "f1e6bcfda8dd6a95f6ce99a59d744635beb43236"
     },
     {
       "path": ".engineering/SOURCE-HIERARCHY.md",
@@ -160,6 +160,16 @@
       "runtimeCodeTouched": true,
       "validationRequiredOnNewHead": true,
       "disposition": "CORRECTION_APPLIED_EXACT_HEAD_L5_PENDING"
+    },
+    {
+      "id": "GMZ-IMPL-001-CD-004",
+      "reason": "Objective audit approval advanced the machine checkpoint to promotion-pending; rebind only the checkpoint fingerprint for final governance promotion.",
+      "oldCheckpointGitBlobSha": "7f56a379324a9de55178ca9e4b2859cfb5750d83",
+      "newCheckpointGitBlobSha": "f1e6bcfda8dd6a95f6ce99a59d744635beb43236",
+      "semanticScopeChange": false,
+      "executionBaseChanged": false,
+      "runtimeCodeTouched": false,
+      "disposition": "PROMOTION_CHECKPOINT_REBOUND"
     }
   ]
 }
