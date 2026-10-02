@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "project": "Goodz Menu",
   "repository": "KayzenRoot/goodz-menu",
-  "status": "GMZ_IMPL_003_BOUND_FOR_EXECUTION",
+  "status": "GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT",
   "gefVersion": "1.1.1",
   "ideation": "CLOSED",
   "sourcePack": "FROZEN_V0_1",
@@ -19,7 +19,7 @@
   "activeIssue": 47,
   "activeBranch": "execution/gmz-impl-003-membership-authz",
   "baseSha": "c08e385dee86eb7af1c133f730e74951891b63f8",
-  "nextAction": "EXECUTE_GMZ_IMPL_003",
+  "nextAction": "OBJECTIVE_AUDIT_GMZ_IMPL_003",
   "stopCondition": "GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT",
   "lastAudit": {
     "workOrder": "GMZ-IMPL-003",
@@ -81,7 +81,7 @@
   "productionEarned": 19,
   "activeImplementation": {
     "workOrder": "GMZ-IMPL-003",
-    "state": "BOUND_FOR_EXECUTION",
+    "state": "READY_FOR_OBJECTIVE_AUDIT",
     "assurance": "HIGH_ASSURANCE",
     "admissionBaseSha": "81ff6d87c2af25ebf5cd55ba8038bcad5a86b83a",
     "executionBaseSha": "c08e385dee86eb7af1c133f730e74951891b63f8",
@@ -101,7 +101,7 @@
     "mfaAdminGuardAuthorized": false,
     "remoteSupabaseAuthorized": false,
     "migrationWorkflow": "IMPERATIVE_MIGRATION_FIRST",
-    "tenantAccessPosture": "CURRENTLY_FAIL_CLOSED_TO_TRANSITION_TO_MEMBERSHIP_AWARE_SELECT_ONLY",
+    "tenantAccessPosture": "MEMBERSHIP_AWARE_SELECT_ONLY_PENDING_OBJECTIVE_AUDIT",
     "admissionAudit": {
       "auditedHead": "5cfdcfbd6811b2cda2d3caa4d141a5b3018ae710",
       "critical": 0,

@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_003_BOUND_FOR_EXECUTION`
+Status: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,7 +27,7 @@ Status: `GMZ_IMPL_003_BOUND_FOR_EXECUTION`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-003` — BOUND_FOR_EXECUTION
+- Work Order: `GMZ-IMPL-003` — READY_FOR_OBJECTIVE_AUDIT
 - Issue: `#47`
 - Branch: `execution/gmz-impl-003-membership-authz`
 - Execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`
@@ -48,7 +48,26 @@ GMZ-SRC-001 is preserved byte-exact in repository truth:
 The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
-Execute only GMZ-IMPL-003 from the bound execution branch. Do not merge. Stop after exact-head evidence is ready for objective audit.
+Run the separate objective audit for PR `#49`. Do not merge.
+
+STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-003 executor closeout
+- implementation code candidate: `b3c18f9dde2b85ddd425c8794f798be2ee6e9487`
+- execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`
+- implementation PR: `#49` — https://github.com/KayzenRoot/goodz-menu/pull/49; draft, base `main`, not merged
+- GEF 1.1.1 preflight: `PASS`; stable source fingerprints: `16 / 16 MATCH`
+- Context Lock at execution: `BOUND_FOR_EXECUTION`; governance snapshot at entry: `MATCH`; `.gef`: `UNCHANGED`
+- implementation candidate L5: `PASS`; pgTAP `120 / 120`; local Auth/Data API `34 / 34`; unit `8 / 8`; E2E `8 / 8`
+- lint, typecheck, build, generated-type equivalence, DB lint/security advisor, dependency and secret checks: `PASS`
+- Docker build/up/health/readiness, local Auth/Postgres/Supabase, runtime logs: `PASS`
+- SonarCloud: `PASS`; Socket Project Report and Pull Request Alerts: `PASS`; CodeRabbit CLI: `0 issues`
+- executor exact-head L5 is repeated after this evidence/checkpoint closeout; its exact HEAD and repeated results are in the PR description
+- no remote Supabase, production deployment, business-domain implementation, or merge
+- production credit remains `19 / 515`; no GMZ-IMPL-003 credit is earned before objective acceptance and merge
+- disposition: `READY_FOR_OBJECTIVE_AUDIT`; objective audit: `PENDING`
+- next action: `OBJECTIVE_AUDIT_GMZ_IMPL_003`
 
 STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
 

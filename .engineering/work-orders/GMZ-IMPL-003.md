@@ -1,6 +1,6 @@
 # GMZ-IMPL-003 — Membership & Tenant Authorization Foundation
 
-Status: `ADMITTED / BOUND_FOR_EXECUTION`
+Status: `READY_FOR_OBJECTIVE_AUDIT`
 Issue: `#47`
 Assurance: `HIGH_ASSURANCE`
 Base branch: `main`
@@ -332,6 +332,22 @@ After exact execution-base bind:
 - executor/Codex: `AUTHORIZED FOR GMZ-IMPL-003 ONLY`
 - current production credit: `19 / 515 = 3.69%`
 - merge authority for executor: `NO`
+
+STOP CONDITION:
+`GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## EXECUTOR CLOSEOUT
+- implementation code candidate: `b3c18f9dde2b85ddd425c8794f798be2ee6e9487`
+- execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`
+- implementation PR: `#49`, open draft against `main`; not merged
+- complete GEF 1.1.1 preflight: `PASS`; locked source fingerprints: `16 / 16 MATCH`; Context Lock was `BOUND_FOR_EXECUTION`; governance snapshot matched; `.gef` unchanged
+- implementation candidate validation: `PASS`; exact-head closeout L5 is repeated after evidence/checkpoint synchronization and its final SHA/results are recorded in the PR description
+- pgTAP: `120 / 120`; synthetic local Auth/Data API: `34 checks`; unit `8 / 8`; E2E `8 / 8`
+- SonarCloud: `PASS`; Socket: `PASS`; CodeRabbit CLI: `0 issues` across six implementation files
+- CRITICAL/HIGH findings: `0 / 0` in executed automated checks; independent objective audit remains `PENDING`
+- current earned production credit remains `19 / 515`; no implementation credit is awarded by executor closeout
+- next action: `OBJECTIVE_AUDIT_GMZ_IMPL_003`
 
 STOP CONDITION:
 `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`
