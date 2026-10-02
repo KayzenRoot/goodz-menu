@@ -202,11 +202,16 @@ SELECT ok(
   'authenticated cannot write the tenant hierarchy'
 );
 SELECT is(
-  (SELECT count(*)::integer FROM pg_policies
-   WHERE schemaname = (SELECT c_public_schema_name FROM pg_temp.gmz003_test_constants)
-     AND tablename IN ((SELECT c_organizations_table_name FROM pg_temp.gmz003_test_constants), (SELECT c_establishments_table_name FROM pg_temp.gmz003_test_constants), (SELECT c_branches_table_name FROM pg_temp.gmz003_test_constants))
-     AND cmd = (SELECT c_select_privilege FROM pg_temp.gmz003_test_constants)
-     AND roles = ARRAY[(SELECT c_authenticated_role FROM pg_temp.gmz003_test_constants)]::name[]),
+  (SELECT count(*)::integer
+   FROM (
+     SELECT tablename FROM pg_policies
+     WHERE schemaname = (SELECT c_public_schema_name FROM pg_temp.gmz003_test_constants)
+       AND tablename IN ((SELECT c_organizations_table_name FROM pg_temp.gmz003_test_constants), (SELECT c_establishments_table_name FROM pg_temp.gmz003_test_constants), (SELECT c_branches_table_name FROM pg_temp.gmz003_test_constants))
+       AND cmd = (SELECT c_select_privilege FROM pg_temp.gmz003_test_constants)
+       AND roles = ARRAY[(SELECT c_authenticated_role FROM pg_temp.gmz003_test_constants)]::name[]
+     GROUP BY tablename
+     HAVING count(*) = 1
+   ) AS one_policy_per_table),
   3,
   'hierarchy has exactly one authenticated SELECT policy per table'
 );
