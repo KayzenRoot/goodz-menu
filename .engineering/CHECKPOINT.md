@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_002_PROMOTED_COMPLETE_READY_FOR_NEXT`
+Status: `GMZ_IMPL_003_ADMITTED_EXECUTION_BASE_BIND_PENDING`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,11 +27,11 @@ Status: `GMZ_IMPL_002_PROMOTED_COMPLETE_READY_FOR_NEXT`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `NONE`
-- Issue: `NONE`
-- Branch: `main after promotion sync`
-- Base: `4fa468ccf4c03dbb2822c41e8a821ad95fa0f2c9`
-- Mode: no active implementation Work Order
+- Work Order: `GMZ-IMPL-003` — ADMISSION CANDIDATE / execution-base bind pending
+- Issue: `#47`
+- Branch: `implementation/gmz-impl-003-membership-authz`
+- Base: `main@81ff6d87c2af25ebf5cd55ba8038bcad5a86b83a`
+- Mode: HIGH_ASSURANCE membership/RBAC admission review
 
 ## Progress accounting
 Overall production completion: `19 / 515 = 3.69%`.
@@ -48,9 +48,9 @@ GMZ-SRC-001 is preserved byte-exact in repository truth:
 The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
-Admit the next implementation Work Order from the frozen backlog. No implementation is authorized until a new Work Order and Context Lock are admitted.
+Audit the GMZ-IMPL-003 admission-only PR. Executor mutation remains blocked until admission promotion and exact execution-base binding.
 
-STOP CONDITION: `GMZ_IMPL_002_PROMOTED_COMPLETE`.
+STOP CONDITION: `GMZ_IMPL_003_ADMISSION_READY_FOR_REVIEW`.
 
 
 
@@ -575,3 +575,25 @@ STOP CONDITION: `GMZ_IMPL_002_OBJECTIVE_AUDIT_APPROVED_PROMOTION_PENDING`.
 - next: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
 
 STOP CONDITION: `GMZ_IMPL_002_PROMOTED_COMPLETE`.
+
+
+## GMZ-IMPL-003 admission candidate
+- objective: `Membership & Tenant Authorization Foundation`
+- Source Pack: `FROZEN_V0.1`
+- assurance: `HIGH_ASSURANCE`
+- current earned production credit: `19 / 515 = 3.69%`
+- max additional slice credit after acceptance: `12`
+- allocation: `M02(10), M26(2)`
+- projected cumulative only if accepted: `31 / 515 = 6.02%`
+- admitted identity source: `Supabase Auth`
+- canonical authz source: `DB membership + role/permission + resource scope`
+- hierarchy access target: `MEMBERSHIP-AWARE SELECT ONLY`
+- tenant data writes: `NOT ADMITTED`
+- signup/onboarding/login UI: `NOT ADMITTED`
+- platform admin/MFA/Admin Guard/support mode: `NOT ADMITTED`
+- remote Supabase/deployment: `NOT ADMITTED`
+- executor mutation: `BLOCKED UNTIL ADMISSION MERGE + EXECUTION BASE BIND`
+- stable source fingerprints: `16`
+- checkpoint tracked as mutable governance snapshot
+
+STOP CONDITION: `GMZ_IMPL_003_ADMISSION_READY_FOR_REVIEW`.
