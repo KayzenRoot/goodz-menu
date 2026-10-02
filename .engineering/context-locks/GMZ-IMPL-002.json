@@ -79,9 +79,9 @@
   ],
   "governanceSnapshot": {
     "checkpointPath": ".engineering/CHECKPOINT.json",
-    "checkpointGitBlobSha": "8bbb4e505ee34935e8f19bf24b01fc909fa63ff5",
-    "status": "GMZ_IMPL_002_ADMISSION_REVIEW_PENDING",
-    "note": "Checkpoint is mutable governance state and is intentionally excluded from stable lockedSources."
+    "checkpointGitBlobSha": "af06a70977523db7caeac2b096d80200bde38189",
+    "status": "GMZ_IMPL_002_ADMITTED_EXECUTION_BASE_BIND_PENDING",
+    "note": "Mutable governance snapshot; intentionally excluded from stable lockedSources."
   },
   "implementationContract": {
     "hierarchy": [
@@ -124,5 +124,13 @@
     "production infrastructure",
     "business-domain expansion"
   ],
-  "stopCondition": "GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT"
+  "stopCondition": "GMZ_IMPL_002_READY_FOR_OBJECTIVE_AUDIT",
+  "admissionAudit": {
+    "auditedHead": "6f63b2efee74c114316e4b03fd61f822e4716f56",
+    "stableSourceFingerprints": "14/14 MATCH",
+    "socketChecks": "SUCCESS",
+    "critical": 0,
+    "high": 0,
+    "disposition": "APPROVED_FOR_ADMISSION_PROMOTION"
+  }
 }
