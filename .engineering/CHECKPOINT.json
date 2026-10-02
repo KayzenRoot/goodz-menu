@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "project": "Goodz Menu",
   "repository": "KayzenRoot/goodz-menu",
-  "status": "GMZ_IMPL_002_ADMISSION_REVIEW_PENDING",
+  "status": "GMZ_IMPL_002_ADMITTED_EXECUTION_BASE_BIND_PENDING",
   "gefVersion": "1.1.1",
   "ideation": "CLOSED",
   "sourcePack": "FROZEN_V0_1",
@@ -19,8 +19,8 @@
   "activeIssue": 42,
   "activeBranch": "implementation/gmz-impl-002-tenant-core",
   "baseSha": "3f8bef75b40751b522aaed0dc6b7d09ad19ee110",
-  "nextAction": "REVIEW_AND_PROMOTE_GMZ_IMPL_002_ADMISSION",
-  "stopCondition": "GMZ_IMPL_002_ADMISSION_READY_FOR_REVIEW",
+  "nextAction": "MERGE_ADMISSION_THEN_BIND_EXECUTION_BASE",
+  "stopCondition": "GMZ_IMPL_002_ADMISSION_PROMOTED_BASE_BIND_PENDING",
   "lastAudit": {
     "workOrder": "GMZ-IMPL-001",
     "critical": 0,
@@ -82,7 +82,7 @@
   "productionEarned": 8,
   "activeImplementation": {
     "workOrder": "GMZ-IMPL-002",
-    "state": "ADMISSION_CANDIDATE",
+    "state": "ADMITTED_BASE_BIND_PENDING",
     "assurance": "HIGH",
     "executionBaseSha": null,
     "executionBaseState": "MUST_BIND_AFTER_ADMISSION_PROMOTION",
@@ -95,6 +95,15 @@
     "businessDomainImplementationAuthorized": false,
     "authMembershipRbacAuthorized": false,
     "migrationWorkflow": "IMPERATIVE_MIGRATION_FIRST",
-    "tenantAccessPosture": "RLS_ENABLED_FAIL_CLOSED_NO_MEMBERSHIP_POLICY"
+    "tenantAccessPosture": "RLS_ENABLED_FAIL_CLOSED_NO_MEMBERSHIP_POLICY",
+    "admissionAudit": {
+      "auditedHead": "6f63b2efee74c114316e4b03fd61f822e4716f56",
+      "critical": 0,
+      "high": 0,
+      "stableSourceFingerprints": "14/14 MATCH",
+      "socketChecks": "SUCCESS",
+      "runtimeOrSchemaCodeIntroduced": false,
+      "disposition": "APPROVED_FOR_ADMISSION_PROMOTION"
+    }
   }
 }
