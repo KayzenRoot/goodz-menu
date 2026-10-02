@@ -24,7 +24,7 @@ Status: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`
 - AI Architecture: `APPROVED_V0.1`
 - UI/UX Design System: `APPROVED_V0.1`
 - Security Control Matrix: `APPROVED_V0.1`
-- Product implementation: `NOT_AUTHORIZED`
+- Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
 - Work Order: `GMZ-IMPL-001` — READY_FOR_OBJECTIVE_AUDIT
@@ -349,3 +349,14 @@ STOP CONDITION: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`.
 The final executor sweep is repeated after this checkpoint/evidence closeout commit. Its exact PR head is reported by the executor; the PR remains open for the separate objective audit.
 
 STOP CONDITION: `GMZ_IMPL_001_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-001 objective review correction
+- Correction Delta: `GMZ-IMPL-001-CD-003`
+- CRITICAL/HIGH/MEDIUM/LOW: `0 / 0 / 0 / 3`
+- stale human checkpoint state: `FIXED`
+- stale closeout checkpoint fingerprint: `FIXED`
+- status response stale-state bug: `FIXED`
+- regression E2E: `ADDED`
+- exact-head L5 after correction: `PENDING`
+- disposition until rerun: `CORRECTION_REQUIRED`
