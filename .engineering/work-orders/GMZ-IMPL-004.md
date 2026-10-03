@@ -276,14 +276,15 @@ STOP CONDITION:
 - execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`
 - execution branch: `execution/gmz-impl-004-auth-session-entry`
 - Sonar correction commit: `ace5ec51ae4c164ac4472b411177b52616105f32`
-- exact-head L5 validation candidate after Sonar corrections: `c742aa8b101f035c90f3ace0d32fa8457866fd11`
+- exact-head L5 validation candidate after all code, runbook and checkpoint corrections: `6c4f6a378cdedba141c6772c672f8cecc5498c0f`
 - PR: `#54` against `main`, remains open/draft; the final published exact head and its fresh remote check results are recorded in the PR description after push
 - Context Lock: `BOUND_FOR_EXECUTION`; stable fingerprints `16/16 MATCH`
 - local Auth identity validation uses Supabase SSR `getUser()` on protected server entry; tenant rows remain selected without client tenant filters through the existing anon-key/RLS boundary
 - result: login, cookie/session refresh, logout and protected tenant-entry slice implemented; no schema, migration, RLS, policy or business-domain change
-- latest complete local exact-head HIGH_ASSURANCE L5 at `c742aa8`: frozen strict-peer install, lint, typecheck, unit `13 / 13`, production build, E2E `20 / 20` across desktop/mobile, Axe `8 / 8` scans with `0` violations, Supabase reset, pgTAP `125 / 125`, Auth/Data API `50 / 50`, migration status, DB lint/advisors, dependency audit, secret-pattern scan, Docker build/up/health, local health/readiness/Auth/Postgres, runtime logs, and `.gef` integrity: `PASS`; the earlier transient mobile feedback-preview miss at `97eff37` passed in isolation and in immediate full rerun, with no source change
+- complete local exact-head HIGH_ASSURANCE L5 at `6c4f6a3`: frozen strict-peer install, lint, typecheck, unit `13 / 13`, production build, E2E `20 / 20` across desktop/mobile, Axe `8 / 8` scans with `0` violations, Supabase reset, pgTAP `125 / 125`, Auth/Data API `50 / 50`, migration status, DB lint/advisors, dependency audit, secret-pattern scan, Docker build/up/health, local health/readiness/Auth/Postgres, runtime logs, and `.gef` integrity: `PASS`; the earlier transient mobile feedback-preview miss at `97eff37` passed in isolation and in immediate full rerun, with no source change
 - native local Auth runbook now obtains loopback Supabase status and keeps the public anon key only in the `pnpm dev` process environment; the guard was exercised without exposing key material
-- CodeRabbit local deep review of the complete diff at `0a4a4a8`: `0 findings`; it corrected the native Auth runbook gap. An earlier request to restore PR `#49` as next action conflicted with current checkpoint state and GMZ-IMPL-003 promotion history and was not applied. Fresh SonarCloud and Socket checks are required at the final published PR head
+- CodeRabbit local deep review of the complete diff at `0a4a4a8`: `0 findings`; it corrected the native Auth runbook gap. An earlier request to restore PR `#49` as next action conflicted with current checkpoint state and GMZ-IMPL-003 promotion history and was not applied
+- SonarCloud and Socket at `6c4f6a3`: PASS; Sonar Quality Gate `OK`, zero hotspots and one retained minor SQL-fixture code smell; both Socket checks pass. The final evidence-only commit is followed by a new exact-head suite, with its final SHA and remote checks recorded in PR `#54`
 - validation details: `.engineering/evidence/GMZ-IMPL-004-EVIDENCE.md`
 - current earned credit remains `31 / 515 = 6.02%`; no credit is claimed before separate objective acceptance and promotion
 - proposed checkpoint state: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`
