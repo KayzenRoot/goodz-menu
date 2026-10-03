@@ -319,7 +319,7 @@ STOP CONDITION:
 - No schema, migration, RLS/policy, membership/RBAC semantics, service-role posture, dependencies, business scope, `.gef`, remote Supabase, or production/deployment behavior changed.
 - CD-001 remains in the history above. Its correction-specific stop token is historical and does not replace the canonical Work Order/checkpoint lifecycle state. The active CD-002 correction completion token is `GMZ_IMPL_004_CD_002_READY_FOR_OBJECTIVE_AUDIT`; completing it leaves the overall checkpoint at `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT` for the separate objective audit.
 - Production credit remains `31 / 515 = 6.02%`; no implementation credit, objective approval, merge, or promotion is claimed.
-- Current implementation/test candidate after local review correction: `ea155b5d881f4296b5c080b5458559c5cf0a5758`; the focused proxy cookie-preservation/forwarding suite passes `4 / 4`. The final evidence-closeout commit receives another complete exact-head HIGH_ASSURANCE L5; its exact SHA and fresh remote SonarCloud/Socket/PR checks are recorded in PR `#54`.
+- Current implementation/test candidate after local review corrections: `86446e51f830036c26b26af13d622870df0b1da8`; typecheck and focused pagination/claims/proxy suites pass (`17 / 17`). Redundant `unknown | null` type unions reported by SonarCloud were removed without runtime behavior change. The final evidence-closeout commit receives another complete exact-head HIGH_ASSURANCE L5; its exact SHA and fresh remote SonarCloud/Socket/PR checks are recorded in PR `#54`.
 
 STOP CONDITION:
 `GMZ_IMPL_004_CD_002_READY_FOR_OBJECTIVE_AUDIT`
