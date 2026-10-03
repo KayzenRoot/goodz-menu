@@ -117,9 +117,14 @@
     "stopCondition": "GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT",
     "admissionMergeSha": "e43d4b791b9bcabf806d115424218a4b0240647c",
     "executionBranch": "execution/gmz-impl-004-auth-session-entry",
-    "implementationHead": "6c4f6a378cdedba141c6772c672f8cecc5498c0f",
+    "implementationHead": "16d841fc4e44aac4a992e53ca75f7b43ffea90cc",
     "pullRequest": 54,
     "evidenceBundle": ".engineering/evidence/GMZ-IMPL-004-EVIDENCE.md",
+    "correctionDeltas": [
+      "GMZ-IMPL-004-CD-001",
+      "GMZ-IMPL-004-CD-002"
+    ],
+    "currentCorrectionStopCondition": "GMZ_IMPL_004_CD_002_READY_FOR_OBJECTIVE_AUDIT",
     "executorDisposition": "GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT"
   }
 }

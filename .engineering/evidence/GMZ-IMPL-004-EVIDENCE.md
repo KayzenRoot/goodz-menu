@@ -102,3 +102,40 @@ STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.
 - PR `#54` remains OPEN/DRAFT against `main`; no merge is performed.
 
 STOP CONDITION: `GMZ_IMPL_004_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-004-CD-002 — bounded runtime review corrections
+
+- Code candidate: `16d841fc4e44aac4a992e53ca75f7b43ffea90cc` on `execution/gmz-impl-004-auth-session-entry`, PR `#54` (OPEN/DRAFT; no merge).
+- Tenant hierarchy queries now request exact counts, page to exhaustion even when the API caps each response below the requested page size, retain RLS authority and do not accept a client tenant filter; ordering is `display_name`, then `id`. Null/inconsistent counts, query/page errors and incomplete data fail closed without returning partial records.
+- Local Supabase status parsing now discards preamble text before the first `{` and applies the same generic error to absent or invalid JSON in both the runner and Auth fixture.
+- Proxy claims verification preserves cookies for retryable/transient or unknown verification failures, clears them when the session is confirmed invalid/malformed or no claims are returned, and keeps the protected route dependent on `auth.getUser()`. Valid claims continue through the normal flow.
+- Deterministic tests cover all three tenant tables beyond a page, stable order, intermediate-page failure, pure/prefixed/invalid status output, invalid/transient/valid claims and cookie behavior. Full E2E includes malformed-session protected-entry denial.
+- No schema, migration, RLS/policy, authorization-semantic, dependency, service-role, business-scope, `.gef`, remote Supabase or production/deployment changes.
+- Production credit stays `31 / 515 = 6.02%`.
+
+### Code-candidate validation at `16d841f`
+
+| Gate | Result |
+|---|---|
+| Frozen install / strict peers | PASS — pnpm `12.8.1`, lockfile frozen, strict peer dependency mode |
+| Lint / typecheck / unit | PASS — lint; TypeScript; `32 / 32` unit tests |
+| Production build | PASS — Next.js `16.3.8` |
+| Full E2E desktop/mobile | PASS — `20 / 20`; Axe `8 / 8` scans, `0` violations |
+| Local Supabase reset / pgTAP | PASS — `125 / 125` |
+| Auth/Data API integration | PASS — `50 / 50` synthetic local checks |
+| Migration status | PASS — local migrations `20261002093358`, `20261002152627` applied |
+| Database lint | PASS — `public` and `auth`, 0 schema errors |
+| Database advisors | PASS — no warning/error-level security findings; 6 informational findings (unused index and intentionally policy-free RLS tables), preserved without schema/policy scope change |
+| Dependency audit | PASS — no known production vulnerabilities at high-or-above severity |
+| Secret-pattern scan / whitespace | PASS — 0 matching files; 34 text files scanned across 40 changed paths; `git diff --check` clean |
+| Docker config/build/up/health | PASS — config valid, image built for revision `16d841f`, service healthy |
+| Health/readiness/Auth/Postgres | PASS — health `ok`; readiness `ready`; Supabase dependency `available`; local Auth HTTP `200`; Postgres ready; Supabase API loopback |
+| Runtime log scan | PASS — 92 lines, 0 severe/error or secret-pattern matches |
+| `.gef` integrity | PASS — unchanged from execution base |
+
+The final evidence-closeout commit receives the complete exact-head HIGH_ASSURANCE L5 again, including Docker rebuild and all local database/Auth/E2E/security checks. Its published SHA, fresh SonarCloud/Socket results, and PR checks are recorded in PR `#54`; results are never carried forward from an earlier SHA.
+
+The local deep CodeRabbit review at this code candidate found no runtime-code issue. It surfaced two minor historical checkpoint/stop-token wording ambiguities; this CD-002 section clarifies that the CD-001 token remains historical, CD-002 is the active correction token, and the canonical overall checkpoint state remains `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`. The review is rerun after this documentation closeout.
+
+STOP CONDITION: `GMZ_IMPL_004_CD_002_READY_FOR_OBJECTIVE_AUDIT`.

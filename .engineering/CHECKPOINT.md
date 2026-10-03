@@ -53,6 +53,17 @@ Run the separate objective audit for PR `#54`. Do not merge. Business-domain imp
 STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.
 
 
+## GMZ-IMPL-004-CD-002 executor correction
+
+- Active correction: `GMZ-IMPL-004-CD-002`, limited to paginated/stably ordered fail-closed tenant hierarchy reads, robust local Supabase status JSON parsing, and transient Auth/JWKS cookie preservation with confirmed-invalid session cleanup.
+- Scope protections remain: no schema/migration/RLS/policy or membership/RBAC semantic changes, no service-role use, no client tenant filter, no remote Supabase, no business-domain work, and `.gef` unchanged.
+- The correction-specific completion token is `GMZ_IMPL_004_CD_002_READY_FOR_OBJECTIVE_AUDIT`. Historical CD-001 records and its token remain intact. The canonical checkpoint state remains `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`, with next action `OBJECTIVE_AUDIT_GMZ_IMPL_004`.
+- Production credit remains `31 / 515 = 6.02%`.
+- Exact final candidate, complete L5 results, and fresh remote PR/SonarCloud/Socket status are recorded in draft PR `#54` after the final push.
+
+STOP CONDITION: `GMZ_IMPL_004_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
+
+
 ## GMZ-IMPL-003 executor closeout
 - latest implementation code candidate after GMZ-IMPL-003-CD-003: `63a6d3770b2e692ee3e0d9b7d34672a1e8165ad6`
 - execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`

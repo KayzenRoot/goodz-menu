@@ -308,3 +308,18 @@ STOP CONDITION:
 
 STOP CONDITION:
 `GMZ_IMPL_004_CD_001_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-004-CD-002 — bounded runtime review corrections
+
+- Scope is limited to the three findings in CD-002: complete deterministic RLS-backed pagination for organizations/establishments/branches; tolerant parsing of local `supabase status --output json` preambles; and preserving Auth cookies for retryable/transient claims-verification failures while continuing to fail closed and clear confirmed-invalid sessions.
+- Tenant hierarchy reads retain RLS as authority, sort by `display_name` with stable `id` tie-breaks, paginate until the exact count is exhausted, and return no partial result after a page/query/count failure. No service-role credential or client-supplied tenant filter is introduced.
+- The Supabase status parser begins at the first `{` and retains one generic failure message for absent/invalid JSON. Proxy verification preserves cookies only for retryable/unclassified verification failures; protected entry continues to require `auth.getUser()` and valid server-verified identity.
+- Deterministic regressions cover more than one page for each hierarchy table, stable ordering, intermediate-page failure, pure/prefixed/invalid status output, and invalid/transient/valid claim outcomes. The real local desktop/mobile E2E also exercises malformed-session denial.
+- No schema, migration, RLS/policy, membership/RBAC semantics, service-role posture, dependencies, business scope, `.gef`, remote Supabase, or production/deployment behavior changed.
+- CD-001 remains in the history above. Its correction-specific stop token is historical and does not replace the canonical Work Order/checkpoint lifecycle state. The active CD-002 correction completion token is `GMZ_IMPL_004_CD_002_READY_FOR_OBJECTIVE_AUDIT`; completing it leaves the overall checkpoint at `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT` for the separate objective audit.
+- Production credit remains `31 / 515 = 6.02%`; no implementation credit, objective approval, merge, or promotion is claimed.
+- Code candidate validated before evidence closeout: `16d841fc4e44aac4a992e53ca75f7b43ffea90cc`. The final evidence-closeout commit receives another complete exact-head HIGH_ASSURANCE L5; its exact SHA and fresh remote SonarCloud/Socket/PR checks are recorded in PR `#54`.
+
+STOP CONDITION:
+`GMZ_IMPL_004_CD_002_READY_FOR_OBJECTIVE_AUDIT`
