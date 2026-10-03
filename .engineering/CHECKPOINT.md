@@ -61,7 +61,7 @@ STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.
 - Production credit remains `31 / 515 = 6.02%`.
 - Exact final candidate, complete L5 results, and fresh remote PR/SonarCloud/Socket status are recorded in draft PR `#54` after the final push.
 
-STOP CONDITION: `GMZ_IMPL_004_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
+CORRECTION TOKEN (CD-002): `GMZ_IMPL_004_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
 
 
 ## GMZ-IMPL-003 executor closeout

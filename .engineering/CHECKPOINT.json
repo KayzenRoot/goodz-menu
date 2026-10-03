@@ -117,7 +117,7 @@
     "stopCondition": "GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT",
     "admissionMergeSha": "e43d4b791b9bcabf806d115424218a4b0240647c",
     "executionBranch": "execution/gmz-impl-004-auth-session-entry",
-    "implementationHead": "16d841fc4e44aac4a992e53ca75f7b43ffea90cc",
+    "implementationHead": "ea155b5d881f4296b5c080b5458559c5cf0a5758",
     "pullRequest": 54,
     "evidenceBundle": ".engineering/evidence/GMZ-IMPL-004-EVIDENCE.md",
     "correctionDeltas": [
