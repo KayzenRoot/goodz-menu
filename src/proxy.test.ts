@@ -24,12 +24,6 @@ function mockClaims(result: unknown) {
   return getClaims;
 }
 
-function mockRejectedClaims(error: unknown) {
-  const getClaims = vi.fn().mockRejectedValue(error);
-  createServerClientMock.mockReturnValue({ auth: { getClaims } });
-  return getClaims;
-}
-
 describe("proxy session cookie preservation", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -40,7 +34,7 @@ describe("proxy session cookie preservation", () => {
   });
 
   it("removes the auth cookie after a confirmed invalid session", async () => {
-    const getClaims = mockRejectedClaims(new SyntaxError("Malformed JWT payload"));
+    const getClaims = mockClaims({ data: null, error: null });
 
     const response = await proxy(requestWithAuthCookie());
 

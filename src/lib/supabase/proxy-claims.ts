@@ -28,7 +28,8 @@ export async function handleProxyClaims(
     const { data, error } = await readClaims();
     if (error === null) {
       if (data?.claims) return "valid";
-      return "unverified";
+      clearAuthCookies();
+      return "invalid";
     }
     return handleClaimsError(error, clearAuthCookies);
   } catch (error) {

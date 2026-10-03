@@ -38,6 +38,18 @@ describe("proxy auth claim cookie handling", () => {
     expect(clearAuthCookies).toHaveBeenCalledOnce();
   });
 
+  it("clears cookies when no session yields no verified claims and no error", async () => {
+    const clearAuthCookies = vi.fn();
+
+    const outcome = await handleProxyClaims(
+      async () => ({ data: null, error: null }),
+      clearAuthCookies,
+    );
+
+    expect(outcome).toBe("invalid");
+    expect(clearAuthCookies).toHaveBeenCalledOnce();
+  });
+
   it("preserves auth cookies when a JWKS verification fetch is retryable", async () => {
     const clearAuthCookies = vi.fn();
 
