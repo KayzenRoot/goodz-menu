@@ -84,3 +84,15 @@ Synthetic Auth users and tenant fixtures are local-only and use `.invalid` addre
 - No merge performed.
 
 STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-004-CD-001 — governance integrity correction
+
+- Objective review of PR `#54` identified `currentOutputs.productionEarned = 19` conflicting with top-level/active credit `31` and completion `6.02%`.
+- Corrected only the current `currentOutputs.productionEarned` value in `.engineering/CHECKPOINT.json` to `31`; prior historical sections remain unchanged.
+- Production credit remains `31 / 515 = 6.02%`; no incremental credit is claimed.
+- This is a governance-integrity correction only. Runtime/auth/session, UI, dependencies, schema, migrations, RLS/policies, `.gef`, and business scope are unchanged.
+- GEF 1.1.1 preflight, 16/16 fingerprints and complete exact-head HIGH_ASSURANCE L5 are rerun after the correction. Final published HEAD and verification results are refreshed here and in the PR description after validation.
+- PR `#54` remains OPEN/DRAFT against `main`; no merge is performed.
+
+STOP CONDITION: `GMZ_IMPL_004_CD_001_READY_FOR_OBJECTIVE_AUDIT`.

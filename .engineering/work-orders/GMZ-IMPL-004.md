@@ -291,3 +291,18 @@ STOP CONDITION:
 
 STOP CONDITION:
 `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-004-CD-001 — governance integrity correction
+
+- Objective review of PR `#54` identified an internal checkpoint inconsistency: top-level and active earned production credit are `31`, completion is `6.02%`, while `currentOutputs.productionEarned` was stale at `19`.
+- Correction is limited to `.engineering/CHECKPOINT.json`: `currentOutputs.productionEarned` is synchronized to `31`.
+- Historical sections describing earlier promoted states are preserved unchanged.
+- Production credit remains `31 / 515 = 6.02%`; no GMZ-IMPL-004 credit is added or claimed.
+- Governance-integrity documentation only: no runtime/auth/session, UI, dependency, schema, migration, RLS/policy, `.gef`, or business-scope behavior changes.
+- GEF 1.1.1 preflight and the complete HIGH_ASSURANCE L5 are rerun after this correction. Exact final HEAD and results are published in this Work Order, Evidence Bundle, and PR `#54` after validation.
+- PR `#54` remains OPEN/DRAFT against `main`; no merge is performed.
+- Correction stop condition: `GMZ_IMPL_004_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
+
+STOP CONDITION:
+`GMZ_IMPL_004_CD_001_READY_FOR_OBJECTIVE_AUDIT`
