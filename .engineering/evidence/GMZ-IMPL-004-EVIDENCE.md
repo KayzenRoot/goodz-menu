@@ -72,7 +72,7 @@ Synthetic Auth users and tenant fixtures are local-only and use `.invalid` addre
 
 ## Security results and remaining boundary
 
-- CRITICAL/HIGH findings: `0 / 0` in the final local CodeRabbit review. Fresh exact-head SonarCloud and Socket check state must also be confirmed at PR #54 before objective audit.
+- CRITICAL/HIGH defects: `0 / 0`. The CD-001 exact-head CodeRabbit review returned one stale next-action suggestion, rejected against the active checkpoint; the final published-head review disposition is recorded in PR #54.
 - Open review threads requiring code changes: `0` at initial PR inspection; the draft CodeRabbit skip notice is informational, not a code finding.
 - No service-role key is bundled, rendered or used in the end-user path.
 - Signup/onboarding, password recovery/invitations, MFA/AAL2, Admin Guard, Platform/Super Admin, membership/role management, tenant writes, business-domain work, remote Supabase and production deployment remain deferred/forbidden by this Work Order.
@@ -97,6 +97,7 @@ STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.
 - CD-001 preflight at `770d5b1`: correct repository and authorized branch; legal execution base `e43d4b791b9bcabf806d115424218a4b0240647c` unchanged; Context Lock `BOUND_FOR_EXECUTION`; `16/16` stable source fingerprints `MATCH`; governance snapshot `MATCH`; worktree clean; `.gef` unchanged.
 - Complete correction-candidate L5 at `770d5b1`: frozen strict-peer install, lint, typecheck, unit `13/13`, production build, full desktop/mobile E2E `20/20`, Axe `8/8` scans with `0` violations, local Supabase reset, pgTAP `125/125`, Auth/Data API `50/50`, migrations applied, DB lint `0` errors, security advisors `0` findings, production dependency audit with no known high-or-above vulnerabilities, strict peers, secret-pattern scan `0` matches across `34` changed paths (`28` text files; synthetic credential URL remains allowlisted), Docker config/build/recreate and healthy container, health `ok`, readiness `ready`, login HTTP `200`, local Auth reachable, Postgres ready, Supabase API loopback, runtime logs `18` lines with `0` severe/secret matches, and `.gef` integrity: `PASS`.
 - The complete HIGH_ASSURANCE L5 is repeated on the final evidence-closeout HEAD. Its exact published SHA and fresh exact-head remote results are recorded in PR `#54` so this bundle can remain a member of that validated commit.
+- CodeRabbit local deep review at `e4acd5f` returned one suggestion to redirect the evidence next action to PR `#49`. The canonical checkpoint says `activeWorkOrder=GMZ-IMPL-004`, `nextAction=OBJECTIVE_AUDIT_GMZ_IMPL_004`, and `.engineering/CHECKPOINT.md` names PR `#54`; the suggestion is stale and non-actionable, so no checkpoint or Work Order change was made. No valid CRITICAL/HIGH defect was found; six screenshot binaries were excluded by the reviewer.
 - PR `#54` remains OPEN/DRAFT against `main`; no merge is performed.
 
 STOP CONDITION: `GMZ_IMPL_004_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
