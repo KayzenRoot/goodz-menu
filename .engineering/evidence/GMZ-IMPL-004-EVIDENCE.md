@@ -7,7 +7,7 @@ Status: `READY_FOR_OBJECTIVE_AUDIT`
 - Repository: `KayzenRoot/goodz-menu` (`https://github.com/KayzenRoot/goodz-menu.git`).
 - Authorized branch: `execution/gmz-impl-004-auth-session-entry`.
 - Legal execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`; verified ancestor of the implementation branch.
-- Exact-head L5 validation candidate: `23b3038317b5c13b9aae136940500b3ec37629d7` (full suite rerun after the Sonar code corrections and evidence refresh).
+- Exact-head L5 validation candidate: `c742aa8b101f035c90f3ace0d32fa8457866fd11` (full suite rerun after the Sonar code corrections and evidence refresh).
 - PR: [#54](https://github.com/KayzenRoot/goodz-menu/pull/54), base `main`, kept open as draft. The final published HEAD and fresh post-push checks are recorded in the PR description; these values are verified after publication.
 - Context Lock: `BOUND_FOR_EXECUTION`.
 - Stable source fingerprints: `16 / 16 MATCH`.
@@ -22,6 +22,7 @@ Status: `READY_FOR_OBJECTIVE_AUDIT`
 - Added accessible email/password login with generic credential errors and a fixed `/app` post-login path, local sign-out, and an authenticated tenant-entry shell.
 - Tenant context is derived from unfiltered organization/establishment/branch SELECTs under the existing anon-key + RLS policy boundary. Client-provided tenant context, `user_metadata`, custom JWT roles and service-role credentials do not grant authority.
 - Updated local Docker setup so it receives only the local public anon key for the Compose invocation. Added an E2E runner that reads status only from loopback Supabase and redacts captured configuration output.
+- Updated the PowerShell native-development runbook to read only loopback Supabase status and scope the public anon key to the `pnpm dev` process, then remove the environment values on exit.
 
 ## Verification results
 
@@ -45,16 +46,16 @@ Status: `READY_FOR_OBJECTIVE_AUDIT`
 | secret-pattern scan | PASS — 0 matches across 34 changed paths; the single synthetic credential URL used by a rejection test was allowlisted for the URL-credential heuristic |
 | Docker Compose config/build/up | PASS |
 | Docker health/readiness | PASS — `ok` / `ready`, local Supabase available |
-| PowerShell local Supabase bootstrap | PASS — exit code checked; IPv4/hostname/IPv6 loopback accepted; remote URL rejected |
+| PowerShell local Supabase bootstrap/native Auth setup | PASS — exit code checked; IPv4/hostname/IPv6 loopback accepted; remote URL rejected; native runbook guard exercised without exposing the key |
 | Supabase local Auth/Postgres | PASS — Auth health HTTP 200; Postgres accepting connections |
 | runtime log scan | PASS — 8 lines, 0 severe entries or secret-pattern matches |
 | `.gef` integrity | PASS — unchanged |
-| CodeRabbit local | PASS — deep full source diff review at code candidate `c652cc4`, 0 findings; later changes were documentation/evidence only (6 screenshots excluded as unsupported binary files) |
+| CodeRabbit local | PASS — deep full diff review at `0a4a4a8`, 0 findings after correcting the native Auth startup guide; an earlier stale suggestion to return the next action to completed PR `#49` was rejected against the current checkpoint and promotion history (6 screenshots excluded as unsupported binaries) |
 | SonarCloud / Socket PR checks | Pending fresh checks for the final published PR head; prior-SHA results are not carried forward |
 
 The first default-parallel E2E attempt encountered Windows Chromium `ERR_NO_BUFFER_SPACE` while opening `/login`, before the affected scenario began. The focused revocation run passed 2/2 and the complete 20-test desktop/mobile suite passed with one worker; no application change was made for that host-resource event. At exact head `97eff37`, an initial serial full run had one transient mobile feedback-preview interaction failure (the preview remained on its initial informational item); the isolated mobile case passed and the immediate complete serial rerun passed `20 / 20`. No source change was made between the failed and passing runs.
 
-The first SonarCloud run at the previous PR head passed its Quality Gate and reported 10 new code smells (5 `MAJOR`, 5 `MINOR`, 0 Security Hotspots). Commit `ace5ec5` corrected the nested-template, nested-conditional, status-role and mutable-props findings. One `MINOR` finding about `await` in the fixture SQL loop is intentionally retained: a read-only probe confirmed the local Supabase CLI rejects multiple SQL commands in one prepared-statement request, and fixture statements have foreign-key ordering dependencies. The sequential loop preserves that required order. The complete local exact-head L5 run at `23b3038` passed; fresh SonarCloud and Socket results are required for the final published PR head.
+The first SonarCloud run at the previous PR head passed its Quality Gate and reported 10 new code smells (5 `MAJOR`, 5 `MINOR`, 0 Security Hotspots). Commit `ace5ec5` corrected the nested-template, nested-conditional, status-role and mutable-props findings. One `MINOR` finding about `await` in the fixture SQL loop is intentionally retained: a read-only probe confirmed the local Supabase CLI rejects multiple SQL commands in one prepared-statement request, and fixture statements have foreign-key ordering dependencies. The sequential loop preserves that required order. The complete local exact-head L5 run at `c742aa8` passed; fresh SonarCloud and Socket results are required for the final published PR head.
 
 ## UI evidence
 

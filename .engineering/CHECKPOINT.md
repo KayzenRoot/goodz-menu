@@ -753,13 +753,14 @@ STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.
 ## GMZ-IMPL-004 execution closeout
 
 - Sonar correction commit: `ace5ec51ae4c164ac4472b411177b52616105f32`
-- exact-head L5 candidate after corrections and evidence refresh: `23b3038317b5c13b9aae136940500b3ec37629d7`
+- exact-head L5 candidate after corrections and evidence refresh: `c742aa8b101f035c90f3ace0d32fa8457866fd11`
 - exact execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`
 - branch: `execution/gmz-impl-004-auth-session-entry`
 - PR: `#54`, target `main`, remains open/draft
 - Context Lock: `BOUND_FOR_EXECUTION`; stable sources `16 / 16 MATCH`
 - exact-head HIGH_ASSURANCE L5: `PASS`; frozen strict peers, lint, typecheck, unit `13 / 13`, build, E2E `20 / 20`, Axe `8 / 8` (`0` violations), pgTAP `125 / 125`, Auth/Data API `50 / 50`, DB lint/advisors, dependency audit, secret scan, Docker/Supabase/Auth/Postgres/health/readiness/logs, `.gef`; transient first-run mobile preview miss was isolated and a full rerun passed without source change
-- CodeRabbit local deep review: `0 findings`; fresh SonarCloud and Socket results must be confirmed for the final published PR head
+- native local Auth runbook now loads only loopback Supabase URL/public anon key into the native dev-server process and clears both on exit
+- CodeRabbit local deep review at `0a4a4a8`: `0 findings`; an earlier outdated request to revert to completed PR `#49` was rejected against current checkpoint/promotion state; fresh SonarCloud and Socket results must be confirmed for the final published PR head
 - executor result: `READY_FOR_OBJECTIVE_AUDIT`
 - Evidence Bundle: `.engineering/evidence/GMZ-IMPL-004-EVIDENCE.md`
 - production credit remains `31 / 515 = 6.02%`; audit/promotion/credit are not claimed
