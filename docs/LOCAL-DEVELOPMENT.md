@@ -19,11 +19,12 @@ corepack pnpm install --frozen-lockfile
 corepack pnpm supabase:start
 corepack pnpm build
 $statusOutput = corepack pnpm exec supabase status --output json 2>$null
+if ($LASTEXITCODE -ne 0) { throw 'Não foi possível consultar o status do Supabase local.' }
 $statusText = $statusOutput -join "`n"
 $jsonStart = $statusText.IndexOf('{')
 if ($jsonStart -lt 0) { throw 'Não foi possível ler o status do Supabase local.' }
 $localSupabase = $statusText.Substring($jsonStart) | ConvertFrom-Json
-if ($localSupabase.API_URL -notmatch '^http://(127\.0\.0\.1|localhost)(:\d+)?$' -or -not $localSupabase.ANON_KEY) {
+if ($localSupabase.API_URL -notmatch '^http://(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$' -or -not $localSupabase.ANON_KEY) {
   throw 'O login requer o endpoint e a chave pública do Supabase local.'
 }
 $env:SUPABASE_ANON_KEY = $localSupabase.ANON_KEY

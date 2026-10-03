@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_004_BOUND_FOR_EXECUTION`
+Status: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`
 
 ## Current state
 - Project: Goodz Menu
@@ -746,5 +746,20 @@ STOP CONDITION: `GMZ_IMPL_004_ADMISSION_READY_FOR_REVIEW`.
 - current earned production credit: `31 / 515 = 6.02%`
 - maximum eligible after later acceptance/merge/promotion: `7 / 515`
 - next action: `EXECUTE GMZ-IMPL-004`
+
+STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-004 execution closeout
+
+- implementation commit: `4c52826427b8754837991fb2c3a20ce09847ade3`
+- exact execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`
+- branch: `execution/gmz-impl-004-auth-session-entry`
+- PR: `#54`, target `main`, remains open/draft
+- Context Lock: `BOUND_FOR_EXECUTION`; stable sources `16 / 16 MATCH`
+- executor result: `READY_FOR_OBJECTIVE_AUDIT`
+- Evidence Bundle: `.engineering/evidence/GMZ-IMPL-004-EVIDENCE.md`
+- production credit remains `31 / 515 = 6.02%`; audit/promotion/credit are not claimed
+- next action: `OBJECTIVE_AUDIT_GMZ_IMPL_004`
 
 STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.

@@ -1,6 +1,6 @@
 # GMZ-IMPL-004 — Auth Session & Tenant Entry Foundation
 
-Status: `ADMITTED / EXECUTION AUTHORIZED`
+Status: `EXECUTION COMPLETE / READY_FOR_OBJECTIVE_AUDIT`
 Issue: `#52`
 Assurance: `HIGH_ASSURANCE`
 Admission branch: `implementation/gmz-impl-004-auth-session-entry`
@@ -266,6 +266,24 @@ Execution stage after governed admission promotion and execution-base bind:
 - production credit remains `31 / 515 = 6.02%`
 
 The executor must inspect the repository before mutation, execute the complete Work Order, run the HIGH_ASSURANCE evidence suite, correct failures introduced by the increment, commit/push to this execution branch, update the same PR, and stop for separate objective audit.
+
+STOP CONDITION:
+`GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## EXECUTION CLOSEOUT — GMZ-IMPL-004
+
+- execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`
+- execution branch: `execution/gmz-impl-004-auth-session-entry`
+- implementation commit: `4c52826427b8754837991fb2c3a20ce09847ade3`
+- PR: `#54` against `main`, remains open/draft; exact final PR head is recorded in the PR description
+- Context Lock: `BOUND_FOR_EXECUTION`; stable fingerprints `16/16 MATCH`
+- local Auth identity validation uses Supabase SSR `getUser()` on protected server entry; tenant rows remain selected without client tenant filters through the existing anon-key/RLS boundary
+- result: login, cookie/session refresh, logout and protected tenant-entry slice implemented; no schema, migration, RLS, policy or business-domain change
+- validation: see `.engineering/evidence/GMZ-IMPL-004-EVIDENCE.md`; complete L5 and fresh exact-head PR checks are required before objective audit
+- CodeRabbit local review: final full-diff review `0 findings`; the checkpoint/documentation findings were corrected and verified
+- current earned credit remains `31 / 515 = 6.02%`; no credit is claimed before separate objective acceptance and promotion
+- proposed checkpoint state: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`
 
 STOP CONDITION:
 `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`
