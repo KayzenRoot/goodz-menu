@@ -37,7 +37,10 @@ function runSupabase(args: string[]): Promise<string> {
     child.once("error", reject);
     child.once("close", (code, signal) => {
       if (code === 0) resolve(stdout);
-      else reject(new Error(`Local Supabase command failed (${signal || `exit ${code}`}). ${sanitize(stderr || stdout)}`));
+      else {
+        const reason = signal || `exit ${code}`;
+        reject(new Error(`Local Supabase command failed (${reason}). ${sanitize(stderr || stdout)}`));
+      }
     });
   });
 }
@@ -78,6 +81,7 @@ async function createUser(api: LocalApi, label: string, data: Record<string, unk
 }
 
 async function executeSql(sql: string) {
+  // The CLI accepts one prepared statement per request; fixture mutations depend on this order.
   for (const statement of sql.split(";").map((part) => part.trim()).filter(Boolean)) {
     await runSupabase(["db", "query", "--local", statement]);
   }

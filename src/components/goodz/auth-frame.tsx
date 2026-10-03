@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 
-export function AuthFrame({ children }: { children: ReactNode }) {
+export function AuthFrame({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <main className="auth-page">
       <div className="auth-frame">

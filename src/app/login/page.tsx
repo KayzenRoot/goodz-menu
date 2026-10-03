@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "Acesse com segurança o seu espaço de trabalho Goodz Menu.",
 };
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+export default async function LoginPage({ searchParams }: Readonly<{ searchParams: Promise<Record<string, string | string[] | undefined>> }>) {
   const params = await searchParams;
   const requestedPath = Array.isArray(params.next) ? params.next[0] : params.next;
   const returnTo = safePostLoginPath(requestedPath) ?? "/app";

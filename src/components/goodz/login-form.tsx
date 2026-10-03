@@ -8,11 +8,11 @@ import { safePostLoginPath } from "@/lib/auth/navigation";
 
 const genericCredentialError = "Não foi possível entrar. Confira os dados e tente novamente.";
 
-type LoginFormProps = {
+type LoginFormProps = Readonly<{
   supabaseUrl: string;
   anonKey: string;
   returnTo: string;
-};
+}>;
 
 function AppearancePicker() {
   const { theme, setTheme } = useTheme();

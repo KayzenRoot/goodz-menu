@@ -43,7 +43,8 @@ function run(command, args, options = {}) {
       if (code === 0) resolve({ stdout, stderr });
       else {
         const details = options.capture ? sanitize(stderr || stdout) : "";
-        reject(new Error(`${path.basename(command)} exited ${signal || code}.${details ? ` ${details}` : ""}`));
+        const detailSuffix = details ? ` ${details}` : "";
+        reject(new Error(`${path.basename(command)} exited ${signal || code}.${detailSuffix}`));
       }
     });
   });

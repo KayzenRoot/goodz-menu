@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
-export function LogoutButton({ supabaseUrl, anonKey }: { supabaseUrl: string; anonKey: string }) {
+export function LogoutButton({ supabaseUrl, anonKey }: Readonly<{ supabaseUrl: string; anonKey: string }>) {
   const supabase = useMemo(() => createBrowserSupabaseClient(supabaseUrl, anonKey), [supabaseUrl, anonKey]);
   const [pending, setPending] = useState(false);
   const [failed, setFailed] = useState(false);
