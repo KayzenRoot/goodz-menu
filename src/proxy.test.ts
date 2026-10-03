@@ -68,19 +68,23 @@ describe("proxy session cookie preservation", () => {
 
   it("preserves auth cookies when claims verification fails transiently", async () => {
     const getClaims = mockClaims({ data: null, error: new AuthRetryableFetchError("JWKS unavailable", 503) });
+    const request = requestWithAuthCookie();
 
-    const response = await proxy(requestWithAuthCookie());
+    const response = await proxy(request);
 
     expect(getClaims).toHaveBeenCalledOnce();
+    expect(request.cookies.has("sb-local-auth-token")).toBe(true);
     expect(response.headers.has("set-cookie")).toBe(false);
   });
 
   it("keeps the normal response flow when claims are valid", async () => {
     const getClaims = mockClaims({ data: { claims: { sub: "auth-user-1" } }, error: null });
+    const request = requestWithAuthCookie();
 
-    const response = await proxy(requestWithAuthCookie());
+    const response = await proxy(request);
 
     expect(getClaims).toHaveBeenCalledOnce();
+    expect(request.cookies.has("sb-local-auth-token")).toBe(true);
     expect(response.headers.has("set-cookie")).toBe(false);
   });
 });
