@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`
+Status: `GMZ_IMPL_004_PROMOTED_COMPLETE_READY_FOR_NEXT`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,14 +27,14 @@ Status: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-004` — READY_FOR_OBJECTIVE_AUDIT
-- Issue: `#52`
-- Branch: `execution/gmz-impl-004-auth-session-entry`
-- Execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`
-- Mode: HIGH_ASSURANCE Auth session and tenant-entry implementation
+- Work Order: `NONE`
+- Implementation authorization: `NO`
+- Last promoted increment: `GMZ-IMPL-004`
+- Implementation merge: `2bee77001309740b6aa86e605ca56fb4e6bed6a2`
+- Next governed action: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
 
 ## Progress accounting
-Overall production completion: `31 / 515 = 6.02%`.
+Overall production completion: `38 / 515 = 7.38%`.
 
 Planning artifacts do not manufacture product-completion percentage.
 
@@ -48,9 +48,9 @@ GMZ-SRC-001 is preserved byte-exact in repository truth:
 The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
-Run the separate objective audit for PR `#54`. Do not merge. Business-domain implementation remains `NOT_AUTHORIZED`.
+Admit the next NECESSARY implementation Work Order from the canonical backlog. Business-domain implementation remains `NOT_AUTHORIZED` until separately admitted.
 
-STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.
+STOP CONDITION: `GMZ_IMPL_004_PROMOTED_COMPLETE`.
 
 
 ## GMZ-IMPL-004-CD-002 executor correction
@@ -779,3 +779,23 @@ STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.
 - next action: `OBJECTIVE_AUDIT_GMZ_IMPL_004`
 
 STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-004 post-merge promotion
+
+- exact accepted candidate: `812a0213bb8099dd5a3f0c41e9faff36c6a55e80`
+- implementation PR: `#54`
+- merge SHA: `2bee77001309740b6aa86e605ca56fb4e6bed6a2`
+- objective audit: `APPROVED_FOR_PROMOTION`
+- incremental credit:
+  - GMZ-M02: `5`
+  - GMZ-M26: `2`
+  - total: `7 / 515`
+- production credit: `38 / 515 = 7.38%`
+- active implementation authorization: `NO`
+- unresolved review threads: `0`
+- CRITICAL/HIGH: `0 / 0`
+- GMZ-M02 remains partially complete; stronger-auth / privileged-admin work remains deferred
+- next: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
+
+STOP CONDITION: `GMZ_IMPL_004_PROMOTED_COMPLETE`.

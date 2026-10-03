@@ -1,6 +1,6 @@
 # GMZ-IMPL-004 — Auth Session & Tenant Entry Foundation
 
-Status: `EXECUTION COMPLETE / READY_FOR_OBJECTIVE_AUDIT`
+Status: `PROMOTED / COMPLETE`
 Issue: `#52`
 Assurance: `HIGH_ASSURANCE`
 Admission branch: `implementation/gmz-impl-004-auth-session-entry`
@@ -323,3 +323,23 @@ STOP CONDITION:
 
 STOP CONDITION:
 `GMZ_IMPL_004_CD_002_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## POST-MERGE PROMOTION
+
+- implementation PR: `#54`
+- exact accepted candidate: `812a0213bb8099dd5a3f0c41e9faff36c6a55e80`
+- merge SHA: `2bee77001309740b6aa86e605ca56fb4e6bed6a2`
+- objective audit: `APPROVED_FOR_PROMOTION`
+- incremental production credit awarded: `7 / 515`
+- credit allocation:
+  - GMZ-M02: `5`
+  - GMZ-M26: `2`
+- cumulative production credit: `38 / 515 = 7.38%`
+- implementation authorization: `NO`
+- state: `PROMOTED_COMPLETE`
+- module note: GMZ-M02 remains PARTIAL; stronger-auth / privileged-admin capability is still deferred
+- next: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
+
+STOP CONDITION:
+`GMZ_IMPL_004_PROMOTED_COMPLETE`
