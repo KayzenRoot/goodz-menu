@@ -7,8 +7,8 @@ Status: `READY_FOR_OBJECTIVE_AUDIT`
 - Repository: `KayzenRoot/goodz-menu` (`https://github.com/KayzenRoot/goodz-menu.git`).
 - Authorized branch: `execution/gmz-impl-004-auth-session-entry`.
 - Legal execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`; verified ancestor of the implementation branch.
-- Implementation candidate head: `ace5ec51ae4c164ac4472b411177b52616105f32`.
-- PR: [#54](https://github.com/KayzenRoot/goodz-menu/pull/54), base `main`, kept open as draft. Its description carries the exact final branch head and post-push check results.
+- Exact-head L5 validation candidate: `c652cc41aa222e2c92e2d4323c2b7dbd87b1d664` (full suite rerun after the Sonar code corrections).
+- PR: [#54](https://github.com/KayzenRoot/goodz-menu/pull/54), base `main`, kept open as draft. The final published HEAD and fresh post-push checks are recorded in the PR description; these values are verified after publication.
 - Context Lock: `BOUND_FOR_EXECUTION`.
 - Stable source fingerprints: `16 / 16 MATCH`.
 - Governance snapshot: expected checkpoint blob `0e599f77ca5967a7ecd7d325fcc62fa6b6397f04` matches `.engineering/CHECKPOINT.json` at bind commit `fc0d77b4aeba4631c4907012c5329b9009d1ad36`.
@@ -42,19 +42,19 @@ Status: `READY_FOR_OBJECTIVE_AUDIT`
 | local security advisors | PASS — 0 findings |
 | production dependency audit | PASS — no known vulnerabilities at high severity or above |
 | strict peer dependency check | PASS |
-| secret-pattern scan | PASS — 0 matches in staged implementation text files |
+| secret-pattern scan | PASS — 0 matches across 34 changed paths; the single synthetic credential URL used by a rejection test was allowlisted for the URL-credential heuristic |
 | Docker Compose config/build/up | PASS |
 | Docker health/readiness | PASS — `ok` / `ready`, local Supabase available |
 | PowerShell local Supabase bootstrap | PASS — exit code checked; IPv4/hostname/IPv6 loopback accepted; remote URL rejected |
 | Supabase local Auth/Postgres | PASS — Auth health HTTP 200; Postgres accepting connections |
-| runtime log scan | PASS — 14 lines, 9 health/readiness events, 0 severe entries or secret-pattern matches |
+| runtime log scan | PASS — 11 lines, 0 severe entries or secret-pattern matches |
 | `.gef` integrity | PASS — unchanged |
-| CodeRabbit local | PASS — 0 findings on the final corrected full diff |
-| SonarCloud / Socket PR checks | Must be confirmed on the exact final PR head after push; prior-SHA results are not carried forward |
+| CodeRabbit local | PASS — deep full-diff review at the exact-head candidate above, 0 findings (6 evidence screenshots excluded as unsupported binary files) |
+| SonarCloud / Socket PR checks | Pending fresh checks for the final published PR head; prior-SHA results are not carried forward |
 
 The first default-parallel E2E attempt encountered Windows Chromium `ERR_NO_BUFFER_SPACE` while opening `/login`, before the affected scenario began. The focused revocation run passed 2/2 and the complete 20-test desktop/mobile suite passed with one worker; no application change was made for that host-resource event.
 
-The first SonarCloud run at the previous PR head passed its Quality Gate and reported 10 new code smells (5 `MAJOR`, 5 `MINOR`, 0 Security Hotspots). The current correction removes the nested-template, nested-conditional, status-role and mutable-props findings. One `MINOR` finding about `await` in the fixture SQL loop is intentionally retained: a read-only probe confirmed the local Supabase CLI rejects multiple SQL commands in one prepared-statement request, and fixture statements have foreign-key ordering dependencies. The sequential loop preserves that required order. A fresh SonarCloud result is required on the final head.
+The first SonarCloud run at the previous PR head passed its Quality Gate and reported 10 new code smells (5 `MAJOR`, 5 `MINOR`, 0 Security Hotspots). Commit `ace5ec5` corrected the nested-template, nested-conditional, status-role and mutable-props findings. One `MINOR` finding about `await` in the fixture SQL loop is intentionally retained: a read-only probe confirmed the local Supabase CLI rejects multiple SQL commands in one prepared-statement request, and fixture statements have foreign-key ordering dependencies. The sequential loop preserves that required order. The final exact-head L5 run at `c652cc4` passed locally; fresh SonarCloud and Socket results are required for the final published PR head.
 
 ## UI evidence
 
