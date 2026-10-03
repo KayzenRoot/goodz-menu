@@ -6,7 +6,7 @@ import {
   AuthInvalidTokenResponseError,
 } from "@supabase/supabase-js";
 
-type ClaimsResult = { data: { claims?: unknown } | null; error: unknown | null };
+type ClaimsResult = { data: { claims?: unknown } | null; error: unknown };
 type ClaimsReader = () => Promise<ClaimsResult>;
 
 export type ProxyClaimsOutcome = "valid" | "invalid" | "retryable" | "unverified";

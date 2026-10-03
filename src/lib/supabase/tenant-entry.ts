@@ -18,7 +18,7 @@ export type TenantEntryResult =
 
 const PAGE_SIZE = 1000;
 
-type PageResult<Row> = { data: Row[] | null; error: unknown | null; count: number | null };
+type PageResult<Row> = { data: Row[] | null; error: unknown; count: number | null };
 
 async function loadAllPages<Row>(queryPage: (from: number, to: number) => PromiseLike<PageResult<Row>>) {
   const rows: Row[] = [];
