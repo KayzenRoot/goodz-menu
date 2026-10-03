@@ -38,11 +38,29 @@ Abra <http://127.0.0.1:3001> e use a entrada **Entrar** com uma conta sintética
 
 ## Fluxo nativo rápido
 
+Em PowerShell, carregue a configuração pública do Supabase local no processo do servidor. O comando valida loopback e não imprime nem grava a chave:
+
 ```powershell
-corepack pnpm dev
+$statusOutput = corepack pnpm exec supabase status --output json 2>$null
+if ($LASTEXITCODE -ne 0) { throw 'Não foi possível consultar o status do Supabase local.' }
+$statusText = $statusOutput -join "`n"
+$jsonStart = $statusText.IndexOf('{')
+if ($jsonStart -lt 0) { throw 'Não foi possível ler o status do Supabase local.' }
+$localSupabase = $statusText.Substring($jsonStart) | ConvertFrom-Json
+if ($localSupabase.API_URL -notmatch '^http://(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$' -or -not $localSupabase.ANON_KEY) {
+  throw 'O login nativo requer o endpoint e a chave pública do Supabase local.'
+}
+$env:GOODZ_ENVIRONMENT = 'local'
+$env:SUPABASE_API_URL = $localSupabase.API_URL
+$env:SUPABASE_ANON_KEY = $localSupabase.ANON_KEY
+try { corepack pnpm dev } finally {
+  Remove-Item Env:\GOODZ_ENVIRONMENT -ErrorAction SilentlyContinue
+  Remove-Item Env:\SUPABASE_API_URL -ErrorAction SilentlyContinue
+  Remove-Item Env:\SUPABASE_ANON_KEY -ErrorAction SilentlyContinue
+}
 ```
 
-O modo nativo escuta apenas `127.0.0.1:3000`. Use os mesmos endpoints `/api/health` e `/api/ready`.
+O modo nativo escuta apenas `127.0.0.1:3000`. Use os mesmos endpoints `/api/health` e `/api/ready`. A chave anon pública permanece apenas no ambiente do processo nativo; nenhuma chave service-role é usada.
 
 ## Validação
 
