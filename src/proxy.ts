@@ -28,9 +28,12 @@ export async function proxy(request: NextRequest) {
   );
 
   const clearAuthCookies = () => {
-    request.cookies.getAll()
+    const authCookieNames = request.cookies.getAll()
       .filter(({ name }) => name.startsWith("sb-") && name.includes("-auth-token"))
-      .forEach(({ name }) => response.cookies.delete(name));
+      .map(({ name }) => name);
+    authCookieNames.forEach((name) => request.cookies.delete(name));
+    response = NextResponse.next({ request });
+    authCookieNames.forEach((name) => response.cookies.delete(name));
   };
 
   await handleProxyClaims(() => supabase.auth.getClaims(), clearAuthCookies);

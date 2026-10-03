@@ -35,11 +35,35 @@ describe("proxy session cookie preservation", () => {
 
   it("removes the auth cookie after a confirmed invalid session", async () => {
     const getClaims = mockClaims({ data: null, error: null });
+    const request = requestWithAuthCookie();
 
-    const response = await proxy(requestWithAuthCookie());
+    const response = await proxy(request);
 
     expect(getClaims).toHaveBeenCalledOnce();
+    expect(request.cookies.has("sb-local-auth-token")).toBe(false);
     expect(response.headers.get("set-cookie")).toContain("sb-local-auth-token=;");
+  });
+
+  it("removes refreshed auth cookies from the forwarded request after the session is rejected", async () => {
+    createServerClientMock.mockImplementation((_url, _key, options) => ({
+      auth: {
+        getClaims: async () => {
+          options.cookies.setAll([
+            { name: "sb-local-auth-token", value: "refreshed", options: { path: "/", httpOnly: true } },
+          ]);
+          return { data: null, error: null };
+        },
+      },
+    }));
+    const request = requestWithAuthCookie();
+
+    const response = await proxy(request);
+
+    expect(request.cookies.has("sb-local-auth-token")).toBe(false);
+    expect(response.headers.get("set-cookie")).toContain("sb-local-auth-token=;");
+    expect(response.headers.get("set-cookie")).not.toContain("refreshed");
+    expect(response.headers.get("x-middleware-request-cookie")).toContain("theme=dark");
+    expect(response.headers.get("x-middleware-request-cookie")).not.toContain("sb-local-auth-token");
   });
 
   it("preserves auth cookies when claims verification fails transiently", async () => {
