@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { readSupabaseAuthConfig } from "@/lib/env/runtime-env";
 import type { Database } from "@/lib/supabase/database.types";
+import { handleProxyClaims } from "@/lib/supabase/proxy-claims";
 
 export async function proxy(request: NextRequest) {
   const config = readSupabaseAuthConfig();
@@ -32,12 +33,7 @@ export async function proxy(request: NextRequest) {
       .forEach(({ name }) => response.cookies.delete(name));
   };
 
-  try {
-    const { data, error } = await supabase.auth.getClaims();
-    if (error || !data?.claims) clearAuthCookies();
-  } catch {
-    clearAuthCookies();
-  }
+  await handleProxyClaims(() => supabase.auth.getClaims(), clearAuthCookies);
 
   return response;
 }

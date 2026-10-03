@@ -1,21 +1,17 @@
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { parseLocalSupabaseStatus } from "./parse-local-supabase-status.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const supabaseCli = path.join(root, "node_modules", "supabase", "dist", "supabase.js");
 const playwrightCli = path.join(root, "node_modules", "@playwright", "test", "cli.js");
 const status = await run(process.execPath, [supabaseCli, "status", "--output", "json"], { capture: true });
-let localStatus;
-try {
-  localStatus = JSON.parse(status.stdout);
-} catch {
-  throw new Error("Could not read local Supabase status; E2E refuses non-local Auth configuration.");
-}
+const localStatus = parseLocalSupabaseStatus(status.stdout);
 
 const apiUrl = localStatus.API_URL ?? localStatus.api_url;
 const anonKey = localStatus.ANON_KEY ?? localStatus.anon_key;
-if (!/^http:\/\/(127\.0\.0\.1|localhost|\[::1\])(?::\d+)?$/.test(apiUrl ?? "") || typeof anonKey !== "string" || !anonKey) {
+if (typeof apiUrl !== "string" || !/^http:\/\/(127\.0\.0\.1|localhost|\[::1\])(?::\d+)?$/.test(apiUrl) || typeof anonKey !== "string" || !anonKey) {
   throw new Error("Local Supabase must be healthy and provide a public anon key before E2E.");
 }
 

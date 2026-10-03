@@ -1,6 +1,7 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
 import path from "node:path";
+import { parseLocalSupabaseStatus } from "../../scripts/parse-local-supabase-status.mjs";
 
 type LocalApi = { apiUrl: string; anonKey: string };
 type SyntheticUser = { id: string; email: string; password: string };
@@ -58,9 +59,11 @@ function sanitize(value: string) {
 }
 
 async function getLocalApi(): Promise<LocalApi> {
-  const status = JSON.parse(await runSupabase(["status", "--output", "json"])) as Record<string, string>;
-  const apiUrl = status.API_URL ?? status.api_url ?? "";
-  const anonKey = status.ANON_KEY ?? status.anon_key ?? "";
+  const status = parseLocalSupabaseStatus(await runSupabase(["status", "--output", "json"]));
+  const apiUrlValue = status.API_URL ?? status.api_url;
+  const anonKeyValue = status.ANON_KEY ?? status.anon_key;
+  const apiUrl = typeof apiUrlValue === "string" ? apiUrlValue : "";
+  const anonKey = typeof anonKeyValue === "string" ? anonKeyValue : "";
   if (!localUrl.test(apiUrl) || !anonKey) throw new Error("Local Supabase Auth fixtures require a loopback API and public anon key.");
   return { apiUrl, anonKey };
 }
