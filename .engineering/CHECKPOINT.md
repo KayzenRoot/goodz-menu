@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_004_ADMITTED_EXECUTION_BASE_BIND_PENDING`
+Status: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,11 +27,11 @@ Status: `GMZ_IMPL_004_ADMITTED_EXECUTION_BASE_BIND_PENDING`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-003` — READY_FOR_OBJECTIVE_AUDIT
-- Issue: `#47`
-- Branch: `execution/gmz-impl-003-membership-authz`
-- Execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`
-- Mode: HIGH_ASSURANCE membership/RBAC implementation
+- Work Order: `GMZ-IMPL-004` — READY_FOR_OBJECTIVE_AUDIT
+- Issue: `#52`
+- Branch: `execution/gmz-impl-004-auth-session-entry`
+- Execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`
+- Mode: HIGH_ASSURANCE Auth session and tenant-entry implementation
 
 ## Progress accounting
 Overall production completion: `31 / 515 = 6.02%`.
@@ -48,9 +48,20 @@ GMZ-SRC-001 is preserved byte-exact in repository truth:
 The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
-Run the separate objective audit for PR `#49`. Do not merge.
+Run the separate objective audit for PR `#54`. Do not merge. Business-domain implementation remains `NOT_AUTHORIZED`.
 
-STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
+STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-004-CD-002 executor correction
+
+- Active correction: `GMZ-IMPL-004-CD-002`, limited to paginated/stably ordered fail-closed tenant hierarchy reads, robust local Supabase status JSON parsing, and transient Auth/JWKS cookie preservation with confirmed-invalid session cleanup.
+- Scope protections remain: no schema/migration/RLS/policy or membership/RBAC semantic changes, no service-role use, no client tenant filter, no remote Supabase, no business-domain work, and `.gef` unchanged.
+- The correction-specific completion token is `GMZ_IMPL_004_CD_002_READY_FOR_OBJECTIVE_AUDIT`. Historical CD-001 records and its token remain intact. The canonical checkpoint state remains `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`, with next action `OBJECTIVE_AUDIT_GMZ_IMPL_004`.
+- Production credit remains `31 / 515 = 6.02%`.
+- Exact final candidate, complete L5 results, and fresh remote PR/SonarCloud/Socket status are recorded in draft PR `#54` after the final push.
+
+CORRECTION TOKEN (CD-002): `GMZ_IMPL_004_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
 
 
 ## GMZ-IMPL-003 executor closeout
@@ -732,3 +743,39 @@ STOP CONDITION: `GMZ_IMPL_003_PROMOTED_COMPLETE`.
 - next action: `AUDIT_AND_MERGE_GMZ_IMPL_004_ADMISSION_THEN_BIND_EXECUTION_BASE`
 
 STOP CONDITION: `GMZ_IMPL_004_ADMISSION_READY_FOR_REVIEW`.
+
+
+## GMZ-IMPL-004 execution-base bind
+
+- admission PR: `#53`
+- admission audited head: `2093d0057bb664ec696591d5344ea60023da7f20`
+- admission merge / exact execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`
+- execution branch: `execution/gmz-impl-004-auth-session-entry`
+- Context Lock stable sources: `16 / 16 MATCH`
+- assurance: `HIGH_ASSURANCE`
+- executor/Codex: `AUTHORIZED FOR GMZ-IMPL-004 ONLY`
+- current earned production credit: `31 / 515 = 6.02%`
+- maximum eligible after later acceptance/merge/promotion: `7 / 515`
+- next action: `EXECUTE GMZ-IMPL-004`
+
+STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-004 execution closeout
+
+- Sonar correction commit: `ace5ec51ae4c164ac4472b411177b52616105f32`
+- exact-head L5 candidate after corrections and evidence refresh: `6c4f6a378cdedba141c6772c672f8cecc5498c0f`
+- exact execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`
+- branch: `execution/gmz-impl-004-auth-session-entry`
+- PR: `#54`, target `main`, remains open/draft
+- Context Lock: `BOUND_FOR_EXECUTION`; stable sources `16 / 16 MATCH`
+- exact-head HIGH_ASSURANCE L5 at `6c4f6a3`: `PASS`; frozen strict peers, lint, typecheck, unit `13 / 13`, build, E2E `20 / 20`, Axe `8 / 8` (`0` violations), pgTAP `125 / 125`, Auth/Data API `50 / 50`, DB lint/advisors, dependency audit, secret scan, Docker/Supabase/Auth/Postgres/health/readiness/logs, `.gef`; transient first-run mobile preview miss was isolated and full reruns passed without source change
+- native local Auth runbook now loads only loopback Supabase URL/public anon key into the native dev-server process and clears both on exit
+- CodeRabbit local deep review at `0a4a4a8`: `0 findings`; an earlier outdated request to revert to completed PR `#49` was rejected against current checkpoint/promotion state; fresh SonarCloud and Socket results must be confirmed for the final published PR head
+- SonarCloud/Socket at `6c4f6a3`: PASS; Sonar Quality Gate `OK`, 0 security hotspots, 1 retained minor fixture SQL code smell; both Socket checks pass
+- executor result: `READY_FOR_OBJECTIVE_AUDIT`
+- Evidence Bundle: `.engineering/evidence/GMZ-IMPL-004-EVIDENCE.md`
+- production credit remains `31 / 515 = 6.02%`; audit/promotion/credit are not claimed
+- next action: `OBJECTIVE_AUDIT_GMZ_IMPL_004`
+
+STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.
