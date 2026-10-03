@@ -753,7 +753,7 @@ STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.
 ## GMZ-IMPL-004 execution closeout
 
 - Sonar correction commit: `ace5ec51ae4c164ac4472b411177b52616105f32`
-- exact-head L5 candidate after corrections and evidence refresh: `97eff37c7378179b223d26b2f9951c5699dea9ec`
+- exact-head L5 candidate after corrections and evidence refresh: `e482a4519ee2c11c5c2da05d4e19e3be245c7d71`
 - exact execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`
 - branch: `execution/gmz-impl-004-auth-session-entry`
 - PR: `#54`, target `main`, remains open/draft
