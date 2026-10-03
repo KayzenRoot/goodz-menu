@@ -27,11 +27,11 @@ Status: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-003` — READY_FOR_OBJECTIVE_AUDIT
-- Issue: `#47`
-- Branch: `execution/gmz-impl-003-membership-authz`
-- Execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`
-- Mode: HIGH_ASSURANCE membership/RBAC implementation
+- Work Order: `GMZ-IMPL-004` — READY_FOR_OBJECTIVE_AUDIT
+- Issue: `#52`
+- Branch: `execution/gmz-impl-004-auth-session-entry`
+- Execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`
+- Mode: HIGH_ASSURANCE Auth session and tenant-entry implementation
 
 ## Progress accounting
 Overall production completion: `31 / 515 = 6.02%`.
@@ -48,9 +48,9 @@ GMZ-SRC-001 is preserved byte-exact in repository truth:
 The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
-Run the separate objective audit for PR `#49`. Do not merge.
+Run the separate objective audit for PR `#54`. Do not merge. Business-domain implementation remains `NOT_AUTHORIZED`.
 
-STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
+STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.
 
 
 ## GMZ-IMPL-003 executor closeout
