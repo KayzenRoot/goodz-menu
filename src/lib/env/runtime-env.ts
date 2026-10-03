@@ -16,6 +16,15 @@ export type RuntimeConfigResult =
   | { ok: true; config: RuntimeConfig }
   | { ok: false; environment: GoodzEnvironment | "unknown"; reason: "invalid_environment" | "supabase_url_required" | "invalid_supabase_url" };
 
+export type SupabaseAuthConfig = {
+  supabaseApiUrl: URL;
+  anonKey: string;
+};
+
+export type SupabaseAuthConfigResult =
+  | { ok: true; environment: GoodzEnvironment; config: SupabaseAuthConfig }
+  | { ok: false; environment: GoodzEnvironment | "unknown"; reason: "invalid_environment" | "supabase_url_required" | "invalid_supabase_url" | "supabase_anon_key_required" | "invalid_supabase_anon_key" };
+
 export function readRuntimeConfig(source: Record<string, string | undefined> = process.env): RuntimeConfigResult {
   const inferredEnvironment = source.GOODZ_ENVIRONMENT ?? (source.NODE_ENV === "production" ? "production" : "local");
   const environmentResult = environmentSchema.safeParse(inferredEnvironment);
@@ -59,4 +68,35 @@ export function readRuntimeConfig(source: Record<string, string | undefined> = p
       supabaseApiUrl,
     },
   };
+}
+
+export function readSupabaseAuthConfig(source: Record<string, string | undefined> = process.env): SupabaseAuthConfigResult {
+  const runtime = readRuntimeConfig(source);
+  if (!runtime.ok) return runtime;
+
+  const anonKey = source.SUPABASE_ANON_KEY?.trim();
+  if (!anonKey) return { ok: false, environment: runtime.config.environment, reason: "supabase_anon_key_required" };
+  if (!isPublicSupabaseKey(anonKey)) return { ok: false, environment: runtime.config.environment, reason: "invalid_supabase_anon_key" };
+
+  return {
+    ok: true,
+    environment: runtime.config.environment,
+    config: { supabaseApiUrl: runtime.config.supabaseApiUrl, anonKey },
+  };
+}
+
+export { safePostLoginPath } from "../auth/navigation";
+
+function isPublicSupabaseKey(value: string): boolean {
+  if (/^sb_publishable_[A-Za-z0-9_-]+$/.test(value)) return true;
+
+  const segments = value.split(".");
+  if (segments.length !== 3 || !/^[A-Za-z0-9_-]+$/.test(segments[1])) return false;
+
+  try {
+    const payload: unknown = JSON.parse(Buffer.from(segments[1], "base64url").toString("utf8"));
+    return typeof payload === "object" && payload !== null && "role" in payload && payload.role === "anon";
+  } catch {
+    return false;
+  }
 }

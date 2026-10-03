@@ -1,6 +1,6 @@
 # GMZ-IMPL-004 — Auth Session & Tenant Entry Foundation
 
-Status: `ADMISSION_CANDIDATE`
+Status: `EXECUTION COMPLETE / READY_FOR_OBJECTIVE_AUDIT`
 Issue: `#52`
 Assurance: `HIGH_ASSURANCE`
 Admission branch: `implementation/gmz-impl-004-auth-session-entry`
@@ -251,3 +251,60 @@ Admission stage:
 
 Execution stage after governed admission promotion and execution-base bind:
 `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## EXECUTION-BASE BIND
+
+- admission PR: `#53`
+- admission disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
+- exact execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`
+- execution branch: `execution/gmz-impl-004-auth-session-entry`
+- Context Lock: `BOUND_FOR_EXECUTION`
+- stable source fingerprints: `16 / 16 MATCH`
+- executor/Codex authorization: `YES, GMZ-IMPL-004 ONLY`
+- merge authority: `NO`
+- production credit remains `31 / 515 = 6.02%`
+
+The executor must inspect the repository before mutation, execute the complete Work Order, run the HIGH_ASSURANCE evidence suite, correct failures introduced by the increment, commit/push to this execution branch, update the same PR, and stop for separate objective audit.
+
+STOP CONDITION:
+`GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## EXECUTION CLOSEOUT — GMZ-IMPL-004
+
+- execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`
+- execution branch: `execution/gmz-impl-004-auth-session-entry`
+- Sonar correction commit: `ace5ec51ae4c164ac4472b411177b52616105f32`
+- exact-head L5 validation candidate after all code, runbook and checkpoint corrections: `6c4f6a378cdedba141c6772c672f8cecc5498c0f`
+- PR: `#54` against `main`, remains open/draft; the final published exact head and its fresh remote check results are recorded in the PR description after push
+- Context Lock: `BOUND_FOR_EXECUTION`; stable fingerprints `16/16 MATCH`
+- local Auth identity validation uses Supabase SSR `getUser()` on protected server entry; tenant rows remain selected without client tenant filters through the existing anon-key/RLS boundary
+- result: login, cookie/session refresh, logout and protected tenant-entry slice implemented; no schema, migration, RLS, policy or business-domain change
+- complete local exact-head HIGH_ASSURANCE L5 at `6c4f6a3`: frozen strict-peer install, lint, typecheck, unit `13 / 13`, production build, E2E `20 / 20` across desktop/mobile, Axe `8 / 8` scans with `0` violations, Supabase reset, pgTAP `125 / 125`, Auth/Data API `50 / 50`, migration status, DB lint/advisors, dependency audit, secret-pattern scan, Docker build/up/health, local health/readiness/Auth/Postgres, runtime logs, and `.gef` integrity: `PASS`; the earlier transient mobile feedback-preview miss at `97eff37` passed in isolation and in immediate full rerun, with no source change
+- native local Auth runbook now obtains loopback Supabase status and keeps the public anon key only in the `pnpm dev` process environment; the guard was exercised without exposing key material
+- CodeRabbit local deep review of the complete diff at `0a4a4a8`: `0 findings`; it corrected the native Auth runbook gap. An earlier request to restore PR `#49` as next action conflicted with current checkpoint state and GMZ-IMPL-003 promotion history and was not applied
+- SonarCloud and Socket at `6c4f6a3`: PASS; Sonar Quality Gate `OK`, zero hotspots and one retained minor SQL-fixture code smell; both Socket checks pass. The final evidence-only commit is followed by a new exact-head suite, with its final SHA and remote checks recorded in PR `#54`
+- validation details: `.engineering/evidence/GMZ-IMPL-004-EVIDENCE.md`
+- current earned credit remains `31 / 515 = 6.02%`; no credit is claimed before separate objective acceptance and promotion
+- proposed checkpoint state: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`
+
+STOP CONDITION:
+`GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-004-CD-001 — governance integrity correction
+
+- Objective review of PR `#54` identified an internal checkpoint inconsistency: top-level and active earned production credit are `31`, completion is `6.02%`, while `currentOutputs.productionEarned` was stale at `19`.
+- Correction is limited to `.engineering/CHECKPOINT.json`: `currentOutputs.productionEarned` is synchronized to `31`.
+- Historical sections describing earlier promoted states are preserved unchanged.
+- Production credit remains `31 / 515 = 6.02%`; no GMZ-IMPL-004 credit is added or claimed.
+- Governance-integrity documentation only: no runtime/auth/session, UI, dependency, schema, migration, RLS/policy, `.gef`, or business-scope behavior changes.
+- GEF 1.1.1 preflight passed at correction candidate `770d5b1aacd49cb5c515515a754babccf73c01b3`: correct repository/branch, unchanged execution base `e43d4b791b9bcabf806d115424218a4b0240647c`, Context Lock `BOUND_FOR_EXECUTION`, `16/16` locked fingerprints `MATCH`, governance snapshot `MATCH`, clean tree, and `.gef` unchanged.
+- Complete correction-candidate HIGH_ASSURANCE L5 at `770d5b1`: frozen strict-peer install, lint, typecheck, unit `13/13`, build, E2E `20/20` desktop/mobile, Axe `8/8` with `0` violations, Supabase reset, pgTAP `125/125`, Auth/Data API `50/50`, migration status, DB lint/advisors, dependency audit, strict peers, secret scan `0` matches, Docker config/build/up/healthy, health/readiness `ok`/`ready`, login HTTP `200`, local Auth/Postgres healthy, runtime log scan `18` lines with `0` severe/secret matches, and `.gef` integrity: `PASS`.
+- The Evidence Bundle records the correction-candidate results; the exact published SHA and fresh exact-head results are recorded in the PR `#54` description.
+- PR `#54` remains OPEN/DRAFT against `main`; no merge is performed.
+- Correction stop condition: `GMZ_IMPL_004_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
+
+STOP CONDITION:
+`GMZ_IMPL_004_CD_001_READY_FOR_OBJECTIVE_AUDIT`

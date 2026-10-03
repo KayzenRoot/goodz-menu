@@ -1,6 +1,6 @@
 # Desenvolvimento local do Goodz Menu
 
-Este repositório contém apenas a fundação visual e o runtime do Goodz Menu. O shell é uma **Foundation Preview**: ainda não há módulos de negócio, dados operacionais ou autenticação.
+Este repositório contém a fundação visual/runtime e a entrada local de sessão do Goodz Menu. O shell ainda não inclui módulos de negócio, dados operacionais ou cadastro self-service.
 
 ## Pré-requisitos
 
@@ -17,23 +17,50 @@ Na raiz do repositório, em PowerShell:
 ```powershell
 corepack pnpm install --frozen-lockfile
 corepack pnpm supabase:start
-corepack pnpm supabase:status
 corepack pnpm build
-docker compose up --build -d
+$statusOutput = corepack pnpm exec supabase status --output json 2>$null
+if ($LASTEXITCODE -ne 0) { throw 'Não foi possível consultar o status do Supabase local.' }
+$statusText = $statusOutput -join "`n"
+$jsonStart = $statusText.IndexOf('{')
+if ($jsonStart -lt 0) { throw 'Não foi possível ler o status do Supabase local.' }
+$localSupabase = $statusText.Substring($jsonStart) | ConvertFrom-Json
+if ($localSupabase.API_URL -notmatch '^http://(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$' -or -not $localSupabase.ANON_KEY) {
+  throw 'O login requer o endpoint e a chave pública do Supabase local.'
+}
+$env:SUPABASE_ANON_KEY = $localSupabase.ANON_KEY
+try { docker compose up --build -d } finally { Remove-Item Env:\SUPABASE_ANON_KEY -ErrorAction SilentlyContinue }
 docker compose ps
 Invoke-RestMethod http://127.0.0.1:3001/api/health
 Invoke-RestMethod http://127.0.0.1:3001/api/ready
 ```
 
-Abra <http://127.0.0.1:3001>. O Compose publica somente a aplicação em loopback. A porta padrão externa é 3001 para coexistir com serviços de desenvolvimento comuns em 3000. A API Supabase local permanece no host e não é publicada pelo Compose; o container web a alcança por `host.docker.internal`.
+Abra <http://127.0.0.1:3001> e use a entrada **Entrar** com uma conta sintética/local já criada no Supabase Auth. O Compose publica somente a aplicação em loopback. A porta padrão externa é 3001 para coexistir com serviços de desenvolvimento comuns em 3000. A API Supabase local permanece no host e não é publicada pelo Compose; o container web a alcança por `host.docker.internal`. O script mantém a chave anon pública apenas no ambiente do processo `docker compose up`, sem gravá-la no repositório ou em `.env`.
 
 ## Fluxo nativo rápido
 
+Em PowerShell, carregue a configuração pública do Supabase local no processo do servidor. O comando valida loopback e não imprime nem grava a chave:
+
 ```powershell
-corepack pnpm dev
+$statusOutput = corepack pnpm exec supabase status --output json 2>$null
+if ($LASTEXITCODE -ne 0) { throw 'Não foi possível consultar o status do Supabase local.' }
+$statusText = $statusOutput -join "`n"
+$jsonStart = $statusText.IndexOf('{')
+if ($jsonStart -lt 0) { throw 'Não foi possível ler o status do Supabase local.' }
+$localSupabase = $statusText.Substring($jsonStart) | ConvertFrom-Json
+if ($localSupabase.API_URL -notmatch '^http://(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$' -or -not $localSupabase.ANON_KEY) {
+  throw 'O login nativo requer o endpoint e a chave pública do Supabase local.'
+}
+$env:GOODZ_ENVIRONMENT = 'local'
+$env:SUPABASE_API_URL = $localSupabase.API_URL
+$env:SUPABASE_ANON_KEY = $localSupabase.ANON_KEY
+try { corepack pnpm dev } finally {
+  Remove-Item Env:\GOODZ_ENVIRONMENT -ErrorAction SilentlyContinue
+  Remove-Item Env:\SUPABASE_API_URL -ErrorAction SilentlyContinue
+  Remove-Item Env:\SUPABASE_ANON_KEY -ErrorAction SilentlyContinue
+}
 ```
 
-O modo nativo escuta apenas `127.0.0.1:3000`. Use os mesmos endpoints `/api/health` e `/api/ready`.
+O modo nativo escuta apenas `127.0.0.1:3000`. Use os mesmos endpoints `/api/health` e `/api/ready`. A chave anon pública permanece apenas no ambiente do processo nativo; nenhuma chave service-role é usada.
 
 ## Validação
 

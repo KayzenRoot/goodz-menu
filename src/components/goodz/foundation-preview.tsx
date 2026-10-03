@@ -202,7 +202,7 @@ export function FoundationPreview() {
         <header className="topbar">
           <button className="mobile-menu-button" aria-label={menuOpen ? "Fechar navegação" : "Abrir navegação"} aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}><Menu size={19} /></button>
           <div className="breadcrumbs"><span>Goodz Menu</span><span className="breadcrumb-divider">/</span><strong>Fundação</strong></div>
-          <div className="topbar-actions"><EnvironmentBadge /><ThemePicker /><a className="github-link" href="https://github.com/KayzenRoot/goodz-menu" target="_blank" rel="noreferrer" aria-label="Abrir repositório Goodz Menu no GitHub"><ExternalLink size={17} /></a></div>
+          <div className="topbar-actions"><EnvironmentBadge /><a className="auth-entry-link" href="/login">Entrar</a><ThemePicker /><a className="github-link" href="https://github.com/KayzenRoot/goodz-menu" target="_blank" rel="noreferrer" aria-label="Abrir repositório Goodz Menu no GitHub"><ExternalLink size={17} /></a></div>
         </header>
 
         <motion.div
