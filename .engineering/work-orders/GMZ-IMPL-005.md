@@ -1,6 +1,6 @@
 # GMZ-IMPL-005 — MFA, Reauthentication & Admin Guard Foundation
 
-Status: `ADMISSION_CANDIDATE`
+Status: `ADMITTED / EXECUTION AUTHORIZED`
 Issue: `#57`
 Assurance: `HIGH_ASSURANCE`
 Admission branch: `implementation/gmz-impl-005-mfa-admin-guard`
@@ -248,4 +248,22 @@ Admission:
 `GMZ_IMPL_005_ADMISSION_READY_FOR_REVIEW`
 
 Execution after governed admission promotion and exact bind:
+`GMZ_IMPL_005_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## EXECUTION-BASE BIND
+
+- admission PR: `#58`
+- admission disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
+- exact execution base: `036d26b92d32ccb6ef69e46721e48b339d1b7332`
+- execution branch: `execution/gmz-impl-005-mfa-admin-guard`
+- Context Lock: `BOUND_FOR_EXECUTION`
+- stable source fingerprints: `16 / 16 MATCH`
+- executor/Codex authorization: `YES, GMZ-IMPL-005 ONLY`
+- merge authority: `NO`
+- production credit remains `38 / 515 = 7.38%`
+
+The executor must inspect the repository before mutation, revalidate current Supabase MFA/AAL guidance, execute the complete Work Order, run the HIGH_ASSURANCE evidence suite, correct failures introduced by the increment, commit/push to this execution branch, update the same PR, and stop for separate objective audit.
+
+STOP CONDITION:
 `GMZ_IMPL_005_READY_FOR_OBJECTIVE_AUDIT`
