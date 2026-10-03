@@ -7,7 +7,8 @@ Status: `READY_FOR_OBJECTIVE_AUDIT`
 - Repository: `KayzenRoot/goodz-menu` (`https://github.com/KayzenRoot/goodz-menu.git`).
 - Authorized branch: `execution/gmz-impl-004-auth-session-entry`.
 - Legal execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`; verified ancestor of the implementation branch.
-- Exact-head L5 validation candidate: `6c4f6a378cdedba141c6772c672f8cecc5498c0f` (complete suite rerun after the Sonar corrections and governance/documentation review fixes).
+- Prior implementation L5 candidate (before CD-001): `6c4f6a378cdedba141c6772c672f8cecc5498c0f`.
+- CD-001 exact-head L5 validation candidate before evidence closeout: `770d5b1aacd49cb5c515515a754babccf73c01b3`.
 - PR: [#54](https://github.com/KayzenRoot/goodz-menu/pull/54), base `main`, kept open as draft. The final post-evidence publication SHA and its fresh checks are recorded in the PR description.
 - Context Lock: `BOUND_FOR_EXECUTION`.
 - Stable source fingerprints: `16 / 16 MATCH`.
@@ -92,7 +93,10 @@ STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.
 - Corrected only the current `currentOutputs.productionEarned` value in `.engineering/CHECKPOINT.json` to `31`; prior historical sections remain unchanged.
 - Production credit remains `31 / 515 = 6.02%`; no incremental credit is claimed.
 - This is a governance-integrity correction only. Runtime/auth/session, UI, dependencies, schema, migrations, RLS/policies, `.gef`, and business scope are unchanged.
-- GEF 1.1.1 preflight, 16/16 fingerprints and complete exact-head HIGH_ASSURANCE L5 are rerun after the correction. Final published HEAD and verification results are refreshed here and in the PR description after validation.
+- The correction-candidate preflight and complete HIGH_ASSURANCE L5 results are recorded below; a final evidence-closeout HEAD receives another complete exact-head run before objective audit.
+- CD-001 preflight at `770d5b1`: correct repository and authorized branch; legal execution base `e43d4b791b9bcabf806d115424218a4b0240647c` unchanged; Context Lock `BOUND_FOR_EXECUTION`; `16/16` stable source fingerprints `MATCH`; governance snapshot `MATCH`; worktree clean; `.gef` unchanged.
+- Complete correction-candidate L5 at `770d5b1`: frozen strict-peer install, lint, typecheck, unit `13/13`, production build, full desktop/mobile E2E `20/20`, Axe `8/8` scans with `0` violations, local Supabase reset, pgTAP `125/125`, Auth/Data API `50/50`, migrations applied, DB lint `0` errors, security advisors `0` findings, production dependency audit with no known high-or-above vulnerabilities, strict peers, secret-pattern scan `0` matches across `34` changed paths (`28` text files; synthetic credential URL remains allowlisted), Docker config/build/recreate and healthy container, health `ok`, readiness `ready`, login HTTP `200`, local Auth reachable, Postgres ready, Supabase API loopback, runtime logs `18` lines with `0` severe/secret matches, and `.gef` integrity: `PASS`.
+- The complete HIGH_ASSURANCE L5 is repeated on the final evidence-closeout HEAD. Its exact published SHA and fresh exact-head remote results are recorded in PR `#54` so this bundle can remain a member of that validated commit.
 - PR `#54` remains OPEN/DRAFT against `main`; no merge is performed.
 
 STOP CONDITION: `GMZ_IMPL_004_CD_001_READY_FOR_OBJECTIVE_AUDIT`.

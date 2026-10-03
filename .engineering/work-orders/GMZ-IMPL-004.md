@@ -300,7 +300,9 @@ STOP CONDITION:
 - Historical sections describing earlier promoted states are preserved unchanged.
 - Production credit remains `31 / 515 = 6.02%`; no GMZ-IMPL-004 credit is added or claimed.
 - Governance-integrity documentation only: no runtime/auth/session, UI, dependency, schema, migration, RLS/policy, `.gef`, or business-scope behavior changes.
-- GEF 1.1.1 preflight and the complete HIGH_ASSURANCE L5 are rerun after this correction. Exact final HEAD and results are published in this Work Order, Evidence Bundle, and PR `#54` after validation.
+- GEF 1.1.1 preflight passed at correction candidate `770d5b1aacd49cb5c515515a754babccf73c01b3`: correct repository/branch, unchanged execution base `e43d4b791b9bcabf806d115424218a4b0240647c`, Context Lock `BOUND_FOR_EXECUTION`, `16/16` locked fingerprints `MATCH`, governance snapshot `MATCH`, clean tree, and `.gef` unchanged.
+- Complete correction-candidate HIGH_ASSURANCE L5 at `770d5b1`: frozen strict-peer install, lint, typecheck, unit `13/13`, build, E2E `20/20` desktop/mobile, Axe `8/8` with `0` violations, Supabase reset, pgTAP `125/125`, Auth/Data API `50/50`, migration status, DB lint/advisors, dependency audit, strict peers, secret scan `0` matches, Docker config/build/up/healthy, health/readiness `ok`/`ready`, login HTTP `200`, local Auth/Postgres healthy, runtime log scan `18` lines with `0` severe/secret matches, and `.gef` integrity: `PASS`.
+- The complete HIGH_ASSURANCE L5 is repeated on the final evidence-closeout HEAD. Its exact published SHA and fresh exact-head remote results are recorded in the Evidence Bundle and PR `#54` after validation.
 - PR `#54` remains OPEN/DRAFT against `main`; no merge is performed.
 - Correction stop condition: `GMZ_IMPL_004_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
 
