@@ -7,7 +7,7 @@ Status: `READY_FOR_OBJECTIVE_AUDIT`
 - Repository: `KayzenRoot/goodz-menu` (`https://github.com/KayzenRoot/goodz-menu.git`).
 - Authorized branch: `execution/gmz-impl-004-auth-session-entry`.
 - Legal execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`; verified ancestor of the implementation branch.
-- Implementation candidate head: `4c52826427b8754837991fb2c3a20ce09847ade3`.
+- Implementation candidate head: `ace5ec51ae4c164ac4472b411177b52616105f32`.
 - PR: [#54](https://github.com/KayzenRoot/goodz-menu/pull/54), base `main`, kept open as draft. Its description carries the exact final branch head and post-push check results.
 - Context Lock: `BOUND_FOR_EXECUTION`.
 - Stable source fingerprints: `16 / 16 MATCH`.
@@ -49,10 +49,12 @@ Status: `READY_FOR_OBJECTIVE_AUDIT`
 | Supabase local Auth/Postgres | PASS — Auth health HTTP 200; Postgres accepting connections |
 | runtime log scan | PASS — 14 lines, 9 health/readiness events, 0 severe entries or secret-pattern matches |
 | `.gef` integrity | PASS — unchanged |
-| CodeRabbit local | PASS — 0 findings on the final full-diff review after resolving the checkpoint and local-bootstrap documentation findings |
+| CodeRabbit local | PASS — 0 findings on the final corrected full diff |
 | SonarCloud / Socket PR checks | Must be confirmed on the exact final PR head after push; prior-SHA results are not carried forward |
 
 The first default-parallel E2E attempt encountered Windows Chromium `ERR_NO_BUFFER_SPACE` while opening `/login`, before the affected scenario began. The focused revocation run passed 2/2 and the complete 20-test desktop/mobile suite passed with one worker; no application change was made for that host-resource event.
+
+The first SonarCloud run at the previous PR head passed its Quality Gate and reported 10 new code smells (5 `MAJOR`, 5 `MINOR`, 0 Security Hotspots). The current correction removes the nested-template, nested-conditional, status-role and mutable-props findings. One `MINOR` finding about `await` in the fixture SQL loop is intentionally retained: a read-only probe confirmed the local Supabase CLI rejects multiple SQL commands in one prepared-statement request, and fixture statements have foreign-key ordering dependencies. The sequential loop preserves that required order. A fresh SonarCloud result is required on the final head.
 
 ## UI evidence
 
@@ -67,7 +69,7 @@ Synthetic Auth users and tenant fixtures are local-only and use `.invalid` addre
 
 ## Security results and remaining boundary
 
-- CRITICAL/HIGH findings: `0 / 0` in final local CodeRabbit review; fresh exact-head SonarCloud and Socket PR check state must be confirmed at PR #54 before objective audit.
+- CRITICAL/HIGH findings: `0 / 0` in the final local CodeRabbit review. Fresh exact-head SonarCloud and Socket check state must also be confirmed at PR #54 before objective audit.
 - Open review threads requiring code changes: `0` at initial PR inspection; the draft CodeRabbit skip notice is informational, not a code finding.
 - No service-role key is bundled, rendered or used in the end-user path.
 - Signup/onboarding, password recovery/invitations, MFA/AAL2, Admin Guard, Platform/Super Admin, membership/role management, tenant writes, business-domain work, remote Supabase and production deployment remain deferred/forbidden by this Work Order.

@@ -275,13 +275,13 @@ STOP CONDITION:
 
 - execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`
 - execution branch: `execution/gmz-impl-004-auth-session-entry`
-- implementation commit: `4c52826427b8754837991fb2c3a20ce09847ade3`
+- implementation commit: `ace5ec51ae4c164ac4472b411177b52616105f32`
 - PR: `#54` against `main`, remains open/draft; exact final PR head is recorded in the PR description
 - Context Lock: `BOUND_FOR_EXECUTION`; stable fingerprints `16/16 MATCH`
 - local Auth identity validation uses Supabase SSR `getUser()` on protected server entry; tenant rows remain selected without client tenant filters through the existing anon-key/RLS boundary
 - result: login, cookie/session refresh, logout and protected tenant-entry slice implemented; no schema, migration, RLS, policy or business-domain change
-- validation: see `.engineering/evidence/GMZ-IMPL-004-EVIDENCE.md`; complete L5 and fresh exact-head PR checks are required before objective audit
-- CodeRabbit local review: final full-diff review `0 findings`; the checkpoint/documentation findings were corrected and verified
+- validation: see `.engineering/evidence/GMZ-IMPL-004-EVIDENCE.md`; complete exact-head L5 and fresh PR checks run after the Sonar corrections before objective audit
+- CodeRabbit local review: final corrected full diff `0 findings`
 - current earned credit remains `31 / 515 = 6.02%`; no credit is claimed before separate objective acceptance and promotion
 - proposed checkpoint state: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`
 

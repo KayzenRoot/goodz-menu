@@ -752,7 +752,7 @@ STOP CONDITION: `GMZ_IMPL_004_READY_FOR_OBJECTIVE_AUDIT`.
 
 ## GMZ-IMPL-004 execution closeout
 
-- implementation commit: `4c52826427b8754837991fb2c3a20ce09847ade3`
+- implementation commit: `ace5ec51ae4c164ac4472b411177b52616105f32`
 - exact execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`
 - branch: `execution/gmz-impl-004-auth-session-entry`
 - PR: `#54`, target `main`, remains open/draft
