@@ -1,6 +1,6 @@
 # Desenvolvimento local do Goodz Menu
 
-Este repositório contém apenas a fundação visual e o runtime do Goodz Menu. O shell é uma **Foundation Preview**: ainda não há módulos de negócio, dados operacionais ou autenticação.
+Este repositório contém a fundação visual/runtime e a entrada local de sessão do Goodz Menu. O shell ainda não inclui módulos de negócio, dados operacionais ou cadastro self-service.
 
 ## Pré-requisitos
 
@@ -17,15 +17,23 @@ Na raiz do repositório, em PowerShell:
 ```powershell
 corepack pnpm install --frozen-lockfile
 corepack pnpm supabase:start
-corepack pnpm supabase:status
 corepack pnpm build
-docker compose up --build -d
+$statusOutput = corepack pnpm exec supabase status --output json 2>$null
+$statusText = $statusOutput -join "`n"
+$jsonStart = $statusText.IndexOf('{')
+if ($jsonStart -lt 0) { throw 'Não foi possível ler o status do Supabase local.' }
+$localSupabase = $statusText.Substring($jsonStart) | ConvertFrom-Json
+if ($localSupabase.API_URL -notmatch '^http://(127\.0\.0\.1|localhost)(:\d+)?$' -or -not $localSupabase.ANON_KEY) {
+  throw 'O login requer o endpoint e a chave pública do Supabase local.'
+}
+$env:SUPABASE_ANON_KEY = $localSupabase.ANON_KEY
+try { docker compose up --build -d } finally { Remove-Item Env:\SUPABASE_ANON_KEY -ErrorAction SilentlyContinue }
 docker compose ps
 Invoke-RestMethod http://127.0.0.1:3001/api/health
 Invoke-RestMethod http://127.0.0.1:3001/api/ready
 ```
 
-Abra <http://127.0.0.1:3001>. O Compose publica somente a aplicação em loopback. A porta padrão externa é 3001 para coexistir com serviços de desenvolvimento comuns em 3000. A API Supabase local permanece no host e não é publicada pelo Compose; o container web a alcança por `host.docker.internal`.
+Abra <http://127.0.0.1:3001> e use a entrada **Entrar** com uma conta sintética/local já criada no Supabase Auth. O Compose publica somente a aplicação em loopback. A porta padrão externa é 3001 para coexistir com serviços de desenvolvimento comuns em 3000. A API Supabase local permanece no host e não é publicada pelo Compose; o container web a alcança por `host.docker.internal`. O script mantém a chave anon pública apenas no ambiente do processo `docker compose up`, sem gravá-la no repositório ou em `.env`.
 
 ## Fluxo nativo rápido
 
