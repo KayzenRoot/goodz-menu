@@ -276,7 +276,7 @@ STOP CONDITION:
 - execution base: `e43d4b791b9bcabf806d115424218a4b0240647c`
 - execution branch: `execution/gmz-impl-004-auth-session-entry`
 - Sonar correction commit: `ace5ec51ae4c164ac4472b411177b52616105f32`
-- exact-head L5 validation candidate after corrections and evidence refresh: `e482a4519ee2c11c5c2da05d4e19e3be245c7d71`
+- exact-head L5 validation candidate after corrections and evidence refresh: `23b3038317b5c13b9aae136940500b3ec37629d7`
 - PR: `#54` against `main`, remains open/draft; the final published exact head and its fresh remote check results are recorded in the PR description after push
 - Context Lock: `BOUND_FOR_EXECUTION`; stable fingerprints `16/16 MATCH`
 - local Auth identity validation uses Supabase SSR `getUser()` on protected server entry; tenant rows remain selected without client tenant filters through the existing anon-key/RLS boundary
