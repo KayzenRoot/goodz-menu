@@ -110,3 +110,32 @@ Update the existing Evidence Bundle and proposed Checkpoint Delta, commit/push t
 
 Correction STOP CONDITION:
 `GMZ_IMPL_006_CD_001_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-006-CD-002 — hosted-review correction execution
+
+Status: `CORRECTION_REQUIRED`
+
+### D0 — Re-preflight
+Confirm branch/PR, ancestry, 16/16 fingerprints, Context Lock CD-002 binding, clean tree and unchanged .gef. Credit stays 44/515.
+
+### D1 — Checkpoint human-summary correction
+Update only the stale Active increment summary in `.engineering/CHECKPOINT.md` so historical pre-CD-001 BLOCKED state is not presented as current. Do not mutate CHECKPOINT.json.
+
+### D2 — Bounded audit persistence
+Add a 3-second abort boundary to the server-only append RPC. Preserve generic error handling and fail-closed semantics.
+
+### D3 — Focused regression proof
+Add/adjust the smallest deterministic test proving audit timeout/abort cannot return an allowed privileged decision. Keep existing durable-audit, RLS, metadata and correlation tests intact.
+
+### D4 — FUTURE observation
+Record retention/erasure/pseudonymization/tenant-offboarding as a prerequisite before production tenant admission. Do not change the audit migration or immutability in this delta.
+
+### D5 — Exact-head HIGH_ASSURANCE
+Rerun the complete applicable GMZ-IMPL-006 suite at final HEAD, including CD-001 guard and raw-audit disposition, then fresh hosted SonarCloud/Socket/CodeRabbit. Resolve actionable review threads only after proof passes.
+
+### D6 — Evidence / stop
+Update Evidence Bundle and Work Order closeout, commit/push to PR #64 and stop. No merge and no credit promotion.
+
+STOP CONDITION:
+`GMZ_IMPL_006_CD_002_READY_FOR_OBJECTIVE_AUDIT`
