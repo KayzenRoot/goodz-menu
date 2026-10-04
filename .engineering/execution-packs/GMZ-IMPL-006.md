@@ -81,3 +81,32 @@ Update Evidence Bundle/checkpoint proposal, commit/push, update PR and stop for 
 ## STOP CONDITION
 
 `GMZ_IMPL_006_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-006-CD-001 — correction execution
+
+Status: `CORRECTION_REQUIRED`
+
+### C0 — Re-preflight
+Confirm PR #64, authorized branch, ancestry from execution base, 16/16 stable fingerprints, Context Lock correction binding, clean tree and unchanged .gef. Preserve production credit at 44/515.
+
+### C1 — Advisory truth capture
+Capture exact `pnpm audit`, production-only audit and `pnpm why/list` evidence for `braces`. Do not hide the raw HIGH result.
+
+### C2 — Reachability proof
+Verify the pinned Next ESLint plugin's `getRootDirs` semantics and prove Goodz's active ESLint flat configuration does not define `settings.next.rootDir`. Prove `braces` is dev-only and absent from the production dependency tree.
+
+### C3 — Mechanical guard
+Add the smallest deterministic repository guard that fails if an active ESLint config later introduces `settings.next.rootDir` or if the affected dependency becomes reachable from the production tree. Add only a script entry if required. No dependency/version/lockfile mutation.
+
+### C4 — Security disposition
+If and only if C1–C3 pass, record `GHSA-vfj7-8cjw-p6xm` as `RESOLVED_NOT_AFFECTED` with evidence. This resolves the finding for the Work Order without claiming the raw package-manager audit itself is clean. If proof fails, remain `BLOCKED`.
+
+### C5 — Regression and exact-head L5
+Run the correction guard, lint, frozen strict-peer install and the complete applicable GMZ-IMPL-006 HIGH_ASSURANCE suite. Confirm Next ESLint recommended rules remain active. Rerun external gates on the final published head.
+
+### C6 — Evidence / stop
+Update the existing Evidence Bundle and proposed Checkpoint Delta, commit/push to the same branch/PR and stop. No merge, no credit promotion.
+
+Correction STOP CONDITION:
+`GMZ_IMPL_006_CD_001_READY_FOR_OBJECTIVE_AUDIT`
