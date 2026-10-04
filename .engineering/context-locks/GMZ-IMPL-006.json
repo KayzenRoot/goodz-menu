@@ -189,6 +189,41 @@
         "unresolved CRITICAL/HIGH = 0/0 after reviewed disposition"
       ],
       "stopCondition": "GMZ_IMPL_006_CD_001_READY_FOR_OBJECTIVE_AUDIT"
+    },
+    {
+      "id": "GMZ-IMPL-006-CD-002",
+      "status": "AUTHORIZED_CORRECTION_REQUIRED",
+      "reviewedHead": "38bc0034f7464c971cb6e98cc05d6a5b1bfc9001",
+      "reason": "Hosted CodeRabbit full review found stale human checkpoint summary and an unbounded mandatory audit RPC wait.",
+      "allowedMutations": [
+        ".engineering/CHECKPOINT.md summary only",
+        ".engineering/work-orders/GMZ-IMPL-006.md",
+        ".engineering/execution-packs/GMZ-IMPL-006.md",
+        ".engineering/context-locks/GMZ-IMPL-006.json",
+        ".engineering/evidence/GMZ-IMPL-006-EVIDENCE.md",
+        "src/lib/supabase/audit-writer.server.ts",
+        "focused tests required to prove timeout fail-closed behavior"
+      ],
+      "forbiddenMutations": [
+        ".engineering/CHECKPOINT.json",
+        "audit_events migration/schema/RLS/immutability",
+        "dependencies/pnpm-lock.yaml",
+        "business-domain runtime/UI",
+        ".gef/**",
+        "remote Supabase",
+        "production deployment"
+      ],
+      "requiredProof": [
+        "3-second audit RPC abort boundary",
+        "timeout/abort cannot produce privileged allow",
+        "generic error redaction preserved",
+        "complete exact-head HIGH_ASSURANCE L5",
+        "fresh hosted SonarCloud Socket CodeRabbit",
+        "unresolved actionable review threads = 0",
+        "CRITICAL/HIGH unresolved = 0/0"
+      ],
+      "futureObservation": "Retention/erasure/pseudonymization and tenant offboarding are required before production tenant admission; not implemented in CD-002.",
+      "stopCondition": "GMZ_IMPL_006_CD_002_READY_FOR_OBJECTIVE_AUDIT"
     }
   ]
 }
