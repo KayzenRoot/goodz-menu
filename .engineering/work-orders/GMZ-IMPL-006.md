@@ -307,3 +307,75 @@ STOP CONDITION:
 - Execution disposition: `BLOCKED`; Work Order acceptance criteria 22–24 are not all satisfied. Do not declare readiness, promote credit, merge, or alter the execution base.
 - Current earned credit remains `44 / 515 = 8.54%`.
 - Proposed next action: resolve the dependency gate within admitted scope or obtain a governed correction; rerun complete L5 and update the same PR before objective audit.
+
+
+## GMZ-IMPL-006-CD-001 — dependency-audit HIGH reachability disposition
+
+Status: `AUTHORIZED — CORRECTION REQUIRED`
+Review target: PR `#64`
+Reviewed head: `6e91279f9c42047645fd354e06c3a45c35e723cf`
+Assurance: `HIGH_ASSURANCE`
+
+### Trigger
+
+The complete development dependency audit reports one `HIGH` advisory, `GHSA-vfj7-8cjw-p6xm / CVE-2026-93687`, for transitive `braces@3.0.3` through `@next/eslint-plugin-next@16.3.8 → fast-glob@3.3.1 → micromatch@4.0.8 → braces@3.0.3`. The production dependency audit passes. The upstream advisory currently lists no patched npm release.
+
+### Independent review finding
+
+The scanner finding is valid, but the currently configured Goodz Menu lint path is not affected by the vulnerable input path:
+
+1. `@next/eslint-plugin-next` uses `fast-glob.globSync(...)` in its root-directory helper only when ESLint `settings.next.rootDir` is configured as a string or array.
+2. Goodz Menu's `eslint.config.mjs` does not define `settings.next.rootDir`; the plugin therefore uses `context.cwd` and does not invoke that glob-processing branch in the current configuration.
+3. `braces` is present only in the development toolchain; the production dependency audit has no HIGH/CRITICAL finding from this advisory.
+4. No dependency override, fork, fake version, advisory suppression, or broad toolchain replacement is authorized merely to make the scanner green.
+
+This is not a blanket waiver. The disposition is valid only while the reachability conditions above remain mechanically guarded and the production tree remains unaffected.
+
+### CORRECTION SCOPE
+
+Only the following corrective work is authorized:
+
+1. Add a focused machine-verifiable security guard, preferably `scripts/verify-eslint-braces-not-affected.mjs`, plus a package script such as `security:braces-disposition`.
+2. The guard MUST fail if any active flat ESLint config entry defines a non-null `settings.next.rootDir` value.
+3. The guard MUST prove that `braces` is absent from the production dependency tree; use deterministic package-manager output or equivalent local inspection.
+4. Record the exact dev dependency chain and the upstream call-path/reachability rationale in the Evidence Bundle.
+5. Preserve the raw full-audit result truthfully: if `pnpm audit` still reports the advisory, do not claim the raw scanner passed. Instead record the specific advisory as `RESOLVED_NOT_AFFECTED` only after the mechanical guard and reachability evidence pass.
+6. Rerun lint and prove the Next ESLint rules remain enabled and functional.
+7. Rerun the complete applicable HIGH_ASSURANCE L5 at the exact corrected final HEAD, including production audit, full audit capture, guard, unit, build, E2E, pgTAP, Auth/Data API, Docker/Supabase/Auth/Postgres, secret/client-bundle checks, DB checks, SonarCloud, Socket and CodeRabbit.
+8. Update the existing `.engineering/evidence/GMZ-IMPL-006-EVIDENCE.md`, Work Order closeout and proposed Checkpoint Delta. Do not promote credit.
+9. Commit/push only to `execution/gmz-impl-006-durable-audit`; keep PR #64 open/draft and unmerged.
+
+### Explicitly prohibited in CD-001
+
+- upgrading, downgrading, overriding or forking `braces`, `micromatch`, `fast-glob`, `@next/eslint-plugin-next`, Next.js or ESLint solely to bypass the advisory;
+- changing `pnpm-lock.yaml` unless a separately demonstrated correction blocker requires a new governed delta;
+- disabling Next ESLint rules;
+- changing `settings.next.rootDir` to manufacture a proof result;
+- suppressing/ignoring the advisory without evidence;
+- application/runtime/schema/business changes unrelated to this correction;
+- merge, force-push, history rewrite, remote Supabase or production deployment.
+
+### ACCEPTANCE CRITERIA — CD-001
+
+1. The raw advisory and exact dependency chain remain explicitly documented.
+2. Upstream advisory status is recorded as having no patched npm release at correction time.
+3. Production dependency tree contains no affected `braces` path.
+4. Active ESLint config contains no `settings.next.rootDir` value.
+5. A committed guard automatically fails if either condition 3 or 4 stops being true.
+6. Next ESLint recommended rules remain enabled; `pnpm lint` passes.
+7. No dependency version or lockfile mutation is introduced by CD-001.
+8. The finding is recorded as `RESOLVED_NOT_AFFECTED`, not deleted or falsely reported as a passing raw audit.
+9. Unresolved CRITICAL/HIGH after disposition: `0 / 0`.
+10. Complete exact-head HIGH_ASSURANCE L5 passes with the correction guard included.
+11. Evidence Bundle distinguishes scanner result, reachability disposition, proof and residual risk.
+12. PR #64 remains open/draft; no merge or production-credit promotion occurs.
+
+### STOP CONDITION — CD-001
+
+If every CD-001 criterion and the original GMZ-IMPL-006 criteria are objectively satisfied:
+
+`GMZ_IMPL_006_CD_001_READY_FOR_OBJECTIVE_AUDIT`
+
+If the guard/reachability proof fails, `braces` appears in production, the vulnerable `rootDir` path becomes active, or any other unresolved CRITICAL/HIGH remains:
+
+`BLOCKED`
