@@ -1,6 +1,6 @@
 # GMZ-IMPL-006 — Durable Audit Trail & Correlation Foundation
 
-Status: `ADMISSION_CANDIDATE`
+Status: `ADMITTED / EXECUTION AUTHORIZED`
 Issue: `#62`
 Assurance: `HIGH_ASSURANCE`
 Admission branch: `implementation/gmz-impl-006-durable-audit`
@@ -275,4 +275,22 @@ Admission:
 `GMZ_IMPL_006_ADMISSION_READY_FOR_REVIEW`
 
 Execution after governed admission promotion and exact bind:
+`GMZ_IMPL_006_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## EXECUTION-BASE BIND
+
+- admission PR: `#63`
+- admission disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
+- exact execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`
+- execution branch: `execution/gmz-impl-006-durable-audit`
+- Context Lock: `BOUND_FOR_EXECUTION`
+- stable source fingerprints: `16 / 16 MATCH`
+- executor/Codex authorization: `YES, GMZ-IMPL-006 ONLY`
+- merge authority: `NO`
+- production credit remains `44 / 515 = 8.54%`
+
+The executor must inspect the repository before mutation, revalidate current Supabase service-role/RLS/security-definer guidance, execute the complete Work Order, run the HIGH_ASSURANCE evidence suite, correct failures introduced by the increment, commit/push to this execution branch, update the same PR, and stop for separate objective audit.
+
+STOP CONDITION:
 `GMZ_IMPL_006_READY_FOR_OBJECTIVE_AUDIT`
