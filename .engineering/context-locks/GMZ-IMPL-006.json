@@ -1,0 +1,152 @@
+{
+  "schemaVersion": "1.1",
+  "kind": "goodz.implementation-context-lock",
+  "workOrderId": "GMZ-IMPL-006",
+  "issue": 62,
+  "repository": "KayzenRoot/goodz-menu",
+  "gefVersion": "1.1.1",
+  "assurance": "HIGH_ASSURANCE",
+  "admissionBaseRef": "main",
+  "admissionBaseSha": "312f0139913e1e4bbe3b15662610f35da39c4db0",
+  "workBranch": "implementation/gmz-impl-006-durable-audit",
+  "executionBaseSha": null,
+  "executionBaseState": "MUST_BIND_AFTER_ADMISSION_PROMOTION",
+  "sourcePack": "FROZEN_V0_1",
+  "productionDenominator": 515,
+  "productionEarnedAtAdmission": 44,
+  "maxSliceCredit": 8,
+  "creditAllocation": {
+    "GMZ-M23": 6,
+    "GMZ-M26": 2
+  },
+  "projectedEarnedIfAccepted": 52,
+  "lockedSources": [
+    {
+      "path": ".engineering/SOURCE-HIERARCHY.md",
+      "gitBlobSha": "189109435a264fe5a7306d6d10fc3ea62145dab2"
+    },
+    {
+      "path": ".engineering/MODULE-MAP.md",
+      "gitBlobSha": "c70a041da273787eb0d6f3ce43a6bc3a7260eeb0"
+    },
+    {
+      "path": "docs/source-pack/BACKLOG.md",
+      "gitBlobSha": "d985224edaec27c1906fd739f0f8e56406c028ad"
+    },
+    {
+      "path": "docs/source-pack/REQUIREMENTS.md",
+      "gitBlobSha": "2e179c00446980a481e56dd02fe71865a7237f59"
+    },
+    {
+      "path": "docs/source-pack/ARCHITECTURE.md",
+      "gitBlobSha": "a82ff873264a1ba77fa37e6914f321a48e0a75f5"
+    },
+    {
+      "path": "docs/source-pack/DATA-MODEL.md",
+      "gitBlobSha": "51d59b4d4b96dd5ccd246a55d34d9172d9b82eb0"
+    },
+    {
+      "path": "docs/source-pack/SECURITY.md",
+      "gitBlobSha": "24e98825a54313a47e46abc32661f4ebaa6894d7"
+    },
+    {
+      "path": "docs/source-pack/TEST-BENCHMARK-PLAN.md",
+      "gitBlobSha": "1531d1a9abd4d9470cac2d8d24847e4258c91e45"
+    },
+    {
+      "path": "docs/source-pack/DEFINITION-OF-DONE.md",
+      "gitBlobSha": "a3d1652a7dc9edfabafcb98151b9db8aed417888"
+    },
+    {
+      "path": "docs/source-pack/DEPLOYMENT.md",
+      "gitBlobSha": "b8f730179337a5c26ba34cdf9da43dab4b5e3b83"
+    },
+    {
+      "path": ".engineering/LOCAL-DOCKER-CONTRACT.md",
+      "gitBlobSha": "0379ca20ebc767d450c74e4d54058410745b948d"
+    },
+    {
+      "path": ".engineering/DATA-OWNERSHIP-MATRIX.md",
+      "gitBlobSha": "0deb322cfa871f93410810ab1fc82933aca05213"
+    },
+    {
+      "path": ".engineering/SECURITY-CONTROL-MATRIX.md",
+      "gitBlobSha": "e8888a50cb68230822f6c1352f63d33d19705df7"
+    },
+    {
+      "path": ".engineering/adrs/ADR-0003-AUDITABLE-LEDGERS-AND-RELIABLE-EVENTS.md",
+      "gitBlobSha": "49c5ffc91ce058277b30e78a5862d19c957925e9"
+    },
+    {
+      "path": ".engineering/TEST-COVERAGE-MATRIX.md",
+      "gitBlobSha": "5fcf44880b1b3725273505a2a7efd4e1e4c7aa9d"
+    },
+    {
+      "path": ".engineering/PROGRESS-LEDGER.md",
+      "gitBlobSha": "7eca33c191f1d8fccc37494ca8cf838e7f767237"
+    }
+  ],
+  "governanceSnapshot": {
+    "checkpointPath": ".engineering/CHECKPOINT.json",
+    "checkpointGitBlobSha": "8c9dce18ef7a33ef171bbe712731bdb1fede0b82",
+    "status": "GMZ_IMPL_005_PROMOTED_COMPLETE_READY_FOR_NEXT",
+    "note": "Mutable governance snapshot; excluded from stable lockedSources."
+  },
+  "implementationContract": {
+    "auditEventPersistence": "ADMITTED",
+    "appendOnlyImmutability": "ADMITTED",
+    "rlsFailClosed": "ADMITTED",
+    "directClientAuditMutation": "FORBIDDEN",
+    "trustedServerAuditWriter": "ADMITTED",
+    "serviceRoleAuditWriter": "CONDITIONALLY_ADMITTED_SERVER_ONLY_NARROW_PATH",
+    "serviceRoleTenantAuthorization": "FORBIDDEN",
+    "serviceRoleBusinessRead": "FORBIDDEN",
+    "adminGuardDurableAudit": "ADMITTED",
+    "auditFailureOnWouldBeAllow": "FAIL_CLOSED_REQUIRED",
+    "safeMetadataRedaction": "REQUIRED",
+    "correlationPropagation": "REQUIRED",
+    "auditViewerUi": "NOT_ADMITTED",
+    "errorIncidentCenter": "NOT_ADMITTED",
+    "selfHealing": "NOT_ADMITTED",
+    "platformAdmin": "NOT_ADMITTED",
+    "businessMutation": "NOT_ADMITTED",
+    "remoteSupabase": "FORBIDDEN",
+    "productionDeployment": "FORBIDDEN"
+  },
+  "stalePolicy": "If any of the 16 stable locked source blobs change incompatibly before executor mutation, mark GMZ-IMPL-006 STALE and stop for recompile/rebind.",
+  "invariants": [
+    "Audit persistence never grants authorization",
+    "Audit rows are append-only and immutable",
+    "Direct browser/end-user audit mutation is forbidden",
+    "RLS remains enabled",
+    "No unaudited Admin Guard allow",
+    "Service-role, if used, remains server-only and audit-writer-scoped",
+    "Service-role is never used for tenant authorization or tenant/business reads",
+    "Secrets/tokens/passwords/TOTP values never enter audit payloads or evidence",
+    "Correlation IDs are safe and deterministic",
+    "No business-domain mutation",
+    "CRITICAL/HIGH blocks progression",
+    "Executor does not merge"
+  ],
+  "executor": "GEF heavy executor / Codex",
+  "codexAllowed": false,
+  "codexAuthorizedScope": "BLOCKED until admission merge SHA is bound as executionBaseSha and execution branch descends from it.",
+  "codexProhibited": [
+    "main direct mutation",
+    "merge",
+    "force push",
+    "history rewrite",
+    "Platform Admin/Super Admin",
+    "support mode",
+    "owner transfer",
+    "business-domain mutation",
+    "audit viewer product UI",
+    "Error Center/self-healing",
+    "remote Supabase",
+    "production infrastructure",
+    "service-role use outside isolated audit writer",
+    "service-role tenant authorization/read",
+    "unrelated cleanup"
+  ],
+  "stopCondition": "GMZ_IMPL_006_ADMISSION_READY_FOR_REVIEW"
+}
