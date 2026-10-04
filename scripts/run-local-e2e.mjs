@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -18,6 +19,7 @@ if (typeof apiUrl !== "string" || !/^http:\/\/(127\.0\.0\.1|localhost|\[::1\])(?
 process.env.GOODZ_ENVIRONMENT = "local";
 process.env.SUPABASE_API_URL = apiUrl;
 process.env.SUPABASE_ANON_KEY = anonKey;
+process.env.GOODZ_E2E_TEST_SEAM_SECRET = randomBytes(32).toString("base64url");
 await run(process.execPath, [playwrightCli, "test", ...process.argv.slice(2)], { cwd: root });
 
 function run(command, args, options = {}) {

@@ -18,7 +18,11 @@ export async function runSyntheticPrivilegedProofAction(
   const decision = await runSyntheticPrivilegedProof(typeof resourceId === "string" ? resourceId : "");
   if (decision.allowed) return { kind: "allowed" };
   if (decision.reason === "factor_unverified") return { kind: "factor_setup_required" };
-  if (decision.reason === "aal2_required" || decision.reason === "step_up_required") {
+  if (
+    decision.reason === "aal2_required"
+    || decision.reason === "reauthentication_required"
+    || decision.reason === "step_up_required"
+  ) {
     return { kind: "step_up_required" };
   }
   return { kind: "denied" };

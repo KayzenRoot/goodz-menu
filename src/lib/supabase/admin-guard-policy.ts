@@ -8,6 +8,7 @@ export type AdminGuardReason =
   | "authorization_denied"
   | "aal2_required"
   | "factor_unverified"
+  | "reauthentication_required"
   | "step_up_required";
 
 export type VerifiedAuthClaims = {
@@ -24,6 +25,7 @@ export type AdminGuardDependencies = {
   readIdentity: () => Promise<{ id: string } | null>;
   readVerifiedClaims: () => Promise<VerifiedAuthClaims | null>;
   hasVerifiedTotpFactor: () => Promise<boolean | null>;
+  hasFreshReauthentication: (identityId: string) => Promise<boolean | null>;
   authorizeResource: (resourceId: string) => Promise<boolean | null>;
 };
 
@@ -122,6 +124,14 @@ export async function evaluateAdminGuard(
   if (!hasFreshTotpProof(claims.amr, nowSeconds)) {
     return { allowed: false, reason: "step_up_required" };
   }
+
+  let reauthenticated: boolean | null;
+  try {
+    reauthenticated = await dependencies.hasFreshReauthentication(identity.id);
+  } catch {
+    reauthenticated = null;
+  }
+  if (reauthenticated !== true) return { allowed: false, reason: "reauthentication_required" };
 
   return { allowed: true };
 }

@@ -56,7 +56,7 @@ export function TotpChallengeForm({ supabaseUrl, anonKey, factorId, onVerified, 
   }
 
   return (
-    <form className="mfa-code-form" onSubmit={handleSubmit} noValidate>
+    <form className="mfa-code-form" method="post" onSubmit={handleSubmit} noValidate>
       <div className="auth-field">
         <label htmlFor="totp-code">Código do aplicativo autenticador</label>
         <input

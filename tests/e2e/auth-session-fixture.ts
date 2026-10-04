@@ -141,9 +141,14 @@ DELETE FROM public.organizations WHERE id IN ('${ids.organization}', '${ids.seco
     const authorizedUser = await createUser(api, "authorized");
     users.push(authorizedUser);
     const noMembershipUser = await createUser(api, "no-membership", {
+      tenant_id: ids.organization,
       organization_id: ids.organization,
+      org_id: ids.organization,
       role: "owner",
       permissions: [permissionKey],
+      aal: "aal2",
+      privilege: "platform_admin",
+      is_admin: true,
     });
     users.push(noMembershipUser);
     const noPermissionUser = await createUser(api, "no-permission");

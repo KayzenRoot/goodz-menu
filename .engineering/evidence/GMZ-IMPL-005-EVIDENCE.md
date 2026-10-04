@@ -1,6 +1,6 @@
 # GMZ-IMPL-005 — Evidence Bundle
 
-Status: `READY_FOR_OBJECTIVE_AUDIT`
+Status: `GMZ_IMPL_005_CD_001_EXECUTION_IN_PROGRESS` (final closeout follows exact-head L5)
 
 ## Candidate identity and GEF 1.1.1 preflight
 
@@ -20,12 +20,12 @@ Status: `READY_FOR_OBJECTIVE_AUDIT`
 - Added local TOTP enrollment and challenge/verification flows with QR/secret material held only in transient UI state. Generic challenge errors avoid exposing provider details.
 - Added server-only Admin Guard checks for server-verified Auth identity, claim/identity match, verified TOTP factor, current caller-scoped canonical branch authorization through the Data API/RLS, AAL2, and a bounded 300-second server-derived freshness window. Client metadata, caller-provided tenant/role/AAL/timestamps and service-role credentials do not grant authority.
 - Added a synthetic protected proof action without business mutation and audit-safe allow/deny events containing only event/action/required permission/outcome/reason/correlation identifier.
-- Added accessible MFA/security/step-up screens and deterministic guard unit/E2E coverage, including AAL1 deny, AAL2 positive control, stale step-up, no permission/membership, suspended/revoked membership, invalid challenge, factor removal, user-metadata spoofing and logout/session regression.
+- Added accessible MFA/security/step-up screens and deterministic guard unit/E2E coverage, including AAL1 deny, AAL2 positive control, stale step-up, no permission/membership, suspended/revoked membership, invalid challenge, factor removal and logout/session regression. The actual metadata-spoof proof and stale `>300s` browser proof are added and validated under CD-001 below; earlier candidate evidence did not prove those two cases.
 - No schema, migration, seed, RLS/policy, dependency, remote Supabase, production deployment, `.gef`, or business-domain changes.
 
 ## Verification record
 
-The complete local HIGH_ASSURANCE L5 ran on candidate commit `47319cc231c02c96ea3d0012afa860cbcbfc721f`, tree `6322e52df691972130c869de0f8b2424a04f0206`. This bundle is being updated to record those exact results. The final pushed SHA and fresh remote SonarCloud/Socket/PR checks will be published in the description of PR `#59`; no earlier-SHA result will be represented as a fresh result for the pushed head.
+The complete local HIGH_ASSURANCE L5 recorded below for `47319cc231c02c96ea3d0012afa860cbcbfc721f` / tree `6322e52df691972130c869de0f8b2424a04f0206` is historical and does not satisfy CD-001. The authoritative CD-001 exact-head record will be added after all corrections are committed, pushed and revalidated; no earlier-SHA result is carried forward as a result for the final pushed head.
 
 Earlier implementation validation at `6bc3aec1246e353250e9f90a2ce3791032c48e74` passed the following before the exact-head closeout rerun:
 
@@ -96,10 +96,25 @@ Five informational `rls_enabled_no_policy` advisor entries refer to `membership_
 - Platform/Super Admin, support mode, owner transfer, membership/role management, business-domain mutation, remote Supabase and production deployment remain out of scope.
 - Existing GMZ-IMPL-003 and GMZ-IMPL-004 authorization/session behavior is preserved and included in the complete regression suite.
 
-## Checkpoint and stop
+## Historical checkpoint and stop — superseded by CD-001
 
-- Checkpoint: `GMZ_IMPL_005_READY_FOR_OBJECTIVE_AUDIT`.
-- Next action: separate objective audit of PR `#59` and its exact final published head.
+- Historical checkpoint: `GMZ_IMPL_005_READY_FOR_OBJECTIVE_AUDIT` (superseded by CD-001).
+- Historical next action: separate objective audit of PR `#59` and its exact final published head (superseded pending CD-001 closeout).
 - No merge, promotion or additional production credit is claimed.
 
-STOP CONDITION: `GMZ_IMPL_005_READY_FOR_OBJECTIVE_AUDIT`.
+HISTORICAL STOP CONDITION (superseded by CD-001): `GMZ_IMPL_005_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-005-CD-001 — reauthentication and proof corrections
+
+Status: `IN PROGRESS — exact pushed HEAD L5 and external gates pending`.
+
+- Objective-review target: PR `#59`, audited head `777aba66789db0bb01603960e497c61ed245fde0`; authorized branch and execution base remain unchanged.
+- Current official Supabase TOTP/MFA/Auth/changelog guidance was revalidated against pinned `@supabase/supabase-js 2.117.2` and `@supabase/ssr 0.12.7`. The provider documentation says an AAL1 session can enroll TOTP and then verify it to reach AAL2, which confirms the reviewed threat. The app now requires a fresh server-side Auth password grant with matching response/session/user IDs and provider-verified claims containing a fresh password AMR before it calls the enrollment API. The independent proof is held in a short-lived HttpOnly, SameSite-strict cookie; Admin Guard verifies that Auth-signed proof against the current identity on every protected decision. No service-role credential is used. References: [Supabase TOTP flow](https://supabase.com/docs/guides/auth/auth-mfa/totp), [password grant](https://supabase.com/docs/reference/javascript/auth-signinwithpassword), [Auth reauthentication API](https://supabase.com/docs/reference/javascript/auth-reauthenticate), and [Auth changelog](https://supabase.com/changelog?tags=auth).
+- Added deterministic policy tests for matching response/session identity, mismatched subject, stale/missing/non-password proof and fail-closed claim validation. E2E invalid password reauthentication shows a generic error and returns no QR/secret.
+- Added a random per-run HMAC test clock accepted only for loopback local non-production requests; unsigned/malformed signatures fail closed and production ignores test-clock input. Full E2E now proves fresh TOTP allow, `>300s` stale denial with step-up, and allow after a fresh password grant plus new valid TOTP.
+- Added a real local Auth user whose profile contains false tenant, owner/role/permission, `aal2`, platform privilege and admin metadata. The test reads the Auth profile and proves Admin Guard still denies because the user has no canonical membership.
+- Preliminary worktree sweep before the final identity-mismatch cleanup and explicit canceled-enrollment Auth-profile assertion: frozen install/strict peers, lint, typecheck, unit `46/46` (11 files), production build, E2E desktop/mobile `24/24`, Axe `22` scans / `0` violations, local database reset, pgTAP `125/125`, Auth/Data API `50/50`, migrations, DB lint, security advisors, production dependency audit, secret-pattern scan, Docker config/build/up/health/readiness, local Supabase/Auth/Postgres and runtime log scan all passed. This preliminary sweep is superseded and is not the final exact-head record. The complete L5 is rerun on the final published candidate and recorded in the table below.
+- Production credit remains `38 / 515 = 7.38%`; no implementation credit, objective approval, promotion or merge is claimed.
+
+STOP CONDITION: `GMZ_IMPL_005_CD_001_READY_FOR_OBJECTIVE_AUDIT`.

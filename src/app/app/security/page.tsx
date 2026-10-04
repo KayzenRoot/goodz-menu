@@ -16,7 +16,7 @@ export default async function SecurityPage() {
   const { data, error } = await auth.client.auth.mfa.listFactors();
   const factors: TotpFactorSummary[] = error || !data
     ? []
-    : data.totp.map(({ id, status, friendly_name }) => ({
+    : data.all.filter(({ factor_type }) => factor_type === "totp").map(({ id, status, friendly_name }) => ({
         id,
         status,
         friendlyName: friendly_name ?? null,

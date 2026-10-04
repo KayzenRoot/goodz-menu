@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
+import { reauthenticateForPrivilegedAction, type ReauthenticationActionState } from "@/app/app/security/actions";
 import { runSyntheticPrivilegedProofAction, type AdminGuardActionState } from "@/app/app/admin-guard/actions";
 import { TotpChallengeForm } from "@/components/goodz/totp-challenge-form";
 
@@ -21,6 +22,7 @@ export function AdminGuardPanel({
   anonKey: string;
 }>) {
   const [state, formAction, pending] = useActionState<AdminGuardActionState, FormData>(runSyntheticPrivilegedProofAction, null);
+  const [reauthentication, reauthenticationAction, reauthenticationPending] = useActionState<ReauthenticationActionState, FormData>(reauthenticateForPrivilegedAction, null);
   const targetIsVisible = branches.some(({ id }) => id === initialBranchId);
 
   return (
@@ -57,13 +59,30 @@ export function AdminGuardPanel({
         <div className="mfa-step-up" aria-live="polite">
           <p className="mfa-status" role="status">Verificação adicional necessária para continuar.</p>
           {verifiedFactorIds.length > 0 ? (
-            <TotpChallengeForm
-              supabaseUrl={supabaseUrl}
-              anonKey={anonKey}
-              factorId={verifiedFactorIds[0]}
-              buttonLabel="Confirmar etapa adicional"
-              onVerified={() => window.location.reload()}
-            />
+            <>
+              <form className="auth-form" action={reauthenticationAction}>
+                <div className="auth-field">
+                  <label htmlFor="guard-reauth-password">Senha para reautenticar</label>
+                  <input id="guard-reauth-password" name="reauth-password" type="password" autoComplete="current-password" required />
+                </div>
+                <button className="auth-submit" type="submit" disabled={reauthenticationPending}>
+                  {reauthenticationPending ? "Confirmando identidade…" : "Confirmar identidade"}
+                </button>
+              </form>
+              {reauthentication?.kind === "reauthenticated" ? (
+                <p className="mfa-status reauth-status" role="status">Identidade confirmada. Conclua a verificação em duas etapas.</p>
+              ) : null}
+              {reauthentication?.kind === "denied" ? (
+                <p className="auth-error" role="alert">Não foi possível confirmar a identidade. Tente novamente.</p>
+              ) : null}
+              <TotpChallengeForm
+                supabaseUrl={supabaseUrl}
+                anonKey={anonKey}
+                factorId={verifiedFactorIds[0]}
+                buttonLabel="Confirmar etapa adicional"
+                onVerified={() => window.location.reload()}
+              />
+            </>
           ) : (
             <Link className="auth-entry-link" href="/app/security">Configurar aplicativo autenticador</Link>
           )}

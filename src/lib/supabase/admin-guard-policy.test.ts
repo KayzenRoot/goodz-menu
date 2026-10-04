@@ -20,6 +20,7 @@ function dependencies(overrides: Partial<AdminGuardDependencies> = {}): AdminGua
     readIdentity: vi.fn().mockResolvedValue(identity),
     readVerifiedClaims: vi.fn().mockResolvedValue(freshClaims),
     hasVerifiedTotpFactor: vi.fn().mockResolvedValue(true),
+    hasFreshReauthentication: vi.fn().mockResolvedValue(true),
     authorizeResource: vi.fn().mockResolvedValue(true),
     ...overrides,
   };
@@ -49,6 +50,11 @@ describe("Goodz Admin Guard policy", () => {
     await expect(evaluateAdminGuard(dependencies({ hasVerifiedTotpFactor: vi.fn().mockResolvedValue(null) }), organizationId, 1_700_000_120)).resolves.toEqual({ allowed: false, reason: "factor_unverified" });
   });
 
+  it("denies AAL2 and a verified factor without a recent independent Auth reauthentication", async () => {
+    await expect(evaluateAdminGuard(dependencies({ hasFreshReauthentication: vi.fn().mockResolvedValue(false) }), organizationId, 1_700_000_120)).resolves.toEqual({ allowed: false, reason: "reauthentication_required" });
+    await expect(evaluateAdminGuard(dependencies({ hasFreshReauthentication: vi.fn().mockResolvedValue(null) }), organizationId, 1_700_000_120)).resolves.toEqual({ allowed: false, reason: "reauthentication_required" });
+  });
+
   it("requires a recent TOTP AMR timestamp that is the latest authentication method", () => {
     expect(hasFreshTotpProof([{ method: "password", timestamp: 100 }, { method: "totp", timestamp: 200 }], 200)).toBe(true);
     expect(hasFreshTotpProof([{ method: "password", timestamp: 100 }, { method: "totp", timestamp: 200 }], 200 + PRIVILEGED_FRESHNESS_WINDOW_SECONDS)).toBe(true);
@@ -62,6 +68,10 @@ describe("Goodz Admin Guard policy", () => {
   it("returns step-up denial for a stale TOTP proof", async () => {
     const claims = { ...freshClaims, amr: [{ method: "password", timestamp: 1_700_000_000 }, { method: "totp", timestamp: 1_700_000_100 }] };
     await expect(evaluateAdminGuard(dependencies({ readVerifiedClaims: vi.fn().mockResolvedValue(claims) }), organizationId, 1_700_000_100 + PRIVILEGED_FRESHNESS_WINDOW_SECONDS + 1)).resolves.toEqual({ allowed: false, reason: "step_up_required" });
+    await expect(evaluateAdminGuard(dependencies({
+      readVerifiedClaims: vi.fn().mockResolvedValue(claims),
+      hasFreshReauthentication: vi.fn().mockResolvedValue(false),
+    }), organizationId, 1_700_000_100 + PRIVILEGED_FRESHNESS_WINDOW_SECONDS + 1)).resolves.toEqual({ allowed: false, reason: "step_up_required" });
   });
 
   it("emits only bounded audit fields and never accepts credential material as audit input", () => {

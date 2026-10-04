@@ -1,8 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
-import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
+import {
+  beginTotpEnrollmentAction,
+  removeUnverifiedTotpAction,
+  type TotpEnrollmentActionState,
+  type TotpRemovalActionState,
+} from "@/app/app/security/actions";
 import { TotpChallengeForm } from "@/components/goodz/totp-challenge-form";
 
 const genericMfaError = "Não foi possível configurar a verificação. Tente novamente.";
@@ -16,49 +21,31 @@ export function MfaSecurityPanel({
   anonKey,
   factors,
 }: Readonly<{ supabaseUrl: string; anonKey: string; factors: TotpFactorSummary[] }>) {
-  const supabase = useMemo(() => createBrowserSupabaseClient(supabaseUrl, anonKey), [supabaseUrl, anonKey]);
-  const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
-  const [pending, setPending] = useState(false);
+  const [enrollmentResult, enrollmentAction, enrollmentPending] = useActionState<TotpEnrollmentActionState, FormData>(
+    beginTotpEnrollmentAction,
+    null,
+  );
+  const [removalResult, removalAction, removalPending] = useActionState<TotpRemovalActionState, FormData>(
+    removeUnverifiedTotpAction,
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
+  const enrollment: Enrollment | null = enrollmentResult?.ok
+    ? { factorId: enrollmentResult.factorId, qrCode: enrollmentResult.qrCode, secret: enrollmentResult.secret }
+    : null;
+  const pending = enrollmentPending || removalPending;
   const verifiedFactor = factors.find(({ status }) => status === "verified");
   const unverifiedFactor = factors.find(({ status }) => status === "unverified");
 
-  async function beginEnrollment() {
-    if (pending) return;
-    setPending(true);
-    setError(null);
-    try {
-      const result = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: "Goodz Menu" });
-      if (result.error || !result.data?.totp?.qr_code || !result.data.totp.secret) {
-        setError(genericMfaError);
-        setPending(false);
-        return;
-      }
-      setEnrollment({ factorId: result.data.id, qrCode: result.data.totp.qr_code, secret: result.data.totp.secret });
-      setPending(false);
-    } catch {
-      setError(genericMfaError);
-      setPending(false);
-    }
-  }
+  useEffect(() => {
+    if (enrollmentResult && !enrollmentResult.ok) setError(genericMfaError);
+    else if (enrollmentResult?.ok) setError(null);
+  }, [enrollmentResult]);
 
-  async function removeUnverifiedFactor(factorId = unverifiedFactor?.id) {
-    if (!factorId || pending) return;
-    setPending(true);
-    setError(null);
-    try {
-      const result = await supabase.auth.mfa.unenroll({ factorId });
-      if (result.error) {
-        setError(genericMfaError);
-        setPending(false);
-        return;
-      }
-      window.location.reload();
-    } catch {
-      setError(genericMfaError);
-      setPending(false);
-    }
-  }
+  useEffect(() => {
+    if (removalResult?.ok) window.location.reload();
+    else if (removalResult && !removalResult.ok) setError(genericMfaError);
+  }, [removalResult]);
 
   if (verifiedFactor && !enrollment) {
     return (
@@ -85,7 +72,7 @@ export function MfaSecurityPanel({
       <div className="mfa-panel-heading">
         <span className="auth-eyebrow">SEGURANÇA DA CONTA</span>
         <h1 id="mfa-panel-title">Configure o aplicativo autenticador</h1>
-        <p>O código temporário protege ações sensíveis. A configuração fica apenas nesta sessão do navegador até a confirmação.</p>
+        <p>Antes de criar ou remover um fator, confirme sua identidade com a senha da conta. A configuração TOTP fica apenas nesta sessão até a confirmação.</p>
       </div>
 
       {enrollment ? (
@@ -104,25 +91,45 @@ export function MfaSecurityPanel({
             factorId={enrollment.factorId}
             buttonLabel="Confirmar configuração"
             onVerified={() => {
-              setEnrollment(null);
               window.location.assign("/app/admin-guard");
             }}
           />
-          <button className="auth-text-button" type="button" onClick={() => removeUnverifiedFactor(enrollment.factorId)} disabled={pending}>Descartar configuração pendente</button>
+          <form className="auth-form" action={removalAction}>
+            <input type="hidden" name="factor-id" value={enrollment.factorId} />
+            <div className="auth-field">
+              <label htmlFor="discard-reauth-password">Senha para descartar a configuração</label>
+              <input id="discard-reauth-password" name="reauth-password" type="password" autoComplete="current-password" required />
+            </div>
+            <button className="auth-text-button" type="submit" disabled={pending}>Descartar configuração pendente</button>
+          </form>
         </div>
       ) : (
         <div className="mfa-actions">
           {unverifiedFactor ? (
             <>
               <p className="mfa-pending-note">Há uma configuração não confirmada. Remova-a antes de iniciar outra.</p>
-              <button className="auth-submit" type="button" onClick={() => removeUnverifiedFactor()} disabled={pending}>
-                {pending ? "Removendo configuração…" : "Remover configuração pendente"}
-              </button>
+              <form className="auth-form" action={removalAction}>
+                <input type="hidden" name="factor-id" value={unverifiedFactor.id} />
+                <div className="auth-field">
+                  <label htmlFor="remove-reauth-password">Senha para reautenticar</label>
+                  <input id="remove-reauth-password" name="reauth-password" type="password" autoComplete="current-password" required />
+                </div>
+                <button className="auth-submit" type="submit" disabled={pending}>
+                  {pending ? "Removendo configuração…" : "Confirmar identidade e remover"}
+                </button>
+              </form>
             </>
-          ) : null}
-          {!unverifiedFactor ? <button className="auth-submit" type="button" onClick={beginEnrollment} disabled={pending}>
-            {pending ? "Preparando configuração…" : "Configurar aplicativo autenticador"}
-          </button> : null}
+          ) : (
+            <form className="auth-form" action={enrollmentAction}>
+              <div className="auth-field">
+                <label htmlFor="enroll-reauth-password">Senha para reautenticar</label>
+                <input id="enroll-reauth-password" name="reauth-password" type="password" autoComplete="current-password" required />
+              </div>
+              <button className="auth-submit" type="submit" disabled={pending}>
+                {pending ? "Confirmando identidade…" : "Confirmar identidade e configurar"}
+              </button>
+            </form>
+          )}
         </div>
       )}
 
