@@ -4,6 +4,7 @@ import { LogoutButton } from "@/components/goodz/logout-button";
 import { getCurrentAuthContext } from "@/lib/supabase/auth-session";
 import { loadVisibleTenantEntry, type TenantEntryResult } from "@/lib/supabase/tenant-entry";
 import { readSupabaseAuthConfig } from "@/lib/env/runtime-env";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,11 @@ export default async function TenantEntryPage() {
             <h1>Seu Goodz Menu</h1>
             <p>Os espaços exibidos seguem suas permissões atuais.</p>
           </div>
-          <LogoutButton supabaseUrl={config.config.supabaseApiUrl.toString()} anonKey={config.config.anonKey} />
+          <div className="tenant-security-actions">
+            <Link className="auth-entry-link" href="/app/security">Segurança</Link>
+            <Link className="auth-entry-link" href="/app/admin-guard">Ação protegida</Link>
+            <LogoutButton supabaseUrl={config.config.supabaseApiUrl.toString()} anonKey={config.config.anonKey} />
+          </div>
         </header>
 
         <TenantEntryContent result={result} />

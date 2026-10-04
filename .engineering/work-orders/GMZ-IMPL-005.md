@@ -1,6 +1,6 @@
 # GMZ-IMPL-005 — MFA, Reauthentication & Admin Guard Foundation
 
-Status: `ADMISSION_CANDIDATE`
+Status: `ADMITTED / EXECUTION AUTHORIZED`
 Issue: `#57`
 Assurance: `HIGH_ASSURANCE`
 Admission branch: `implementation/gmz-impl-005-mfa-admin-guard`
@@ -248,4 +248,61 @@ Admission:
 `GMZ_IMPL_005_ADMISSION_READY_FOR_REVIEW`
 
 Execution after governed admission promotion and exact bind:
+`GMZ_IMPL_005_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## EXECUTION-BASE BIND
+
+- admission PR: `#58`
+- admission disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
+- exact execution base: `036d26b92d32ccb6ef69e46721e48b339d1b7332`
+- execution branch: `execution/gmz-impl-005-mfa-admin-guard`
+- Context Lock: `BOUND_FOR_EXECUTION`
+- stable source fingerprints: `16 / 16 MATCH`
+- executor/Codex authorization: `YES, GMZ-IMPL-005 ONLY`
+- merge authority: `NO`
+- production credit remains `38 / 515 = 7.38%`
+
+The executor must inspect the repository before mutation, revalidate current Supabase MFA/AAL guidance, execute the complete Work Order, run the HIGH_ASSURANCE evidence suite, correct failures introduced by the increment, commit/push to this execution branch, update the same PR, and stop for separate objective audit.
+
+STOP CONDITION:
+`GMZ_IMPL_005_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-005-CD-001 — objective-review corrections
+
+Status: `COMPLETE — READY_FOR_OBJECTIVE_AUDIT`; current correction stop condition is recorded below.
+
+- Review target: PR `#59`, objective-review head `777aba66789db0bb01603960e497c61ed245fde0`; corrected and validated implementation candidate `c83cb90048cb788cd8cddc98dcfc8cca23d59335` / tree `a269e8b5052a52b876be08cde98195e0e6d42be7`.
+- Scope is limited to independent Auth-verified reauthentication before the admitted app's TOTP enrollment flow, server-trusted stale-freshness E2E proof, truthful user-metadata spoofing E2E proof, and matching governance/evidence updates.
+- Revalidated current official Supabase Auth/TOTP/changelog guidance for pinned `@supabase/supabase-js 2.117.2` and `@supabase/ssr 0.12.7`. Supabase documents that AAL1 can enroll and then verify TOTP; its `auth.reauthenticate()` endpoint sends an email/phone OTP, while this admitted account uses password proof. Therefore the server action obtains a fresh provider-verified password grant, validates the signed claims and exact user/session identity, then uses that same ephemeral Auth client for TOTP enrollment or unverified-factor cleanup. Provider errors and identity mismatch clear or never create the HttpOnly proof; expiration is rejected by the guard; abandoning the form before submission creates neither proof nor factor. The Admin Guard independently verifies the short-lived provider-signed password proof against the current identity before allowing the synthetic privileged action, so a stolen AAL1 session alone cannot both complete the app's factor-creation flow and pass the guard. No service-role credential is used. References: Supabase [TOTP flow](https://supabase.com/docs/guides/auth/auth-mfa/totp), [password grant](https://supabase.com/docs/reference/javascript/auth-signinwithpassword), and [reauthenticate](https://supabase.com/docs/reference/javascript/auth-reauthenticate).
+- The guard continues to require AAL2, a verified TOTP factor, a latest TOTP AMR timestamp within 300 seconds, and current canonical RLS authorization. Auth failures, identity/claim mismatch, stale or missing proof, and invalid test-clock signatures deny.
+- Added a deterministic local E2E clock seam authenticated by a random per-run HMAC secret. It accepts only signed timestamps on loopback, non-production local E2E; production ignores the seam. The browser test proves fresh TOTP allow, server-observed age greater than 300 seconds deny with `step_up_required`, and allow again after fresh TOTP plus server-verified password step-up.
+- The no-membership fixture now carries false tenant/role/permission/AAL/platform metadata. The local Auth/Data API profile is read back to prove those values exist; the Admin Guard still denies. The browser test also types a valid password and abandons the server action before submit, then proves the AAL1 guard still denies and no proof cookie/factor was created. The evidence coverage claim now refers to these actual regressions.
+- No Platform/Super Admin, support mode, owner transfer, business-domain mutation, remote Supabase, production deployment, schema/migration/RLS/policy/dependency, or `.gef` change is authorized or included. Production credit remains `38 / 515 = 7.38%`.
+- Complete exact-head HIGH_ASSURANCE L5 at `c83cb90048cb788cd8cddc98dcfc8cca23d59335` / tree `a269e8b5052a52b876be08cde98195e0e6d42be7` passed: frozen strict-peer install, lint, typecheck, unit `46/46`, production build, desktop/mobile E2E `24/24`, Axe `22` scans / `0` violations, Supabase reset, pgTAP `125/125`, Auth/Data API `50/50`, migration status, DB lint/advisors, dependency audit, secret-pattern scan, Docker config/build/up/health, web health/readiness, local Supabase/Auth/Postgres, runtime-log scan, and `.gef` integrity. Exact command/result evidence is in `.engineering/evidence/GMZ-IMPL-005-EVIDENCE.md`.
+- SonarCloud, Socket Pull Request Alerts, Socket Project Report and hosted CodeRabbit checks all reported `SUCCESS` on exact commit `c83cb90048cb788cd8cddc98dcfc8cca23d59335`. The final full-diff local CodeRabbit review returned `0 issues`; the earlier unrelated PR `#49` MAJOR request was rejected against this Work Order's bound Context Lock, with no unresolved CRITICAL/HIGH issue.
+- PR `#59` remains OPEN/DRAFT against `main`; no merge, promotion, or additional production credit is claimed. Credit remains `38 / 515 = 7.38%`.
+
+STOP CONDITION:
+`GMZ_IMPL_005_CD_001_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## HISTORICAL EXECUTOR CLOSEOUT — GMZ-IMPL-005 original candidate, superseded by CD-001
+
+- Executor result: `READY_FOR_OBJECTIVE_AUDIT`; canonical stop condition remains `GMZ_IMPL_005_READY_FOR_OBJECTIVE_AUDIT`.
+- Authorized branch: `execution/gmz-impl-005-mfa-admin-guard`; PR `#59` remains open/draft against `main`; merge authority: `NO`.
+- Exact execution base: `036d26b92d32ccb6ef69e46721e48b339d1b7332`; initial bind Context Lock `BOUND_FOR_EXECUTION`; stable source fingerprints `16/16 MATCH`; `.gef` unchanged.
+- Implementation commit: `6bc3aec1246e353250e9f90a2ce3791032c48e74`.
+- Added local Supabase TOTP enrollment, challenge/verification, AAL2 step-up, a deny-by-default server-side Goodz Admin Guard, bounded 300-second privileged freshness, synthetic non-business proof action, accessible security UI and focused tests. Supabase Auth identity and current canonical Data API/RLS checks remain the authorities; caller-provided tenant/AAL/freshness/metadata are not trusted.
+- Local CodeRabbit review of the current implementation and checkpoint at `6bc3aec`: `SUCCESS`, `0 findings`.
+- Full-diff CodeRabbit review at candidate `47319cc` returned two `MAJOR` documentation findings: one stale request tied to GMZ-IMPL-003/PR `#49`, rejected against the active GMZ-IMPL-005 binding and checkpoint; the second identified a missing complete L5 entry in the Evidence Bundle, corrected in this closeout. No runtime/security defect was identified. The local review is repeated after this evidence correction.
+- Fresh full-diff CodeRabbit review after the evidence correction: `SUCCESS`, `0 findings`.
+- Exact-branch CodeRabbit review at `c08122d`: two governance/documentation suggestions, both rejected as stale/non-actionable. The MAJOR request concerns GMZ-IMPL-003 PR `#49`, not this bound/authorized Work Order; the MINOR request conflicts with the required and user-specified stop token `GMZ_IMPL_005_READY_FOR_OBJECTIVE_AUDIT`. No runtime/security defect was reported.
+- Complete local exact-head HIGH_ASSURANCE L5 at `47319cc231c02c96ea3d0012afa860cbcbfc721f` / tree `6322e52df691972130c869de0f8b2424a04f0206`: frozen strict-peer install, lint, typecheck, unit `40/40`, build, desktop/mobile E2E `24/24`, Axe `22` scans with `0` violations, Supabase reset, pgTAP `125/125`, Auth/Data API `50/50`, migration list, DB lint, security advisors, dependency audit, secret scan, Docker config/build/up/health/readiness, local Supabase/Auth/Postgres and runtime-log scan all passed. The five informational no-policy RLS advisor results remain unchanged.
+- Complete exact-head HIGH_ASSURANCE L5 is rerun after the documentation/evidence closeout. The exact published candidate SHA and its fresh command results are recorded in the description of PR `#59`; do not carry forward results from another SHA.
+- No Platform/Super Admin, support mode, ownership transfer, business-domain mutation, remote Supabase, production deployment, schema/migration/RLS/policy/dependency change, or `.gef` edit was made. Production credit remains `38 / 515 = 7.38%`; no incremental credit is claimed.
+- Evidence Bundle: `.engineering/evidence/GMZ-IMPL-005-EVIDENCE.md`.
+
+STOP CONDITION:
 `GMZ_IMPL_005_READY_FOR_OBJECTIVE_AUDIT`

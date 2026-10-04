@@ -18,7 +18,7 @@ export default defineConfig({
     { name: "mobile-chromium", use: { ...devices["iPhone 13"], browserName: "chromium", viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
   ],
   webServer: {
-    command: "node scripts/start.mjs --hostname 127.0.0.1 --port 3100",
+    command: "node scripts/start-e2e-server.mjs --hostname 127.0.0.1 --port 3100",
     url: "http://127.0.0.1:3100/api/health",
     reuseExistingServer: false,
     timeout: 120_000,

@@ -11,11 +11,22 @@ export type AuthSessionFixture = {
   anonKey: string;
   authorizedUser: SyntheticUser;
   noMembershipUser: SyntheticUser;
+  noPermissionUser: SyntheticUser;
   suspendedUser: SyntheticUser;
+  organizationId: string;
+  branchId: string;
+  siblingBranchId: string;
   organizationName: string;
   secondaryOrganizationName: string;
   foreignOrganizationName: string;
   suspendMembership(): Promise<void>;
+  restoreMembership(): Promise<void>;
+  suspendAuthorizedMembership(): Promise<void>;
+  revokeMembership(): Promise<void>;
+  removeHierarchyPermission(): Promise<void>;
+  restoreHierarchyPermission(): Promise<void>;
+  scopeAuthorizedRoleToBranch(): Promise<void>;
+  restoreAuthorizedOrganizationScope(): Promise<void>;
   cleanup(): Promise<void>;
 };
 
@@ -98,14 +109,18 @@ export async function createAuthSessionFixture(): Promise<AuthSessionFixture> {
     foreignOrganization: randomUUID(),
     establishment: randomUUID(),
     branch: randomUUID(),
+    siblingBranch: randomUUID(),
     role: randomUUID(),
     secondaryRole: randomUUID(),
     authorizedMembership: randomUUID(),
     secondaryMembership: randomUUID(),
     suspendedMembership: randomUUID(),
+    noPermissionMembership: randomUUID(),
     authorizedAssignment: randomUUID(),
     secondaryAssignment: randomUUID(),
     suspendedAssignment: randomUUID(),
+    noPermissionAssignment: randomUUID(),
+    noPermissionRole: randomUUID(),
   };
   const organizationName = `GMZ-IMPL-004 tenant ${randomUUID()}`;
   const secondaryOrganizationName = `GMZ-IMPL-004 second tenant ${randomUUID()}`;
@@ -126,11 +141,18 @@ DELETE FROM public.organizations WHERE id IN ('${ids.organization}', '${ids.seco
     const authorizedUser = await createUser(api, "authorized");
     users.push(authorizedUser);
     const noMembershipUser = await createUser(api, "no-membership", {
+      tenant_id: ids.organization,
       organization_id: ids.organization,
+      org_id: ids.organization,
       role: "owner",
       permissions: [permissionKey],
+      aal: "aal2",
+      privilege: "platform_admin",
+      is_admin: true,
     });
     users.push(noMembershipUser);
+    const noPermissionUser = await createUser(api, "no-permission");
+    users.push(noPermissionUser);
     const suspendedUser = await createUser(api, "suspended");
     users.push(suspendedUser);
 
@@ -139,9 +161,11 @@ DELETE FROM public.organizations WHERE id IN ('${ids.organization}', '${ids.seco
 INSERT INTO public.establishments (id, organization_id, display_name) VALUES
   ('${ids.establishment}', '${ids.organization}', 'GMZ-IMPL-004 test establishment');
 INSERT INTO public.branches (id, organization_id, establishment_id, display_name) VALUES
-  ('${ids.branch}', '${ids.organization}', '${ids.establishment}', 'GMZ-IMPL-004 test branch');
+  ('${ids.branch}', '${ids.organization}', '${ids.establishment}', 'GMZ-IMPL-004 test branch'),
+  ('${ids.siblingBranch}', '${ids.organization}', '${ids.establishment}', 'GMZ-IMPL-004 sibling branch');
 INSERT INTO public.tenant_roles (id, organization_id, role_key, display_name) VALUES
   ('${ids.role}', '${ids.organization}', 'gmz004-e2e-reader', 'GMZ-IMPL-004 E2E reader'),
+  ('${ids.noPermissionRole}', '${ids.organization}', 'gmz004-e2e-empty', 'GMZ-IMPL-004 E2E role without access'),
   ('${ids.secondaryRole}', '${ids.secondaryOrganization}', 'gmz004-e2e-reader', 'GMZ-IMPL-004 second E2E reader');
 INSERT INTO public.role_permissions (organization_id, role_id, permission_key) VALUES
   ('${ids.organization}', '${ids.role}', '${permissionKey}'),
@@ -149,23 +173,50 @@ INSERT INTO public.role_permissions (organization_id, role_id, permission_key) V
 INSERT INTO public.organization_memberships (id, organization_id, user_id, status) VALUES
   ('${ids.authorizedMembership}', '${ids.organization}', '${authorizedUser.id}', 'active'),
   ('${ids.secondaryMembership}', '${ids.secondaryOrganization}', '${authorizedUser.id}', 'active'),
-  ('${ids.suspendedMembership}', '${ids.organization}', '${suspendedUser.id}', 'active');
+  ('${ids.suspendedMembership}', '${ids.organization}', '${suspendedUser.id}', 'active'),
+  ('${ids.noPermissionMembership}', '${ids.organization}', '${noPermissionUser.id}', 'active');
 INSERT INTO public.membership_roles (id, organization_id, membership_id, role_id, scope_type) VALUES
   ('${ids.authorizedAssignment}', '${ids.organization}', '${ids.authorizedMembership}', '${ids.role}', 'organization'),
   ('${ids.secondaryAssignment}', '${ids.secondaryOrganization}', '${ids.secondaryMembership}', '${ids.secondaryRole}', 'organization'),
-  ('${ids.suspendedAssignment}', '${ids.organization}', '${ids.suspendedMembership}', '${ids.role}', 'organization');`);
+  ('${ids.suspendedAssignment}', '${ids.organization}', '${ids.suspendedMembership}', '${ids.role}', 'organization'),
+  ('${ids.noPermissionAssignment}', '${ids.organization}', '${ids.noPermissionMembership}', '${ids.noPermissionRole}', 'organization');`);
 
     return {
       apiUrl: api.apiUrl,
       anonKey: api.anonKey,
       authorizedUser,
       noMembershipUser,
+      noPermissionUser,
       suspendedUser,
+      organizationId: ids.organization,
+      branchId: ids.branch,
+      siblingBranchId: ids.siblingBranch,
       organizationName,
       secondaryOrganizationName,
       foreignOrganizationName,
       async suspendMembership() {
         await executeSql(`UPDATE public.organization_memberships SET status = 'suspended' WHERE id = '${ids.suspendedMembership}';`);
+      },
+      async suspendAuthorizedMembership() {
+        await executeSql(`UPDATE public.organization_memberships SET status = 'suspended', revoked_at = NULL WHERE id = '${ids.authorizedMembership}';`);
+      },
+      async restoreMembership() {
+        await executeSql(`UPDATE public.organization_memberships SET status = 'active', revoked_at = NULL WHERE id = '${ids.authorizedMembership}';`);
+      },
+      async revokeMembership() {
+        await executeSql(`UPDATE public.organization_memberships SET status = 'revoked', revoked_at = now() WHERE id = '${ids.authorizedMembership}';`);
+      },
+      async removeHierarchyPermission() {
+        await executeSql(`DELETE FROM public.role_permissions WHERE organization_id = '${ids.organization}' AND role_id = '${ids.role}' AND permission_key = '${permissionKey}';`);
+      },
+      async restoreHierarchyPermission() {
+        await executeSql(`INSERT INTO public.role_permissions (organization_id, role_id, permission_key) VALUES ('${ids.organization}', '${ids.role}', '${permissionKey}') ON CONFLICT DO NOTHING;`);
+      },
+      async scopeAuthorizedRoleToBranch() {
+        await executeSql(`UPDATE public.membership_roles SET scope_type = 'branch', establishment_id = '${ids.establishment}', branch_id = '${ids.branch}' WHERE id = '${ids.authorizedAssignment}';`);
+      },
+      async restoreAuthorizedOrganizationScope() {
+        await executeSql(`UPDATE public.membership_roles SET scope_type = 'organization', establishment_id = NULL, branch_id = NULL WHERE id = '${ids.authorizedAssignment}';`);
       },
       cleanup,
     };
