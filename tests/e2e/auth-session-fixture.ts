@@ -10,10 +10,12 @@ export type AuthSessionFixture = {
   apiUrl: string;
   anonKey: string;
   authorizedUser: SyntheticUser;
+  cancellationUser: SyntheticUser;
   noMembershipUser: SyntheticUser;
   noPermissionUser: SyntheticUser;
   suspendedUser: SyntheticUser;
   organizationId: string;
+  establishmentId: string;
   branchId: string;
   siblingBranchId: string;
   organizationName: string;
@@ -27,6 +29,10 @@ export type AuthSessionFixture = {
   restoreHierarchyPermission(): Promise<void>;
   scopeAuthorizedRoleToBranch(): Promise<void>;
   restoreAuthorizedOrganizationScope(): Promise<void>;
+  inspectAdminGuardAudit(correlationId: string): Promise<{
+    event_count: number;
+    event: Record<string, unknown> | null;
+  } | null>;
   cleanup(): Promise<void>;
 };
 
@@ -51,7 +57,7 @@ function runSupabase(args: string[]): Promise<string> {
       if (code === 0) resolve(stdout);
       else {
         const reason = signal || `exit ${code}`;
-        reject(new Error(`Local Supabase command failed (${reason}). ${sanitize(stderr || stdout)}`));
+        reject(new Error(`Local Supabase command failed (${reason}). ${sanitize(`${stderr}\n${stdout}`)}`));
       }
     });
   });
@@ -61,6 +67,8 @@ function sanitize(value: string) {
   return value
     .replace(/("(?:SERVICE_ROLE_KEY|SECRET_KEY|DB_URL|JWT_SECRET|ANON_KEY|PUBLISHABLE_KEY)"\s*:\s*")[^"]*(")/gi, "$1[redacted]$2")
     .replace(/\b(?:SERVICE_ROLE_KEY|SECRET_KEY|DB_URL|JWT_SECRET|ANON_KEY|PUBLISHABLE_KEY)=\S+/gi, "[redacted]")
+    .replace(/\bBearer\s+\S+/gi, "Bearer [redacted]")
+    .replace(/\b(?:password|access_token|refresh_token|totp_secret|totp_code)\s*[:=]\s*[\"']?[^\s,;\"']+/gi, "[credential redacted]")
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean)
@@ -132,14 +140,24 @@ export async function createAuthSessionFixture(): Promise<AuthSessionFixture> {
     await executeSql(`DELETE FROM auth.users WHERE id IN (${userIds});
 DELETE FROM public.tenant_roles WHERE organization_id IN ('${ids.organization}', '${ids.foreignOrganization}');
 DELETE FROM public.tenant_roles WHERE organization_id = '${ids.secondaryOrganization}';
-DELETE FROM public.branches WHERE organization_id IN ('${ids.organization}', '${ids.secondaryOrganization}', '${ids.foreignOrganization}');
-DELETE FROM public.establishments WHERE organization_id IN ('${ids.organization}', '${ids.secondaryOrganization}', '${ids.foreignOrganization}');
-DELETE FROM public.organizations WHERE id IN ('${ids.organization}', '${ids.secondaryOrganization}', '${ids.foreignOrganization}');`);
+DELETE FROM public.branches b
+WHERE b.organization_id IN ('${ids.organization}', '${ids.secondaryOrganization}', '${ids.foreignOrganization}')
+  AND NOT EXISTS (SELECT 1 FROM public.audit_events ae WHERE ae.branch_id = b.id OR ae.target_id = b.id);
+DELETE FROM public.establishments e
+WHERE e.organization_id IN ('${ids.organization}', '${ids.secondaryOrganization}', '${ids.foreignOrganization}')
+  AND NOT EXISTS (SELECT 1 FROM public.audit_events ae WHERE ae.establishment_id = e.id)
+  AND NOT EXISTS (SELECT 1 FROM public.branches b WHERE b.establishment_id = e.id);
+DELETE FROM public.organizations o
+WHERE o.id IN ('${ids.organization}', '${ids.secondaryOrganization}', '${ids.foreignOrganization}')
+  AND NOT EXISTS (SELECT 1 FROM public.audit_events ae WHERE ae.organization_id = o.id)
+  AND NOT EXISTS (SELECT 1 FROM public.establishments e WHERE e.organization_id = o.id);`);
   };
 
   try {
     const authorizedUser = await createUser(api, "authorized");
     users.push(authorizedUser);
+    const cancellationUser = await createUser(api, "enrollment-cancel");
+    users.push(cancellationUser);
     const noMembershipUser = await createUser(api, "no-membership", {
       tenant_id: ids.organization,
       organization_id: ids.organization,
@@ -185,10 +203,12 @@ INSERT INTO public.membership_roles (id, organization_id, membership_id, role_id
       apiUrl: api.apiUrl,
       anonKey: api.anonKey,
       authorizedUser,
+      cancellationUser,
       noMembershipUser,
       noPermissionUser,
       suspendedUser,
       organizationId: ids.organization,
+      establishmentId: ids.establishment,
       branchId: ids.branch,
       siblingBranchId: ids.siblingBranch,
       organizationName,
@@ -217,6 +237,38 @@ INSERT INTO public.membership_roles (id, organization_id, membership_id, role_id
       },
       async restoreAuthorizedOrganizationScope() {
         await executeSql(`UPDATE public.membership_roles SET scope_type = 'organization', establishment_id = NULL, branch_id = NULL WHERE id = '${ids.authorizedAssignment}';`);
+      },
+      async inspectAdminGuardAudit(correlationId) {
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(correlationId)) return null;
+        try {
+          const output = await runSupabase([
+            "db", "query", "--local", "--output-format", "json",
+            `SELECT count(*)::integer AS event_count,
+  (array_agg(jsonb_build_object(
+    'actor_user_id', actor_user_id,
+    'organization_id', organization_id,
+    'establishment_id', establishment_id,
+    'branch_id', branch_id,
+    'action', action,
+    'target_type', target_type,
+    'target_id', target_id,
+    'outcome', outcome,
+    'reason_code', reason_code,
+    'correlation_id', correlation_id,
+    'source', source,
+    'metadata', metadata
+  )))[1] AS event
+FROM public.audit_events
+WHERE correlation_id = '${correlationId}';`,
+          ]);
+          const jsonStart = output.indexOf("{");
+          if (jsonStart < 0) return null;
+          const result = JSON.parse(output.slice(jsonStart)) as { rows?: { event_count?: number; event?: Record<string, unknown> | null }[] };
+          const row = result.rows?.[0];
+          return typeof row?.event_count === "number" ? { event_count: row.event_count, event: row.event ?? null } : null;
+        } catch {
+          return null;
+        }
       },
       cleanup,
     };

@@ -13,6 +13,7 @@ services:
       BUILD_REVISION: ${BUILD_REVISION:-local}
       SUPABASE_API_URL: http://host.docker.internal:54321
       SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:-}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
       HOSTNAME: 0.0.0.0
       PORT: 3000
     extra_hosts:

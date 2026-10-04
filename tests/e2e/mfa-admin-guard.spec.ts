@@ -1,4 +1,4 @@
-import { createHmac } from "node:crypto";
+import { createHmac, randomUUID } from "node:crypto";
 import { expect, test, type BrowserContext, type Page, type Route } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import {
@@ -185,12 +185,23 @@ test("local TOTP enrollment, AAL1 denial, verified step-up, branch scope, and li
   await page.goto("/app/security");
   await expect(page.getByRole("heading", { name: "Configure o aplicativo autenticador" })).toBeVisible();
   await expect(page.getByTestId("mfa-manual-secret")).toHaveCount(0);
-  await page.getByLabel("Senha para reautenticar").fill(fixture.authorizedUser.password);
+
+  await context.clearCookies();
+  await signIn(page, fixture.cancellationUser.email, fixture.cancellationUser.password);
+  await page.goto("/app/security");
+  await page.getByLabel("Senha para reautenticar").fill(fixture.cancellationUser.password);
   await page.getByRole("button", { name: "Confirmar identidade e configurar" }).click();
   await expect(page.getByRole("img", { name: "QR code para configurar o aplicativo autenticador" })).toBeVisible();
   await expectNoCredentialQuery(page);
-  await page.getByLabel("Senha para descartar a configuração").fill(fixture.authorizedUser.password);
+  await page.getByLabel("Senha para descartar a configuração").fill(fixture.cancellationUser.password);
+  const discardNavigationPromise = page.waitForNavigation({ waitUntil: "domcontentloaded" });
+  const discardActionResponsePromise = page.waitForResponse((response) =>
+    response.request().method() === "POST" && Boolean(response.request().headers()["next-action"]),
+  );
   await page.getByRole("button", { name: "Descartar configuração pendente" }).click();
+  const discardActionResponse = await discardActionResponsePromise;
+  expect(discardActionResponse.ok()).toBe(true);
+  await discardNavigationPromise;
   await expect(page.getByRole("heading", { name: "Configure o aplicativo autenticador" })).toBeVisible();
   await expectNoCredentialQuery(page);
   await expect.poll(async () => (await context.cookies()).some(({ name }) => name === "goodz-privileged-reauth")).toBe(false);
@@ -201,20 +212,52 @@ test("local TOTP enrollment, AAL1 denial, verified step-up, branch scope, and li
   expect(canceledProfileResponse.status()).toBe(200);
   const canceledProfile = await canceledProfileResponse.json() as { factors?: { factor_type?: string; status?: string }[] };
   expect(canceledProfile.factors?.filter(({ factor_type, status }) => factor_type === "totp" && status === "unverified") ?? []).toHaveLength(0);
+
+  await context.clearCookies();
+  await signIn(page, fixture.authorizedUser.email, fixture.authorizedUser.password);
+  await page.goto("/app/security");
   await page.getByLabel("Senha para reautenticar").fill(fixture.authorizedUser.password);
   await page.getByRole("button", { name: "Confirmar identidade e configurar" }).click();
   await expect(page.getByRole("img", { name: "QR code para configurar o aplicativo autenticador" })).toBeVisible();
   await expectNoCredentialQuery(page);
   await expectAccessible(page);
   secret = await readEnrollmentSecret(page);
-  await enterCode(page, secret);
+  await enterFreshCode(page, secret);
+  const enrollmentVerifyResponsePromise = page.waitForResponse((response) => {
+    const request = response.request();
+    return request.method() === "POST" && /\/auth\/v1\/factors\/[^/]+\/verify$/.test(new URL(response.url()).pathname);
+  });
   await page.getByRole("button", { name: "Confirmar configuração" }).click();
-  await expect(page).toHaveURL(/\/app\/admin-guard$/);
+  const enrollmentVerifyResponse = await enrollmentVerifyResponsePromise;
+  expect(enrollmentVerifyResponse.ok()).toBe(true);
+  await expect(page).toHaveURL(/\/app\/admin-guard$/, { timeout: 15_000 });
 
   await page.goto(`/app/admin-guard?branch=${fixture.branchId}`);
   await expectAccessible(page);
+  const auditCorrelationId = randomUUID();
+  await page.setExtraHTTPHeaders({ "x-request-id": auditCorrelationId });
   await submitProof(page);
   await expect(page.getByRole("status")).toContainText("A proteção foi validada");
+  const durableDecision = await fixture.inspectAdminGuardAudit(auditCorrelationId);
+  expect(durableDecision).toEqual({
+    event_count: 1,
+    event: {
+      actor_user_id: fixture.authorizedUser.id,
+      organization_id: fixture.organizationId,
+      establishment_id: fixture.establishmentId,
+      branch_id: fixture.branchId,
+      action: "synthetic.privileged.proof",
+      target_type: "branch",
+      target_id: fixture.branchId,
+      outcome: "allow",
+      reason_code: "authorized",
+      correlation_id: auditCorrelationId,
+      source: "admin_guard",
+      metadata: { required_permission: "tenant.hierarchy.read" },
+    },
+  });
+  expect(JSON.stringify(durableDecision)).not.toMatch(/access.?token|refresh.?token|authorization|password|totp.?secret|totp.?code/i);
+  await page.setExtraHTTPHeaders({});
 
   await context.clearCookies();
   await signIn(page, fixture.authorizedUser.email, fixture.authorizedUser.password);

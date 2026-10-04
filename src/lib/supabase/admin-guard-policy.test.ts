@@ -22,6 +22,7 @@ function dependencies(overrides: Partial<AdminGuardDependencies> = {}): AdminGua
     hasVerifiedTotpFactor: vi.fn().mockResolvedValue(true),
     hasFreshReauthentication: vi.fn().mockResolvedValue(true),
     authorizeResource: vi.fn().mockResolvedValue(true),
+    persistAuditDecision: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 }
@@ -29,6 +30,31 @@ function dependencies(overrides: Partial<AdminGuardDependencies> = {}): AdminGua
 describe("Goodz Admin Guard policy", () => {
   it("allows verified identity, fresh canonical scope, AAL2 and a verified TOTP factor", async () => {
     await expect(evaluateAdminGuard(dependencies(), organizationId, 1_700_000_120)).resolves.toEqual({ allowed: true });
+  });
+
+  it("fails closed when durable audit persistence fails for a would-be allow", async () => {
+    const persistAuditDecision = vi.fn().mockRejectedValue(new Error("database details must not escape"));
+    const guardedDependencies = { ...dependencies(), persistAuditDecision } as unknown as AdminGuardDependencies;
+
+    await expect(evaluateAdminGuard(guardedDependencies, organizationId, 1_700_000_120)).resolves.toEqual({
+      allowed: false,
+      reason: "audit_unavailable",
+    });
+    expect(persistAuditDecision).toHaveBeenCalledWith({ allowed: true }, identity, organizationId);
+  });
+
+  it("keeps an authorization denial denied when writing its audit event fails", async () => {
+    const persistAuditDecision = vi.fn().mockRejectedValue(new Error("database details must not escape"));
+    const guardedDependencies = {
+      ...dependencies({ authorizeResource: vi.fn().mockResolvedValue(false) }),
+      persistAuditDecision,
+    } as unknown as AdminGuardDependencies;
+
+    await expect(evaluateAdminGuard(guardedDependencies, organizationId, 1_700_000_120)).resolves.toEqual({
+      allowed: false,
+      reason: "authorization_denied",
+    });
+    expect(persistAuditDecision).toHaveBeenCalledWith({ allowed: false, reason: "authorization_denied" }, identity, organizationId);
   });
 
   it("denies unauthenticated and unverified or mismatched identities", async () => {
@@ -75,15 +101,59 @@ describe("Goodz Admin Guard policy", () => {
   });
 
   it("emits only bounded audit fields and never accepts credential material as audit input", () => {
-    const event = createAdminGuardAuditEvent({ allowed: false, reason: "step_up_required" }, "correlation-1");
+    const buildEvent = createAdminGuardAuditEvent as unknown as (...args: unknown[]) => unknown;
+    const actorUserId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+    const branchId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+    const event = buildEvent(
+      { allowed: false, reason: "step_up_required" },
+      "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+      {
+        actorUserId,
+        resourceId: branchId,
+        scope: {
+          organizationId,
+          establishmentId: "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+          branchId,
+        },
+      },
+    );
     expect(event).toEqual({
-      event: "goodz.admin_guard.decision",
+      actor_user_id: actorUserId,
+      organization_id: organizationId,
+      establishment_id: "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+      branch_id: branchId,
       action: "synthetic.privileged.proof",
-      requiredPermission: "tenant.hierarchy.read",
+      target_type: "branch",
+      target_id: branchId,
       outcome: "deny",
-      reason: "step_up_required",
-      correlationId: "correlation-1",
+      reason_code: "step_up_required",
+      correlation_id: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+      source: "admin_guard",
+      metadata: { required_permission: "tenant.hierarchy.read" },
     });
-    expect(JSON.stringify(event)).not.toMatch(/token|totp.?secret|password|identity/i);
+    expect(JSON.stringify(event)).not.toMatch(/token|totp.?secret|password|identity|authorization/i);
+  });
+
+  it("rejects unsafe and oversized audit metadata without echoing its contents", () => {
+    const buildEvent = createAdminGuardAuditEvent as unknown as (...args: unknown[]) => unknown;
+    const secret = "access-token-never-log";
+    const context = { metadata: { required_permission: "tenant.hierarchy.read", access_token: secret } };
+
+    expect(() => buildEvent({ allowed: false, reason: "step_up_required" }, "cccccccc-cccc-4ccc-8ccc-cccccccccccc", context))
+      .toThrow("Audit metadata is invalid.");
+    expect(() => buildEvent({ allowed: false, reason: "step_up_required" }, "cccccccc-cccc-4ccc-8ccc-cccccccccccc", {
+      metadata: { oversized: "x".repeat(2_000) },
+    })).toThrow("Audit metadata is invalid.");
+    try {
+      buildEvent({ allowed: false, reason: "step_up_required" }, "cccccccc-cccc-4ccc-8ccc-cccccccccccc", context);
+    } catch (error) {
+      expect(error).not.toHaveProperty("message", expect.stringContaining(secret));
+    }
+  });
+
+  it("rejects malformed correlation identifiers before an event can be persisted", () => {
+    const buildEvent = createAdminGuardAuditEvent as unknown as (...args: unknown[]) => unknown;
+    expect(() => buildEvent({ allowed: false, reason: "step_up_required" }, "client-token=secret"))
+      .toThrow("Audit event is invalid.");
   });
 });

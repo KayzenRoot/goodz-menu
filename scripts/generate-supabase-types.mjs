@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
-import { open, rename, rm } from "node:fs/promises";
+import { open, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -49,6 +49,15 @@ export async function generateTypesFile({
 
     await temporaryFile.close();
     temporaryFile = undefined;
+    const generated = await readFile(temporaryPath, "utf8");
+    const normalized = generated
+      .replace(/^[\t ]*\r?\n/, "")
+      .replace(/[\t ]+$/gm, "")
+      .replace(/[\t \r\n]*$/, "\n");
+    if (!normalized.trim()) {
+      throw new Error("Supabase type generation produced an empty file. The existing file was preserved.");
+    }
+    await writeFile(temporaryPath, normalized, "utf8");
     await rename(temporaryPath, targetPath);
   } catch (error) {
     if (temporaryFile) await temporaryFile.close().catch(() => {});
