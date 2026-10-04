@@ -1,6 +1,11 @@
 # GMZ-IMPL-006 — Execution Pack
 
-Status: `ADMISSION_CANDIDATE`
+Status: `BOUND_FOR_EXECUTION`
+
+Execution branch: `execution/gmz-impl-006-durable-audit`  
+Exact execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`  
+Executor: `GEF heavy executor / Codex`  
+Merge authority: `NO`
 
 ## Mission
 
