@@ -30,7 +30,7 @@ export async function persistAdminGuardAuditEvent(value: unknown): Promise<strin
       ...(event.establishment_id ? { p_establishment_id: event.establishment_id } : {}),
       ...(event.organization_id ? { p_organization_id: event.organization_id } : {}),
       ...(event.actor_user_id ? { p_actor_user_id: event.actor_user_id } : {}),
-    });
+    }).abortSignal(AbortSignal.timeout(3_000));
     if (error || typeof data !== "string" || !UUID.test(data)) {
       throw new Error("Audit persistence is unavailable.");
     }

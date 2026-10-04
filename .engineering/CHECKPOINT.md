@@ -36,8 +36,8 @@ Status: `GMZ_IMPL_006_BOUND_FOR_EXECUTION`
 - Implementation PR: `#64` (`execution/gmz-impl-006-durable-audit`)
 - Implementation merge: `NOT PERFORMED`
 - GMZ-M02 baseline: `19 / 19 — COMPLETE`
-- Current execution disposition: `BLOCKED` by the complete dependency audit HIGH finding; SonarCloud, Socket and hosted CodeRabbit passed on published head `6ba0d36`; objective-audit readiness is not asserted.
-- Next governed action: `Resolve the admitted dependency-audit gate within authorized scope, then rerun complete L5; do not broaden scope or promote credit.`
+- Current execution disposition: CD-001's audit disposition is `RESOLVED_NOT_AFFECTED` and its closeout proposes `READY_FOR_OBJECTIVE_AUDIT`; the raw full audit remains nonzero. CD-002 is active, so final readiness remains pending exact-head validation.
+- Next governed action: `Complete CD-002 on PR #64, rerun complete exact-head L5 and hosted gates, then request separate objective audit; do not promote credit.`
 
 ## Progress accounting
 Overall production completion: `44 / 515 = 8.54%`.

@@ -43,6 +43,17 @@ describe("Goodz Admin Guard policy", () => {
     expect(persistAuditDecision).toHaveBeenCalledWith({ allowed: true }, identity, organizationId);
   });
 
+  it("returns audit_unavailable when audit persistence aborts a would-be allow", async () => {
+    const persistAuditDecision = vi.fn().mockRejectedValue(Object.assign(new Error("aborted"), { name: "AbortError" }));
+    const guardedDependencies = { ...dependencies(), persistAuditDecision } as unknown as AdminGuardDependencies;
+
+    await expect(evaluateAdminGuard(guardedDependencies, organizationId, 1_700_000_120)).resolves.toEqual({
+      allowed: false,
+      reason: "audit_unavailable",
+    });
+    expect(persistAuditDecision).toHaveBeenCalledWith({ allowed: true }, identity, organizationId);
+  });
+
   it("keeps an authorization denial denied when writing its audit event fails", async () => {
     const persistAuditDecision = vi.fn().mockRejectedValue(new Error("database details must not escape"));
     const guardedDependencies = {
