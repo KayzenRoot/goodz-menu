@@ -36,8 +36,8 @@ Status: `GMZ_IMPL_006_BOUND_FOR_EXECUTION`
 - Implementation PR: `#64` (`execution/gmz-impl-006-durable-audit`)
 - Implementation merge: `NOT PERFORMED`
 - GMZ-M02 baseline: `19 / 19 — COMPLETE`
-- Current execution disposition: CD-001's audit disposition is `RESOLVED_NOT_AFFECTED` and its closeout proposes `READY_FOR_OBJECTIVE_AUDIT`; the raw full audit remains nonzero. CD-002 is active, so final readiness remains pending exact-head validation.
-- Next governed action: `Complete CD-002 on PR #64, rerun complete exact-head L5 and hosted gates, then request separate objective audit; do not promote credit.`
+- Current execution disposition: CD-001's audit disposition is `RESOLVED_NOT_AFFECTED`; CD-002's complete exact-head L5 and fresh hosted gates pass, and its closeout proposes `READY_FOR_OBJECTIVE_AUDIT`. The raw full audit remains nonzero; `CHECKPOINT.json` remains bound pending separate objective audit.
+- Next governed action: `Request separate objective audit of PR #64 at its final published head; do not merge or promote credit.`
 
 ## Progress accounting
 Overall production completion: `44 / 515 = 8.54%`.

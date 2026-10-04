@@ -452,6 +452,26 @@ Only these changes are authorized:
 `GMZ_IMPL_006_CD_002_READY_FOR_OBJECTIVE_AUDIT`
 
 
+## GMZ-IMPL-006-CD-002 — successful exact-head revalidation
+
+The earlier CD-002 E2E failures recorded in the Evidence Bundle remain historical attempts. A later complete desktop/mobile run on the published candidate passed; it supersedes the earlier blocked disposition without changing MFA or business scope.
+
+- Tested HEAD: `f9653818654c6796702f496c8ae6a8d97e735339`; tree: `e99f39824539f9eb46894c0f21ce473a2044a35d`; execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`.
+- GEF 1.1.1 preflight: PASS — correct repository/branch/PR, clean starting tree, execution base ancestral, Context Lock `BOUND_FOR_EXECUTION`, `16 / 16` source fingerprints MATCH, governance snapshot MATCH, `.gef` unchanged, and `CHECKPOINT.json` unchanged.
+- Frozen install/strict peers: PASS; CD-001 self-tests `5 / 5` and live braces disposition guard PASS; `pnpm why braces` confirms the dev-only chain. Production audit PASS. The full raw audit truthfully remains exit `1` with the single HIGH `GHSA-vfj7-8cjw-p6xm`; the committed reachability guard keeps its reviewed disposition `RESOLVED_NOT_AFFECTED`.
+- Lint PASS; typecheck PASS; unit `51 / 51` across 11 files; production build PASS.
+- Full desktop/mobile E2E and embedded Axe assertions: `24 / 24` PASS, zero Axe violations. This includes the local TOTP/Admin Guard flow and user-metadata spoof regression.
+- Local Supabase reset PASS; pgTAP `166 / 166` across 3 SQL files; Auth/Data API `59 / 59`; all 3 migrations applied; generated DB types match tracked output; database lint and security/performance advisors report no issues.
+- Secret-pattern scan: 235 tracked paths, zero targeted credential-pattern file hits. Client bundle: 20 static files, zero local service-role value, service-role name, or audit-writer hits. Docker config/build/force-recreate PASS; container healthy; health/readiness HTTP `200 / 200`; Supabase status JSON valid; Auth health/REST `200 / 200`; Postgres `pg_isready` and `SELECT 1` PASS; 11 runtime log lines with zero error/severe or secret matches; `.gef` diff empty.
+- Fresh hosted checks on this published HEAD: SonarCloud PASS; both Socket checks PASS; hosted CodeRabbit PASS. Both actionable CodeRabbit threads are resolved/outdated after the correction proof was present.
+- CRITICAL/HIGH unresolved: `0 / 0` after the specific CD-001 disposition. Raw audit remains nonzero and is not described as passing.
+- Credit remains `44 / 515 = 8.54%`; no promotion, merge, main mutation, force-push, dependency/lockfile/schema/migration/RLS change, or scope expansion.
+- CD-002 disposition: `READY_FOR_OBJECTIVE_AUDIT` proposed for separate review; `CHECKPOINT.json` remains `GMZ_IMPL_006_BOUND_FOR_EXECUTION` until that review. PR #64 remains open and unmerged.
+
+STOP CONDITION:
+`GMZ_IMPL_006_CD_002_READY_FOR_OBJECTIVE_AUDIT`
+
+
 ## GMZ-IMPL-006-CD-002 execution record — candidate blocked by L5
 
 - Authorized governance HEAD: `4af23fd1641eaa5fb38accbe100bc544eda11fc6`; execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`.

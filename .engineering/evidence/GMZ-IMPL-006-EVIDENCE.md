@@ -81,7 +81,7 @@ STOP CONDITION:
 `GMZ_IMPL_006_CD_001_READY_FOR_OBJECTIVE_AUDIT`
 
 
-## GMZ-IMPL-006-CD-002 — bounded audit RPC and checkpoint summary
+## GMZ-IMPL-006-CD-002 initial validation — blocked candidate (superseded below)
 
 ### Candidate identity and preflight
 
@@ -142,3 +142,55 @@ The failing E2E steps are in the existing local MFA enrollment/cancellation flow
 - No migration/RLS/immutability change, dependency or lockfile change, remote Supabase, production deployment, merge, main mutation, force-push or credit promotion.
 - Production credit remains `44 / 515 = 8.54%`.
 - CD-002 stop token is **not reached** while complete E2E/Axe is failing. The branch remains open and unmerged for correction/review.
+
+
+## GMZ-IMPL-006-CD-002 — successful exact-head revalidation
+
+This section supersedes the earlier CD-002 E2E/Axe blocked disposition. Those failed runs are preserved as history; the complete later desktop/mobile run on the published candidate passed. No MFA/UI or business-runtime change was made.
+
+### Exact candidate and preflight
+
+- Repository: `KayzenRoot/goodz-menu`; branch: `execution/gmz-impl-006-durable-audit`; PR: `#64` against `main`, open and unmerged.
+- Tested HEAD: `f9653818654c6796702f496c8ae6a8d97e735339`; tree: `e99f39824539f9eb46894c0f21ce473a2044a35d`.
+- Execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`; ancestry PASS. Context Lock `BOUND_FOR_EXECUTION`; stable sources `16 / 16 MATCH`; governance snapshot MATCH; clean starting tree; `.gef` unchanged; `CHECKPOINT.json` unchanged. GEF init remains `1.1.1`, `APPLIED`.
+- The CD-002 code remains the bounded `.abortSignal(AbortSignal.timeout(3_000))` on `append_audit_event` and deterministic abort regression asserting `audit_unavailable` rather than privileged allow. The Active increment human summary now reflects completed validation and separate objective audit. No schema/migration/RLS/FK, dependency/lockfile, business runtime/UI, `.gef`, or credit change.
+
+### Exact-head HIGH_ASSURANCE L5 results
+
+| Gate | Result |
+|---|---|
+| Frozen install / strict peers | PASS — `pnpm install --frozen-lockfile --strict-peer-dependencies`; lockfile unchanged |
+| CD-001 security guard | PASS — self-tests `5 / 5`; no `braces` in 211 production entries; active config has no `settings.next.rootDir`; all 22 pinned Next recommended rules enabled |
+| `pnpm why braces` | PASS — dev-only chain `@next/eslint-plugin-next → fast-glob → micromatch → braces@3.0.3` |
+| Production dependency audit | PASS — no HIGH-or-above production finding |
+| Full raw dependency audit | RAW FAIL retained — exit `1`, exactly one HIGH `GHSA-vfj7-8cjw-p6xm`; not represented as a raw pass; reviewed disposition `RESOLVED_NOT_AFFECTED` is guarded by production reachability/config proof |
+| Lint / typecheck | PASS / PASS |
+| Unit | PASS — `51 / 51`, 11 test files, including deterministic abort fail-closed test |
+| Production build | PASS — Next.js `16.3.8` |
+| Full desktop/mobile E2E | PASS — `24 / 24`, including MFA/Admin Guard and metadata-spoof cases |
+| Axe/accessibility | PASS — Axe assertions executed in the full E2E suite; zero violations |
+| Local Supabase reset / pgTAP | PASS — 3 expected migrations; `166 / 166` tests across 3 SQL files |
+| Auth/Data API | PASS — `59 / 59` checks with synthetic local identities |
+| Migration status | PASS — all 3 expected migrations applied |
+| Generated DB types | PASS — regenerated and equivalent to tracked `database.types.ts` (`git diff` empty) |
+| DB lint / security-performance advisors | PASS — no schema errors or advisor issues |
+| Secret-pattern scan | PASS — 235 tracked paths; zero targeted credential-pattern hits |
+| Client bundle / server-only containment | PASS — 20 `.next/static` files; zero local service-role value/name or audit-writer references |
+| Docker config/build/up | PASS — config valid, image built and web container force-recreated healthy |
+| Health/readiness | PASS — `/api/health` and `/api/ready` HTTP `200 / 200` |
+| Supabase/Auth/Postgres | PASS — status JSON valid; local Auth health and REST HTTP `200 / 200`; `pg_isready` and `SELECT 1` pass |
+| Runtime logs | PASS — 11 recent web log lines; zero error/fatal/exception/panic or secret-pattern matches |
+| `.gef` integrity | PASS — no paths differ from execution base |
+| Fresh hosted checks | PASS — SonarCloud, Socket Project Report, Socket PR Alerts and hosted CodeRabbit on this published HEAD |
+| CodeRabbit actionable threads | PASS — both correction threads show resolved and outdated after fixes were published and validated |
+
+### Final disposition
+
+- CRITICAL unresolved: `0`; HIGH unresolved: `0` after the specifically reviewed CD-001 disposition. The raw full audit still reports one HIGH and remains truthfully nonzero.
+- `GHSA-vfj7-8cjw-p6xm`: `RESOLVED_NOT_AFFECTED`, conditional on the committed fail-closed guard; no dependency or lockfile change.
+- Retention, erasure/pseudonymization and tenant offboarding remain `FUTURE / prerequisite before production tenant admission`; not implemented.
+- Production credit remains `44 / 515 = 8.54%`; no credit promotion, merge, main update, force-push, remote Supabase, production deployment, or scope expansion.
+- Proposed state for separate objective review: `READY_FOR_OBJECTIVE_AUDIT`; `CHECKPOINT.json` remains unchanged and bound until that review.
+
+STOP CONDITION:
+`GMZ_IMPL_006_CD_002_READY_FOR_OBJECTIVE_AUDIT`
