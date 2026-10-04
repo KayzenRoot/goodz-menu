@@ -10,7 +10,7 @@
   "admissionBaseSha": "f73ffd25f87be0c4d18947795975e2a132240c61",
   "workBranch": "execution/gmz-impl-005-mfa-admin-guard",
   "executionBaseSha": "036d26b92d32ccb6ef69e46721e48b339d1b7332",
-  "executionBaseState": "BOUND_FOR_EXECUTION",
+  "executionBaseState": "PROMOTED_COMPLETE",
   "sourcePack": "FROZEN_V0_1",
   "productionDenominator": 515,
   "productionEarnedAtAdmission": 38,
@@ -127,8 +127,8 @@
     "Executor does not merge"
   ],
   "executor": "GEF heavy executor / Codex",
-  "codexAllowed": true,
-  "codexAuthorizedScope": "Only GMZ-IMPL-005 on execution/gmz-impl-005-mfa-admin-guard, descended from exact executionBaseSha 036d26b92d32ccb6ef69e46721e48b339d1b7332. No merge.",
+  "codexAllowed": false,
+  "codexAuthorizedScope": "CLOSED: GMZ-IMPL-005 implementation merged and promoted.",
   "codexProhibited": [
     "main direct mutation",
     "merge",
@@ -145,7 +145,7 @@
     "password recovery/invitations/signup",
     "unrelated cleanup"
   ],
-  "stopCondition": "GMZ_IMPL_005_READY_FOR_OBJECTIVE_AUDIT",
+  "stopCondition": "GMZ_IMPL_005_PROMOTED_COMPLETE",
   "admissionAudit": {
     "auditedHead": "a6239ed875ea7124413db1c4464943d21fabc3fe",
     "critical": 0,
@@ -156,5 +156,22 @@
     "runtimeOrSchemaCodeIntroduced": false,
     "disposition": "APPROVED_FOR_ADMISSION_PROMOTION"
   },
-  "admissionMergeSha": "036d26b92d32ccb6ef69e46721e48b339d1b7332"
+  "admissionMergeSha": "036d26b92d32ccb6ef69e46721e48b339d1b7332",
+  "finalPromotion": {
+    "implementationPr": 59,
+    "acceptedCandidate": "54b1b4b64eb5a58dbadd887912ea8d846b127ec8",
+    "mergeSha": "f5da78f0e901d4f9c0bc571309332c001f028306",
+    "productionEarned": 44,
+    "incrementalCredit": 6,
+    "denominator": 515,
+    "completionPercent": 8.54,
+    "moduleBaselineAfter": {
+      "GMZ-M02": {
+        "earned": 19,
+        "weight": 19,
+        "state": "COMPLETE"
+      }
+    },
+    "state": "PROMOTED_COMPLETE"
+  }
 }
