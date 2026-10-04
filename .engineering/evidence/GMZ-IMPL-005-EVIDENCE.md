@@ -25,7 +25,7 @@ Status: `READY_FOR_OBJECTIVE_AUDIT`
 
 ## Verification record
 
-The complete HIGH_ASSURANCE L5 is rerun after this evidence closeout. The exact final publication SHA, tree identity, fresh command outcomes/counts, remote SonarCloud/Socket/PR checks, and any environment limitations are recorded in the updated PR `#59` description. No earlier-SHA result is represented as a fresh result for that final head.
+The complete local HIGH_ASSURANCE L5 ran on candidate commit `47319cc231c02c96ea3d0012afa860cbcbfc721f`, tree `6322e52df691972130c869de0f8b2424a04f0206`. This bundle is being updated to record those exact results. The final pushed SHA and fresh remote SonarCloud/Socket/PR checks will be published in the description of PR `#59`; no earlier-SHA result will be represented as a fresh result for the pushed head.
 
 Earlier implementation validation at `6bc3aec1246e353250e9f90a2ce3791032c48e74` passed the following before the exact-head closeout rerun:
 
@@ -52,6 +52,35 @@ Earlier implementation validation at `6bc3aec1246e353250e9f90a2ce3791032c48e74` 
 | CodeRabbit local | PASS — latest complete deep review at `6bc3aec`, `SUCCESS`, `0 findings` |
 
 Five informational `rls_enabled_no_policy` advisor entries refer to `membership_roles`, `organization_memberships`, `permissions`, `role_permissions`, and `tenant_roles`. They represent intentionally deny-by-default tables in this scope; no policy was weakened or added to suppress the informational result.
+
+### Complete candidate L5 at `47319cc231c02c96ea3d0012afa860cbcbfc721f`
+
+| Gate | Result |
+|---|---|
+| GEF 1.1.1 preflight | PASS — correct repository/branch; exact base ancestor; Context Lock `BOUND_FOR_EXECUTION`; `16 / 16 MATCH`; bind governance snapshot `MATCH`; worktree clean; `.gef` `1.1.1`, `APPLIED/CONFIRMED`, unchanged |
+| Frozen install / strict peers | PASS — `corepack pnpm install --frozen-lockfile --strict-peer-dependencies`, pnpm `12.8.1` |
+| Lint / typecheck / unit | PASS — lint, TypeScript, `40 / 40` tests in 9 files |
+| Production build | PASS — Next.js `16.3.8`; dynamic `/app`, `/app/admin-guard`, `/app/security` routes emitted |
+| Full E2E desktop/mobile | PASS — `24 / 24`, one worker; Auth/session and tenant regressions, local MFA, AAL2, revocation and negative matrix included |
+| Axe accessibility | PASS — `22` desktop/mobile scans, `0` violations across login, foundation, MFA and step-up states |
+| Supabase local reset / pgTAP | PASS — `125 / 125` assertions |
+| Auth/Data API regressions | PASS — `50 / 50` synthetic local checks |
+| Migration status | PASS — local migrations `20261002093358`, `20261002152627` applied |
+| Database lint | PASS — `public` and `auth`, zero schema errors |
+| Security advisors | PASS — no warning/error-level security findings; five informational no-policy RLS entries, retained |
+| Dependency audit | PASS — no known production vulnerabilities at high severity or above; strict peers passed with the frozen install |
+| Secret scan | PASS — zero new secret-pattern matches in the branch diff; the local-only Supabase development placeholder already present at the base is not an introduced credential |
+| Docker Compose config/build/up | PASS — configuration valid, image built from candidate tree, web container healthy |
+| Health/readiness/Auth/Postgres | PASS — HTTP `200` health `ok`, readiness `ready`, local Supabase available, Auth HTTP `200`, Postgres `SELECT 1` |
+| Runtime log scan | PASS — 11 lines, zero severe/error or secret-pattern matches |
+| `.gef` integrity | PASS — unchanged from execution base |
+
+### Latest full-diff CodeRabbit review at `47319cc`
+
+- CodeRabbit returned two `MAJOR` documentation findings and no runtime/security finding.
+- Finding 1 asks to withhold GMZ-IMPL-005 authorization until the obsolete GMZ-IMPL-003 PR `#49` audit. Rejected as stale and outside this Work Order: the current Context Lock binds GMZ-IMPL-005 to the exact execution base, the current checkpoint names GMZ-IMPL-005, and the user directly authorized this Work Order.
+- Finding 2 correctly noted that this bundle did not yet include the complete exact-head L5 record. This candidate-specific validation table and tree identity address the documentation gap. Remote checks cannot be reported as passed until the updated candidate is pushed and GitHub reports them.
+- A fresh full-diff CodeRabbit review after this evidence correction completed successfully with `0 findings`. It reviewed the current GMZ-IMPL-005 source, checkpoint, Work Order and complete L5 evidence record. The earlier stale authorization request was not repeated; the missing evidence detail is now present above.
 
 ## Security and scope boundary
 
