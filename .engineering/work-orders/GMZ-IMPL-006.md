@@ -296,7 +296,7 @@ STOP CONDITION:
 `GMZ_IMPL_006_READY_FOR_OBJECTIVE_AUDIT`
 
 
-## Execution attempt — 2026-10-04
+## Historical execution attempt before CD-001 — 2026-10-04
 
 - Implementation commit: `1055bcf93a37858027165e4e177b9701ec4bdd0d`.
 - Tested implementation tree: `520c9eeaa63d3ec4a38a9145f2c8c87a38a9f0b9`.
@@ -379,3 +379,20 @@ If every CD-001 criterion and the original GMZ-IMPL-006 criteria are objectively
 If the guard/reachability proof fails, `braces` appears in production, the vulnerable `rootDir` path becomes active, or any other unresolved CRITICAL/HIGH remains:
 
 `BLOCKED`
+
+### CD-001 execution closeout — 2026-10-04
+
+- Correction implementation commit: `a62aa978ef0c7b3302c3fe86179a6411a1882e6f`; tree `dc6c49b6c7d129416bfe243790af8414ddafdaa2`.
+- Preflight PASS: repository `KayzenRoot/goodz-menu`, branch `execution/gmz-impl-006-durable-audit`, execution base `2490ed590a6fb21f53d79b7ab7c93fee854c01ee` ancestral, Context Lock `BOUND_FOR_EXECUTION`, `16 / 16` fingerprints MATCH, governance snapshot MATCH, clean tree before correction, and `.gef` unchanged.
+- Only `package.json` and `scripts/verify-eslint-braces-not-affected.mjs` changed for the correction. No dependency version, `pnpm-lock.yaml`, Next lint rule, runtime, schema, business-scope, or `.gef` changes.
+- The guard's five deterministic self-tests passed. On the candidate it found `braces` absent from the 211 resolved production package entries, found no active `settings.next.rootDir`, pinned `@next/eslint-plugin-next@16.3.8`, and confirmed all 22 Next recommended rules remain enabled.
+- `pnpm audit --prod --audit-level=high` passed. The raw full audit truthfully remains exit `1` with exactly one HIGH (`GHSA-vfj7-8cjw-p6xm`, `braces@3.0.3`, no patched release listed), through the development-only chain `@next/eslint-plugin-next -> fast-glob -> micromatch -> braces`. Following the admitted, mechanically enforced reachability proof, this specific finding is `RESOLVED_NOT_AFFECTED`; it is not reported as a raw audit pass. Residual risk is recorded in the Evidence Bundle.
+- CD-001 HIGH_ASSURANCE local L5 is recorded in `.engineering/evidence/GMZ-IMPL-006-EVIDENCE.md`: frozen strict-peer install, lint, typecheck, unit `50 / 50`, production build, E2E/Axe `24 / 24`, Supabase reset, pgTAP `166 / 166`, Auth/Data API `59 / 59`, migration/type equivalence, DB lint/advisors, dependency/peer/secret checks, Docker build/up/health, local Supabase/Auth/Postgres, readiness/runtime logs, client-bundle containment, guard, and `.gef` integrity all passed. SonarCloud, Socket and hosted CodeRabbit are verified against the published PR head and linked in PR #64; any non-success state blocks objective-audit readiness.
+- Current severity disposition: `CRITICAL unresolved: 0`; `HIGH unresolved: 0`; `GHSA-vfj7-8cjw-p6xm: RESOLVED_NOT_AFFECTED`.
+- Final local CodeRabbit review returned one MINOR suggestion to defer PR `#64` behind PR `#49`; it was rejected as stale against `.engineering/evidence/GMZ-IMPL-003-PROMOTION-EVIDENCE.md`, which records PR `#49` merged and objective-audit-approved, and the current GMZ-IMPL-006 Context Lock/checkpoint binding. No CRITICAL/HIGH issue was identified.
+- Checkpoint remains unpromoted: production earned credit is still `44 / 515 = 8.54%`; `CHECKPOINT.json` is not changed by this correction. The proposed delta is documented in `CHECKPOINT.md` for the objective auditor.
+- PR #64 remains open and draft; no merge, main change, remote Supabase, production deploy, or force-push.
+- CD-001 execution disposition: `READY_FOR_OBJECTIVE_AUDIT`, pending separate objective audit.
+
+STOP CONDITION reached:
+`GMZ_IMPL_006_CD_001_READY_FOR_OBJECTIVE_AUDIT`

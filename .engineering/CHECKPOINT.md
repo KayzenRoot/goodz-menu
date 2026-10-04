@@ -929,7 +929,7 @@ STOP CONDITION: `GMZ_IMPL_006_ADMISSION_READY_FOR_REVIEW`.
 STOP CONDITION: `GMZ_IMPL_006_READY_FOR_OBJECTIVE_AUDIT`.
 
 
-## GMZ-IMPL-006 exact implementation candidate — execution attempt (not promoted)
+## GMZ-IMPL-006 exact implementation candidate — historical execution attempt (not promoted)
 
 - Implementation candidate: `1055bcf93a37858027165e4e177b9701ec4bdd0d`; tree `520c9eeaa63d3ec4a38a9145f2c8c87a38a9f0b9`.
 - Execution base remains `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`; branch remains `execution/gmz-impl-006-durable-audit`; Context Lock preflight `16 / 16 MATCH`; `.gef` remains unchanged.
@@ -938,4 +938,16 @@ STOP CONDITION: `GMZ_IMPL_006_READY_FOR_OBJECTIVE_AUDIT`.
 - Checkpoint JSON status and current earned production credit are intentionally unchanged: `44 / 515 = 8.54%`. This block is an execution record and proposed delta only; it does not promote execution state or credit.
 - Proposed next action: clear the dependency gate within governed scope, rerun complete exact-head L5, refresh the same evidence bundle/PR, and only then request objective audit.
 
-STOP CONDITION NOT REACHED: unresolved HIGH dependency audit finding.
+STOP CONDITION NOT REACHED at that historical attempt: full audit HIGH had no reachability disposition.
+
+## GMZ-IMPL-006-CD-001 — proposed Checkpoint Delta (NOT APPLIED)
+
+- Candidate implementation commit tested: `a62aa978ef0c7b3302c3fe86179a6411a1882e6f`; implementation tree `dc6c49b6c7d129416bfe243790af8414ddafdaa2`; execution base remains `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`.
+- Preflight: repository/branch/base PASS; Context Lock `BOUND_FOR_EXECUTION`; stable source fingerprints `16 / 16 MATCH`; governance snapshot MATCH; `.gef` unchanged.
+- CD-001 guard and exact-head local HIGH_ASSURANCE evidence are recorded in `.engineering/evidence/GMZ-IMPL-006-EVIDENCE.md`.
+- Dependency truth: the raw full audit still exits nonzero for the one HIGH `GHSA-vfj7-8cjw-p6xm`; production audit passes; the guard proves `braces` absent from production and no active `settings.next.rootDir`. Finding disposition: `RESOLVED_NOT_AFFECTED`; raw audit is not called clean.
+- Proposed state for separate objective audit: recognize `GMZ-IMPL-006` as `READY_FOR_OBJECTIVE_AUDIT` only after verifying this evidence and the final PR head. Keep `CHECKPOINT.json` unchanged until that review is accepted.
+- Production earned credit remains `44 / 515 = 8.54%`; no credit promotion is proposed by CD-001. Any later credit remains gated on objective acceptance, merge, and governed promotion.
+- PR #64 remains open/draft and unmerged. Do not change main, `.gef`, execution base, or production scope.
+
+STOP CONDITION proposed for the objective-audit handoff: `GMZ_IMPL_006_CD_001_READY_FOR_OBJECTIVE_AUDIT`.

@@ -1,90 +1,81 @@
 # GMZ-IMPL-006 — Evidence Bundle
 
-Status: `BLOCKED — dependency audit HIGH finding; objective-audit readiness not asserted`
+Status: `CD-001 local HIGH_ASSURANCE PASS; final hosted gate state is recorded on PR #64`
 
 ## Candidate and preflight identity
 
-- Repositório: `KayzenRoot/goodz-menu` (`https://github.com/KayzenRoot/goodz-menu.git`).
-- Branch autorizada: `execution/gmz-impl-006-durable-audit`.
-- PR: `#64`, destino `main`; manter aberta e em draft, sem merge.
-- Execution base canônica: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`.
-- Commit de implementação candidato: `1055bcf93a37858027165e4e177b9701ec4bdd0d`.
-- Árvore Git do candidato de implementação: `520c9eeaa63d3ec4a38a9145f2c8c87a38a9f0b9`.
-- Head da PR publicado e validado pelas integrações externas: `6ba0d36c39fa6457b044773ec33e7c39b83251c9`; contém somente os documentos de closeout além do candidato de implementação.
-- O candidato descende da execution base; branch/repositório conferidos e PR existente #64 apontava para `main` antes da execução.
-- Context Lock: `BOUND_FOR_EXECUTION`; as 16 fontes bloqueadas estavam `16 / 16 MATCH` no preflight, sem alteração de nenhuma delas.
-- Snapshot de governança no início: `MATCH` com o bind da execution base. `CHECKPOINT.json` permanece sem mudança: crédito `44 / 515 = 8.54%`, estado de execução não promovido.
-- `.gef`: `1.1.1`, estado `APPLIED / CONFIRMED`, idêntico à execution base; nenhuma alteração em `.gef`.
-- A árvore de trabalho estava limpa no início. Screenshots atualizados como efeito colateral dos testes foram restaurados; não integram o candidato.
+- Repository: `KayzenRoot/goodz-menu` (`https://github.com/KayzenRoot/goodz-menu.git`).
+- Authorized branch: `execution/gmz-impl-006-durable-audit`; PR `#64`, base `main`, keep open/draft and unmerged.
+- Execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`.
+- CD-001 implementation commit tested: `a62aa978ef0c7b3302c3fe86179a6411a1882e6f`; implementation tree: `dc6c49b6c7d129416bfe243790af8414ddafdaa2`.
+- Context Lock: `BOUND_FOR_EXECUTION`; stable source fingerprints `16 / 16 MATCH`; governance snapshot `MATCH`; execution base is ancestral; preflight repository/branch are correct; tree was clean before correction.
+- `.gef`: version `1.1.1`, `APPLIED / CONFIRMED`, unchanged from the execution base and not modified by CD-001.
+- `CHECKPOINT.json` remains unchanged: `BOUND_FOR_EXECUTION`, current earned credit `44 / 515 = 8.54%`. No credit promotion.
+- The published PR head after documentation closeout is the exact-head/check-run source of record in the PR description. The implementation source tested is the SHA above; the closeout commit only updates governance/evidence text.
 
-## Implementação entregue no candidato
+## CD-001 change and reachability evidence
 
-- Migração única `20261004125938_durable_audit_events.sql`: adiciona `public.audit_events`, campos explícitos de ator/escopo/ação/alvo/resultado/motivo/correlação/origem/tempo, limites e allowlists estritas de payload, FKs compostas de tenant, índices, RLS e negação de grants diretos.
-- Imutabilidade no banco: trigger `BEFORE UPDATE OR DELETE` levanta SQLSTATE `55000`, inclusive para papéis privilegiados que alcancem a tabela.
-- Escrita restrita: `public.append_audit_event` é `SECURITY DEFINER` com `search_path=''`, valida o único evento admitido e tem `EXECUTE` apenas para `service_role`; o papel não recebe grants diretos na tabela. `anon` e `authenticated` não recebem leitura nem mutação direta.
-- A única abstração de aplicação com service-role é `src/lib/supabase/audit-writer.server.ts`, marcada `server-only`, write-only, sem leitura de negócio/autorização e sem retorno de detalhes do provedor. A autorização continua na sessão do usuário, `auth.getUser`/claims e Data API/RLS.
-- O Admin Guard persiste a decisão com o mesmo correlation ID da requisição/log. O escopo de sucesso deriva da linha da branch retornada por consulta caller-scoped sob RLS. A falha de persistência converte um allow em `audit_unavailable`; um deny continua deny.
-- Metadata é exata e allowlisted (`required_permission`), com limites também no banco; entradas malformadas/extra são rejeitadas. O evento não aceita credenciais, tokens, senha, TOTP ou payload arbitrário.
-- Tipos locais foram regenerados por `pnpm supabase:types`; duas gerações consecutivas resultaram em SHA-256 idêntico `4EF52B57AAED8B31712B4F83F677D635CC4D01AC7F608ED0E869030250AEF95B`.
-- O E2E inspeciona localmente o evento por correlation ID. Não foi adicionado audit viewer, mutation de negócio ou fluxo remoto.
+Only `package.json` and `scripts/verify-eslint-braces-not-affected.mjs` are implementation changes. The script adds the local command `pnpm run security:braces-disposition`; no dependency version, `pnpm-lock.yaml`, runtime, schema, migration, business-scope, or `.gef` change was made.
 
-## HIGH_ASSURANCE L5 no candidato `1055bcf` / tree `520c9ee`
+Raw package-manager truth:
 
-| Gate | Resultado |
+- `pnpm why braces` reports `braces@3.0.3 <- micromatch@4.0.8 <- fast-glob@3.3.1 <- @next/eslint-plugin-next@16.3.8` in the development toolchain.
+- `pnpm audit --prod --audit-level=high`: PASS, no known production vulnerabilities.
+- `pnpm audit --audit-level=high`: remains raw exit `1`, exactly one HIGH, `GHSA-vfj7-8cjw-p6xm / CVE-2026-93687`, vulnerable `braces <=3.0.3`, patched versions `None`, path `.@next/eslint-plugin-next>fast-glob>micromatch>braces`.
+- Upstream references: [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) and pinned [Next.js v16.3.8 root-dir helper](https://github.com/vercel/next.js/blob/v16.3.8/packages/eslint-plugin-next/src/utils/get-root-dirs.ts). The plugin invokes the glob helper only for string/array `settings.next.rootDir`; without that setting it uses `context.cwd`.
+
+Mechanical proof:
+
+- Guard self-test: PASS, `5 / 5` deterministic cases, covering normal config, string/array `rootDir`, production graph containing `braces`, and malformed/unexpected package-manager output.
+- Candidate guard: PASS; scanned `211` resolved production package entries and found no `braces`; active `eslint.config.mjs` has no `settings.next.rootDir`; pinned Next plugin version is verified; all `22` pinned Next recommended rules remain enabled.
+- The guard fails closed on unexpected package graph/config shapes and when either reachability condition changes. It does not suppress or rewrite audit output.
+- Disposition for this one advisory, only after the proof above: `RESOLVED_NOT_AFFECTED`.
+- Residual risk: the vulnerable dev-only package remains installed and the raw full audit remains nonzero because upstream lists no patched version. A future active `settings.next.rootDir` or production dependency path makes the guard fail and requires a fresh security disposition; this is not a blanket waiver.
+
+## HIGH_ASSURANCE L5 on the CD-001 implementation candidate
+
+| Gate | Result |
 |---|---|
-| GEF 1.1.1 preflight | PASS — repositório/branch/base corretos; base ancestral; Context Lock `BOUND_FOR_EXECUTION`; `16 / 16 MATCH`; snapshot de bind `MATCH`; `.gef` aplicado/confirmado e inalterado |
-| Install frozen / strict peers | PASS — `corepack pnpm install --frozen-lockfile --strict-peer-dependencies` |
+| GEF 1.1.1 preflight | PASS — correct repository/branch/base, base ancestry, Context Lock bound, `16 / 16 MATCH`, governance snapshot MATCH, clean pre-edit tree, `.gef` unchanged |
+| Frozen install / peers | PASS — `corepack pnpm install --frozen-lockfile --strict-peer-dependencies`; no lockfile diff |
+| Guard | PASS — deterministic self-tests `5 / 5`; actual reachability/config/rule assertions all pass |
+| `pnpm why braces` | PASS — exact development-only chain recorded above |
 | Lint / typecheck | PASS — `pnpm lint`, `pnpm typecheck` |
-| Unit | PASS — `50 / 50`, 11 arquivos de teste |
-| Build | PASS — build de produção Next.js `16.3.8` |
-| E2E desktop/mobile | PASS na execução final — `24 / 24`, 1 worker, Playwright em modo CI; inclui Auth/session, MFA/TOTP, autorização, revogação, persistência auditável e spoof de metadata |
-| Axe | PASS — as assertions Axe executadas pelos cenários acessíveis desktop/mobile não reportaram violações |
-| Reset Supabase local | PASS — três migrations locais aplicadas, incluindo `20261004125938_durable_audit_events.sql` |
-| pgTAP | PASS — `166 / 166`, 3 arquivos |
-| Auth/Data API | PASS — `59 / 59` checks com usuários sintéticos locais; leitura enumeração e CRUD direto de audit negados para anon/autenticados |
-| Migration list/status | PASS — migrations locais `20261002093358`, `20261002152627`, `20261004125938` aplicadas |
-| DB lint | PASS — `public,private`, nenhum erro de schema |
-| Security advisors | PASS — nenhuma issue reportada |
-| Dependency audit de produção | PASS — nenhuma vulnerabilidade conhecida no grafo de produção em `high` ou acima |
-| Dependency audit completo | **FAIL / BLOCKER** — uma vulnerabilidade `HIGH` não corrigida: `braces <= 3.0.3`, via `@next/eslint-plugin-next → fast-glob → micromatch → braces`; o advisory não lista versão corrigida. O achado é transitivo de desenvolvimento. Não foi feito override/upgrade fora do escopo. Referência: [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/ghsa-vfj7-8cjw-p6xm). |
-| Peer dependency check | PASS — strict peers instalados com lockfile congelado |
-| Secret scan de fontes | PASS — 4 padrões, zero hits em 212 arquivos textuais verificados |
-| Client bundle / server-only containment | PASS — zero ocorrência do valor local service-role e zero ocorrência de `SUPABASE_SERVICE_ROLE_KEY` em `.next/static` |
-| Docker config/build/up | PASS — Compose válido; imagem construída com o candidato; container web `healthy`; chave do writer presente apenas no ambiente do container server |
-| Health/readiness | PASS — `http://127.0.0.1:3001/api/health` HTTP `200`; `/api/ready` HTTP `200` |
-| Supabase/Auth/Postgres local | PASS — API loopback; Auth health HTTP `200`; REST HTTP `200`; `pg_isready` e `SELECT 1` locais passaram |
-| Runtime logs | PASS — zero hits dos padrões de segredo verificados |
-| `.gef` integrity | PASS — sem diferença contra a execution base |
-| CodeRabbit local | PASS — revisão NDJSON de todos os 14 arquivos textuais alterados, incluindo migration, writer e pgTAP; `0 findings` |
-| SonarCloud / Socket / CodeRabbit hosted | PASS em `6ba0d36c39fa6457b044773ec33e7c39b83251c9` — SonarCloud Code Analysis, Socket Security Pull Request Alerts, Socket Security Project Report e status CodeRabbit concluídos com sucesso; [SonarCloud](https://github.com/KayzenRoot/goodz-menu/runs/111479416961), [Socket Alerts](https://github.com/KayzenRoot/goodz-menu/runs/111479360149), [Socket Project Report](https://github.com/KayzenRoot/goodz-menu/runs/111479352471), CodeRabbit status `success` |
+| Unit | PASS — `50 / 50`, 11 test files |
+| Production build | PASS — Next.js `16.3.8` |
+| E2E desktop/mobile | PASS — `24 / 24`; local Auth/session, MFA/Admin Guard, durable audit, revocation and metadata-spoof regressions |
+| Axe/accessibility | PASS — all Axe assertions in desktop/mobile E2E passed with zero reported violations |
+| Supabase local reset | PASS — applied migrations `20261002093358`, `20261002152627`, `20261004125938` |
+| pgTAP | PASS — `166 / 166`, 3 SQL files |
+| Auth/Data API | PASS — `59 / 59` checks using synthetic local users, after final local reset |
+| Migration status | PASS — all three expected local migrations listed/applied |
+| Generated DB types | PASS — regenerated; generated `database.types.ts` matches tracked output (`git diff` empty) |
+| Database lint | PASS — `public,private`, no schema errors |
+| Security advisors | PASS — no issues |
+| Production dependency audit | PASS — no known vulnerabilities at HIGH or above |
+| Full dependency audit | RAW FAIL preserved — one HIGH as described above; this advisory's evidence-backed disposition is `RESOLVED_NOT_AFFECTED`, not a raw-audit pass |
+| Secret-pattern scan | PASS — 219 tracked text files; four targeted credential patterns and service-role JWT payload scan had zero matches |
+| Client bundle / server-only containment | PASS — 20 files in `.next/static`; zero `SUPABASE_SERVICE_ROLE_KEY` name matches and zero local service-role-value matches |
+| Docker config/build/up | PASS — Compose config valid; image built from candidate; web container `healthy` |
+| Health/readiness | PASS — `http://127.0.0.1:3001/api/health` and `/api/ready`, both HTTP `200` |
+| Supabase/Auth/Postgres | PASS — local Auth health HTTP `200`, REST HTTP `200`, Postgres `pg_isready` and `SELECT 1` passed |
+| Runtime logs | PASS — 50 recent lines scanned; zero error/fatal/exception/panic lines and zero credential-pattern matches |
+| `.gef` integrity | PASS — zero `.gef` paths changed relative to execution base |
+| CodeRabbit local | Correction code review had `0 findings`. The final fresh review of the 3 closeout documents returned 1 MINOR suggestion to queue PR `#64` behind PR `#49`; rejected as stale because the canonical promotion evidence records PR `#49` merged and `APPROVED_FOR_PROMOTION`, while the current checkpoint and Context Lock bind GMZ-IMPL-006 to its exact execution base. No current CRITICAL/HIGH runtime or security finding was reported. |
+| SonarCloud / Socket / hosted CodeRabbit | Final published-head statuses and run links are recorded in PR #64; no prior-head result is reused as the final-head result |
 
-A revisão CodeRabbit local final das alterações documentais de closeout (`CHECKPOINT.md`, Work Order e este Evidence Bundle) também concluiu com `0 findings` em todos os três arquivos. Esse resultado não altera o bloqueio do audit de dependências nem substitui os checks hospedados.
+## Historical pre-CD-001 disposition
 
-### Observações de execução E2E
+The earlier implementation candidate `1055bcf93a37858027165e4e177b9701ec4bdd0d` / tree `520c9eeaa63d3ec4a38a9145f2c8c87a38a9f0b9` was correctly marked `BLOCKED` because the raw full audit HIGH lacked a reachability disposition. CD-001 supersedes that readiness decision only after the committed guard and L5 proof above. Historical test-order observations and that pre-correction status do not describe the current candidate.
 
-Houve uma execução intermediária completa em que um fluxo de enrollment mostrou a mensagem genérica de falha, sem chamar o endpoint de enrollment do Auth; também houve tentativas abortadas enquanto o Postgres local encerrava conexões. A stack Supabase local foi reiniciada sem apagar volumes, o banco foi resetado e o cenário isolado passou. A execução completa final acima passou `24 / 24` sem retry de teste; as assertions não foram alteradas nem afrouxadas. A instabilidade observada fica registrada para a auditoria.
+## Security disposition and checkpoint proposal
 
-Uma execução pgTAP feita após o E2E falhou três assertions de contagem do seed porque o teste E2E deixa intencionalmente linhas sintéticas referenciadas por eventos imutáveis. O reset foi repetido, na ordem exigida, antes da execução final de pgTAP `166 / 166`. As assertions originais foram preservadas.
+- CRITICAL unresolved: `0`.
+- HIGH unresolved: `0` after the specific advisory disposition; raw scanner HIGH remains visible and is not hidden.
+- `GHSA-vfj7-8cjw-p6xm`: `RESOLVED_NOT_AFFECTED` based on the production dependency tree and active lint configuration only.
+- No audit viewer, Error Center, self-healing, Platform/Super Admin, POS, catalog, stock, orders, finance, other business mutation, remote Supabase, or production deployment was added. No merge, main update, force-push, or `.gef` edit occurred.
+- Proposed Checkpoint Delta is appended to `.engineering/CHECKPOINT.md` and is `NOT APPLIED`: leave `CHECKPOINT.json` at `BOUND_FOR_EXECUTION` until separate objective review; retain credit `44 / 515 = 8.54%`; do not promote credit in CD-001.
+- PR #64 stays open/draft. The objective auditor should verify the exact published head and hosted checks from the PR description before changing checkpoint state.
 
-## Segurança, findings e limite de prontidão
-
-- CRITICAL: `0`.
-- HIGH: `1` no `pnpm audit` completo (`braces` transitivo de ferramenta de lint); sem versão corrigida informada pelo advisory. `pnpm audit --prod --audit-level=high` passou.
-- CodeRabbit local: `0 findings`.
-- A aceitação GMZ-IMPL-006 exige auditoria de dependências sem finding CRITICAL/HIGH não resolvido. Essa condição não foi satisfeita. Nenhuma dependência foi alterada, conforme o limite de escopo e a ausência de versão corrigida.
-- Checks externos SonarCloud/Socket/CodeRabbit: PASS no head publicado indicado acima. Os documentos de closeout posteriores não alteram o tree de implementação testado.
-- Portanto, o candidato **não** está declarado `READY_FOR_OBJECTIVE_AUDIT`; não emitir o stop token de prontidão enquanto o finding HIGH da auditoria completa permanecer sem resolução.
-
-## Escopo não implementado e crédito
-
-Audit viewer, Error Center, self-healing, Platform/Super Admin, POS, catálogo, estoque, pedidos, financeiro, mutations de negócio, Supabase remoto e deploy de produção permanecem fora do escopo. Não foi alterado `.gef` nem `main`; não houve merge nem force-push.
-
-Crédito segue `44 / 515 = 8.54%`. O máximo prospectivo continua `8 / 515`, condicionado à aceitação objetiva, merge e promoção; nenhum crédito foi promovido.
-
-## Proposta de Checkpoint Delta — não aplicada
-
-1. Preservar o snapshot de bind e o crédito atuais.
-2. Manter GMZ-IMPL-006 como execução em curso/bloqueada; não mudar para `READY_FOR_OBJECTIVE_AUDIT` enquanto o finding HIGH da auditoria completa permanecer sem resolução.
-3. Após resolver o gate sem ampliar o Work Order, executar novamente L5 no novo SHA, atualizar este bundle e só então propor a transição de estado para auditoria objetiva. Promoção de crédito continua reservada ao aceite, merge e promoção governada.
-
-STOP CONDITION: `BLOCKED — unresolved HIGH dependency audit; objective audit readiness not reached`.
+STOP CONDITION:
+`GMZ_IMPL_006_CD_001_READY_FOR_OBJECTIVE_AUDIT`
