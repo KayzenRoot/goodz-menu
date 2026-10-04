@@ -36,8 +36,8 @@ Status: `GMZ_IMPL_006_BOUND_FOR_EXECUTION`
 - Implementation PR: `#64` (`execution/gmz-impl-006-durable-audit`)
 - Implementation merge: `NOT PERFORMED`
 - GMZ-M02 baseline: `19 / 19 — COMPLETE`
-- Current execution disposition: `BLOCKED` by the complete dependency audit HIGH finding; objective-audit readiness is not asserted.
-- Next governed action: `Resolve the admitted dependency-audit gate and external exact-head checks, then rerun complete L5; do not broaden scope or promote credit.`
+- Current execution disposition: `BLOCKED` by the complete dependency audit HIGH finding; SonarCloud, Socket and hosted CodeRabbit passed on published head `6ba0d36`; objective-audit readiness is not asserted.
+- Next governed action: `Resolve the admitted dependency-audit gate within authorized scope, then rerun complete L5; do not broaden scope or promote credit.`
 
 ## Progress accounting
 Overall production completion: `44 / 515 = 8.54%`.
@@ -934,7 +934,7 @@ STOP CONDITION: `GMZ_IMPL_006_READY_FOR_OBJECTIVE_AUDIT`.
 - Implementation candidate: `1055bcf93a37858027165e4e177b9701ec4bdd0d`; tree `520c9eeaa63d3ec4a38a9145f2c8c87a38a9f0b9`.
 - Execution base remains `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`; branch remains `execution/gmz-impl-006-durable-audit`; Context Lock preflight `16 / 16 MATCH`; `.gef` remains unchanged.
 - Latest local L5 record: pgTAP `166 / 166`, Auth/Data API `59 / 59`, unit `50 / 50`, E2E `24 / 24`; detailed command/results and interim instability are in `.engineering/evidence/GMZ-IMPL-006-EVIDENCE.md`.
-- Disposition: `BLOCKED`. Full dependency audit has one unresolved HIGH (`braces <=3.0.3`, dev-only transitive dependency, no patched version listed); production audit passed. SonarCloud, Socket and hosted CodeRabbit await exact published SHA.
+- Disposition: `BLOCKED`. Full dependency audit has one unresolved HIGH (`braces <=3.0.3`, dev-only transitive dependency, no patched version listed); production audit passed. SonarCloud, Socket and hosted CodeRabbit passed on published PR head `6ba0d36`.
 - Checkpoint JSON status and current earned production credit are intentionally unchanged: `44 / 515 = 8.54%`. This block is an execution record and proposed delta only; it does not promote execution state or credit.
 - Proposed next action: clear the dependency gate within governed scope, rerun complete exact-head L5, refresh the same evidence bundle/PR, and only then request objective audit.
 

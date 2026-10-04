@@ -10,6 +10,7 @@ Status: `BLOCKED — dependency audit HIGH finding; objective-audit readiness no
 - Execution base canônica: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`.
 - Commit de implementação candidato: `1055bcf93a37858027165e4e177b9701ec4bdd0d`.
 - Árvore Git do candidato de implementação: `520c9eeaa63d3ec4a38a9145f2c8c87a38a9f0b9`.
+- Head da PR publicado e validado pelas integrações externas: `6ba0d36c39fa6457b044773ec33e7c39b83251c9`; contém somente os documentos de closeout além do candidato de implementação.
 - O candidato descende da execution base; branch/repositório conferidos e PR existente #64 apontava para `main` antes da execução.
 - Context Lock: `BOUND_FOR_EXECUTION`; as 16 fontes bloqueadas estavam `16 / 16 MATCH` no preflight, sem alteração de nenhuma delas.
 - Snapshot de governança no início: `MATCH` com o bind da execution base. `CHECKPOINT.json` permanece sem mudança: crédito `44 / 515 = 8.54%`, estado de execução não promovido.
@@ -55,7 +56,7 @@ Status: `BLOCKED — dependency audit HIGH finding; objective-audit readiness no
 | Runtime logs | PASS — zero hits dos padrões de segredo verificados |
 | `.gef` integrity | PASS — sem diferença contra a execution base |
 | CodeRabbit local | PASS — revisão NDJSON de todos os 14 arquivos textuais alterados, incluindo migration, writer e pgTAP; `0 findings` |
-| SonarCloud / Socket / CodeRabbit hosted | PENDING — dependem de publicação do candidato; atualizar esta linha e a PR #64 após os checks remotos no SHA publicado |
+| SonarCloud / Socket / CodeRabbit hosted | PASS em `6ba0d36c39fa6457b044773ec33e7c39b83251c9` — SonarCloud Code Analysis, Socket Security Pull Request Alerts, Socket Security Project Report e status CodeRabbit concluídos com sucesso; [SonarCloud](https://github.com/KayzenRoot/goodz-menu/runs/111479416961), [Socket Alerts](https://github.com/KayzenRoot/goodz-menu/runs/111479360149), [Socket Project Report](https://github.com/KayzenRoot/goodz-menu/runs/111479352471), CodeRabbit status `success` |
 
 A revisão CodeRabbit local final das alterações documentais de closeout (`CHECKPOINT.md`, Work Order e este Evidence Bundle) também concluiu com `0 findings` em todos os três arquivos. Esse resultado não altera o bloqueio do audit de dependências nem substitui os checks hospedados.
 
@@ -71,8 +72,8 @@ Uma execução pgTAP feita após o E2E falhou três assertions de contagem do se
 - HIGH: `1` no `pnpm audit` completo (`braces` transitivo de ferramenta de lint); sem versão corrigida informada pelo advisory. `pnpm audit --prod --audit-level=high` passou.
 - CodeRabbit local: `0 findings`.
 - A aceitação GMZ-IMPL-006 exige auditoria de dependências sem finding CRITICAL/HIGH não resolvido. Essa condição não foi satisfeita. Nenhuma dependência foi alterada, conforme o limite de escopo e a ausência de versão corrigida.
-- Checks externos SonarCloud/Socket/CodeRabbit ainda precisam ser observados no SHA publicado.
-- Portanto, o candidato **não** está declarado `READY_FOR_OBJECTIVE_AUDIT`; não emitir o stop token de prontidão enquanto os gates acima estiverem pendentes/bloqueados.
+- Checks externos SonarCloud/Socket/CodeRabbit: PASS no head publicado indicado acima. Os documentos de closeout posteriores não alteram o tree de implementação testado.
+- Portanto, o candidato **não** está declarado `READY_FOR_OBJECTIVE_AUDIT`; não emitir o stop token de prontidão enquanto o finding HIGH da auditoria completa permanecer sem resolução.
 
 ## Escopo não implementado e crédito
 
@@ -83,7 +84,7 @@ Crédito segue `44 / 515 = 8.54%`. O máximo prospectivo continua `8 / 515`, con
 ## Proposta de Checkpoint Delta — não aplicada
 
 1. Preservar o snapshot de bind e o crédito atuais.
-2. Manter GMZ-IMPL-006 como execução em curso/bloqueada; não mudar para `READY_FOR_OBJECTIVE_AUDIT` enquanto o finding HIGH da auditoria completa e os checks externos não forem resolvidos.
+2. Manter GMZ-IMPL-006 como execução em curso/bloqueada; não mudar para `READY_FOR_OBJECTIVE_AUDIT` enquanto o finding HIGH da auditoria completa permanecer sem resolução.
 3. Após resolver o gate sem ampliar o Work Order, executar novamente L5 no novo SHA, atualizar este bundle e só então propor a transição de estado para auditoria objetiva. Promoção de crédito continua reservada ao aceite, merge e promoção governada.
 
 STOP CONDITION: `BLOCKED — unresolved HIGH dependency audit; objective audit readiness not reached`.

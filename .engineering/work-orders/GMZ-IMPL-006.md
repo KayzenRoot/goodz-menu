@@ -303,7 +303,7 @@ STOP CONDITION:
 - Local database/Auth/E2E regressions and CodeRabbit local evidence are recorded in `.engineering/evidence/GMZ-IMPL-006-EVIDENCE.md`.
 - Final CodeRabbit local review of the three closeout documents completed with `0 findings`.
 - The full development dependency audit reports one unresolved HIGH in the existing transitive development-only chain `@next/eslint-plugin-next → fast-glob → micromatch → braces <=3.0.3`; the upstream advisory lists no patched version. Production dependency audit passed. No out-of-scope dependency override or upgrade was applied.
-- SonarCloud, Socket, and hosted CodeRabbit remain pending publication and exact SHA checks.
+- SonarCloud, Socket Security Pull Request Alerts/Project Report and hosted CodeRabbit status passed on published PR head `6ba0d36c39fa6457b044773ec33e7c39b83251c9`; exact check URLs/results are recorded in the Evidence Bundle.
 - Execution disposition: `BLOCKED`; Work Order acceptance criteria 22–24 are not all satisfied. Do not declare readiness, promote credit, merge, or alter the execution base.
 - Current earned credit remains `44 / 515 = 8.54%`.
 - Proposed next action: resolve the dependency gate within admitted scope or obtain a governed correction; rerun complete L5 and update the same PR before objective audit.
