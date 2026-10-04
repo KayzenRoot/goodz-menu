@@ -1,6 +1,6 @@
 # GMZ-IMPL-005 — Evidence Bundle
 
-Status: `GMZ_IMPL_005_CD_001_EXECUTION_IN_PROGRESS` (final closeout follows exact-head L5)
+Status: `GMZ_IMPL_005_CD_001_READY_FOR_OBJECTIVE_AUDIT`
 
 ## Candidate identity and GEF 1.1.1 preflight
 
@@ -25,7 +25,7 @@ Status: `GMZ_IMPL_005_CD_001_EXECUTION_IN_PROGRESS` (final closeout follows exac
 
 ## Verification record
 
-The complete local HIGH_ASSURANCE L5 recorded below for `47319cc231c02c96ea3d0012afa860cbcbfc721f` / tree `6322e52df691972130c869de0f8b2424a04f0206` is historical and does not satisfy CD-001. The authoritative CD-001 exact-head record will be added after all corrections are committed, pushed and revalidated; no earlier-SHA result is carried forward as a result for the final pushed head.
+The complete local HIGH_ASSURANCE L5 recorded below for `47319cc231c02c96ea3d0012afa860cbcbfc721f` / tree `6322e52df691972130c869de0f8b2424a04f0206` is historical and does not satisfy CD-001. The authoritative CD-001 candidate record below is `c83cb90048cb788cd8cddc98dcfc8cca23d59335` / tree `a269e8b5052a52b876be08cde98195e0e6d42be7`; a documentation-only closeout follows, and the final published SHA/results are reported in the PR description.
 
 Earlier implementation validation at `6bc3aec1246e353250e9f90a2ce3791032c48e74` passed the following before the exact-head closeout rerun:
 
@@ -107,7 +107,7 @@ HISTORICAL STOP CONDITION (superseded by CD-001): `GMZ_IMPL_005_READY_FOR_OBJECT
 
 ## GMZ-IMPL-005-CD-001 — reauthentication and proof corrections
 
-Status: `IN PROGRESS — exact pushed HEAD L5 and external gates pending`.
+Status: `COMPLETE — READY_FOR_OBJECTIVE_AUDIT`.
 
 - Objective-review target: PR `#59`, audited head `777aba66789db0bb01603960e497c61ed245fde0`; authorized branch and execution base remain unchanged.
 - Current official Supabase TOTP/MFA/Auth/changelog guidance was revalidated against pinned `@supabase/supabase-js 2.117.2` and `@supabase/ssr 0.12.7`. The provider documentation says an AAL1 session can enroll TOTP and then verify it to reach AAL2, which confirms the reviewed threat. The app now requires a fresh server-side Auth password grant with matching response/session/user IDs and provider-verified claims containing a fresh password AMR before it calls the enrollment API. The independent proof is held in a short-lived HttpOnly, SameSite-strict cookie; Admin Guard verifies that Auth-signed proof against the current identity on every protected decision. No service-role credential is used. References: [Supabase TOTP flow](https://supabase.com/docs/guides/auth/auth-mfa/totp), [password grant](https://supabase.com/docs/reference/javascript/auth-signinwithpassword), [Auth reauthentication API](https://supabase.com/docs/reference/javascript/auth-reauthenticate), and [Auth changelog](https://supabase.com/changelog?tags=auth).
@@ -116,5 +116,38 @@ Status: `IN PROGRESS — exact pushed HEAD L5 and external gates pending`.
 - Added a real local Auth user whose profile contains false tenant, owner/role/permission, `aal2`, platform privilege and admin metadata. The test reads the Auth profile and proves Admin Guard still denies because the user has no canonical membership.
 - Preliminary worktree sweep before the final identity-mismatch cleanup and explicit canceled-enrollment Auth-profile assertion: frozen install/strict peers, lint, typecheck, unit `46/46` (11 files), production build, E2E desktop/mobile `24/24`, Axe `22` scans / `0` violations, local database reset, pgTAP `125/125`, Auth/Data API `50/50`, migrations, DB lint, security advisors, production dependency audit, secret-pattern scan, Docker config/build/up/health/readiness, local Supabase/Auth/Postgres and runtime log scan all passed. This preliminary sweep is superseded and is not the final exact-head record. The complete L5 is rerun on the final published candidate and recorded in the table below.
 - Production credit remains `38 / 515 = 7.38%`; no implementation credit, objective approval, promotion or merge is claimed.
+
+### Complete exact-candidate HIGH_ASSURANCE L5 at `c83cb90048cb788cd8cddc98dcfc8cca23d59335`
+
+Tree: `a269e8b5052a52b876be08cde98195e0e6d42be7`. The tree was clean at validation start and after test-generated unrelated screenshots were restored. The branch and legal base remained unchanged; the Context Lock was `BOUND_FOR_EXECUTION`, `16 / 16` fingerprints matched, the bind governance snapshot matched, and `.gef` remained intact.
+
+| Gate | Result |
+|---|---|
+| Frozen install / strict peers | PASS — pnpm `12.8.1`, frozen lockfile and strict peers |
+| Lint / typecheck | PASS |
+| Unit | PASS — `46 / 46` across 11 files |
+| Production build | PASS — Next.js `16.3.8` |
+| Full E2E desktop/mobile | PASS — `24 / 24`, one worker; includes cancellation before password-proof submit, stale-freshness deny then renewed step-up allow, and false user-metadata profile denial |
+| Axe accessibility | PASS — `22` scans, `0` violations |
+| Local Supabase reset / pgTAP | PASS — `125 / 125` |
+| Auth/Data API | PASS — `50 / 50` local checks |
+| Migration status | PASS — both expected local migrations applied; no schema/migration changed |
+| DB lint | PASS — no schema errors |
+| Security advisors | PASS — no warning/error findings; five informational deny-by-default no-policy RLS entries retained |
+| Dependency audit | PASS — no known production vulnerabilities at high severity or above |
+| Secret-pattern scan | PASS — zero matches introduced by the branch diff |
+| Docker Compose config/build/up | PASS — configuration valid, image built, web container healthy |
+| Health/readiness | PASS — `/api/health` `ok`, `/api/ready` `ready` |
+| Local Supabase/Auth/Postgres | PASS — loopback API available, Auth health HTTP `200`, Postgres `SELECT 1` succeeded |
+| Runtime logs | PASS — 10 lines; zero severe/error or credential-pattern matches |
+| `.gef` integrity | PASS — unchanged from execution base |
+| GEF preflight | PASS — correct repository/branch/base; Context Lock bound; `16 / 16 MATCH`; bind snapshot MATCH; clean tree; `.gef` `1.1.1`, applied/confirmed and unchanged |
+| SonarCloud Code Analysis | PASS — exact candidate SHA |
+| Socket Security Pull Request Alerts | PASS — exact candidate SHA |
+| Socket Security Project Report | PASS — exact candidate SHA |
+| Hosted CodeRabbit commit check | PASS — exact candidate SHA |
+| CodeRabbit local full-diff review | PASS — `0 issues`; no unresolved CRITICAL/HIGH finding |
+
+The evidence/checkpoint/work-order synchronization is documentation-only and is committed after this candidate validation. The exact final published branch HEAD, its tree, and the repeated final-head results are also recorded in PR `#59`; this avoids attributing candidate checks to a different SHA.
 
 STOP CONDITION: `GMZ_IMPL_005_CD_001_READY_FOR_OBJECTIVE_AUDIT`.

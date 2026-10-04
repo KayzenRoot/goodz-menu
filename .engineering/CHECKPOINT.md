@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_005_CD_001_EXECUTION_IN_PROGRESS`
+Status: `GMZ_IMPL_005_CD_001_READY_FOR_OBJECTIVE_AUDIT`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,7 +27,7 @@ Status: `GMZ_IMPL_005_CD_001_EXECUTION_IN_PROGRESS`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-005` — `CD_001_EXECUTION_IN_PROGRESS`
+- Work Order: `GMZ-IMPL-005` — `CD_001_READY_FOR_OBJECTIVE_AUDIT`
 - Issue: `#57`
 - Branch: `execution/gmz-impl-005-mfa-admin-guard`
 - Execution base: `036d26b92d32ccb6ef69e46721e48b339d1b7332`
@@ -36,7 +36,7 @@ Status: `GMZ_IMPL_005_CD_001_EXECUTION_IN_PROGRESS`
 - Implementation authorization: `GMZ-IMPL-005 ONLY`
 - Last promoted increment: `GMZ-IMPL-004`
 - Implementation merge: `2bee77001309740b6aa86e605ca56fb4e6bed6a2`
-- Next governed action: `COMPLETE_GMZ_IMPL_005_CD_001_L5_AND_CLOSEOUT`
+- Next governed action: `OBJECTIVE_AUDIT_GMZ_IMPL_005_CD_001`
 
 ## Progress accounting
 Overall production completion: `38 / 515 = 7.38%`.
@@ -53,7 +53,7 @@ GMZ-SRC-001 is preserved byte-exact in repository truth:
 The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
-Complete the CD-001 exact-head HIGH_ASSURANCE L5, update the final evidence and publish it to the same draft PR; then stop for the separate objective audit. Keep production credit at `38 / 515 = 7.38%` until objective approval, implementation merge, and promotion. Do not merge this execution PR.
+Run the separate objective audit of PR `#59` against its exact final published head. Keep production credit at `38 / 515 = 7.38%` until objective approval, implementation merge, and promotion. Do not merge this execution PR.
 
 STOP CONDITION: `GMZ_IMPL_005_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
 
@@ -864,8 +864,9 @@ HISTORICAL STOP CONDITION (superseded by execution closeout and CD-001): `GMZ_IM
 - Review target: PR `#59`, audited head `777aba66789db0bb01603960e497c61ed245fde0`; same authorized execution branch and exact base `036d26b92d32ccb6ef69e46721e48b339d1b7332`.
 - Independent reauthentication now uses a fresh server-side Supabase Auth password grant, checks provider-signed claims and user/session identity, and keeps only a short-lived HttpOnly proof for server-side guard validation. TOTP remains the second factor; canonical RLS authorization remains required.
 - Added deterministic desktop/mobile proof for `step_up_required` after freshness exceeds 300 seconds, successful renewed password/TOTP step-up, and an actual false `user_metadata` profile that still fails Admin Guard.
-- Exact-head L5 and final SHA/tree recording are in progress; closeout is recorded in `.engineering/evidence/GMZ-IMPL-005-EVIDENCE.md` after the full matrix and remote checks finish.
+- Exact tested implementation candidate: `c83cb90048cb788cd8cddc98dcfc8cca23d59335`; tree: `a269e8b5052a52b876be08cde98195e0e6d42be7`. Complete local HIGH_ASSURANCE L5 passed there; exact results are in the Evidence Bundle. Governance closeout records this correction as ready after the documentation synchronization and final exact-head verification.
+- Exact candidate SonarCloud, Socket Pull Request Alerts, and Socket Project Report checks: `SUCCESS`; hosted CodeRabbit commit status: `SUCCESS`; local CodeRabbit full-diff review: `0 issues`.
 - Production credit remains `38 / 515 = 7.38%`; no merge, promotion, or additional credit is claimed.
-- Next action: `COMPLETE_GMZ_IMPL_005_CD_001_L5_AND_CLOSEOUT`.
+- Next action: `OBJECTIVE_AUDIT_GMZ_IMPL_005_CD_001`.
 
 CORRECTION TOKEN (CD-001): `GMZ_IMPL_005_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
