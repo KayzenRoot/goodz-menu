@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_005_PROMOTED_COMPLETE_READY_FOR_NEXT`
+Status: `GMZ_IMPL_006_ADMITTED_EXECUTION_BASE_BIND_PENDING`
 
 ## Current state
 - Project: Goodz Menu
@@ -887,3 +887,22 @@ CORRECTION TOKEN (CD-001): `GMZ_IMPL_005_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
 - next: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
 
 STOP CONDITION: `GMZ_IMPL_005_PROMOTED_COMPLETE`.
+
+
+## GMZ-IMPL-006 admission candidate
+
+- Work Order: `GMZ-IMPL-006 — Durable Audit Trail & Correlation Foundation`
+- Issue: `#62`
+- admission base: `312f0139913e1e4bbe3b15662610f35da39c4db0`
+- branch: `implementation/gmz-impl-006-durable-audit`
+- assurance: `HIGH_ASSURANCE`
+- current production credit: `44 / 515 = 8.54%`
+- maximum future accepted slice credit: `8 / 515`
+  - GMZ-M23: `6`
+  - GMZ-M26: `2`
+- projected cumulative only if later accepted: `52 / 515 = 10.10%`
+- executor mutation: `BLOCKED` pending objective admission audit + admission merge + exact execution-base bind
+- admission diff: governance-only
+- next action: `AUDIT_AND_MERGE_GMZ_IMPL_006_ADMISSION_THEN_BIND_EXECUTION_BASE`
+
+STOP CONDITION: `GMZ_IMPL_006_ADMISSION_READY_FOR_REVIEW`.
