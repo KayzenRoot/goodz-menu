@@ -472,6 +472,22 @@ STOP CONDITION:
 `GMZ_IMPL_006_CD_002_READY_FOR_OBJECTIVE_AUDIT`
 
 
+## GMZ-IMPL-006-CD-002 — latest exact-head rerun blocked
+
+This is the latest published-candidate validation record and supersedes the earlier `4cb0d43` successful L5 proposal. The later run does not meet the CD-002 stop condition; no E2E/MFA/Auth-session test or business runtime/UI file was changed because it is outside the authorized mutation set.
+
+- Tested HEAD: `0a133a1281a5002549f5e90928c4c7a67d49946f`; tree: `bc6d04e247a07fe16ace68501fb5651f9d73c8e0`; execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`.
+- GEF 1.1.1 preflight: PASS — correct repository/branch/PR, clean pre-test tree, base ancestral, Context Lock `BOUND_FOR_EXECUTION`, `16 / 16` fingerprints MATCH, governance snapshot MATCH, `.gef` intact and `CHECKPOINT.json` unchanged.
+- Frozen install/strict peers PASS; CD-001 guard and self-tests `5 / 5` PASS; production audit PASS; full raw audit remains exit `1` with exactly the dev-only HIGH `GHSA-vfj7-8cjw-p6xm`, truthfully not called a pass and retained as `RESOLVED_NOT_AFFECTED` by the committed guard. Lint PASS; typecheck PASS; unit `51 / 51`; production build PASS.
+- Supabase reset PASS; pgTAP `166 / 166`; Auth/Data API `59 / 59`; migration status shows all 3 expected migrations; generated database types equivalent; DB lint/advisors clear.
+- Latest full default-worker E2E after local DB reset: `23 / 24` PASS. The remaining desktop logout/cookie test at `tests/e2e/auth-session.spec.ts:100` stayed on `/app` instead of reaching `/login`. A complete one-worker run also ended `23 / 24`, with the existing mobile Admin Guard E2E failing its strict `getByRole("status")` assertion because two status elements were present. An earlier concurrent attempt saw local Postgres connection termination and cascading fixture timeouts. Axe assertions ran in successful cases, but the complete E2E/Axe gate is BLOCKED; no full accessibility pass is claimed.
+- Docker Compose config/build/force-recreate PASS; web container healthy; health/readiness `200 / 200`; Supabase status JSON valid; Auth health/REST `200 / 200`; Postgres `pg_isready` and `SELECT 1` PASS. Secret-pattern scan has zero hits; 20 client static files contain zero service-role value/name or audit-writer matches; 15 runtime log lines have zero error/severe or secret matches; `.gef` diff empty.
+- Fresh hosted SonarCloud, Socket Project Report, Socket PR Alerts and CodeRabbit status on `0a133a1` all PASS. The separate review thread requesting a truthful checkpoint status is corrected in this record; resolve it only after the updated record is published and fresh review confirms no new actionable issue.
+- CRITICAL/HIGH unresolved: `0 / 0` after CD-001's specific disposition. Raw full audit remains nonzero and visible.
+- Credit remains `44 / 515 = 8.54%`; no merge, credit promotion, main mutation, force-push, dependency/lockfile/schema/migration/RLS/business-scope change.
+- Current disposition: `BLOCKED` by required exact-head E2E/Axe failure outside CD-002's authorized correction set. The stop condition is not reached. `CHECKPOINT.json` remains `GMZ_IMPL_006_BOUND_FOR_EXECUTION`; do not claim `READY_FOR_OBJECTIVE_AUDIT` until a separately authorized correction and fresh full L5 pass.
+
+
 ## GMZ-IMPL-006-CD-002 execution record — candidate blocked by L5
 
 - Authorized governance HEAD: `4af23fd1641eaa5fb38accbe100bc544eda11fc6`; execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`.

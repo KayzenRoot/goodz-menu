@@ -194,3 +194,42 @@ This section supersedes the earlier CD-002 E2E/Axe blocked disposition. Those fa
 
 STOP CONDITION:
 `GMZ_IMPL_006_CD_002_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-006-CD-002 — latest exact-head rerun blocked
+
+This latest published-candidate run supersedes the `4cb0d43` successful L5 proposal above. It does not reach the CD-002 stop condition. The older green run is preserved as history; exact-head failures below remain visible and were not fixed outside the authorized scope.
+
+### Candidate and preflight
+
+- Tested HEAD: `0a133a1281a5002549f5e90928c4c7a67d49946f`; tree: `bc6d04e247a07fe16ace68501fb5651f9d73c8e0`.
+- Execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`; repository/branch/PR correct; base ancestral; Context Lock `BOUND_FOR_EXECUTION`; `16 / 16 MATCH`; governance snapshot MATCH; `.gef` unchanged; `CHECKPOINT.json` unchanged.
+- Frozen install/strict peers, CD-001 guard and `5 / 5` self-tests, `pnpm why braces`, production audit, lint, typecheck, unit `51 / 51`, production build all PASS. Full raw audit remains exit `1` with exactly one HIGH `GHSA-vfj7-8cjw-p6xm`; this is not represented as a raw pass. The mechanical CD-001 proof keeps its reviewed disposition `RESOLVED_NOT_AFFECTED`; CRITICAL/HIGH unresolved remains `0 / 0` after that disposition.
+- Supabase reset PASS; pgTAP `166 / 166` in 3 SQL files; Auth/Data API `59 / 59`; all 3 migrations applied; generated DB types equivalent; DB lint/advisors clear.
+
+### E2E/Axe blocker
+
+- Latest full default-worker E2E after reset: `23 / 24` PASS. Desktop logout/cookie regression `tests/e2e/auth-session.spec.ts:100` failed because it stayed on `/app` rather than navigating to `/login`.
+- Complete one-worker run: `23 / 24`; mobile Admin Guard E2E failed its strict `getByRole("status")` assertion while two status elements were present. An earlier concurrent run had a local Postgres connection termination and cascading fixture timeouts.
+- Therefore the complete E2E/Axe gate is BLOCKED. Individual Axe assertions in successful cases do not establish full-suite accessibility PASS.
+- These existing auth-session/MFA E2E tests and runtime/UI are not in the CD-002 allowed write set; no changes were made to them.
+
+### Remaining exact-head L5 and external results
+
+| Gate | Result |
+|---|---|
+| Docker config/build/force-recreate | PASS — web container healthy |
+| Health/readiness | PASS — `200 / 200` |
+| Supabase/Auth/Postgres | PASS — valid local status JSON; Auth health and REST `200 / 200`; `pg_isready` and `SELECT 1` |
+| Secret-pattern scan | PASS — zero targeted hits |
+| Client bundle containment | PASS — 20 static files; zero service-role value/name or audit-writer hits |
+| Runtime logs | PASS — 15 recent lines; zero error/severe or secret matches |
+| `.gef` integrity | PASS — no changes from execution base |
+| Fresh hosted checks at `0a133a1` | PASS — SonarCloud, Socket Project Report, Socket PR Alerts and hosted CodeRabbit status |
+
+### Disposition
+
+- CD-002 remains `BLOCKED`; `GMZ_IMPL_006_CD_002_READY_FOR_OBJECTIVE_AUDIT` is not reached.
+- Retention, erasure/pseudonymization and tenant offboarding remain `FUTURE / prerequisite before production tenant admission`; not implemented.
+- Credit remains `44 / 515 = 8.54%`; no merge, main update, force-push, remote Supabase, production deployment, dependency/lockfile/schema/migration/RLS change or scope expansion.
+- `CHECKPOINT.json` remains unchanged and bound. Request a separately authorized correction for the out-of-scope E2E issue before repeating L5; do not promote credit.
