@@ -27,13 +27,17 @@ Status: `GMZ_IMPL_006_BOUND_FOR_EXECUTION`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `NONE`
-- Implementation authorization: `NO`
+- Work Order: `GMZ-IMPL-006`
+- Execution branch: `execution/gmz-impl-006-durable-audit`
+- Exact execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`
+- Context Lock: `BOUND_FOR_EXECUTION` — stable fingerprints `16 / 16 MATCH`
+- Implementation authorization: `YES — GMZ-IMPL-006 ONLY, on this bound branch/base`
 - Last promoted increment: `GMZ-IMPL-005`
-- Implementation PR: `#59`
-- Implementation merge: `f5da78f0e901d4f9c0bc571309332c001f028306`
+- Implementation PR: `#64` (`execution/gmz-impl-006-durable-audit`)
+- Implementation merge: `NOT PERFORMED`
 - GMZ-M02 baseline: `19 / 19 — COMPLETE`
-- Next governed action: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
+- Current execution disposition: `BLOCKED` by the complete dependency audit HIGH finding; objective-audit readiness is not asserted.
+- Next governed action: `Resolve the admitted dependency-audit gate and external exact-head checks, then rerun complete L5; do not broaden scope or promote credit.`
 
 ## Progress accounting
 Overall production completion: `44 / 515 = 8.54%`.
@@ -84,10 +88,10 @@ HISTORICAL STOP CONDITION (superseded by CD-001): `GMZ_IMPL_005_READY_FOR_OBJECT
 CORRECTION TOKEN (CD-002): `GMZ_IMPL_004_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
 
 
-## GMZ-IMPL-003 executor closeout
+## Historical GMZ-IMPL-003 executor closeout — superseded by CD corrections and promotion
 - latest implementation code candidate after GMZ-IMPL-003-CD-003: `63a6d3770b2e692ee3e0d9b7d34672a1e8165ad6`
 - execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`
-- implementation PR: `#49` — https://github.com/KayzenRoot/goodz-menu/pull/49; draft, base `main`, not merged
+- historical implementation PR snapshot: `#49` — https://github.com/KayzenRoot/goodz-menu/pull/49; draft/open at the recorded executor-candidate snapshot; later CD corrections and post-merge promotion are recorded below. This is not the active objective-audit action.
 - GEF 1.1.1 preflight and exact-state revalidation: `PASS`; stable source fingerprints `16 / 16 MATCH`; Context Lock `BOUND_FOR_EXECUTION`; entry governance snapshot `MATCH`; `.gef` `UNCHANGED`
 - Sonar objective-review correction: `COMPLETE`; after 48 SQL maintainability HIGH findings were fixed, the current issue API reports `0` open issues and `0` CRITICAL/HIGH
 - exact-head code-candidate L5 at `d3054b2`: `PASS`; pgTAP `117 / 117`; local Auth/Data API `34 / 34`; unit `8 / 8`; E2E `8 / 8`
@@ -99,7 +103,7 @@ CORRECTION TOKEN (CD-002): `GMZ_IMPL_004_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
 - no remote Supabase, production deployment, business-domain implementation, or merge
 - production credit remains `19 / 515`; no GMZ-IMPL-003 credit is earned before objective acceptance and merge
 - disposition: `READY_FOR_OBJECTIVE_AUDIT`; objective audit: `PENDING`
-- next action: `OBJECTIVE_AUDIT_GMZ_IMPL_003`
+- historical next action at that snapshot: `OBJECTIVE_AUDIT_GMZ_IMPL_003` (superseded by subsequent CD corrections and promotion)
 
 STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
 
@@ -923,3 +927,15 @@ STOP CONDITION: `GMZ_IMPL_006_ADMISSION_READY_FOR_REVIEW`.
 - next action: `EXECUTE GMZ-IMPL-006`
 
 STOP CONDITION: `GMZ_IMPL_006_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-006 exact implementation candidate — execution attempt (not promoted)
+
+- Implementation candidate: `1055bcf93a37858027165e4e177b9701ec4bdd0d`; tree `520c9eeaa63d3ec4a38a9145f2c8c87a38a9f0b9`.
+- Execution base remains `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`; branch remains `execution/gmz-impl-006-durable-audit`; Context Lock preflight `16 / 16 MATCH`; `.gef` remains unchanged.
+- Latest local L5 record: pgTAP `166 / 166`, Auth/Data API `59 / 59`, unit `50 / 50`, E2E `24 / 24`; detailed command/results and interim instability are in `.engineering/evidence/GMZ-IMPL-006-EVIDENCE.md`.
+- Disposition: `BLOCKED`. Full dependency audit has one unresolved HIGH (`braces <=3.0.3`, dev-only transitive dependency, no patched version listed); production audit passed. SonarCloud, Socket and hosted CodeRabbit await exact published SHA.
+- Checkpoint JSON status and current earned production credit are intentionally unchanged: `44 / 515 = 8.54%`. This block is an execution record and proposed delta only; it does not promote execution state or credit.
+- Proposed next action: clear the dependency gate within governed scope, rerun complete exact-head L5, refresh the same evidence bundle/PR, and only then request objective audit.
+
+STOP CONDITION NOT REACHED: unresolved HIGH dependency audit finding.
