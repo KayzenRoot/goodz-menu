@@ -1,6 +1,6 @@
 # GMZ-IMPL-006 — Evidence Bundle
 
-Status: `CD-001 local HIGH_ASSURANCE PASS; final hosted gate state is recorded on PR #64`
+Status: `CD-002 correction present; local HIGH_ASSURANCE L5 BLOCKED by full E2E/Axe; fresh hosted gate state pending`
 
 ## Candidate and preflight identity
 
@@ -79,3 +79,66 @@ The earlier implementation candidate `1055bcf93a37858027165e4e177b9701ec4bdd0d` 
 
 STOP CONDITION:
 `GMZ_IMPL_006_CD_001_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-006-CD-002 — bounded audit RPC and checkpoint summary
+
+### Candidate identity and preflight
+
+- Repository: `KayzenRoot/goodz-menu`; branch: `execution/gmz-impl-006-durable-audit`; PR: `#64` against `main`, open and unmerged.
+- Governance authorization HEAD: `4af23fd1641eaa5fb38accbe100bc544eda11fc6`.
+- Execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee` (ancestral to the tested candidate).
+- Tested correction candidate: HEAD `f922eaafbef25965c38cb1ff1cec5b5532fe4622`; tree `9364365e5db7a86d3ceefa3cb1101fdbdb431554`.
+- GEF 1.1.1 preflight at the authorized HEAD: PASS — origin/repository and branch/PR correct, entry tree clean, execution base ancestral, Context Lock `BOUND_FOR_EXECUTION`, stable source fingerprints `16 / 16 MATCH`, governance snapshot MATCH, `.gef` intact, and local Supabase status returned valid JSON without exposing credential fields.
+- `CHECKPOINT.json` was not edited; verified unchanged since the authorization HEAD. Credit remains `44 / 515 = 8.54%`.
+
+### CD-002 correction proof
+
+- `src/lib/supabase/audit-writer.server.ts`: the `append_audit_event` RPC is bounded by `.abortSignal(AbortSignal.timeout(3_000))`. Existing generic error handling still throws only `Audit persistence is unavailable.`; callers do not receive provider detail.
+- `src/lib/supabase/admin-guard-policy.test.ts`: a deterministic `AbortError` rejection while persisting a would-be allow proves the result is `{ allowed: false, reason: "audit_unavailable" }`. No sleep/timing dependency was added.
+- `.engineering/CHECKPOINT.md`: only the stale Active increment summary changed. It now distinguishes CD-001's `RESOLVED_NOT_AFFECTED` disposition and objective-audit proposal from CD-002's pending exact-head validation.
+- No migration, schema, RLS, FKs, dependency, lockfile, business runtime/UI, `.gef` or `CHECKPOINT.json` change.
+- Retention, erasure/pseudonymization and tenant offboarding are recorded as `FUTURE / prerequisite before production tenant admission`; no implementation was added.
+
+### Exact candidate HIGH_ASSURANCE checks
+
+| Gate | Result |
+|---|---|
+| Frozen install / strict peers | PASS — pnpm 12.8.1; lockfile unchanged |
+| CD-001 guard self-tests | PASS — `5 / 5` deterministic cases |
+| CD-001 reachability guard | PASS — no `braces` in 211 resolved production packages; no active `settings.next.rootDir`; all 22 pinned Next recommended rules active |
+| `pnpm why braces` | PASS — dev-only chain `@next/eslint-plugin-next → fast-glob → micromatch → braces@3.0.3` |
+| Production dependency audit | PASS — no known vulnerability at HIGH or above |
+| Raw full dependency audit | RAW FAIL retained — exit `1`, exactly one HIGH `GHSA-vfj7-8cjw-p6xm`; `RESOLVED_NOT_AFFECTED` remains conditional on CD-001's guard. This is not called a raw audit pass. |
+| Lint / typecheck | PASS |
+| Unit | PASS — `51 / 51`, 11 test files, including the abort fail-closed regression |
+| Production build | PASS — Next.js `16.3.8` |
+| Full desktop/mobile E2E | **FAIL / BLOCKED** — first run `21 / 24`; after local DB reset, serial run `22 / 24`; focused desktop reproduction failed in the same MFA enrollment path. |
+| Axe/accessibility | BLOCKED — Axe assertions in completed E2E states ran, but the complete E2E suite did not finish green; no full Axe pass is claimed. |
+| Local Supabase reset | PASS — all 3 expected migrations applied |
+| pgTAP | PASS — `166 / 166`, 3 SQL files |
+| Auth/Data API | PASS — `59 / 59` checks using synthetic local users |
+| Migration status | PASS — all 3 expected migrations applied locally |
+| Generated DB types | PASS — regenerated output matches tracked `database.types.ts` (`git diff` empty) |
+| DB lint / security-performance advisors | PASS — no schema errors; no advisor issues |
+| Secret scan | PASS — 216 tracked text files scanned; zero targeted secret matches; local service-role value absent |
+| Client-bundle/server-only containment | PASS — 20 `.next/static` files; zero service-role key/name or audit-writer module hits |
+| Docker config/build/up | PASS — Compose config valid; image built from candidate; web container `healthy` |
+| Health/readiness | PASS — `/api/health` and `/api/ready` HTTP `200 / 200` |
+| Supabase/Auth/Postgres | PASS — local status JSON valid; Auth and REST HTTP `200 / 200`; `pg_isready` and `SELECT 1` pass |
+| Runtime logs | PASS — 14 recent web log lines; zero error/fatal/exception/panic or secret-pattern matches |
+| `.gef` integrity | PASS — unchanged from execution base; no `.gef` write |
+| SonarCloud / Socket / hosted CodeRabbit | PENDING fresh checks on published CD-002 head; no predecessor result is reused |
+
+### E2E/Axe blocker and disposition
+
+The failing E2E steps are in the existing local MFA enrollment/cancellation flow and occur before any `append_audit_event` call. The synthetic cancellation user received the existing generic enrollment failure instead of a QR code; another run found an unverified factor still present after the cancellation action. This is outside CD-002's narrow audit-writer/checkpoint scope, so MFA/UI files were not changed. The new audit abort unit regression passes, and no evidence shows it caused these earlier MFA failures. Because full E2E/Axe is mandatory, the correction is **not ready** for objective audit on this candidate.
+
+### Security and scope disposition
+
+- CRITICAL unresolved: `0`.
+- HIGH unresolved: `0` after CD-001's evidence-backed disposition; raw full audit still truthfully reports its single dev-only HIGH.
+- `GHSA-vfj7-8cjw-p6xm`: `RESOLVED_NOT_AFFECTED`, subject to the committed mechanical guard; raw audit remains nonzero.
+- No migration/RLS/immutability change, dependency or lockfile change, remote Supabase, production deployment, merge, main mutation, force-push or credit promotion.
+- Production credit remains `44 / 515 = 8.54%`.
+- CD-002 stop token is **not reached** while complete E2E/Axe is failing. The branch remains open and unmerged for correction/review.

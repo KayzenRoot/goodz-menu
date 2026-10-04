@@ -450,3 +450,19 @@ Only these changes are authorized:
 ### STOP CONDITION — CD-002
 
 `GMZ_IMPL_006_CD_002_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-006-CD-002 execution record — candidate blocked by L5
+
+- Authorized governance HEAD: `4af23fd1641eaa5fb38accbe100bc544eda11fc6`; execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`.
+- Tested correction candidate: `f922eaafbef25965c38cb1ff1cec5b5532fe4622`; tree: `9364365e5db7a86d3ceefa3cb1101fdbdb431554`.
+- GEF preflight at the authorized HEAD: PASS — correct repository/branch/PR, execution-base ancestry, Context Lock `BOUND_FOR_EXECUTION`, `16 / 16 MATCH`, governance snapshot MATCH, clean entry tree, `.gef` unchanged, local Supabase status valid. `CHECKPOINT.json` remains unchanged since the authorized HEAD.
+- CD-002 code correction: `append_audit_event` now carries `AbortSignal.timeout(3_000)`; generic provider-error redaction and `audit_unavailable` fail-closed handling are preserved. Deterministic abort regression returns `{ allowed: false, reason: "audit_unavailable" }` for a would-be allow. Targeted unit test, lint, and typecheck passed; complete unit suite: `51 / 51` across 11 files.
+- Human checkpoint summary only: corrected to distinguish CD-001's `RESOLVED_NOT_AFFECTED` disposition from the active CD-002 final validation. No `CHECKPOINT.json` mutation.
+- CD-001 preserved: braces guard self-tests `5 / 5`; guard confirms `braces` absent from 211 resolved production packages, no active `settings.next.rootDir`, and 22 recommended Next ESLint rules enabled. Production audit passes; raw full audit remains exit `1` with one HIGH `GHSA-vfj7-8cjw-p6xm`, disposition `RESOLVED_NOT_AFFECTED`; it is not represented as a raw audit pass. Dependency versions and lockfile remain unchanged.
+- Candidate L5 passes: frozen install with strict peers; lint; typecheck; unit; production build; local Supabase reset; pgTAP `166 / 166`; Auth/Data API `59 / 59`; all 3 expected migrations applied; generated DB types equivalent to tracked output; DB lint/advisors clear; production audit; 216 tracked text files secret scan with zero matches; 20 client static files with zero service-role containment hits; Docker config/build/up and healthy web container; health/readiness `200 / 200`; local Auth/REST `200 / 200`; Postgres readiness and `SELECT 1`; 14 runtime log lines with zero error/severe or secret matches; `.gef` unchanged.
+- Full E2E does **not** pass: the initial desktop/mobile run completed `21 / 24`; after a local DB reset, the serial desktop/mobile run completed `22 / 24`; an isolated desktop reproduction also failed. Remaining failures are in the pre-existing MFA enrollment/cancellation flow before any audit-writer RPC: a synthetic user's enrollment returned the existing generic failure instead of a QR code, and a cancellation path retained an unverified local Auth factor. The audit timeout was not reached by these failing steps. No MFA/UI code was changed because CD-002 forbids that scope. The complete E2E/Axe gate therefore remains BLOCKED; no full Axe pass is claimed.
+- Exact-head hosted SonarCloud, Socket and CodeRabbit results were not yet available at this execution-record commit; capture only fresh results after publishing this candidate. The two actionable CodeRabbit threads remain unresolved until the correction is present in the published candidate and hosted review is refreshed.
+- Future-only observation: retention, erasure/pseudonymization and tenant offboarding remain prerequisites before production tenant admission. Not implemented; audit immutability/migration/RLS are unchanged.
+- Production credit remains `44 / 515 = 8.54%`; no promotion, merge, main mutation or force-push.
+- Disposition: `BLOCKED` by the required full E2E/Axe gate outside CD-002's authorized correction scope. Do not claim `GMZ_IMPL_006_CD_002_READY_FOR_OBJECTIVE_AUDIT` until the existing MFA regression passes under separately authorized scope or fresh exact-head rerun evidence clears it.
