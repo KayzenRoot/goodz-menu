@@ -396,3 +396,57 @@ If the guard/reachability proof fails, `braces` appears in production, the vulne
 
 STOP CONDITION reached:
 `GMZ_IMPL_006_CD_001_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-006-CD-002 — hosted-review availability and checkpoint correction
+
+Status: `AUTHORIZED — CORRECTION REQUIRED`
+Review target: PR `#64`
+Reviewed head: `38bc0034f7464c971cb6e98cc05d6a5b1bfc9001`
+Trigger: hosted CodeRabbit full review after PR left draft state.
+Assurance: `HIGH_ASSURANCE`
+
+### Objective findings
+
+1. `MINOR / Functional Correctness` — `.engineering/CHECKPOINT.md` top-level Active increment summary still describes the historical pre-CD-001 blocker and next action, while the later CD-001 proposal records `RESOLVED_NOT_AFFECTED` and readiness for objective audit.
+2. `MINOR / Stability & Availability` — `src/lib/supabase/audit-writer.server.ts` awaits the mandatory `append_audit_event` RPC without an explicit bounded abort signal. A stalled audit backend can therefore delay a privileged action for the HTTP client's much longer default timeout. The security result already fails closed on thrown persistence error, so a bounded timeout is compatible with the architecture and improves availability.
+3. `TRIVIAL / FUTURE` — retention, erasure/pseudonymization and tenant-offboarding semantics must be designed before real production tenant data is admitted. This observation does **not** authorize weakening current append-only immutability, changing the migration, or expanding scope in CD-002.
+
+### CORRECTION SCOPE
+
+Only these changes are authorized:
+
+1. In `.engineering/CHECKPOINT.md`, correct the Active increment human summary so it distinguishes the historical pre-CD-001 state from the proposed CD-001 ready state. Do not alter `.engineering/CHECKPOINT.json` or promote credit.
+2. In `src/lib/supabase/audit-writer.server.ts`, add a bounded `AbortSignal.timeout(3_000)` to the `append_audit_event` RPC request while preserving the existing generic error handling and fail-closed `audit_unavailable` behavior.
+3. Add focused automated proof that timeout/abort of audit persistence cannot produce an allowed privileged decision. Prefer the smallest deterministic unit/integration seam; do not introduce sleep-based/flaky timing tests if a controlled rejection/abort proof is sufficient.
+4. Update the existing Evidence Bundle and Work Order closeout with CD-002 exact-head results.
+5. Reply to and resolve the two hosted CodeRabbit actionable threads only after the correction and evidence pass.
+6. Record the retention/erasure/offboarding observation as `FUTURE / production-admission prerequisite`; no migration/runtime implementation for it is admitted here.
+7. Rerun the complete applicable HIGH_ASSURANCE L5 at the final exact HEAD and obtain fresh hosted SonarCloud, Socket and CodeRabbit results after publication.
+
+### Explicitly prohibited
+
+- changing the `audit_events` immutability trigger, FKs, RLS or migration for retention/offboarding;
+- introducing purge/pseudonymization implementation in this delta;
+- altering dependency versions or `pnpm-lock.yaml`;
+- changing service-role authority, tenant authorization semantics, business-domain behavior or product UI;
+- changing `.engineering/CHECKPOINT.json` or promoting credit;
+- merge, force-push, history rewrite, remote Supabase or production deployment.
+
+### ACCEPTANCE CRITERIA — CD-002
+
+1. Human checkpoint summary no longer presents the pre-CD-001 BLOCKED state as current.
+2. Audit RPC has an explicit 3-second abort boundary.
+3. Abort/timeout preserves fail-closed behavior: no would-be privileged allow can escape as allowed when audit persistence times out.
+4. Existing generic error handling still prevents provider/credential/payload leakage.
+5. Existing audit correlation, metadata, RLS, immutable DB path and service-role containment remain unchanged.
+6. No migration/schema/dependency/lockfile change is introduced.
+7. Retention/erasure/offboarding is documented as FUTURE and prerequisite before production tenant admission, without weakening current immutability.
+8. Complete exact-head HIGH_ASSURANCE L5 passes.
+9. Fresh hosted CodeRabbit has no unresolved actionable thread; SonarCloud and Socket gates pass.
+10. CRITICAL/HIGH unresolved = `0 / 0`.
+11. PR #64 remains open and unmerged for final objective re-audit.
+
+### STOP CONDITION — CD-002
+
+`GMZ_IMPL_006_CD_002_READY_FOR_OBJECTIVE_AUDIT`
