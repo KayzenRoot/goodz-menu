@@ -151,7 +151,7 @@ This section supersedes the earlier CD-002 E2E/Axe blocked disposition. Those fa
 ### Exact candidate and preflight
 
 - Repository: `KayzenRoot/goodz-menu`; branch: `execution/gmz-impl-006-durable-audit`; PR: `#64` against `main`, open and unmerged.
-- Tested HEAD: `f9653818654c6796702f496c8ae6a8d97e735339`; tree: `e99f39824539f9eb46894c0f21ce473a2044a35d`.
+- Tested HEAD: `4cb0d4350c7bfca927c01bc848a40a7f71241f67`; tree: `0dcfb784d31615e8f703f4e7494c1efcda207448`.
 - Execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`; ancestry PASS. Context Lock `BOUND_FOR_EXECUTION`; stable sources `16 / 16 MATCH`; governance snapshot MATCH; clean starting tree; `.gef` unchanged; `CHECKPOINT.json` unchanged. GEF init remains `1.1.1`, `APPLIED`.
 - The CD-002 code remains the bounded `.abortSignal(AbortSignal.timeout(3_000))` on `append_audit_event` and deterministic abort regression asserting `audit_unavailable` rather than privileged allow. The Active increment human summary now reflects completed validation and separate objective audit. No schema/migration/RLS/FK, dependency/lockfile, business runtime/UI, `.gef`, or credit change.
 
@@ -181,7 +181,7 @@ This section supersedes the earlier CD-002 E2E/Axe blocked disposition. Those fa
 | Supabase/Auth/Postgres | PASS — status JSON valid; local Auth health and REST HTTP `200 / 200`; `pg_isready` and `SELECT 1` pass |
 | Runtime logs | PASS — 11 recent web log lines; zero error/fatal/exception/panic or secret-pattern matches |
 | `.gef` integrity | PASS — no paths differ from execution base |
-| Fresh hosted checks | PASS — SonarCloud, Socket Project Report, Socket PR Alerts and hosted CodeRabbit on this published HEAD |
+| Fresh hosted checks | PASS — SonarCloud, Socket Project Report, Socket PR Alerts and hosted CodeRabbit on exact HEAD `4cb0d4350c7bfca927c01bc848a40a7f71241f67` |
 | CodeRabbit actionable threads | PASS — both correction threads show resolved and outdated after fixes were published and validated |
 
 ### Final disposition

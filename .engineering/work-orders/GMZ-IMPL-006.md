@@ -456,7 +456,7 @@ Only these changes are authorized:
 
 The earlier CD-002 E2E failures recorded in the Evidence Bundle remain historical attempts. A later complete desktop/mobile run on the published candidate passed; it supersedes the earlier blocked disposition without changing MFA or business scope.
 
-- Tested HEAD: `f9653818654c6796702f496c8ae6a8d97e735339`; tree: `e99f39824539f9eb46894c0f21ce473a2044a35d`; execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`.
+- Tested HEAD: `4cb0d4350c7bfca927c01bc848a40a7f71241f67`; tree: `0dcfb784d31615e8f703f4e7494c1efcda207448`; execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`.
 - GEF 1.1.1 preflight: PASS — correct repository/branch/PR, clean starting tree, execution base ancestral, Context Lock `BOUND_FOR_EXECUTION`, `16 / 16` source fingerprints MATCH, governance snapshot MATCH, `.gef` unchanged, and `CHECKPOINT.json` unchanged.
 - Frozen install/strict peers: PASS; CD-001 self-tests `5 / 5` and live braces disposition guard PASS; `pnpm why braces` confirms the dev-only chain. Production audit PASS. The full raw audit truthfully remains exit `1` with the single HIGH `GHSA-vfj7-8cjw-p6xm`; the committed reachability guard keeps its reviewed disposition `RESOLVED_NOT_AFFECTED`.
 - Lint PASS; typecheck PASS; unit `51 / 51` across 11 files; production build PASS.
