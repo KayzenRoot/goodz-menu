@@ -159,5 +159,36 @@
     "runtimeOrSchemaCodeIntroduced": false,
     "disposition": "APPROVED_FOR_ADMISSION_PROMOTION"
   },
-  "admissionMergeSha": "2490ed590a6fb21f53d79b7ab7c93fee854c01ee"
+  "admissionMergeSha": "2490ed590a6fb21f53d79b7ab7c93fee854c01ee",
+  "correctionDeltas": [
+    {
+      "id": "GMZ-IMPL-006-CD-001",
+      "status": "AUTHORIZED_CORRECTION_REQUIRED",
+      "reviewedHead": "6e91279f9c42047645fd354e06c3a45c35e723cf",
+      "reason": "Full development dependency audit reports HIGH GHSA-vfj7-8cjw-p6xm in dev-only braces@3.0.3 with no patched npm release; independent review found current Goodz ESLint configuration does not activate @next/eslint-plugin-next settings.next.rootDir fast-glob path.",
+      "dispositionTarget": "RESOLVED_NOT_AFFECTED_WITH_MECHANICAL_GUARD",
+      "allowedMutations": [
+        ".engineering/work-orders/GMZ-IMPL-006.md",
+        ".engineering/execution-packs/GMZ-IMPL-006.md",
+        ".engineering/context-locks/GMZ-IMPL-006.json",
+        ".engineering/evidence/GMZ-IMPL-006-EVIDENCE.md",
+        ".engineering/CHECKPOINT.md proposal only",
+        "package.json script-only delta",
+        "scripts/verify-eslint-braces-not-affected.mjs or equivalent focused guard"
+      ],
+      "dependencyVersionMutation": "FORBIDDEN",
+      "pnpmLockMutation": "FORBIDDEN_UNLESS_SEPARATELY_BLOCKED_AND_REAUTHORIZED",
+      "originalRuntimeScopeMutation": "FORBIDDEN",
+      "requiredProof": [
+        "raw full audit captured truthfully",
+        "production dependency tree has no braces advisory path",
+        "active ESLint flat config has no settings.next.rootDir",
+        "committed mechanical guard fails closed if disposition assumptions change",
+        "Next ESLint recommended rules remain enabled and lint passes",
+        "complete exact-head HIGH_ASSURANCE L5 rerun",
+        "unresolved CRITICAL/HIGH = 0/0 after reviewed disposition"
+      ],
+      "stopCondition": "GMZ_IMPL_006_CD_001_READY_FOR_OBJECTIVE_AUDIT"
+    }
+  ]
 }
