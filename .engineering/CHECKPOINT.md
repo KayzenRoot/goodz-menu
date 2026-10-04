@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_005_CD_001_READY_FOR_OBJECTIVE_AUDIT`
+Status: `GMZ_IMPL_005_PROMOTED_COMPLETE_READY_FOR_NEXT`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,19 +27,16 @@ Status: `GMZ_IMPL_005_CD_001_READY_FOR_OBJECTIVE_AUDIT`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-005` — `CD_001_READY_FOR_OBJECTIVE_AUDIT`
-- Issue: `#57`
-- Branch: `execution/gmz-impl-005-mfa-admin-guard`
-- Execution base: `036d26b92d32ccb6ef69e46721e48b339d1b7332`
-- Assurance: `HIGH_ASSURANCE`
-- Context Lock: `BOUND_FOR_EXECUTION`; stable source fingerprints: `16 / 16 MATCH`
-- Implementation authorization: `GMZ-IMPL-005 ONLY`
-- Last promoted increment: `GMZ-IMPL-004`
-- Implementation merge: `2bee77001309740b6aa86e605ca56fb4e6bed6a2`
-- Next governed action: `OBJECTIVE_AUDIT_GMZ_IMPL_005_CD_001`
+- Work Order: `NONE`
+- Implementation authorization: `NO`
+- Last promoted increment: `GMZ-IMPL-005`
+- Implementation PR: `#59`
+- Implementation merge: `f5da78f0e901d4f9c0bc571309332c001f028306`
+- GMZ-M02 baseline: `19 / 19 — COMPLETE`
+- Next governed action: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
 
 ## Progress accounting
-Overall production completion: `38 / 515 = 7.38%`.
+Overall production completion: `44 / 515 = 8.54%`.
 
 Planning artifacts do not manufacture product-completion percentage.
 
@@ -53,9 +50,9 @@ GMZ-SRC-001 is preserved byte-exact in repository truth:
 The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
-Run the separate objective audit of PR `#59` against its exact final published head. Keep production credit at `38 / 515 = 7.38%` until objective approval, implementation merge, and promotion. Do not merge this execution PR.
+Admit the next NECESSARY implementation Work Order from the canonical dependency order. Platform/Super Admin and business-domain implementation remain unauthorized until separately admitted.
 
-STOP CONDITION: `GMZ_IMPL_005_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
+STOP CONDITION: `GMZ_IMPL_005_PROMOTED_COMPLETE`.
 
 
 ## Historical GMZ-IMPL-005 execution closeout — superseded by CD-001
@@ -870,3 +867,23 @@ HISTORICAL STOP CONDITION (superseded by execution closeout and CD-001): `GMZ_IM
 - Next action: `OBJECTIVE_AUDIT_GMZ_IMPL_005_CD_001`.
 
 CORRECTION TOKEN (CD-001): `GMZ_IMPL_005_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-005 post-merge promotion
+
+- exact accepted candidate: `54b1b4b64eb5a58dbadd887912ea8d846b127ec8`
+- implementation PR: `#59`
+- merge SHA: `f5da78f0e901d4f9c0bc571309332c001f028306`
+- objective audit: `APPROVED_FOR_PROMOTION`
+- incremental credit:
+  - GMZ-M02: `4`
+  - GMZ-M26: `2`
+  - total: `6 / 515`
+- production credit: `44 / 515 = 8.54%`
+- GMZ-M02 accepted baseline: `19 / 19 — COMPLETE`
+- active implementation authorization: `NO`
+- unresolved review threads: `0`
+- CRITICAL/HIGH: `0 / 0`
+- next: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
+
+STOP CONDITION: `GMZ_IMPL_005_PROMOTED_COMPLETE`.

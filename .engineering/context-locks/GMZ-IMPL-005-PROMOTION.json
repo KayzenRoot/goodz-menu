@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "goodz.promotion-context-lock",
+  "workOrderId": "GMZ-IMPL-005-PROMOTION",
+  "issue": 60,
+  "repository": "KayzenRoot/goodz-menu",
+  "baseBranch": "main",
+  "baseSha": "f5da78f0e901d4f9c0bc571309332c001f028306",
+  "branch": "promotion/gmz-impl-005-credit-sync",
+  "parentWorkOrder": "GMZ-IMPL-005",
+  "implementationPr": 59,
+  "implementationMergeSha": "f5da78f0e901d4f9c0bc571309332c001f028306",
+  "acceptedCandidate": "54b1b4b64eb5a58dbadd887912ea8d846b127ec8",
+  "productionDenominator": 515,
+  "productionEarnedBefore": 38,
+  "productionEarnedAfter": 44,
+  "completionPercent": 8.54,
+  "moduleBaselineAfter": {
+    "GMZ-M02": {
+      "earned": 19,
+      "weight": 19,
+      "state": "COMPLETE"
+    }
+  },
+  "creditAllocation": {
+    "GMZ-M02": 4,
+    "GMZ-M26": 2
+  },
+  "writeAllowed": [
+    ".engineering/CHECKPOINT.md",
+    ".engineering/CHECKPOINT.json",
+    ".engineering/PROGRESS-LEDGER.md",
+    ".engineering/work-orders/GMZ-IMPL-005.md",
+    ".engineering/work-orders/GMZ-IMPL-005-PROMOTION.md",
+    ".engineering/context-locks/GMZ-IMPL-005.json",
+    ".engineering/context-locks/GMZ-IMPL-005-PROMOTION.json",
+    ".engineering/evidence/GMZ-IMPL-005-OBJECTIVE-AUDIT.md",
+    ".engineering/evidence/GMZ-IMPL-005-PROMOTION-EVIDENCE.md",
+    "docs/source-pack/BACKLOG.md"
+  ],
+  "writeForbidden": [
+    ".gef/**",
+    "runtime/application code",
+    "tests",
+    "dependencies",
+    "schema/migrations",
+    "seed",
+    "remote Supabase",
+    "production infrastructure",
+    "business-domain implementation"
+  ],
+  "stopCondition": "GMZ_IMPL_005_PROMOTION_SYNC_READY_FOR_REVIEW"
+}

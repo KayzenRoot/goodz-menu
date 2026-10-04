@@ -14,6 +14,8 @@ This ledger records evidence-backed production credit after successful governed 
 
 | GMZ-IMPL-004 | `2bee77001309740b6aa86e605ca56fb4e6bed6a2` | 0 | 5 | 0 | 0 | 2 | 0 | 7 | 38 / 515 | 7.38% |
 
+| GMZ-IMPL-005 | `f5da78f0e901d4f9c0bc571309332c001f028306` | 0 | 4 | 0 | 0 | 2 | 0 | 6 | 44 / 515 | 8.54% |
+
 ## Rules
 - no credit before merge;
 - no credit without accepted evidence;
