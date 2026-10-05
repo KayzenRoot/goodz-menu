@@ -502,3 +502,91 @@ This is the latest published-candidate validation record and supersedes the earl
 - Future-only observation: retention, erasure/pseudonymization and tenant offboarding remain prerequisites before production tenant admission. Not implemented; audit immutability/migration/RLS are unchanged.
 - Production credit remains `44 / 515 = 8.54%`; no promotion, merge, main mutation or force-push.
 - Disposition: `BLOCKED` by the required full E2E/Axe gate outside CD-002's authorized correction scope. Do not claim `GMZ_IMPL_006_CD_002_READY_FOR_OBJECTIVE_AUDIT` until the existing MFA regression passes under separately authorized scope or fresh exact-head rerun evidence clears it.
+
+
+## GMZ-IMPL-006-CD-003 — deterministic E2E gate stabilization
+
+Status: `AUTHORIZED — CORRECTION REQUIRED`
+Review target: PR `#64`
+Reviewed published head: `6766326ea64c556b2226dd6603796ab4b5b29e24`
+Blocked code candidate: `0a133a1281a5002549f5e90928c4c7a67d49946f`
+Known-green predecessor: `4cb0d4350c7bfca927c01bc848a40a7f71241f67`
+Assurance: `HIGH_ASSURANCE`
+
+### Trigger and independent diagnosis
+
+The latest exact-head L5 remains blocked because two different full-suite runs ended at `23 / 24`:
+
+1. desktop logout/session regression stayed on `/app` instead of reaching `/login`;
+2. mobile Admin Guard run hit a strict-locator ambiguity from generic `getByRole("status")` while two status elements were present.
+
+Independent compare proves that `4cb0d435...` and `0a133a128...` differ only in:
+- `.engineering/evidence/GMZ-IMPL-006-EVIDENCE.md`;
+- `.engineering/work-orders/GMZ-IMPL-006.md`.
+
+No runtime, auth, MFA, Admin Guard or E2E source changed between the earlier `24 / 24` run and the later failing run. Therefore the current evidence supports a test-determinism/synchronization defect, not a proven product-runtime regression. This classification does not waive the gate: exact-head E2E must still become deterministically green.
+
+### CORRECTION SCOPE
+
+Only test/evidence hardening is authorized:
+
+1. `tests/e2e/auth-session.spec.ts`:
+   - make logout synchronization deterministic;
+   - observe the actual Supabase logout request/response or equivalent deterministic completion signal;
+   - require successful logout completion, redirect to `/login`, session-cookie clearance and subsequent denial of protected `/app` access;
+   - bounded waits are allowed; arbitrary sleeps are forbidden;
+   - do not weaken any logout/session security assertion.
+2. `tests/e2e/mfa-admin-guard.spec.ts`:
+   - replace ambiguous generic status-role assertions in the affected Admin Guard flow with state-specific, semantically exact locators/text;
+   - do not use `.first()`, `.nth()` or another selector trick that can hide simultaneous wrong states;
+   - preserve all positive and negative authorization/MFA assertions.
+3. Focused stability proof:
+   - run the logout scenario repeatedly;
+   - run the Admin Guard scenario repeatedly on mobile;
+   - require deterministic success without source changes between runs.
+4. Full-suite proof:
+   - complete desktop/mobile E2E must pass `24 / 24` with normal worker configuration;
+   - complete suite must also pass `24 / 24` with `--workers=1`;
+   - Axe/accessibility must pass in the complete green suite.
+5. After E2E stabilization, rerun the complete applicable GMZ-IMPL-006 HIGH_ASSURANCE L5 at the exact final HEAD and obtain fresh hosted SonarCloud, Socket and CodeRabbit results.
+6. Update Evidence Bundle, Work Order closeout and human checkpoint proposal only. `CHECKPOINT.json` remains unchanged until objective audit/promotion.
+
+### Runtime escalation rule
+
+CD-003 does **not** authorize product runtime/Auth/MFA/Admin Guard changes.
+
+If deterministic instrumentation shows any of the following, STOP as `BLOCKED` and request a separate runtime correction delta:
+- logout request returns an actual provider/application error;
+- logout reports success but session cookie remains effective after bounded completion;
+- protected `/app` remains accessible after confirmed successful logout;
+- Admin Guard renders mutually invalid states because of a real runtime state bug rather than locator ambiguity.
+
+### Explicitly prohibited
+
+- runtime/Auth/MFA/Admin Guard implementation changes;
+- schema/migration/RLS/FK/immutability changes;
+- dependency or `pnpm-lock.yaml` changes;
+- weakening security/accessibility assertions;
+- retries configured merely to mask failure;
+- fixed sleeps used as synchronization;
+- `.first()`/index-based status selection that hides duplicate live states;
+- `.gef/**`, remote Supabase, production deployment, merge, force-push or credit promotion.
+
+### ACCEPTANCE CRITERIA — CD-003
+
+1. Logout E2E deterministically proves provider completion, redirect, cookie/session invalidation and protected-route denial.
+2. Admin Guard mobile E2E uses unambiguous semantic/state-specific locators and still proves the same security behavior.
+3. Focused logout regression passes at least `3 / 3` consecutive executions.
+4. Focused mobile Admin Guard regression passes at least `3 / 3` consecutive executions.
+5. Full E2E normal workers: `24 / 24`.
+6. Full E2E one worker: `24 / 24`.
+7. Full-suite Axe/accessibility: PASS, zero violations.
+8. No runtime/schema/dependency/lockfile/GEF mutation is introduced.
+9. Complete exact-head HIGH_ASSURANCE L5 passes, including CD-001 and CD-002 proofs.
+10. Fresh hosted SonarCloud, Socket and CodeRabbit gates complete with no unresolved actionable thread.
+11. CRITICAL/HIGH unresolved = `0 / 0`.
+12. PR #64 remains open and unmerged for final objective re-audit.
+
+### STOP CONDITION — CD-003
+
+`GMZ_IMPL_006_CD_003_READY_FOR_OBJECTIVE_AUDIT`
