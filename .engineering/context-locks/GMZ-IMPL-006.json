@@ -224,6 +224,45 @@
       ],
       "futureObservation": "Retention/erasure/pseudonymization and tenant offboarding are required before production tenant admission; not implemented in CD-002.",
       "stopCondition": "GMZ_IMPL_006_CD_002_READY_FOR_OBJECTIVE_AUDIT"
+    },
+    {
+      "id": "GMZ-IMPL-006-CD-003",
+      "status": "AUTHORIZED_CORRECTION_REQUIRED",
+      "reviewedPublishedHead": "6766326ea64c556b2226dd6603796ab4b5b29e24",
+      "blockedCandidate": "0a133a1281a5002549f5e90928c4c7a67d49946f",
+      "knownGreenPredecessor": "4cb0d4350c7bfca927c01bc848a40a7f71241f67",
+      "diagnosis": "Known-green and later-failing candidates differ only in governance/evidence files; current evidence supports E2E synchronization/selector nondeterminism rather than a proven runtime regression.",
+      "allowedMutations": [
+        ".engineering/work-orders/GMZ-IMPL-006.md",
+        ".engineering/execution-packs/GMZ-IMPL-006.md",
+        ".engineering/context-locks/GMZ-IMPL-006.json",
+        ".engineering/evidence/GMZ-IMPL-006-EVIDENCE.md",
+        ".engineering/CHECKPOINT.md proposal only",
+        "tests/e2e/auth-session.spec.ts",
+        "tests/e2e/mfa-admin-guard.spec.ts"
+      ],
+      "forbiddenMutations": [
+        ".engineering/CHECKPOINT.json",
+        "runtime/Auth/MFA/Admin Guard implementation",
+        "schema/migrations/RLS/FKs/audit immutability",
+        "dependencies/pnpm-lock.yaml",
+        ".gef/**",
+        "remote Supabase",
+        "production deployment"
+      ],
+      "escalationRule": "If deterministic proof reveals a real runtime/Auth/MFA/Admin Guard defect, stop BLOCKED and request a separate runtime correction delta.",
+      "requiredProof": [
+        "focused logout regression >= 3/3",
+        "focused mobile Admin Guard regression >= 3/3",
+        "full E2E normal workers = 24/24",
+        "full E2E workers=1 = 24/24",
+        "full-suite Axe PASS",
+        "complete exact-head HIGH_ASSURANCE L5",
+        "fresh hosted SonarCloud Socket CodeRabbit",
+        "unresolved actionable review threads = 0",
+        "CRITICAL/HIGH unresolved = 0/0"
+      ],
+      "stopCondition": "GMZ_IMPL_006_CD_003_READY_FOR_OBJECTIVE_AUDIT"
     }
   ]
 }
