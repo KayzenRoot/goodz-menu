@@ -139,3 +139,35 @@ Update Evidence Bundle and Work Order closeout, commit/push to PR #64 and stop. 
 
 STOP CONDITION:
 `GMZ_IMPL_006_CD_002_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-006-CD-003 — deterministic E2E correction execution
+
+Status: `CORRECTION_REQUIRED`
+
+### E0 — Re-preflight
+Confirm PR/branch/base ancestry, 16/16 stable fingerprints, Context Lock CD-003 binding, clean tree, unchanged .gef and unchanged CHECKPOINT.json. Credit remains 44/515.
+
+### E1 — Diagnose without runtime mutation
+Confirm the known-green `4cb0d43` to blocked `0a133a1` delta is governance/evidence-only. Reproduce each failing E2E with deterministic instrumentation. If a real runtime defect is proven, stop BLOCKED and do not edit runtime under CD-003.
+
+### E2 — Logout E2E stabilization
+Harden only `tests/e2e/auth-session.spec.ts`: synchronize on actual logout completion, assert successful provider response, login redirect, cookie/session invalidation and protected-route denial. No fixed sleeps and no weakened assertions.
+
+### E3 — Admin Guard locator stabilization
+Harden only `tests/e2e/mfa-admin-guard.spec.ts`: use state-specific semantic locators for status assertions. Never use index-based selection to hide duplicate states.
+
+### E4 — Focused stability proof
+Run logout regression >=3 consecutive passes and mobile Admin Guard regression >=3 consecutive passes.
+
+### E5 — Full E2E dual-mode proof
+Run full desktop/mobile E2E with normal workers and with workers=1. Both must be 24/24; full-suite Axe must pass.
+
+### E6 — Exact-head HIGH_ASSURANCE
+Run complete GMZ-IMPL-006 L5 on the final head, preserving CD-001 raw-audit truth and CD-002 timeout proof. Obtain fresh hosted SonarCloud/Socket/CodeRabbit.
+
+### E7 — Evidence / stop
+Update Evidence Bundle, Work Order closeout and human checkpoint proposal, commit/push to the same PR and stop. No merge and no credit promotion.
+
+STOP CONDITION:
+`GMZ_IMPL_006_CD_003_READY_FOR_OBJECTIVE_AUDIT`
