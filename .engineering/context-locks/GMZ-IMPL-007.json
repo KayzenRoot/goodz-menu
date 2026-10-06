@@ -8,9 +8,9 @@
   "assurance": "ELEVATED",
   "admissionBaseRef": "main",
   "admissionBaseSha": "f98b54a2a933e1cf312575a571afb57566422d82",
-  "workBranch": "implementation/gmz-impl-007-catalog-core",
-  "executionBaseSha": null,
-  "executionBaseState": "MUST_BIND_AFTER_ADMISSION_PROMOTION",
+  "workBranch": "execution/gmz-impl-007-catalog-core",
+  "executionBaseSha": "1b64fbfbef3d31d215f4a2a1e30e88f8f946860c",
+  "executionBaseState": "BOUND_FOR_EXECUTION",
   "sourcePack": "FROZEN_V0_1",
   "productionDenominator": 515,
   "productionEarnedAtAdmission": 52,
@@ -88,9 +88,9 @@
   ],
   "governanceSnapshot": {
     "checkpointPath": ".engineering/CHECKPOINT.json",
-    "checkpointGitBlobSha": "789223da901d9c0415da82bf5d8cb781d9d486e4",
-    "status": "GMZ_IMPL_006_PROMOTED_COMPLETE_READY_FOR_NEXT",
-    "note": "Admission snapshot after GMZ-IMPL-006 promotion; executor mutation remains blocked until admission merge and exact execution-base bind."
+    "checkpointGitBlobSha": "77b8b2a7dc88d1d97f01e5889f8bf5d2d40a95e8",
+    "status": "GMZ_IMPL_007_ADMISSION_CANDIDATE_READY_FOR_REVIEW",
+    "note": "Snapshot at the objectively approved and merged admission. Runtime/schema mutation becomes legal only on the execution branch after this exact execution-base bind passes objective review."
   },
   "implementationContract": {
     "catalogCore": "ADMITTED_AFTER_BIND",
@@ -133,8 +133,8 @@
     "Executor does not merge"
   ],
   "executor": "GEF heavy executor / Codex",
-  "codexAllowed": false,
-  "codexAuthorizedScope": "BLOCKED until objective admission audit, admission merge, and exact execution-base bind.",
+  "codexAllowed": true,
+  "codexAuthorizedScope": "GMZ-IMPL-007 ONLY on execution/gmz-impl-007-catalog-core descending from exact execution base 1b64fbfbef3d31d215f4a2a1e30e88f8f946860c; executor may implement only the admitted catalog slice and must not merge.",
   "codexProhibited": [
     "runtime/schema mutation before bind",
     "main direct mutation",
@@ -149,5 +149,19 @@
     "service-role catalog authorization/business mutation",
     "unrelated cleanup"
   ],
-  "stopCondition": "GMZ_IMPL_007_ADMISSION_READY_FOR_REVIEW"
+  "stopCondition": "GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT",
+  "admissionAudit": {
+    "admissionPr": 68,
+    "auditedHead": "9abc2f690f035b41801662688cb6f7ab9e2e9f9a",
+    "admissionMergeSha": "1b64fbfbef3d31d215f4a2a1e30e88f8f946860c",
+    "critical": 0,
+    "high": 0,
+    "stableSourceFingerprints": "16/16 MATCH",
+    "sonarqube": "PASS",
+    "socket": "PASS",
+    "codeRabbit": "SUCCESS",
+    "unresolvedReviewThreads": 0,
+    "runtimeOrSchemaCodeIntroduced": false,
+    "disposition": "APPROVED_FOR_ADMISSION_PROMOTION"
+  }
 }
