@@ -171,3 +171,29 @@ Update Evidence Bundle, Work Order closeout and human checkpoint proposal, commi
 
 STOP CONDITION:
 `GMZ_IMPL_006_CD_003_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-006-CD-004 — fixture JSON compatibility execution
+
+Status: `CORRECTION_REQUIRED`
+
+### F0 — Preserve local CD-003 work and rebase governance
+Do not discard the already prepared uncommitted CD-003 test changes. Bring the branch to the latest CD-004 governance head safely, preserving those changes, then reconfirm branch/base/Context Lock/16 fingerprints/.gef/CHECKPOINT.json.
+
+### F1 — Fixture parser correction
+Fix only `tests/e2e/auth-session-fixture.ts`: parse the complete JSON container emitted by local Supabase, support top-level row arrays and object-with-rows form, normalize the first row, and fail visibly for malformed/unexpected shape. Keep correlation validation and local-only behavior.
+
+### F2 — Focused proof
+Prove the durable Admin Guard audit row is observed as `event_count=1`. Run final-candidate logout >=3/3 and mobile Admin Guard >=3/3 with no source changes between repetitions.
+
+### F3 — Dual-mode full E2E
+Run complete desktop/mobile E2E with normal workers and with workers=1; both must be 24/24. Full-suite Axe must pass with zero violations.
+
+### F4 — Exact-head HIGH_ASSURANCE
+Run complete GMZ-IMPL-006 L5 on the final exact HEAD, preserving CD-001 raw-audit truth and CD-002 timeout proof. No runtime/schema/dependency expansion.
+
+### F5 — Hosted gates / evidence
+Push final candidate; obtain fresh SonarCloud, Socket and CodeRabbit on that exact HEAD. Update Evidence Bundle, Work Order closeout and human checkpoint proposal only. Keep PR #64 open/unmerged and credit at 44/515.
+
+STOP CONDITION:
+`GMZ_IMPL_006_CD_004_READY_FOR_OBJECTIVE_AUDIT`
