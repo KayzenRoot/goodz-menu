@@ -72,7 +72,7 @@ export async function loadCatalogOverview(
   const needle = normalizeSearch(search);
 
   try {
-    const [categories, products, variants, channels, pricing, timeline, scopes] = await Promise.all([
+    const [categories, products, variants, channels, pricing, timeline, scopes, priceScopes, availabilityScopes] = await Promise.all([
       loadAllPages((from, to) => client
         .from("product_categories")
         .select("id, organization_id, establishment_id, branch_id, parent_category_id, name, description, display_order, status", { count: "exact" })
@@ -112,10 +112,12 @@ export async function loadCatalogOverview(
         return offerId ? query.eq("channel_offer_id", offerId) : query;
       }),
       client.rpc("catalog_admitted_scopes", { p_permission_key: "catalog.write" }),
+      client.rpc("catalog_admitted_scopes", { p_permission_key: "catalog.price.manage" }),
+      client.rpc("catalog_admitted_scopes", { p_permission_key: "catalog.availability.manage" }),
     ]);
 
     if (!categories || !products || !variants || !channels || !pricing || !timeline) return EMPTY_OVERVIEW;
-    if (scopes.error) return EMPTY_OVERVIEW;
+    if (scopes.error || priceScopes.error || availabilityScopes.error) return EMPTY_OVERVIEW;
 
     const categoryViews = mapRows(
       categories.filter((row) => matches(optionalText(row.name), needle) || matches(optionalText(row.description), needle)),
@@ -288,6 +290,8 @@ export async function loadCatalogOverview(
       ok: true,
       organizationId: organizationIds.size === 1 ? [...organizationIds][0] : null,
       writeScopes: scopeViews,
+      canManagePrice: (priceScopes.data?.length ?? 0) > 0,
+      canManageAvailability: (availabilityScopes.data?.length ?? 0) > 0,
       categories: categoryViews,
       products: productViews,
       variants: variantViews,

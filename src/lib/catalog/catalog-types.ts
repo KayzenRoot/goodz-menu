@@ -89,6 +89,13 @@ export type CatalogOverview =
        * holding one over an empty catalog.
        */
       writeScopes: CatalogAdmittedScope[];
+      /**
+       * Whether this session holds the commercial capabilities. Read from the same admitted-scope
+       * contract the mutations are authorized against, so the interface shows the money controls to
+       * exactly the sessions that could use them and hides them from everyone else.
+       */
+      canManagePrice: boolean;
+      canManageAvailability: boolean;
       categories: CatalogCategoryView[];
       products: CatalogProductView[];
       variants: CatalogVariantView[];

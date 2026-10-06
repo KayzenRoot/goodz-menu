@@ -1,4 +1,4 @@
-import { createHmac, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { expect, test, type BrowserContext, type Page, type Route } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import {
@@ -6,6 +6,7 @@ import {
   ADMIN_GUARD_TEST_SIGNATURE_HEADER,
   signAdminGuardTestTimestamp,
 } from "@/lib/supabase/admin-guard-test-clock";
+import { invalidTotp, totp } from "./totp";
 import { createAuthSessionFixture, type AuthSessionFixture } from "./auth-session-fixture";
 
 test.use({ screenshot: "off", trace: "off" });
@@ -26,36 +27,6 @@ async function signIn(page: Page, email: string, password: string) {
   await page.getByLabel("Senha").fill(password);
   await page.getByRole("button", { name: "Entrar" }).click();
   await expect(page).toHaveURL(/\/app$/);
-}
-
-function totp(secret: string, now = Date.now()): string {
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-  const normalized = secret.replace(/=+$/g, "").toUpperCase();
-  let bits = "";
-  for (const character of normalized) {
-    const value = alphabet.indexOf(character);
-    if (value < 0) throw new Error("The local TOTP fixture is unavailable.");
-    bits += value.toString(2).padStart(5, "0");
-  }
-
-  const key = Buffer.from(bits.match(/.{8}/g)?.map((part) => parseInt(part, 2)) ?? []);
-  const counter = Math.floor(now / 30_000);
-  const message = Buffer.alloc(8);
-  message.writeBigUInt64BE(BigInt(counter));
-  const digest = createHmac("sha1", key).update(message).digest();
-  const offset = digest[digest.length - 1] & 0x0f;
-  const binary = digest.readUInt32BE(offset) & 0x7fffffff;
-  return (binary % 1_000_000).toString().padStart(6, "0");
-}
-
-function invalidTotp(secret: string): string {
-  const now = Date.now();
-  const validWindowCodes = new Set([-90, -60, -30, 0, 30, 60, 90].map((offset) => totp(secret, now + offset)));
-  for (let candidate = 0; candidate < 1_000_000; candidate += 1) {
-    const code = candidate.toString().padStart(6, "0");
-    if (!validWindowCodes.has(code)) return code;
-  }
-  throw new Error("Local TOTP fixture is unavailable.");
 }
 
 async function readEnrollmentSecret(page: Page) {

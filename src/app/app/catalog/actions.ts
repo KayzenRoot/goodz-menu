@@ -1,7 +1,9 @@
 "use server";
 
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { requestCorrelationId } from "@/lib/observability/correlation";
+import { confirmPrivilegedIdentity } from "@/lib/supabase/privileged-identity.server";
 import {
   buildArchiveCategoryCommand,
   buildArchiveProductCommand,
@@ -56,6 +58,9 @@ export type CatalogActionResult =
 
 export type CatalogActionState = CatalogActionResult | null;
 
+/** The one route every catalog command is read back through. */
+const CATALOG_PATH = "/app/catalog";
+
 const SUCCESS_MESSAGES: Record<string, string> = {
   "catalog.category.created": "Categoria criada.",
   "catalog.category.updated": "Categoria atualizada.",
@@ -104,6 +109,11 @@ type Builder<T> = (formData: FormData, correlationId: string) =>
  * Runs one validated command. The builder decides admissibility; the contract decides authority. A
  * rejected form never reaches the database, and a database refusal never reaches the operator as raw
  * database text.
+ *
+ * A command that landed revalidates the console before the form reports back, so the list the
+ * operator reads is the one the database now holds. Without it the console keeps rendering the
+ * server-rendered state from before the write and the success message describes a row that is not on
+ * screen.
  */
 async function dispatch<T>(
   builder: Builder<T>,
@@ -114,7 +124,9 @@ async function dispatch<T>(
   if (!validated.ok) {
     return { kind: "invalid", message: describeValidationIssues(validated.issues), issues: validated.issues };
   }
-  return toActionResult(await invoke(validated.value));
+  const outcome = await invoke(validated.value);
+  if (outcome.ok) revalidatePath(CATALOG_PATH);
+  return toActionResult(outcome);
 }
 
 export async function createCategoryAction(
@@ -220,4 +232,24 @@ export async function updateOfferVisibilityAction(
   formData: FormData,
 ): Promise<CatalogActionState> {
   return dispatch(buildOfferVisibilityCommand, formData, updateChannelOfferVisibility);
+}
+
+export type PrivilegedIdentityActionState = CatalogActionState;
+
+/**
+ * Confirms the caller's identity for the privileged commercial commands that follow.
+ *
+ * The password and the authenticator code are verified together, in one place, because the database
+ * will only accept a bearer that carries both inside the same token. Anything less either proves the
+ * password without the second factor or the second factor without a recent password, and the command
+ * that follows would be refused no matter what the operator typed.
+ */
+export async function confirmPrivilegedIdentityAction(
+  _previous: PrivilegedIdentityActionState,
+  formData: FormData,
+): Promise<PrivilegedIdentityActionState> {
+  const outcome = await confirmPrivilegedIdentity(formData.get("reauth-password"), formData.get("totp-code"));
+  if (!outcome.ok) return { kind: "failed", message: outcome.message, code: "privileged_confirmation_required" };
+  revalidatePath(CATALOG_PATH);
+  return { kind: "ok", message: "Identidade confirmada nesta sessão.", targetId: null };
 }

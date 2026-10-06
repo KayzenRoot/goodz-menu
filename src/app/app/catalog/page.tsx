@@ -5,6 +5,7 @@ import { LogoutButton } from "@/components/goodz/logout-button";
 import { CatalogConsole } from "@/components/goodz/catalog-console";
 import { getCurrentAuthContext } from "@/lib/supabase/auth-session";
 import { loadCatalogOverview } from "@/lib/catalog/catalog-queries.server";
+import { readPrivilegedCatalogReadiness } from "@/lib/catalog/catalog-privileged.server";
 import { readSupabaseAuthConfig } from "@/lib/env/runtime-env";
 
 export const dynamic = "force-dynamic";
@@ -23,7 +24,10 @@ export default async function CatalogPage({ searchParams }: Readonly<{ searchPar
   if (!config.ok) redirect("/login?next=%2Fapp%2Fcatalog");
 
   const search = readSearch((await searchParams).search);
-  const overview = await loadCatalogOverview(auth.client, search, null);
+  const [overview, readiness] = await Promise.all([
+    loadCatalogOverview(auth.client, search, null),
+    readPrivilegedCatalogReadiness(auth.client),
+  ]);
 
   return (
     <AuthFrame>
@@ -35,7 +39,14 @@ export default async function CatalogPage({ searchParams }: Readonly<{ searchPar
           </div>
         </div>
 
-        <CatalogConsole overview={overview} search={search} />
+        <CatalogConsole
+          overview={overview}
+          search={search}
+          commercialConfirmation={{
+            confirmed: readiness.allowed,
+            verifiedFactorIds: readiness.verifiedFactorIds,
+          }}
+        />
       </div>
     </AuthFrame>
   );

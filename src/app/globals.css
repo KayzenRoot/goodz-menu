@@ -6,7 +6,7 @@
   --surface-glass: rgb(255 255 255 / 76%); --text-primary: #17241e; --text-secondary: #52645a;
   --text-muted: #657268; --border-subtle: #e3e9e2; --border-strong: #ccd8ce;
   --accent: #176a4b; --accent-strong: #10573c; --accent-soft: #e6f2e8; --accent-lime: #c5e980;
-  --success: #258356; --warning: #a56b16; --danger: #b64d48; --info: #4779a0;
+  --success: #258356; --success-strong: #1f7350; --warning: #a56b16; --danger: #b64d48; --info: #4779a0;
   --shadow-soft: 0 14px 38px rgb(29 57 42 / 6%); --shadow-float: 0 26px 70px rgb(24 51 37 / 13%);
   --font-sans: "Avenir Next", Avenir, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
 }
@@ -15,7 +15,7 @@
   --surface-raised: #202c24; --surface-glass: rgb(29 41 33 / 83%); --text-primary: #edf4eb;
   --text-secondary: #b2c2b6; --text-muted: #9aa99e; --border-subtle: #2b3a30;
   --border-strong: #52665a; --accent: #8ed5a9; --accent-strong: #b1e9c4;
-  --accent-soft: #203a2c; --accent-lime: #c5e980; --success: #79d4a0; --warning: #e7b865;
+  --accent-soft: #203a2c; --accent-lime: #c5e980; --success: #79d4a0; --success-strong: #8fe0b3; --warning: #e7b865;
   --danger: #ff938a; --info: #91bee1; --shadow-soft: 0 14px 38px rgb(0 0 0 / 17%);
   --shadow-float: 0 26px 70px rgb(0 0 0 / 34%);
 }
@@ -192,6 +192,13 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .catalog-scope-note { color: var(--text-muted); font-size: 10px; line-height: 1.5; }
 .catalog-empty-line { margin: 0; padding: 11px 13px; border: 1px dashed var(--border-strong); border-radius: 12px; color: var(--text-muted); font-size: 11px; }
 .catalog-heading-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: start; }
+/* The commercial confirmation is a standing state, not an error banner: it has to read the same way
+   whether the price was refused or was never attempted. */
+.catalog-confirmation { display: grid; min-width: 0; gap: 13px; padding: 15px; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface-raised); }
+.catalog-confirmation-head { display: grid; gap: 5px; }
+.catalog-confirmation-head h2 { margin: 0; color: var(--text-primary); font-size: 15px; font-weight: 620; letter-spacing: -.4px; }
+.catalog-confirmation-head p { margin: 0; color: var(--text-secondary); font-size: 11px; line-height: 1.65; }
+.catalog-confirmation-ok { margin: 0; padding: 11px 13px; border: 1px solid color-mix(in srgb, var(--success), var(--border-subtle) 58%); border-radius: 13px; background: color-mix(in srgb, var(--success), var(--surface) 94%); color: var(--success-strong); font-size: 11px; line-height: 1.6; }
 @media (max-width: 640px) {
   .catalog-console { gap: 21px; }
   .catalog-inline-form { grid-template-columns: minmax(0, 1fr); }

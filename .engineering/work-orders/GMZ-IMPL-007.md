@@ -310,3 +310,101 @@ Execution after governed admission promotion and exact bind:
 
 Execution STOP CONDITION:
 `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## EXECUTION CLOSEOUT
+
+Executed on `execution/gmz-impl-007-catalog-core` from the exact execution base
+`1b64fbfbef3d31d215f4a2a1e30e88f8f946860c`, under the Context Lock bound at `16 / 16 MATCH` with
+assurance `ELEVATED`. Merge authority was `NO` and none was exercised.
+
+### Schema / data-model delta
+
+- `supabase/migrations/20261005090000_catalog_core_schema.sql`
+  - `product_categories`, `products`, `product_variants`, `sales_channels`, `channel_offers`
+  - `channel_offer_price_history`, immutable, exposed read-only as `channel_offer_price_timeline`
+  - money is `numeric(19,4)`; a price is never a binary float
+  - a `ChannelOffer` names exactly one canonical `Product` **or** one `ProductVariant`, never both and
+    never neither; uniqueness is per `(sales_channel_id, product_id)` and per
+    `(sales_channel_id, product_variant_id)`
+  - a `ProductVariant` belongs to exactly one `Product`; a parent from another tenant is refused
+- `20261005090100_catalog_authorization.sql` — tenant-aware RLS, direct-client mutation denied,
+  `SECURITY DEFINER` + `SET search_path = ''`, EXECUTE to `authenticated` only, actor from the JWT
+- `20261005090200_catalog_contracts.sql` — catalog commands, `catalog_require_step_up()`, receipted
+  idempotency
+
+### Tenant / RLS authorization matrix
+
+Own tenant: read admitted rows, write within the admitted scope. Sibling tenant in the same
+organization: denied. Foreign tenant: denied. ID substitution: denied. Nested relationship IDOR:
+denied. Foreign parent on insert: denied. Cross-tenant enumeration: denied — a foreign name is
+indistinguishable from a name that does not exist. Direct client `INSERT`/`UPDATE`/`DELETE` on every
+catalog table through the Data API: denied. No service-role path exists for catalog authorization,
+catalog business mutation or tenant bypass.
+
+### Price / history invariants
+
+- a negative price is refused; a promotional price that is not below the base price is refused;
+  impossible commercial states are refused
+- four decimal places survive the round trip exactly
+- a repricing closes the prior revision and writes a new one; the prior revision keeps its own price,
+  its own effective window and its own audit event, so the prior truth is reconstructable
+- history rows refuse deletion, so the archive is append-only by construction
+
+### Mutation trust boundary
+
+Server actions re-derive authority independently of anything the interface displayed. A privileged
+commercial mutation (price, promotional price, availability, material visibility) additionally
+requires a single bearer that carries `aal2`, a fresh `totp` and a fresh `password` authentication —
+exactly what `catalog_require_step_up()` demands. A durable `AuditEvent` with the command's
+correlation is written inside the same transaction; if that write cannot happen, the mutation fails
+closed. Audit metadata is restricted by `private.is_safe_audit_metadata` to
+`required_permission`/`resource_kind`/`changed_fields`/`previous_value`/`next_value`.
+
+### UI / accessibility proof
+
+`/app/catalog` inside the existing app shell. Axe reports zero violations at `wcag2a`, `wcag2aa`,
+`wcag21a`, `wcag21aa` and `wcag22aa` in light and dark, on desktop and mobile. Layout was verified by
+measurement at `1440x1000` and `390x844`: no horizontal overflow, no target below `24x24`, the wide
+price table reachable through an `overflow-x: auto` region, and a `3px solid` focus ring. This session
+could not ingest raster images, so no pixel-level visual review was performed; that limit is recorded
+in the Evidence Bundle rather than papered over.
+
+### Test counts
+
+- pgTAP `356 / 356` in 6 files
+- Auth/Data API integration `59 / 59`
+- catalog Auth/Data API integration `74 / 74`
+- unit `93 / 93` in 13 files
+- E2E `32 / 32` across `desktop-chromium` and `mobile-chromium`
+
+### Findings by severity
+
+- CRITICAL: `0`
+- HIGH: `0` (the raw full dependency audit stays nonzero on `GHSA-vfj7-8cjw-p6xm`; the evidence-backed
+  `RESOLVED_NOT_AFFECTED` disposition is preserved and is not represented as a raw audit pass)
+- MEDIUM, all corrected within scope: the privileged bearer was AAL1 so no price change could ever
+  succeed; the console never revalidated after a mutation; the archive buttons were inverted; a
+  refused submission emptied every dropdown; an offer could not name a variant
+- LOW, recorded not fixed: `.mfa-status-success` on `/app/security` sits at `4.37:1`, outside this
+  Work Order's authorized scope
+- LOW, recorded not fixed: the E2E fixture and auth specs rewrite screenshots belonging to the promoted
+  GMZ-IMPL-001 and GMZ-IMPL-004 evidence directories; the artifacts were restored to their committed
+  bytes and are not part of this delta
+
+### Deferred scope
+
+Everything the Work Order listed as prohibited was left untouched: modifiers, combos, rich media,
+ingredients, recipes, inventory, stock, purchasing, suppliers, POS, cart, payments, orders, finance,
+reconciliation, iFood and 99Food adapters, provider catalog sync, Goodz Online publishing, autonomous
+pricing, Platform/Super Admin, remote Supabase and production deployment. No need arose outside the
+authorized scope, so no `STOP BLOCKED` finding was raised.
+
+### Proposed Checkpoint Delta
+
+Appended to `.engineering/CHECKPOINT.md` and explicitly `NOT APPLIED`. `CHECKPOINT.json` stays at
+`GMZ_IMPL_007_BOUND_FOR_EXECUTION` with credit `52 / 515 = 10.10%`, pending independent objective
+audit. On acceptance only: `61 / 515 = 11.84%`.
+
+Outcome:
+`READY_FOR_OBJECTIVE_AUDIT`

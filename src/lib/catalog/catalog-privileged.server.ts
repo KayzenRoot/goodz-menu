@@ -8,7 +8,7 @@ import { readSupabaseAuthConfig } from "@/lib/env/runtime-env";
 import { hasFreshTotpProof, type VerifiedAuthClaims } from "@/lib/supabase/admin-guard-policy";
 import {
   PRIVILEGED_REAUTH_COOKIE,
-  hasFreshPasswordReauthentication,
+  hasFreshPasswordAuthentication,
 } from "@/lib/supabase/reauthentication-policy";
 
 // Privileged commercial catalog mutations.
@@ -92,7 +92,11 @@ export async function authorizePrivilegedCatalogCommand(
     }
     const { data, error } = await client.auth.getClaims(proofToken);
     if (error || !data?.claims) return { allowed: false, reason: "reauthentication_required" };
-    if (!hasFreshPasswordReauthentication(data.claims, identityId, nowSeconds())) {
+    // The proof is the token the command itself will carry, so it is checked for the two facts the
+    // database will read out of it: it belongs to this identity, and it records a password
+    // authentication that is still recent. Its assurance level is deliberately not constrained here
+    // because the bearer has to be aal2, and a plain password grant is aal1.
+    if (data.claims.sub !== identityId || !hasFreshPasswordAuthentication(data.claims, nowSeconds())) {
       return { allowed: false, reason: "reauthentication_required" };
     }
   } catch {
@@ -100,6 +104,46 @@ export async function authorizePrivilegedCatalogCommand(
   }
 
   return { allowed: true, accessToken: proofToken };
+}
+
+export type CatalogStepUpReadiness = {
+  allowed: boolean;
+  /** Why the last confirmation lapsed, or `null` when the session is currently ready. */
+  reason: CatalogStepUpReason | null;
+  verifiedFactorIds: string[];
+};
+
+/**
+ * Reports whether the current session could pass a privileged catalog command right now, without
+ * running one.
+ *
+ * The interface needs this to tell the operator that a price is refused because their confirmation
+ * has lapsed rather than because they are unauthorized, and to render the confirmation controls. The
+ * answer is advisory: a command still re-derives the same facts and the database still verifies the
+ * session it is handed, so a stale answer can only ever produce a refusal, never an admission.
+ */
+export async function readPrivilegedCatalogReadiness(
+  client: ServerSupabaseClient,
+): Promise<CatalogStepUpReadiness> {
+  const decision = await authorizePrivilegedCatalogCommand(client);
+  if (decision.allowed) return { allowed: true, reason: null, verifiedFactorIds: [] };
+
+  let verifiedFactorIds: string[] = [];
+  const isSessionGap = decision.reason === "aal2_required"
+    || decision.reason === "step_up_required"
+    || decision.reason === "factor_unverified"
+    || decision.reason === "reauthentication_required";
+  if (isSessionGap) {
+    try {
+      const { data, error } = await client.auth.mfa.listFactors();
+      if (!error && data) {
+        verifiedFactorIds = data.totp.filter(({ status }) => status === "verified").map(({ id }) => id);
+      }
+    } catch {
+      verifiedFactorIds = [];
+    }
+  }
+  return { allowed: false, reason: decision.reason, verifiedFactorIds };
 }
 
 /**

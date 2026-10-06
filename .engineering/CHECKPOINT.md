@@ -1034,3 +1034,34 @@ STOP CONDITION: `GMZ_IMPL_007_ADMISSION_READY_FOR_REVIEW`.
 - next action: `EXECUTE GMZ-IMPL-007`
 
 STOP CONDITION: `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-007 checkpoint delta proposal — NOT APPLIED
+
+This delta is a proposal only. `CHECKPOINT.json` remains `GMZ_IMPL_007_BOUND_FOR_EXECUTION` with
+`implementationAuthorized = true` and credit `52 / 515 = 10.10%` until an independent objective audit
+accepts the increment. Nothing below has been promoted.
+
+- Work Order: `GMZ-IMPL-007 — Catalog Core & Channel Offers Foundation`
+- Issue: `#67`; PR: `#69` (open, draft, unmerged)
+- execution branch: `execution/gmz-impl-007-catalog-core`
+- exact execution base: `1b64fbfbef3d31d215f4a2a1e30e88f8f946860c`
+- Context Lock: `BOUND_FOR_EXECUTION`; stable sources re-verified at closeout: `16 / 16 MATCH`
+- assurance: `ELEVATED`; merge authority: `NO`
+- ELEVATED validation at the exact head: `PASS`
+  - frozen install/strict peers, lint, typecheck, unit `93 / 93`, production build, local Supabase reset,
+    pgTAP `356 / 356`, Auth/Data API `59 / 59`, catalog Auth/Data API `74 / 74`, migration status,
+    generated-type equivalence, DB lint, security advisors, full E2E `32 / 32` desktop + mobile,
+    Axe zero violations, layout measurement, production audit, secret scan, client-bundle containment,
+    Docker config/build/up/health, readiness, local Supabase/Auth/Postgres, runtime logs, `.gef`
+    integrity
+- raw full dependency audit: `RAW FAIL` preserved — exactly one HIGH `GHSA-vfj7-8cjw-p6xm`, dev-only
+  reachability, no patched version upstream; evidence-backed disposition `RESOLVED_NOT_AFFECTED`,
+  conditional on the committed guard
+- CRITICAL unresolved: `0`
+- HIGH unresolved: `0`
+- evidence: `.engineering/evidence/GMZ-IMPL-007-EVIDENCE.md`
+- proposed next action after objective acceptance: `PROMOTE_GMZ_IMPL_007_AND_ADMIT_NEXT_INCREMENT`
+- proposed credit on acceptance: `61 / 515 = 11.84%` (GMZ-M06 `7`, GMZ-M26 `2`) — not granted here
+
+STOP CONDITION: `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`.
