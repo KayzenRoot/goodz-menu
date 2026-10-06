@@ -1,6 +1,6 @@
 # GMZ-IMPL-006 — Evidence Bundle
 
-Status: `CD-002 correction present; local HIGH_ASSURANCE L5 BLOCKED by full E2E/Axe; fresh hosted gate state pending`
+Status: `CD-004 test-only correction validated at exact head; local HIGH_ASSURANCE L5 PASS (E2E 24/24 both modes, Axe zero violations); fresh hosted gate state recorded at the final published head`
 
 ## Candidate and preflight identity
 
@@ -233,3 +233,93 @@ This latest published-candidate run supersedes the `4cb0d43` successful L5 propo
 - Retention, erasure/pseudonymization and tenant offboarding remain `FUTURE / prerequisite before production tenant admission`; not implemented.
 - Credit remains `44 / 515 = 8.54%`; no merge, main update, force-push, remote Supabase, production deployment, dependency/lockfile/schema/migration/RLS change or scope expansion.
 - `CHECKPOINT.json` remains unchanged and bound. Request a separately authorized correction for the out-of-scope E2E issue before repeating L5; do not promote credit.
+
+
+## GMZ-IMPL-006-CD-004 — exact-head HIGH_ASSURANCE L5 revalidation (test-only correction)
+
+This section supersedes the CD-003 blocked disposition. CD-003 could not complete because the fixture it was forbidden to touch returned `null` for every Admin Guard audit inspection, so the durable-audit assertions never actually executed. CD-004 authorizes that single test file. The candidate below is TEST-ONLY: no runtime, Auth, MFA or Admin Guard application code, schema, migration, RLS, dependency or lockfile changed.
+
+### Candidate and preflight
+
+- Repository `KayzenRoot/goodz-menu`; branch `execution/gmz-impl-006-durable-audit`; PR `#64` against `main`, open and unmerged.
+- Governance authorization HEAD: `f4b71fd9a5efbd2fb6869284e7b3cddeb13e2e24`.
+- Execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`; ancestry PASS.
+- Correction commit tested: `4c30b1d67b126c1a6cde3127a7bafee849f9e2b9`; implementation tree `81b79bfaa17aa2e3ca898375dbe766cd52967256`. The closeout commit that follows this section changes only governance and evidence text and does not alter the tree under test.
+- GEF 1.1.1 preflight PASS: Context Lock `BOUND_FOR_EXECUTION`, stable source fingerprints `16 / 16 MATCH`, governance snapshot MATCH, correct repository/branch/PR, clean entry tree, `.gef` unchanged (`1.1.1`, `APPLIED`, zero `.gef` paths differ from the execution base), `CHECKPOINT.json` unchanged at blob `619ef8dbfc90683c7390357a4f4fa57a2339b911`.
+- CD-003's two spec corrections were preserved byte-identically across the bring-up to `f4b71fd` and were not broadened.
+
+### Root cause corrected
+
+`inspectAdminGuardAudit` sliced the Supabase CLI output from `output.indexOf("{")` and expected a `{"rows":[...]}` envelope. The pinned CLI (`supabase 2.119.0`, `--output-format json`) emits a top-level row array, so the slice retained the trailing `]` and `JSON.parse` raised `SyntaxError: Unexpected non-whitespace character after JSON`, which a blanket `catch { return null }` converted into "no audit event". This was deterministic, not flaky: the audit row existed in `public.audit_events` for every affected correlation id (`event_count = 1`, action `synthetic.privileged.proof`, outcome `allow`, reason_code `authorized`, source `admin_guard`), proving the runtime audit writer was healthy and the harness was broken. Because the fixture and both specs are byte-identical between the historical green candidate `4cb0d43` and the blocked `0a133a1`, the previously recorded `24 / 24` is not reproducible on this harness; this is recorded as an evidence-integrity finding rather than silently restated as a prior pass.
+
+Correction: locate the earliest JSON container marker (`[` or `{`), parse the complete payload, accept both the top-level array form and the legacy `{"rows":[...]}` form, normalize to the first row, and preserve the `{ event_count: number, event: object | null }` contract. Malformed JSON, a missing container marker, an unexpected shape, or a non-numeric `event_count` now throw a generic, credential-free message instead of returning `null`. Correlation-id validation and local-only execution are unchanged and still short-circuit to `null`. The SQL projection is unchanged.
+
+Parser proof over six inputs on the final candidate: top-level array accepted; object-with-`rows` accepted; zero-row result returns `event_count = 0` with `event = null`; malformed JSON throws; unexpected shape throws; output with no JSON container throws.
+
+### Final-candidate focused regressions (no code change between repetitions)
+
+| Repetition | Mobile Admin Guard | Logout |
+|---|---|---|
+| 1 | `1 passed` (1.9m) | `2 passed` (32.2s) |
+| 2 | `1 passed` (2.0m) | `2 passed` (34.0s) |
+| 3 | `1 passed` (1.9m) | `2 passed` (33.5s) |
+
+`3 / 3` consecutive PASS for each, run against the final candidate with no intervening code change.
+
+### Full-suite results on the final candidate
+
+- E2E default workers: `24 passed` (4.9m).
+- E2E `--workers=1`: `24 passed` (5.8m).
+- Axe/accessibility: PASS, zero violations. Every Axe assertion in the suite is a strict `expect(violations).toEqual([])` over tags `wcag2a/wcag2aa/wcag21a/wcag21aa/wcag22aa`, so the two `24 / 24` results establish a full-suite accessibility PASS with zero violations.
+- The durable-audit assertions now execute against real rows instead of being skipped by `null`.
+
+### Exact-head HIGH_ASSURANCE L5
+
+| Gate | Result |
+|---|---|
+| GEF preflight | PASS — see candidate and preflight above |
+| Frozen install / strict peers | PASS — `corepack pnpm install --frozen-lockfile --strict-peer-dependencies`; lockfile and `package.json` unchanged |
+| CD-001 guard | PASS — `braces` absent from 211 resolved production packages; no active `settings.next.rootDir`; all 22 pinned Next recommended rules enabled |
+| CD-001 guard self-tests | PASS — `5 / 5` deterministic cases |
+| `pnpm why braces` | PASS — dev-only chain `@next/eslint-plugin-next → fast-glob → micromatch → braces@3.0.3` |
+| Production dependency audit | PASS — no known vulnerabilities at HIGH or above |
+| Raw full dependency audit | RAW FAIL retained — exit `1`, exactly one HIGH `GHSA-vfj7-8cjw-p6xm`, patched versions `None`, path `.@next/eslint-plugin-next>fast-glob>micromatch>braces`. Recorded honestly as a raw failure, not a pass |
+| Lint / typecheck | PASS / PASS — exit `0` |
+| Unit | PASS — `51 / 51`, 11 test files |
+| Production build | PASS — Next.js `16.3.8`, 8 routes |
+| Full E2E normal workers | PASS — `24 / 24` |
+| Full E2E `--workers=1` | PASS — `24 / 24` |
+| Axe/accessibility | PASS — zero violations |
+| Local Supabase reset | PASS — applied `20261002093358`, `20261002152627`, `20261004125938` |
+| pgTAP | PASS — `166 / 166`, 3 SQL files |
+| Auth/Data API | PASS — `59 / 59` checks using synthetic local identities after the final reset |
+| Migration status | PASS — all three expected migrations listed and applied locally |
+| Generated DB types | PASS — regenerated `src/lib/supabase/database.types.ts` matches tracked output; `git diff` empty |
+| Database lint | PASS — `public,private`, no schema errors |
+| Security advisors | PASS — `rls_disabled_on_public_tables = 0`, `security_definer_without_pinned_search_path = 0`, `public_views_without_security_invoker = 0`, `audit_events_mutations_granted_to_anon_or_authenticated = 0`, `anon_write_grants_outside_audit_events = 0`, `public_functions_executable_by_anon = 0`, `audit_events_without_protection_trigger = 0` |
+| Secret-pattern scan | PASS — 224 tracked text files; ten credential patterns and the local service-role/anon/DB/JWT literal values produced zero matches. The only `supabase.co` occurrences are public documentation URLs |
+| Client bundle / server-only containment | PASS — 20 `.next/static` files; zero `SUPABASE_SERVICE_ROLE_KEY` name matches, zero local service-role value matches, zero server-only module references |
+| Docker config/build/up | PASS — Compose config valid; image built from the candidate; web container `healthy` |
+| Health/readiness | PASS — `/api/health` HTTP `200` `status: ok`; `/api/ready` HTTP `200` `status: ready`, dependency `available` |
+| Supabase/Auth/Postgres | PASS — status JSON valid; Auth health HTTP `200`; REST HTTP `200`; `pg_isready` accepting connections; `SELECT 1` returns `1` |
+| Runtime logs | PASS — recent web container lines scanned; zero error/fatal/exception/panic/unhandled/severe matches and zero credential literals |
+| `.gef` integrity | PASS — zero `.gef` paths differ from the execution base; `CHECKPOINT.json` unchanged |
+| Fresh hosted SonarCloud / Socket Project Report / Socket PR Alerts / CodeRabbit | evaluated on the final published exact head; no prior-SHA result is reused |
+
+### Observations and residual risk
+
+- All 9 public tables have RLS enabled but not `FORCE ROW LEVEL SECURITY`. Every table is owned by the migration role `postgres`, not by `anon`, `authenticated` or `service_role`, so no application role can bypass RLS through table ownership. This is pre-existing schema state outside CD-004's forbidden-mutation scope and is recorded as a defense-in-depth observation rather than a finding.
+- `GHSA-vfj7-8cjw-p6xm` keeps its reviewed CD-001 disposition `RESOLVED_NOT_AFFECTED`, conditional on the committed fail-closed guard. The raw full audit remains exit `1` with one HIGH and is reported unmasked.
+- The regression that caused the CD-003 block was in the test harness, not the product. Two harness defects were corrected under CD-003 (hydration-gated logout proof and state-specific Admin Guard locators) and a third under CD-004 (audit payload parsing).
+- Evidence screenshots under `.engineering/evidence/GMZ-IMPL-001/screenshots` and `.engineering/evidence/GMZ-IMPL-004/screenshots` are rewritten as a side effect of E2E runs. Because CD-004 changes no UI and those paths are outside the allowed write set, the regenerated binaries were reverted and the committed artifacts are unchanged.
+- Retention, erasure/pseudonymization and tenant offboarding remain `FUTURE / prerequisite before production tenant admission`; not implemented.
+
+### Disposition
+
+- CRITICAL unresolved: `0`. HIGH unresolved: `0` after the reviewed CD-001 disposition, with the raw HIGH still visible.
+- No runtime/Auth/MFA/Admin Guard change, no schema/migration/RLS/FK/trigger change, no dependency or `pnpm-lock.yaml` change, no `.gef` change, no remote Supabase access, no production deployment.
+- `CHECKPOINT.json` remains unchanged and bound; production credit remains `44 / 515 = 8.54%`. No credit promotion, no merge, no main mutation, no force-push. PR #64 stays open and unmerged.
+- Proposed state for separate objective review: `READY_FOR_OBJECTIVE_AUDIT`.
+
+STOP CONDITION:
+`GMZ_IMPL_006_CD_004_READY_FOR_OBJECTIVE_AUDIT`

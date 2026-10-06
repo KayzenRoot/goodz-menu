@@ -665,3 +665,46 @@ Only the following is authorized:
 ### STOP CONDITION — CD-004
 
 `GMZ_IMPL_006_CD_004_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-006-CD-004 — execution closeout
+
+Status: `EXECUTED — READY FOR OBJECTIVE AUDIT`
+Governance authorization HEAD: `f4b71fd9a5efbd2fb6869284e7b3cddeb13e2e24`
+Correction commit under test: `4c30b1d67b126c1a6cde3127a7bafee849f9e2b9`
+Correction tree under test: `81b79bfaa17aa2e3ca898375dbe766cd52967256`
+Execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`
+
+### Scope actually changed
+
+Only `tests/e2e/auth-session-fixture.ts`, `tests/e2e/auth-session.spec.ts` and `tests/e2e/mfa-admin-guard.spec.ts` changed. CD-003's two spec corrections were preserved byte-identically and were not broadened. No runtime, Auth, MFA or Admin Guard application code, audit writer, schema, migration, RLS, FK, trigger, dependency, `pnpm-lock.yaml` or `.gef` path was touched. `.engineering/CHECKPOINT.json` is unchanged at blob `619ef8dbfc90683c7390357a4f4fa57a2339b911`.
+
+### Acceptance criteria disposition
+
+| # | Criterion | Result |
+|---|---|---|
+| 1 | Parses pinned CLI top-level JSON arrays | MET — earliest container marker `[` or `{`, complete parse |
+| 2 | Remains compatible with object-with-`rows` | MET — both forms normalize to the first row |
+| 3 | Malformed/unexpected shape fails visibly | MET — generic credential-free errors; no `catch { return null }` remains on the parser path |
+| 4 | Audit assertion returns the real record | MET — `event_count = 1` allow record now read instead of skipped |
+| 5 | Logout focused `>= 3 / 3` on final candidate | MET — 3/3 (32.2s / 34.0s / 33.5s) |
+| 6 | Mobile Admin Guard focused `>= 3 / 3` on final candidate | MET — 3/3 (1.9m / 2.0m / 1.9m) |
+| 7 | Full E2E normal workers `24 / 24` | MET — 24 passed (4.9m) |
+| 8 | Full E2E `--workers=1` `24 / 24` | MET — 24 passed (5.8m) |
+| 9 | Full-suite Axe PASS, zero violations | MET — strict `toEqual([])` assertions in the passing suite |
+| 10 | No runtime/schema/dependency/lockfile/GEF mutation | MET |
+| 11 | Complete exact-head HIGH_ASSURANCE L5 | MET — full L5 table in the Evidence Bundle |
+| 12 | Fresh hosted SonarCloud/Socket/CodeRabbit on the final exact head | MET — evaluated at the final published head; no prior-SHA reuse |
+| 13 | CRITICAL/HIGH unresolved `0 / 0` | MET — after the reviewed CD-001 `RESOLVED_NOT_AFFECTED` disposition; raw audit HIGH stays visible |
+| 14 | PR #64 open/unmerged; credit `44 / 515 = 8.54%` | MET |
+
+### Residual items for the objective auditor
+
+- `GHSA-vfj7-8cjw-p6xm` keeps the CD-001 disposition `RESOLVED_NOT_AFFECTED` conditional on the committed fail-closed guard; the raw full audit is exit `1` with exactly one HIGH.
+- Public tables carry RLS without `FORCE ROW LEVEL SECURITY`, owned by the migration role `postgres`, so no application role can bypass RLS through ownership. Pre-existing schema state, recorded as an observation.
+- Retention, erasure/pseudonymization and tenant offboarding remain `FUTURE / prerequisite before production tenant admission`.
+- Evidence screenshots rewritten as an E2E side effect were reverted; they are outside this delta's write set.
+
+### Final state
+
+`CHECKPOINT.json` remains `BOUND_FOR_EXECUTION` and unchanged. The human Checkpoint Delta in `.engineering/CHECKPOINT.md` is a proposal only and is `NOT APPLIED`. No merge, no main update, no force-push, no credit promotion, no remote Supabase access, no production deployment. PR `#64` remains open and unmerged for independent objective audit.

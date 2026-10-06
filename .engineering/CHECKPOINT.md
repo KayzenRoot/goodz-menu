@@ -951,3 +951,23 @@ STOP CONDITION NOT REACHED at that historical attempt: full audit HIGH had no re
 - PR #64 remains open/draft and unmerged. Do not change main, `.gef`, execution base, or production scope.
 
 STOP CONDITION proposed for the objective-audit handoff: `GMZ_IMPL_006_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-006-CD-002/CD-003/CD-004 — proposed Checkpoint Delta (NOT APPLIED)
+
+This block supersedes the CD-001 proposed delta above as the current execution record. It is a proposal
+only; `.engineering/CHECKPOINT.json` remains `BOUND_FOR_EXECUTION` and byte-unchanged at blob
+`619ef8dbfc90683c7390357a4f4fa57a2339b911`.
+
+- Governance authorization head for the current delta: `f4b71fd9a5efbd2fb6869284e7b3cddeb13e2e24`.
+- Correction commit under test: `4c30b1d67b126c1a6cde3127a7bafee849f9e2b9`; correction tree `81b79bfaa17aa2e3ca898375dbe766cd52967256`. The closeout commit after this block changes only governance and evidence text.
+- Execution base remains `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`; branch remains `execution/gmz-impl-006-durable-audit`; Context Lock preflight `16 / 16 MATCH`; governance snapshot MATCH; `.gef` unchanged.
+- Correction delta chain: CD-002 bounded the audit-writer RPC with an abort timeout and added a deterministic fail-closed regression; CD-003 corrected deterministic E2E logout synchronization and the Admin Guard status-locator ambiguity and then blocked on an out-of-scope fixture parser defect; CD-004 corrected that fixture. The whole chain is TEST-ONLY plus the already-recorded CD-002 audit-writer bound.
+- Exact-head HIGH_ASSURANCE L5: PASS. Focused mobile Admin Guard `3 / 3`; focused logout `3 / 3`; full E2E `24 / 24` in default-worker mode and `24 / 24` with `--workers=1`; Axe zero violations; unit `51 / 51`; pgTAP `166 / 166`; Auth/Data API `59 / 59`; production build, Docker, health/readiness and client-bundle containment all pass. Full command and result table is in `.engineering/evidence/GMZ-IMPL-006-EVIDENCE.md`.
+- Dependency truth is unchanged from CD-001: production audit passes, the raw full audit still exits nonzero for the single dev-only HIGH `GHSA-vfj7-8cjw-p6xm`, and the committed fail-closed guard keeps the reviewed disposition `RESOLVED_NOT_AFFECTED`. The raw audit is not called clean.
+- CRITICAL unresolved: `0`. HIGH unresolved: `0` after that reviewed disposition.
+- Proposed state for separate objective audit: recognize `GMZ-IMPL-006` as `READY_FOR_OBJECTIVE_AUDIT` only after verifying this evidence and the exact published PR head. Keep `CHECKPOINT.json` unchanged until that review is accepted.
+- Production earned credit remains `44 / 515 = 8.54%`; no credit promotion is proposed by CD-002, CD-003 or CD-004. Any later credit remains gated on objective acceptance, merge and governed promotion.
+- PR #64 remains open and unmerged. Do not change main, `.gef`, the execution base, or production scope. No remote Supabase access and no production deployment were performed.
+
+STOP CONDITION proposed for the objective-audit handoff: `GMZ_IMPL_006_CD_004_READY_FOR_OBJECTIVE_AUDIT`.
