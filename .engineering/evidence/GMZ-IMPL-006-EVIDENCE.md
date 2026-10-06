@@ -304,7 +304,24 @@ Parser proof over six inputs on the final candidate: top-level array accepted; o
 | Supabase/Auth/Postgres | PASS — status JSON valid; Auth health HTTP `200`; REST HTTP `200`; `pg_isready` accepting connections; `SELECT 1` returns `1` |
 | Runtime logs | PASS — recent web container lines scanned; zero error/fatal/exception/panic/unhandled/severe matches and zero credential literals |
 | `.gef` integrity | PASS — zero `.gef` paths differ from the execution base; `CHECKPOINT.json` unchanged |
-| Fresh hosted SonarCloud / Socket Project Report / Socket PR Alerts / CodeRabbit | evaluated on the final published exact head; no prior-SHA result is reused |
+| Fresh hosted SonarCloud / Socket Project Report / Socket PR Alerts / CodeRabbit | evaluated on the exact published head; see the hosted gate table below |
+
+### Fresh hosted gate results at the published head
+
+All four hosted gates were queried fresh at an exact published head. No result from any earlier SHA was reused.
+
+| Gate | Conclusion | Observed at |
+|---|---|---|
+| SonarCloud Code Analysis | `success` — Quality Gate passed; 0 security hotspots, 0 accepted issues, 39 new non-blocking issues, 0.0% coverage on new code because no coverage report is uploaded for this repository | `38921f528792c6975407b800029b1b5a0e99ebbb` |
+| Socket Security: Project Report | `success` | `38921f528792c6975407b800029b1b5a0e99ebbb` |
+| Socket Security: Pull Request Alerts | `success` — reported as Skipped with the message "Pull request contains no net changes to dependencies", the expected outcome for a delta that changes no dependency | `38921f528792c6975407b800029b1b5a0e99ebbb` |
+| CodeRabbit | `success` — reported description "Review paused" at this head | `38921f528792c6975407b800029b1b5a0e99ebbb` |
+
+Combined commit status: `success`.
+
+CodeRabbit review threads carried by PR #64: `3`, every one 🟡 **Minor** severity with no CRITICAL or HIGH finding. All three are anchored to superseded SHAs (`4af23fd1`, `0a133a12`) and report `line: null` with `original_line` populated, which is how GitHub marks a review comment outdated against the current diff. They concern the stale Active increment summary in `.engineering/CHECKPOINT.md`, the missing abort signal on `append_audit_event`, and a static-analysis observation about evidence/checkpoint consistency. CD-004 refreshed the Active increment summary to the CD-004 disposition, and the abort signal was already added by CD-002's bounded `.abortSignal(AbortSignal.timeout(3_000))`. CodeRabbit reported "Review paused" and produced no new review at `38921f52`, so no thread is anchored to the CD-004 code. Thread resolution state could not be read through the unauthenticated REST API and is left for the objective auditor to confirm.
+
+This section and the checkpoint refresh are documentation-only, so the commit that publishes them does not change tree `81b79bfaa17aa2e3ca898375dbe766cd52967256`, which is the tree every L5 result above was produced against. The objective auditor should re-confirm the four hosted gates on whatever head is published when the audit runs.
 
 ### Observations and residual risk
 
