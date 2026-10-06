@@ -1,11 +1,11 @@
 # GMZ-IMPL-007 — Execution Pack
 
-Status: `ADMISSION_CANDIDATE`
+Status: `BOUND_FOR_EXECUTION`
 
 Admission branch: `implementation/gmz-impl-007-catalog-core`  
 Admission base: `f98b54a2a933e1cf312575a571afb57566422d82`  
 Intended execution branch after admission merge: `execution/gmz-impl-007-catalog-core`  
-Exact execution base: `PENDING_ADMISSION_MERGE`  
+Exact execution base: `1b64fbfbef3d31d215f4a2a1e30e88f8f946860c`  
 Executor: `GEF heavy executor / Codex`  
 Merge authority: `NO`
 
@@ -68,4 +68,22 @@ Before bind:
 `GMZ_IMPL_007_ADMISSION_READY_FOR_REVIEW`
 
 After governed execution:
+`GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## Execution-base bind
+
+- admission PR: `#68`
+- admission audited head: `9abc2f690f035b41801662688cb6f7ab9e2e9f9a`
+- admission merge / exact execution base: `1b64fbfbef3d31d215f4a2a1e30e88f8f946860c`
+- execution branch: `execution/gmz-impl-007-catalog-core`
+- stable source fingerprints at admission audit: `16 / 16 MATCH`
+- assurance: `ELEVATED`
+- executor/Codex: `AUTHORIZED FOR GMZ-IMPL-007 ONLY`
+- merge authority: `NO`
+- current production credit: `52 / 515 = 10.10%`
+- maximum later eligible credit: `9 / 515`
+- projected only after objective acceptance + merge + promotion: `61 / 515 = 11.84%`
+
+STOP CONDITION:
 `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`
