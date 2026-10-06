@@ -65,8 +65,8 @@ A score is not “importance”. It estimates delivery/proof burden.
 ## 4. Current production credit
 
 As of this baseline:
-- evidence-backed product implementation credit: `44 / 515`;
-- production completion: `8.54%`;
+- evidence-backed product implementation credit: `52 / 515`;
+- production completion: `10.10%`;
 - planning/source-pack progress is tracked separately and does not create product credit.
 
 This is intentionally strict.
@@ -87,10 +87,16 @@ This is intentionally strict.
 | GMZ-IMPL-004 | GMZ-M26 Auth/session validation & quality | 2 | `2bee77001309740b6aa86e605ca56fb4e6bed6a2` |
 | GMZ-IMPL-005 | GMZ-M02 MFA/reauthentication/Admin Guard completion | 4 | `f5da78f0e901d4f9c0bc571309332c001f028306` |
 | GMZ-IMPL-005 | GMZ-M26 stronger-auth validation & quality | 2 | `f5da78f0e901d4f9c0bc571309332c001f028306` |
+| GMZ-IMPL-006 | GMZ-M23 durable audit trail & correlation foundation | 6 | `f3f1074fb3f3da4dce4b9120b2868c74c73f615f` |
+| GMZ-IMPL-006 | GMZ-M26 durable-audit validation & quality | 2 | `f3f1074fb3f3da4dce4b9120b2868c74c73f615f` |
 
-Cumulative accepted credit: `44 / 515 = 8.54%`.
+Cumulative accepted credit: `52 / 515 = 10.10%`.
 
 GMZ-M02 accepted baseline: `19 / 19 — COMPLETE`.
+
+GMZ-M23 accepted baseline: `7 / 19 — PARTIAL`.
+
+GMZ-M26 accepted baseline: `11 / 18 — PARTIAL`.
 
 ## 5. Weight rationale classes
 
