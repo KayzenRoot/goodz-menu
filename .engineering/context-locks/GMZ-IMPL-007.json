@@ -1,0 +1,153 @@
+{
+  "schemaVersion": "1.1",
+  "kind": "goodz.implementation-context-lock",
+  "workOrderId": "GMZ-IMPL-007",
+  "issue": 67,
+  "repository": "KayzenRoot/goodz-menu",
+  "gefVersion": "1.1.1",
+  "assurance": "ELEVATED",
+  "admissionBaseRef": "main",
+  "admissionBaseSha": "f98b54a2a933e1cf312575a571afb57566422d82",
+  "workBranch": "implementation/gmz-impl-007-catalog-core",
+  "executionBaseSha": null,
+  "executionBaseState": "MUST_BIND_AFTER_ADMISSION_PROMOTION",
+  "sourcePack": "FROZEN_V0_1",
+  "productionDenominator": 515,
+  "productionEarnedAtAdmission": 52,
+  "maxSliceCredit": 9,
+  "creditAllocation": {
+    "GMZ-M06": 7,
+    "GMZ-M26": 2
+  },
+  "projectedEarnedIfAccepted": 61,
+  "lockedSources": [
+    {
+      "path": ".engineering/SOURCE-HIERARCHY.md",
+      "gitBlobSha": "189109435a264fe5a7306d6d10fc3ea62145dab2"
+    },
+    {
+      "path": ".engineering/MODULE-MAP.md",
+      "gitBlobSha": "c70a041da273787eb0d6f3ce43a6bc3a7260eeb0"
+    },
+    {
+      "path": "docs/source-pack/BACKLOG.md",
+      "gitBlobSha": "16085c637166bfa1c450b560ed6f404beb594ba3"
+    },
+    {
+      "path": "docs/source-pack/SCOPE.md",
+      "gitBlobSha": "88c516753fabf67e67bbec25df3efc70b0c6bfa8"
+    },
+    {
+      "path": "docs/source-pack/REQUIREMENTS.md",
+      "gitBlobSha": "2e179c00446980a481e56dd02fe71865a7237f59"
+    },
+    {
+      "path": "docs/source-pack/ARCHITECTURE.md",
+      "gitBlobSha": "a82ff873264a1ba77fa37e6914f321a48e0a75f5"
+    },
+    {
+      "path": "docs/source-pack/DATA-MODEL.md",
+      "gitBlobSha": "51d59b4d4b96dd5ccd246a55d34d9172d9b82eb0"
+    },
+    {
+      "path": "docs/source-pack/API-INTEGRATION-CONTRACTS.md",
+      "gitBlobSha": "4dd9b6f4648d04ac4539a4d093e662d430a239cc"
+    },
+    {
+      "path": "docs/source-pack/SECURITY.md",
+      "gitBlobSha": "24e98825a54313a47e46abc32661f4ebaa6894d7"
+    },
+    {
+      "path": "docs/source-pack/TEST-BENCHMARK-PLAN.md",
+      "gitBlobSha": "1531d1a9abd4d9470cac2d8d24847e4258c91e45"
+    },
+    {
+      "path": "docs/source-pack/DEFINITION-OF-DONE.md",
+      "gitBlobSha": "a3d1652a7dc9edfabafcb98151b9db8aed417888"
+    },
+    {
+      "path": "docs/source-pack/DEPLOYMENT.md",
+      "gitBlobSha": "b8f730179337a5c26ba34cdf9da43dab4b5e3b83"
+    },
+    {
+      "path": ".engineering/DATA-OWNERSHIP-MATRIX.md",
+      "gitBlobSha": "0deb322cfa871f93410810ab1fc82933aca05213"
+    },
+    {
+      "path": ".engineering/SECURITY-CONTROL-MATRIX.md",
+      "gitBlobSha": "e8888a50cb68230822f6c1352f63d33d19705df7"
+    },
+    {
+      "path": ".engineering/TEST-COVERAGE-MATRIX.md",
+      "gitBlobSha": "5fcf44880b1b3725273505a2a7efd4e1e4c7aa9d"
+    },
+    {
+      "path": ".engineering/PROGRESS-LEDGER.md",
+      "gitBlobSha": "cd4a90f113fb7b7aa0f28768b6679da4962d5a4e"
+    }
+  ],
+  "governanceSnapshot": {
+    "checkpointPath": ".engineering/CHECKPOINT.json",
+    "checkpointGitBlobSha": "789223da901d9c0415da82bf5d8cb781d9d486e4",
+    "status": "GMZ_IMPL_006_PROMOTED_COMPLETE_READY_FOR_NEXT",
+    "note": "Admission snapshot after GMZ-IMPL-006 promotion; executor mutation remains blocked until admission merge and exact execution-base bind."
+  },
+  "implementationContract": {
+    "catalogCore": "ADMITTED_AFTER_BIND",
+    "productCategory": "ADMITTED_AFTER_BIND",
+    "product": "ADMITTED_AFTER_BIND",
+    "productVariant": "ADMITTED_AFTER_BIND",
+    "salesChannel": "ADMITTED_AFTER_BIND",
+    "channelOffer": "ADMITTED_AFTER_BIND",
+    "priceHistory": "ADMITTED_AFTER_BIND",
+    "catalogManagementUi": "ADMITTED_MINIMAL_AFTER_BIND",
+    "tenantRls": "REQUIRED",
+    "directClientCatalogMutation": "FORBIDDEN",
+    "serverUserContextMutation": "REQUIRED",
+    "serviceRoleCatalogAuthorization": "FORBIDDEN",
+    "serviceRoleCatalogMutation": "FORBIDDEN",
+    "privilegedPriceAvailabilityMutation": "ADMIN_GUARD_REQUIRED",
+    "durableMutationAudit": "REQUIRED",
+    "mediaRuntime": "NOT_ADMITTED",
+    "modifiersCombos": "NOT_ADMITTED",
+    "recipesInventory": "NOT_ADMITTED",
+    "posOrdersFinance": "NOT_ADMITTED",
+    "providerSync": "NOT_ADMITTED",
+    "remoteSupabase": "FORBIDDEN",
+    "productionDeployment": "FORBIDDEN"
+  },
+  "stalePolicy": "If any locked stable source blob changes incompatibly before executor mutation, mark GMZ-IMPL-007 STALE and stop for recompile/rebind.",
+  "invariants": [
+    "Product identity is canonical and independent from channel offers",
+    "Product ≠ Ingredient ≠ InventoryItem",
+    "Tenant boundary is explicit in every catalog path",
+    "Authentication is not authorization",
+    "Direct ordinary-client catalog mutation is forbidden",
+    "Service-role is never catalog tenant authorization/business mutation",
+    "Persisted prices use exact representation, never binary floating point",
+    "Material catalog mutations are durably audited with correlation",
+    "Required audit failure blocks privileged price/availability mutation",
+    "Provider schemas never become canonical Goodz product truth",
+    "No inventory/recipe/POS/order/finance expansion",
+    "CRITICAL/HIGH blocks progression",
+    "Executor does not merge"
+  ],
+  "executor": "GEF heavy executor / Codex",
+  "codexAllowed": false,
+  "codexAuthorizedScope": "BLOCKED until objective admission audit, admission merge, and exact execution-base bind.",
+  "codexProhibited": [
+    "runtime/schema mutation before bind",
+    "main direct mutation",
+    "merge",
+    "force push",
+    "history rewrite",
+    "inventory/recipes/POS/orders/finance",
+    "modifiers/combos/media runtime",
+    "provider adapters/sync",
+    "remote Supabase",
+    "production infrastructure",
+    "service-role catalog authorization/business mutation",
+    "unrelated cleanup"
+  ],
+  "stopCondition": "GMZ_IMPL_007_ADMISSION_READY_FOR_REVIEW"
+}
