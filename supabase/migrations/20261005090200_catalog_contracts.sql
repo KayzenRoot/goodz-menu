@@ -244,6 +244,8 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = ''
 AS $function$
+-- A command the caller did not give a key for is keyed by its correlation id, so a repeated
+-- submission of the same request is recognised as a replay instead of repeating the mutation.
 BEGIN
   INSERT INTO public.catalog_command_receipts (
     organization_id,
@@ -258,7 +260,7 @@ BEGIN
   )
   VALUES (
     p_organization_id,
-    p_idempotency_key,
+    COALESCE(p_idempotency_key, p_correlation_id),
     p_actor_user_id,
     p_correlation_id,
     p_audit_event_id,
@@ -274,7 +276,8 @@ $function$;
 CREATE OR REPLACE FUNCTION private.catalog_replay(
   p_organization_id uuid,
   p_actor_user_id uuid,
-  p_idempotency_key uuid
+  p_idempotency_key uuid,
+  p_correlation_id uuid
 )
 RETURNS jsonb
 LANGUAGE plpgsql
@@ -284,15 +287,16 @@ SET search_path = ''
 AS $function$
 DECLARE
   v_receipt public.catalog_command_receipts%ROWTYPE;
+  v_effective_key uuid := COALESCE(p_idempotency_key, p_correlation_id);
 BEGIN
-  IF p_idempotency_key IS NULL THEN
+  IF v_effective_key IS NULL THEN
     RETURN NULL;
   END IF;
 
   SELECT * INTO v_receipt
   FROM public.catalog_command_receipts
   WHERE organization_id = p_organization_id
-    AND idempotency_key = p_idempotency_key;
+    AND idempotency_key = v_effective_key;
 
   IF NOT FOUND THEN
     RETURN NULL;
@@ -357,7 +361,7 @@ REVOKE ALL ON FUNCTION private.catalog_require_step_up() FROM PUBLIC, anon, auth
 REVOKE ALL ON FUNCTION private.catalog_audit_metadata(text, text, text[], text, text) FROM PUBLIC, anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION private.catalog_append_audit(text, text, uuid, uuid, uuid, uuid, uuid, uuid, jsonb) FROM PUBLIC, anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION private.catalog_record_receipt(uuid, uuid, uuid, uuid, uuid, text, text, uuid, integer) FROM PUBLIC, anon, authenticated, service_role;
-REVOKE ALL ON FUNCTION private.catalog_replay(uuid, uuid, uuid) FROM PUBLIC, anon, authenticated, service_role;
+REVOKE ALL ON FUNCTION private.catalog_replay(uuid, uuid, uuid, uuid) FROM PUBLIC, anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION private.catalog_command_result(text, text, uuid, integer, uuid, uuid) FROM PUBLIC, anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION private.catalog_price_state(numeric, text, numeric) FROM PUBLIC, anon, authenticated, service_role;
 
@@ -391,7 +395,7 @@ BEGIN
   PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
   PERFORM private.catalog_authorize('catalog.write', p_organization_id, p_establishment_id, p_branch_id);
 
-  v_replayed := private.catalog_replay(p_organization_id, v_actor_user_id, p_idempotency_key);
+  v_replayed := private.catalog_replay(p_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -469,7 +473,7 @@ BEGIN
 
   PERFORM private.catalog_authorize('catalog.write', v_organization_id, v_establishment_id, v_branch_id);
 
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key);
+  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -548,7 +552,7 @@ BEGIN
 
   PERFORM private.catalog_authorize('catalog.write', v_organization_id, v_establishment_id, v_branch_id);
 
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key);
+  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -608,7 +612,7 @@ BEGIN
   PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
   PERFORM private.catalog_authorize('catalog.write', p_organization_id, p_establishment_id, p_branch_id);
 
-  v_replayed := private.catalog_replay(p_organization_id, v_actor_user_id, p_idempotency_key);
+  v_replayed := private.catalog_replay(p_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -682,7 +686,7 @@ BEGIN
 
   PERFORM private.catalog_authorize('catalog.write', v_organization_id, v_establishment_id, v_branch_id);
 
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key);
+  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -756,7 +760,7 @@ BEGIN
 
   PERFORM private.catalog_authorize('catalog.write', v_organization_id, v_establishment_id, v_branch_id);
 
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key);
+  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -818,7 +822,7 @@ BEGIN
   PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
   PERFORM private.catalog_authorize('catalog.write', p_organization_id, p_establishment_id, p_branch_id);
 
-  v_replayed := private.catalog_replay(p_organization_id, v_actor_user_id, p_idempotency_key);
+  v_replayed := private.catalog_replay(p_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -894,7 +898,7 @@ BEGIN
 
   PERFORM private.catalog_authorize('catalog.write', v_organization_id, v_establishment_id, v_branch_id);
 
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key);
+  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -963,7 +967,7 @@ BEGIN
   PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
   PERFORM private.catalog_authorize('catalog.write', p_organization_id, NULL, NULL);
 
-  v_replayed := private.catalog_replay(p_organization_id, v_actor_user_id, p_idempotency_key);
+  v_replayed := private.catalog_replay(p_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -1036,7 +1040,7 @@ BEGIN
   v_organization_id := v_previous.organization_id;
   PERFORM private.catalog_authorize('catalog.write', v_organization_id, NULL, NULL);
 
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key);
+  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -1130,7 +1134,7 @@ BEGIN
   PERFORM private.catalog_authorize('catalog.price.manage', p_organization_id, p_establishment_id, p_branch_id);
   PERFORM private.catalog_require_step_up();
 
-  v_replayed := private.catalog_replay(p_organization_id, v_actor_user_id, p_idempotency_key);
+  v_replayed := private.catalog_replay(p_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -1223,7 +1227,7 @@ BEGIN
 
   PERFORM private.catalog_authorize('catalog.write', v_organization_id, v_establishment_id, v_branch_id);
 
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key);
+  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -1302,7 +1306,7 @@ BEGIN
   PERFORM private.catalog_authorize('catalog.price.manage', v_organization_id, v_establishment_id, v_branch_id);
   PERFORM private.catalog_require_step_up();
 
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key);
+  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -1408,7 +1412,7 @@ BEGIN
   PERFORM private.catalog_authorize('catalog.availability.manage', v_organization_id, v_establishment_id, v_branch_id);
   PERFORM private.catalog_require_step_up();
 
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key);
+  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -1499,7 +1503,7 @@ BEGIN
   PERFORM private.catalog_authorize('catalog.availability.manage', v_organization_id, v_establishment_id, v_branch_id);
   PERFORM private.catalog_require_step_up();
 
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key);
+  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
