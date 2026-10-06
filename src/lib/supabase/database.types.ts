@@ -106,6 +106,12 @@ isOneToOne: false
       foreignKeyName: "channel_offer_price_history_offer_tenant_fkey"
       columns: ["organization_id","channel_offer_id"]
 isOneToOne: false
+      referencedRelation: "channel_offer_pricing"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "channel_offer_price_history_offer_tenant_fkey"
+      columns: ["organization_id","channel_offer_id"]
+isOneToOne: false
       referencedRelation: "channel_offers"
       referencedColumns: ["organization_id","id"]
     }
@@ -451,7 +457,7 @@ isOneToOne: false
           Views: {
             "channel_offer_price_timeline": {
                   Row: {
-                    "audit_event_id": string | null,"availability": string | null,"base_price_amount": number | null,"base_price_currency": string | null,"channel_offer_id": string | null,"correlation_id": string | null,"effective_from": string | null,"effective_to": string | null,"id": string | null,"organization_id": string | null,"price_revision": number | null,"promotional_price_amount": number | null,"recorded_at": string | null,"recorded_by_user_id": string | null,"visibility": string | null
+                    "audit_event_id": string | null,"availability": string | null,"base_price_amount": string | null,"base_price_currency": string | null,"channel_offer_id": string | null,"correlation_id": string | null,"effective_from": string | null,"effective_to": string | null,"id": string | null,"organization_id": string | null,"price_revision": number | null,"promotional_price_amount": string | null,"recorded_at": string | null,"recorded_by_user_id": string | null,"visibility": string | null
                   }
                   Relationships: [
                     {
@@ -464,7 +470,62 @@ isOneToOne: false
       foreignKeyName: "channel_offer_price_history_offer_tenant_fkey"
       columns: ["organization_id","channel_offer_id"]
 isOneToOne: false
+      referencedRelation: "channel_offer_pricing"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "channel_offer_price_history_offer_tenant_fkey"
+      columns: ["organization_id","channel_offer_id"]
+isOneToOne: false
       referencedRelation: "channel_offers"
+      referencedColumns: ["organization_id","id"]
+    }
+                  ]
+                },"channel_offer_pricing": {
+                  Row: {
+                    "availability": string | null,"base_price_amount": string | null,"base_price_currency": string | null,"branch_id": string | null,"description": string | null,"establishment_id": string | null,"id": string | null,"organization_id": string | null,"price_revision": number | null,"product_id": string | null,"product_variant_id": string | null,"promotional_price_amount": string | null,"sales_channel_id": string | null,"status": string | null,"title": string | null,"updated_at": string | null,"visibility": string | null
+                  }
+                  Insert: {
+                           "availability"?: string | null,"base_price_amount"?: never,"base_price_currency"?: string | null,"branch_id"?: string | null,"description"?: string | null,"establishment_id"?: string | null,"id"?: string | null,"organization_id"?: string | null,"price_revision"?: number | null,"product_id"?: string | null,"product_variant_id"?: string | null,"promotional_price_amount"?: never,"sales_channel_id"?: string | null,"status"?: string | null,"title"?: string | null,"updated_at"?: string | null,"visibility"?: string | null
+                         }
+                        Update: {
+                           "availability"?: string | null,"base_price_amount"?: never,"base_price_currency"?: string | null,"branch_id"?: string | null,"description"?: string | null,"establishment_id"?: string | null,"id"?: string | null,"organization_id"?: string | null,"price_revision"?: number | null,"product_id"?: string | null,"product_variant_id"?: string | null,"promotional_price_amount"?: never,"sales_channel_id"?: string | null,"status"?: string | null,"title"?: string | null,"updated_at"?: string | null,"visibility"?: string | null
+                         }
+                        Relationships: [
+                    {
+      foreignKeyName: "channel_offers_branch_tenant_fkey"
+      columns: ["organization_id","establishment_id","branch_id"]
+isOneToOne: false
+      referencedRelation: "branches"
+      referencedColumns: ["organization_id","establishment_id","id"]
+    },{
+      foreignKeyName: "channel_offers_establishment_tenant_fkey"
+      columns: ["organization_id","establishment_id"]
+isOneToOne: false
+      referencedRelation: "establishments"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "channel_offers_organization_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "channel_offers_product_tenant_fkey"
+      columns: ["organization_id","product_id"]
+isOneToOne: false
+      referencedRelation: "products"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "channel_offers_product_variant_tenant_fkey"
+      columns: ["organization_id","product_variant_id"]
+isOneToOne: false
+      referencedRelation: "product_variants"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "channel_offers_sales_channel_tenant_fkey"
+      columns: ["organization_id","sales_channel_id"]
+isOneToOne: false
+      referencedRelation: "sales_channels"
       referencedColumns: ["organization_id","id"]
     }
                   ]

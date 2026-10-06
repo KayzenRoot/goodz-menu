@@ -158,6 +158,8 @@ CREATE POLICY catalog_command_receipts_catalog_select
   USING ((SELECT private.catalog_scope_grants('catalog.read', organization_id, NULL, NULL)));
 
 -- Reconstructable price timeline. security_invoker keeps the underlying catalog policy authoritative.
+-- Monetary columns are projected as text: the Data API serialises a bare numeric as a JSON number,
+-- which a browser would read back through an IEEE-754 double. Text keeps every admitted digit exact.
 CREATE VIEW public.channel_offer_price_timeline
 WITH (security_invoker = true)
 AS
@@ -166,9 +168,9 @@ SELECT
   history.organization_id,
   history.channel_offer_id,
   history.price_revision,
-  history.base_price_amount,
+  history.base_price_amount::text AS base_price_amount,
   history.base_price_currency,
-  history.promotional_price_amount,
+  history.promotional_price_amount::text AS promotional_price_amount,
   history.availability,
   history.visibility,
   history.effective_from,
@@ -184,3 +186,30 @@ FROM public.channel_offer_price_history AS history;
 
 REVOKE ALL ON TABLE public.channel_offer_price_timeline FROM PUBLIC, anon, authenticated, service_role;
 GRANT SELECT ON TABLE public.channel_offer_price_timeline TO authenticated;
+
+-- Current commercial state, projected with exact decimal text for the same reason.
+CREATE VIEW public.channel_offer_pricing
+WITH (security_invoker = true)
+AS
+SELECT
+  offer.id,
+  offer.organization_id,
+  offer.establishment_id,
+  offer.branch_id,
+  offer.sales_channel_id,
+  offer.product_id,
+  offer.product_variant_id,
+  offer.title,
+  offer.description,
+  offer.base_price_amount::text AS base_price_amount,
+  offer.base_price_currency,
+  offer.promotional_price_amount::text AS promotional_price_amount,
+  offer.availability,
+  offer.visibility,
+  offer.status,
+  offer.price_revision,
+  offer.updated_at
+FROM public.channel_offers AS offer;
+
+REVOKE ALL ON TABLE public.channel_offer_pricing FROM PUBLIC, anon, authenticated, service_role;
+GRANT SELECT ON TABLE public.channel_offer_pricing TO authenticated;
