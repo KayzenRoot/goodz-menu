@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_007_ADMISSION_CANDIDATE_READY_FOR_REVIEW`
+Status: `GMZ_IMPL_007_BOUND_FOR_EXECUTION`
 
 ## Current state
 - Project: Goodz Menu
@@ -24,24 +24,26 @@ Status: `GMZ_IMPL_007_ADMISSION_CANDIDATE_READY_FOR_REVIEW`
 - AI Architecture: `APPROVED_V0.1`
 - UI/UX Design System: `APPROVED_V0.1`
 - Security Control Matrix: `APPROVED_V0.1`
-- Business-domain implementation: `NOT_AUTHORIZED`
+- Business-domain implementation: `AUTHORIZED — GMZ-IMPL-007 ONLY`
 
 ## Active increment
 - Work Order: `GMZ-IMPL-007`
 - Issue: `#67`
-- Admission branch: `implementation/gmz-impl-007-catalog-core`
-- Admission base: `f98b54a2a933e1cf312575a571afb57566422d82`
+- Admission PR: `#68 — MERGED`
+- Admission audited head: `9abc2f690f035b41801662688cb6f7ab9e2e9f9a`
+- Exact execution base: `1b64fbfbef3d31d215f4a2a1e30e88f8f946860c`
+- Execution branch: `execution/gmz-impl-007-catalog-core`
 - Assurance: `ELEVATED`
-- Implementation authorization: `NO — admission audit/merge and exact execution-base bind required first`
-- Last promoted increment: `GMZ-IMPL-006`
+- Context Lock: `BOUND_FOR_EXECUTION`
+- Implementation authorization: `YES — GMZ-IMPL-007 ONLY`
 - Current earned production credit: `52 / 515 = 10.10%`
 - Predeclared maximum later slice: `9 / 515`
   - GMZ-M06: `7`
   - GMZ-M26: `2`
-- Projected only after later acceptance/merge/promotion: `61 / 515 = 11.84%`
-- Admission scope: canonical catalog Product/ProductVariant/ChannelOffer foundation with tenant-safe RLS, exact/versioned price, durable material-mutation audit and minimal management UI
-- Explicitly not admitted: modifiers/combos/media runtime, recipes, inventory, POS, orders, finance, provider sync, remote Supabase, production deployment
-- Next governed action: `OBJECTIVE AUDIT OF GMZ-IMPL-007 ADMISSION`
+- Projected only after objective acceptance/merge/promotion: `61 / 515 = 11.84%`
+- Admitted runtime scope: canonical Product/ProductVariant/ChannelOffer foundation, exact/versioned price, tenant-safe RLS, current user-authority server mutations, Admin Guard + durable audit for material commercial mutations, minimal accessible management UI
+- Explicitly unauthorized: modifiers/combos/media runtime, recipes, inventory, POS, orders, finance, provider sync, remote Supabase, production deployment
+- Next governed action: `EXECUTE GMZ-IMPL-007 W0 → W10`
 
 ## Progress accounting
 Overall production completion: `52 / 515 = 10.10%`.
@@ -58,9 +60,9 @@ GMZ-SRC-001 is preserved byte-exact in repository truth:
 The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
-Objectively audit the governance-only GMZ-IMPL-007 admission candidate. If approved, merge the admission and bind the exact execution base before any executor mutation.
+Execute only the admitted GMZ-IMPL-007 catalog slice on `execution/gmz-impl-007-catalog-core`, descending from exact execution base `1b64fbfbef3d31d215f4a2a1e30e88f8f946860c`. The executor must complete ELEVATED evidence and stop without merge.
 
-STOP CONDITION: `GMZ_IMPL_007_ADMISSION_READY_FOR_REVIEW`.
+STOP CONDITION: `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`.
 
 
 ## Historical GMZ-IMPL-005 execution closeout — superseded by CD-001
@@ -1015,3 +1017,20 @@ STOP CONDITION: `GMZ_IMPL_006_PROMOTED_COMPLETE`.
 - next action: `AUDIT_AND_MERGE_GMZ_IMPL_007_ADMISSION_THEN_BIND_EXECUTION_BASE`
 
 STOP CONDITION: `GMZ_IMPL_007_ADMISSION_READY_FOR_REVIEW`.
+
+
+## GMZ-IMPL-007 execution-base bind
+
+- admission PR: `#68`
+- admission audited head: `9abc2f690f035b41801662688cb6f7ab9e2e9f9a`
+- admission merge / exact execution base: `1b64fbfbef3d31d215f4a2a1e30e88f8f946860c`
+- execution branch: `execution/gmz-impl-007-catalog-core`
+- Context Lock stable sources: `16 / 16 MATCH`
+- assurance: `ELEVATED`
+- executor/Codex: `AUTHORIZED FOR GMZ-IMPL-007 ONLY`
+- current earned production credit: `52 / 515 = 10.10%`
+- maximum eligible after later objective acceptance/merge/promotion: `9 / 515`
+- projected cumulative only after promotion: `61 / 515 = 11.84%`
+- next action: `EXECUTE GMZ-IMPL-007`
+
+STOP CONDITION: `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`.
