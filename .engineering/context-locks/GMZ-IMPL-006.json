@@ -10,7 +10,7 @@
   "admissionBaseSha": "312f0139913e1e4bbe3b15662610f35da39c4db0",
   "workBranch": "execution/gmz-impl-006-durable-audit",
   "executionBaseSha": "2490ed590a6fb21f53d79b7ab7c93fee854c01ee",
-  "executionBaseState": "BOUND_FOR_EXECUTION",
+  "executionBaseState": "PROMOTED_COMPLETE",
   "sourcePack": "FROZEN_V0_1",
   "productionDenominator": 515,
   "productionEarnedAtAdmission": 44,
@@ -129,8 +129,8 @@
     "Executor does not merge"
   ],
   "executor": "GEF heavy executor / Codex",
-  "codexAllowed": true,
-  "codexAuthorizedScope": "Only GMZ-IMPL-006 on execution/gmz-impl-006-durable-audit, descended from exact executionBaseSha 2490ed590a6fb21f53d79b7ab7c93fee854c01ee. No merge.",
+  "codexAllowed": false,
+  "codexAuthorizedScope": "NONE — GMZ-IMPL-006 merged and promoted; a new Work Order is required for further mutation.",
   "codexProhibited": [
     "main direct mutation",
     "merge",
@@ -148,7 +148,7 @@
     "service-role tenant authorization/read",
     "unrelated cleanup"
   ],
-  "stopCondition": "GMZ_IMPL_006_READY_FOR_OBJECTIVE_AUDIT",
+  "stopCondition": "GMZ_IMPL_006_PROMOTED_COMPLETE",
   "admissionAudit": {
     "auditedHead": "4386d98f8bdce81b5b0511f1a70d0cf589bf787b",
     "critical": 0,
@@ -302,5 +302,27 @@
       ],
       "stopCondition": "GMZ_IMPL_006_CD_004_READY_FOR_OBJECTIVE_AUDIT"
     }
-  ]
+  ],
+  "finalPromotion": {
+    "implementationPr": 64,
+    "acceptedCandidate": "b3c7d0868d20600b32048cf7c30fab8c3ea1f959",
+    "mergeSha": "f3f1074fb3f3da4dce4b9120b2868c74c73f615f",
+    "productionEarned": 52,
+    "incrementalCredit": 8,
+    "denominator": 515,
+    "completionPercent": 10.1,
+    "moduleBaselineAfter": {
+      "GMZ-M23": {
+        "earned": 7,
+        "weight": 19,
+        "state": "PARTIAL"
+      },
+      "GMZ-M26": {
+        "earned": 11,
+        "weight": 18,
+        "state": "PARTIAL"
+      }
+    },
+    "state": "PROMOTED_COMPLETE"
+  }
 }
