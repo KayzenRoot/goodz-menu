@@ -52,7 +52,11 @@ SELECT
   'public.role_permissions'::regclass AS c_role_permissions_relation,
   'public.tenant_roles'::regclass AS c_tenant_roles_relation,
   'request.jwt.claims'::text AS c_jwt_claims_setting,
-  'tenant.hierarchy.read'::text AS c_hierarchy_read_permission;
+  'tenant.hierarchy.read'::text AS c_hierarchy_read_permission,
+  'catalog.read'::text AS c_catalog_read_permission,
+  'catalog.write'::text AS c_catalog_write_permission,
+  'catalog.price.manage'::text AS c_catalog_price_permission,
+  'catalog.availability.manage'::text AS c_catalog_availability_permission;
 
 GRANT SELECT ON TABLE pg_temp.gmz003_test_constants TO PUBLIC;
 
@@ -137,8 +141,14 @@ SELECT ok(
 );
 SELECT is(
   (SELECT array_agg(permission_key ORDER BY permission_key) FROM public.permissions),
-  ARRAY[(SELECT c_hierarchy_read_permission FROM pg_temp.gmz003_test_constants)]::text[],
-  'only the admitted tenant hierarchy read permission is catalogued'
+  ARRAY[
+    (SELECT c_catalog_availability_permission FROM pg_temp.gmz003_test_constants),
+    (SELECT c_catalog_price_permission FROM pg_temp.gmz003_test_constants),
+    (SELECT c_catalog_read_permission FROM pg_temp.gmz003_test_constants),
+    (SELECT c_catalog_write_permission FROM pg_temp.gmz003_test_constants),
+    (SELECT c_hierarchy_read_permission FROM pg_temp.gmz003_test_constants)
+  ]::text[],
+  'only the admitted tenant hierarchy and catalog capabilities are catalogued'
 );
 SELECT ok(
   to_regclass('public.platform_admin_memberships') IS NULL
