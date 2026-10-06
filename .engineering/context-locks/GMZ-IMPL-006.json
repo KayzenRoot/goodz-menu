@@ -263,6 +263,44 @@
         "CRITICAL/HIGH unresolved = 0/0"
       ],
       "stopCondition": "GMZ_IMPL_006_CD_003_READY_FOR_OBJECTIVE_AUDIT"
+    },
+    {
+      "id": "GMZ-IMPL-006-CD-004",
+      "status": "AUTHORIZED_CORRECTION_REQUIRED",
+      "authorizationBase": "f9fa9ecda977245e545cd35ec886f629956f1098",
+      "diagnosis": "Pinned Supabase CLI db query JSON is a top-level row array; auth-session fixture slices from first object marker and silently masks the resulting parse failure as null. Direct DB proof confirms runtime audit persistence is healthy.",
+      "allowedMutations": [
+        ".engineering/work-orders/GMZ-IMPL-006.md",
+        ".engineering/execution-packs/GMZ-IMPL-006.md",
+        ".engineering/context-locks/GMZ-IMPL-006.json",
+        ".engineering/evidence/GMZ-IMPL-006-EVIDENCE.md",
+        ".engineering/CHECKPOINT.md proposal only",
+        "tests/e2e/auth-session-fixture.ts",
+        "preserve previously prepared CD-003 changes in tests/e2e/auth-session.spec.ts and tests/e2e/mfa-admin-guard.spec.ts"
+      ],
+      "forbiddenMutations": [
+        ".engineering/CHECKPOINT.json",
+        "runtime/Auth/MFA/Admin Guard application code",
+        "audit writer/schema/migrations/RLS/FKs/triggers",
+        "dependencies/pnpm-lock.yaml",
+        ".gef/**",
+        "remote Supabase",
+        "production deployment"
+      ],
+      "requiredProof": [
+        "fixture parses top-level array and object-with-rows shapes",
+        "malformed/unexpected JSON fails visibly",
+        "durable Admin Guard audit assertion observes event_count=1",
+        "focused logout >=3/3",
+        "focused mobile Admin Guard >=3/3",
+        "full E2E normal workers 24/24",
+        "full E2E workers=1 24/24",
+        "full-suite Axe PASS",
+        "complete exact-head HIGH_ASSURANCE L5",
+        "fresh hosted SonarCloud Socket CodeRabbit",
+        "CRITICAL/HIGH unresolved 0/0"
+      ],
+      "stopCondition": "GMZ_IMPL_006_CD_004_READY_FOR_OBJECTIVE_AUDIT"
     }
   ]
 }
