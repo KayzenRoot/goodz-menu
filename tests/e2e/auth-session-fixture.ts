@@ -240,10 +240,9 @@ INSERT INTO public.membership_roles (id, organization_id, membership_id, role_id
       },
       async inspectAdminGuardAudit(correlationId) {
         if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(correlationId)) return null;
-        try {
-          const output = await runSupabase([
-            "db", "query", "--local", "--output-format", "json",
-            `SELECT count(*)::integer AS event_count,
+        const output = await runSupabase([
+          "db", "query", "--local", "--output-format", "json",
+          `SELECT count(*)::integer AS event_count,
   (array_agg(jsonb_build_object(
     'actor_user_id', actor_user_id,
     'organization_id', organization_id,
@@ -260,15 +259,20 @@ INSERT INTO public.membership_roles (id, organization_id, membership_id, role_id
   )))[1] AS event
 FROM public.audit_events
 WHERE correlation_id = '${correlationId}';`,
-          ]);
-          const jsonStart = output.indexOf("{");
-          if (jsonStart < 0) return null;
-          const result = JSON.parse(output.slice(jsonStart)) as { rows?: { event_count?: number; event?: Record<string, unknown> | null }[] };
-          const row = result.rows?.[0];
-          return typeof row?.event_count === "number" ? { event_count: row.event_count, event: row.event ?? null } : null;
+        ]);
+        const jsonStart = output.search(/[[{]/);
+        if (jsonStart < 0) throw new Error("A leitura local da trilha de auditoria não retornou um resultado legível.");
+        let result: unknown;
+        try {
+          result = JSON.parse(output.slice(jsonStart));
         } catch {
-          return null;
+          throw new Error("A leitura local da trilha de auditoria retornou um resultado malformado.");
         }
+        const rows = Array.isArray(result) ? result : (result as { rows?: unknown } | null)?.rows;
+        if (!Array.isArray(rows)) throw new Error("A leitura local da trilha de auditoria retornou um formato inesperado.");
+        const row = rows[0] as { event_count?: unknown; event?: unknown } | undefined;
+        if (typeof row?.event_count !== "number") throw new Error("A leitura local da trilha de auditoria retornou um formato inesperado.");
+        return { event_count: row.event_count, event: (row.event ?? null) as Record<string, unknown> | null };
       },
       cleanup,
     };

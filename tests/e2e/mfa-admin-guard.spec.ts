@@ -83,8 +83,24 @@ async function submitProof(page: Page) {
   expect(response.ok()).toBe(true);
 }
 
+const allowedStatus = "A proteção foi validada. Nenhum dado de negócio foi alterado.";
+const stepUpStatus = "Verificação adicional necessária para continuar.";
+const factorSetupStatus = "Configure novamente o aplicativo autenticador para continuar.";
+
+/**
+ * The allowed state renders exactly one success element. Selecting it by its own state class keeps
+ * the assertion unambiguous even while the step-up reauthentication status is still mounted, and it
+ * proves the allowed state is exclusive rather than merely present.
+ */
+async function expectAllowed(page: Page) {
+  await expect(page.locator(".mfa-status-success")).toHaveText(allowedStatus);
+  await expect(page.locator(".mfa-status-success")).toHaveCount(1);
+  await expect(page.locator(".mfa-step-up")).toHaveCount(0);
+}
+
 async function expectStepUpRequired(page: Page) {
-  await expect(page.locator(".mfa-step-up > p.mfa-status:not(.reauth-status)")).toHaveText("Verificação adicional necessária para continuar.");
+  await expect(page.locator(".mfa-step-up > p.mfa-status:not(.reauth-status)")).toHaveText(stepUpStatus);
+  await expect(page.locator(".mfa-status-success")).toHaveCount(0);
 }
 
 async function expectNoCredentialQuery(page: Page) {
@@ -237,7 +253,7 @@ test("local TOTP enrollment, AAL1 denial, verified step-up, branch scope, and li
   const auditCorrelationId = randomUUID();
   await page.setExtraHTTPHeaders({ "x-request-id": auditCorrelationId });
   await submitProof(page);
-  await expect(page.getByRole("status")).toContainText("A proteção foi validada");
+  await expectAllowed(page);
   const durableDecision = await fixture.inspectAdminGuardAudit(auditCorrelationId);
   expect(durableDecision).toEqual({
     event_count: 1,
@@ -296,12 +312,12 @@ test("local TOTP enrollment, AAL1 denial, verified step-up, branch scope, and li
   await expect(page.locator(".reauth-status")).toHaveText("Identidade confirmada. Conclua a verificação em duas etapas.");
   await expectNoCredentialQuery(page);
   await submitProof(page);
-  await expect(page.getByRole("status")).toContainText("A proteção foi validada");
+  await expectAllowed(page);
 
   await fixture.scopeAuthorizedRoleToBranch();
   await page.locator("#proof-branch").selectOption(fixture.branchId);
   await submitProof(page);
-  await expect(page.getByRole("status")).toContainText("A proteção foi validada");
+  await expectAllowed(page);
   await page.locator("#proof-branch").selectOption(fixture.siblingBranchId);
   await expect(page.locator("#proof-branch")).toHaveValue(fixture.siblingBranchId);
   await submitProof(page);
@@ -309,21 +325,21 @@ test("local TOTP enrollment, AAL1 denial, verified step-up, branch scope, and li
   await fixture.restoreAuthorizedOrganizationScope();
   await page.locator("#proof-branch").selectOption(fixture.branchId);
   await submitProof(page);
-  await expect(page.getByRole("status")).toContainText("A proteção foi validada");
+  await expectAllowed(page);
 
   await fixture.removeHierarchyPermission();
   await submitProof(page);
   await expect(page.locator("p.auth-error[role='alert']")).toHaveText("Esta unidade não está autorizada para a ação solicitada.");
   await fixture.restoreHierarchyPermission();
   await submitProof(page);
-  await expect(page.getByRole("status")).toContainText("A proteção foi validada");
+  await expectAllowed(page);
 
   await fixture.suspendAuthorizedMembership();
   await submitProof(page);
   await expect(page.locator("p.auth-error[role='alert']")).toHaveText("Esta unidade não está autorizada para a ação solicitada.");
   await fixture.restoreMembership();
   await submitProof(page);
-  await expect(page.getByRole("status")).toContainText("A proteção foi validada");
+  await expectAllowed(page);
 
   guardClock.setNow(Math.floor(Date.now() / 1000) + 301);
   await submitProof(page);
@@ -342,7 +358,7 @@ test("local TOTP enrollment, AAL1 denial, verified step-up, branch scope, and li
   const [renewedVerifyResponse] = await Promise.all([renewedVerifyResponsePromise, renewedReloadPromise]);
   expect(renewedVerifyResponse.ok()).toBe(true);
   await submitProof(page);
-  await expect(page.getByRole("status")).toContainText("A proteção foi validada");
+  await expectAllowed(page);
 
   await fixture.revokeMembership();
   await submitProof(page);
@@ -362,7 +378,8 @@ test("local TOTP enrollment, AAL1 denial, verified step-up, branch scope, and li
   });
   expect(removal.ok()).toBe(true);
   await submitProof(page);
-  await expect(page.getByRole("status")).toHaveText("Configure novamente o aplicativo autenticador para continuar.");
+  await expect(page.locator(".mfa-step-up > p.mfa-status:not(.reauth-status)")).toHaveText(factorSetupStatus);
+  await expect(page.locator(".mfa-status-success")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Configurar aplicativo autenticador" })).toBeVisible();
   await expect(page.locator(".mfa-status-success")).toHaveCount(0);
   await expectAccessible(page);
