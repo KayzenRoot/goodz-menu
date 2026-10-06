@@ -1,6 +1,6 @@
 # GMZ-IMPL-007 — Catalog Core & Channel Offers Foundation
 
-Status: `ADMISSION CANDIDATE / EXECUTION BLOCKED`
+Status: `ADMITTED / EXECUTION AUTHORIZED`
 Issue: `#67`
 Assurance: `ELEVATED`
 Admission branch: `implementation/gmz-impl-007-catalog-core`
@@ -290,4 +290,23 @@ Admission:
 `GMZ_IMPL_007_ADMISSION_READY_FOR_REVIEW`
 
 Execution after governed admission promotion and exact bind:
+`GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## EXECUTION-BASE BIND
+
+- admission PR: `#68`
+- admission audited head: `9abc2f690f035b41801662688cb6f7ab9e2e9f9a`
+- admission merge / exact execution base: `1b64fbfbef3d31d215f4a2a1e30e88f8f946860c`
+- execution branch: `execution/gmz-impl-007-catalog-core`
+- Context Lock: `BOUND_FOR_EXECUTION`
+- stable source fingerprints: `16 / 16 MATCH`
+- assurance: `ELEVATED`
+- executor/Codex: `AUTHORIZED FOR GMZ-IMPL-007 ONLY`
+- merge authority: `NO`
+- current production credit remains `52 / 515 = 10.10%`
+- maximum later eligible credit remains `9 / 515`
+- implementation must execute W0 → W10 from the Execution Pack and stop without merge
+
+Execution STOP CONDITION:
 `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`
