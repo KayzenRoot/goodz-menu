@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_007_ADMITTED_EXECUTION_BASE_BIND_PENDING`
+Status: `GMZ_IMPL_007_ADMISSION_CANDIDATE_READY_FOR_REVIEW`
 
 ## Current state
 - Project: Goodz Menu
