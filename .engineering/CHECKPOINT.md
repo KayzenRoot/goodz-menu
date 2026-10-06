@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_006_PROMOTED_COMPLETE_READY_FOR_NEXT`
+Status: `GMZ_IMPL_007_ADMISSION_CANDIDATE_READY_FOR_REVIEW`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,21 +27,21 @@ Status: `GMZ_IMPL_006_PROMOTED_COMPLETE_READY_FOR_NEXT`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `NONE`
-- Implementation authorization: `NO`
+- Work Order: `GMZ-IMPL-007`
+- Issue: `#67`
+- Admission branch: `implementation/gmz-impl-007-catalog-core`
+- Admission base: `f98b54a2a933e1cf312575a571afb57566422d82`
+- Assurance: `ELEVATED`
+- Implementation authorization: `NO — admission audit/merge and exact execution-base bind required first`
 - Last promoted increment: `GMZ-IMPL-006`
-- Implementation PR: `#64 — MERGED`
-- Implementation merge: `f3f1074fb3f3da4dce4b9120b2868c74c73f615f`
-- Accepted candidate: `b3c7d0868d20600b32048cf7c30fab8c3ea1f959`
-- Objective audit: `APPROVED_FOR_PROMOTION`
-- Correction chain: `CD-001..CD-004 — CLOSED`
-- GMZ-M02 baseline: `19 / 19 — COMPLETE`
-- GMZ-M23 baseline: `7 / 19 — PARTIAL`
-- GMZ-M26 baseline: `11 / 18 — PARTIAL`
-- CRITICAL/HIGH unresolved: `0 / 0`
-- Raw full audit note: `GHSA-vfj7-8cjw-p6xm` remains visible; reviewed disposition `RESOLVED_NOT_AFFECTED` under committed guard
-- Current execution disposition: `GMZ-IMPL-006 PROMOTED_COMPLETE`
-- Next governed action: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
+- Current earned production credit: `52 / 515 = 10.10%`
+- Predeclared maximum later slice: `9 / 515`
+  - GMZ-M06: `7`
+  - GMZ-M26: `2`
+- Projected only after later acceptance/merge/promotion: `61 / 515 = 11.84%`
+- Admission scope: canonical catalog Product/ProductVariant/ChannelOffer foundation with tenant-safe RLS, exact/versioned price, durable material-mutation audit and minimal management UI
+- Explicitly not admitted: modifiers/combos/media runtime, recipes, inventory, POS, orders, finance, provider sync, remote Supabase, production deployment
+- Next governed action: `OBJECTIVE AUDIT OF GMZ-IMPL-007 ADMISSION`
 
 ## Progress accounting
 Overall production completion: `52 / 515 = 10.10%`.
@@ -58,9 +58,9 @@ GMZ-SRC-001 is preserved byte-exact in repository truth:
 The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
-Admit the next NECESSARY implementation Work Order from the canonical dependency order. Platform/Super Admin and business-domain implementation remain unauthorized until separately admitted.
+Objectively audit the governance-only GMZ-IMPL-007 admission candidate. If approved, merge the admission and bind the exact execution base before any executor mutation.
 
-STOP CONDITION: `GMZ_IMPL_006_PROMOTED_COMPLETE`.
+STOP CONDITION: `GMZ_IMPL_007_ADMISSION_READY_FOR_REVIEW`.
 
 
 ## Historical GMZ-IMPL-005 execution closeout — superseded by CD-001
@@ -996,3 +996,22 @@ STOP CONDITION proposed for the objective-audit handoff: `GMZ_IMPL_006_CD_004_RE
 - next: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
 
 STOP CONDITION: `GMZ_IMPL_006_PROMOTED_COMPLETE`.
+
+
+## GMZ-IMPL-007 admission candidate
+
+- Work Order: `GMZ-IMPL-007 — Catalog Core & Channel Offers Foundation`
+- Issue: `#67`
+- admission base: `f98b54a2a933e1cf312575a571afb57566422d82`
+- branch: `implementation/gmz-impl-007-catalog-core`
+- assurance: `ELEVATED`
+- current production credit: `52 / 515 = 10.10%`
+- maximum future accepted slice: `9 / 515`
+  - GMZ-M06: `7`
+  - GMZ-M26: `2`
+- projected cumulative only if later accepted: `61 / 515 = 11.84%`
+- executor mutation: `BLOCKED` pending objective admission audit + admission merge + exact execution-base bind
+- admission diff: governance-only
+- next action: `AUDIT_AND_MERGE_GMZ_IMPL_007_ADMISSION_THEN_BIND_EXECUTION_BASE`
+
+STOP CONDITION: `GMZ_IMPL_007_ADMISSION_READY_FOR_REVIEW`.
