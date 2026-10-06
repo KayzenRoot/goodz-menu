@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_006_BOUND_FOR_EXECUTION`
+Status: `GMZ_IMPL_006_PROMOTED_COMPLETE_READY_FOR_NEXT`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,20 +27,24 @@ Status: `GMZ_IMPL_006_BOUND_FOR_EXECUTION`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-006`
-- Execution branch: `execution/gmz-impl-006-durable-audit`
-- Exact execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`
-- Context Lock: `BOUND_FOR_EXECUTION` — stable fingerprints `16 / 16 MATCH`
-- Implementation authorization: `YES — GMZ-IMPL-006 ONLY, on this bound branch/base`
-- Last promoted increment: `GMZ-IMPL-005`
-- Implementation PR: `#64` (`execution/gmz-impl-006-durable-audit`)
-- Implementation merge: `NOT PERFORMED`
+- Work Order: `NONE`
+- Implementation authorization: `NO`
+- Last promoted increment: `GMZ-IMPL-006`
+- Implementation PR: `#64 — MERGED`
+- Implementation merge: `f3f1074fb3f3da4dce4b9120b2868c74c73f615f`
+- Accepted candidate: `b3c7d0868d20600b32048cf7c30fab8c3ea1f959`
+- Objective audit: `APPROVED_FOR_PROMOTION`
+- Correction chain: `CD-001..CD-004 — CLOSED`
 - GMZ-M02 baseline: `19 / 19 — COMPLETE`
-- Current execution disposition: CD-001's audit disposition is `RESOLVED_NOT_AFFECTED`; CD-004's exact-head L5 on correction commit `4c30b1d67b126c1a6cde3127a7bafee849f9e2b9` (tree `81b79bfaa17aa2e3ca898375dbe766cd52967256`) is `PASS`, including focused regressions `3 / 3` + `3 / 3`, full E2E `24 / 24` in both default-worker and `--workers=1` modes, and zero Axe violations. The raw full audit remains nonzero by design; `CHECKPOINT.json` remains bound and unchanged.
-- Next governed action: `Independent objective audit of PR #64 at the exact published head; no merge, no credit promotion, and no CHECKPOINT.json change until that audit is accepted.`
+- GMZ-M23 baseline: `7 / 19 — PARTIAL`
+- GMZ-M26 baseline: `11 / 18 — PARTIAL`
+- CRITICAL/HIGH unresolved: `0 / 0`
+- Raw full audit note: `GHSA-vfj7-8cjw-p6xm` remains visible; reviewed disposition `RESOLVED_NOT_AFFECTED` under committed guard
+- Current execution disposition: `GMZ-IMPL-006 PROMOTED_COMPLETE`
+- Next governed action: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
 
 ## Progress accounting
-Overall production completion: `44 / 515 = 8.54%`.
+Overall production completion: `52 / 515 = 10.10%`.
 
 Planning artifacts do not manufacture product-completion percentage.
 
@@ -56,7 +60,7 @@ The former Source Pack freeze blocker is closed by verified evidence.
 ## Next legal action
 Admit the next NECESSARY implementation Work Order from the canonical dependency order. Platform/Super Admin and business-domain implementation remain unauthorized until separately admitted.
 
-STOP CONDITION: `GMZ_IMPL_005_PROMOTED_COMPLETE`.
+STOP CONDITION: `GMZ_IMPL_006_PROMOTED_COMPLETE`.
 
 
 ## Historical GMZ-IMPL-005 execution closeout — superseded by CD-001
@@ -971,3 +975,24 @@ only; `.engineering/CHECKPOINT.json` remains `BOUND_FOR_EXECUTION` and byte-unch
 - PR #64 remains open and unmerged. Do not change main, `.gef`, the execution base, or production scope. No remote Supabase access and no production deployment were performed.
 
 STOP CONDITION proposed for the objective-audit handoff: `GMZ_IMPL_006_CD_004_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-006 promotion
+
+- implementation PR: `#64`
+- accepted candidate: `b3c7d0868d20600b32048cf7c30fab8c3ea1f959`
+- implementation merge: `f3f1074fb3f3da4dce4b9120b2868c74c73f615f`
+- objective audit: `APPROVED_FOR_PROMOTION`
+- credit:
+  - GMZ-M23: `6`
+  - GMZ-M26: `2`
+  - total: `8 / 515`
+- cumulative production credit: `52 / 515 = 10.10%`
+- GMZ-M23 accepted baseline: `7 / 19 — PARTIAL`
+- GMZ-M26 accepted baseline: `11 / 18 — PARTIAL`
+- implementation authorization: `NO`
+- unresolved review threads: `0`
+- CRITICAL/HIGH: `0 / 0`
+- next: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
+
+STOP CONDITION: `GMZ_IMPL_006_PROMOTED_COMPLETE`.
