@@ -535,6 +535,11 @@ isOneToOne: false
             "append_audit_event":
 { Args: { "p_action": string,"p_actor_user_id"?: string,"p_branch_id"?: string,"p_correlation_id": string,"p_establishment_id"?: string,"p_metadata": Json,"p_organization_id"?: string,"p_outcome": string,"p_reason_code": string,"p_source": string,"p_target_id"?: string,"p_target_type": string }; Returns: string
                            },
+"catalog_admitted_scopes":
+{ Args: { "p_permission_key": string }; Returns: {
+              "branch_id": string,"establishment_id": string,"organization_id": string,"organization_name": string
+            }[]
+                           },
 "catalog_create_category":
 { Args: { "p_branch_id": string,"p_correlation_id": string,"p_description": string,"p_display_order": number,"p_establishment_id": string,"p_idempotency_key": string,"p_name": string,"p_organization_id": string,"p_parent_category_id": string }; Returns: Json
                            },

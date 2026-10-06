@@ -1553,8 +1553,68 @@ END;
 $function$;
 
 -- ---------------------------------------------------------------------------
--- 7. Execution grants
+-- 7. Read contracts
 -- ---------------------------------------------------------------------------
+
+-- The scopes this session may write catalog rows into.
+--
+-- A creation form has to state the scope it is writing into, and every scope-aware contract
+-- authorizes exactly that triple. Deriving the candidates from the caller's own memberships, and
+-- re-testing each one through private.catalog_scope_grants, keeps a single authorization model:
+-- this function cannot admit a scope that the contracts would refuse, and it cannot admit a scope
+-- belonging to another tenant because the whole projection is filtered by auth.uid().
+CREATE OR REPLACE FUNCTION public.catalog_admitted_scopes(p_permission_key text)
+RETURNS TABLE (
+  organization_id uuid,
+  establishment_id uuid,
+  branch_id uuid,
+  organization_name text
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $function$
+  SELECT
+    membership.organization_id,
+    membership_role.establishment_id,
+    membership_role.branch_id,
+    organization.display_name
+  FROM public.organization_memberships AS membership
+  JOIN public.membership_roles AS membership_role
+    ON membership_role.organization_id = membership.organization_id
+   AND membership_role.membership_id = membership.id
+  JOIN public.role_permissions AS role_permission
+    ON role_permission.organization_id = membership_role.organization_id
+   AND role_permission.role_id = membership_role.role_id
+  JOIN public.organizations AS organization
+    ON organization.id = membership.organization_id
+  WHERE membership.user_id = (SELECT auth.uid())
+    AND membership.status = private.active_membership_status()
+    AND role_permission.permission_key = p_permission_key
+    AND (SELECT private.catalog_scope_grants(
+      p_permission_key,
+      membership.organization_id,
+      membership_role.establishment_id,
+      membership_role.branch_id
+    ))
+  ORDER BY
+    organization.display_name,
+    membership_role.establishment_id NULLS FIRST,
+    membership_role.branch_id NULLS FIRST;
+$function$;
+
+-- ---------------------------------------------------------------------------
+-- 8. Execution grants
+-- ---------------------------------------------------------------------------
+
+REVOKE ALL ON FUNCTION
+  public.catalog_admitted_scopes(text)
+FROM PUBLIC, anon, authenticated, service_role;
+
+GRANT EXECUTE ON FUNCTION
+  public.catalog_admitted_scopes(text)
+TO authenticated;
 
 REVOKE ALL ON FUNCTION
   public.catalog_create_category(uuid, uuid, uuid, uuid, text, text, integer, uuid, uuid),

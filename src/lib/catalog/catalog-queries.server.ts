@@ -2,7 +2,18 @@ import "server-only";
 
 import type { ServerSupabaseClient } from "@/lib/supabase/auth-session";
 import { loadAllPages } from "@/lib/supabase/query-pagination";
-import type { CatalogAvailability, CatalogVisibility } from "@/lib/catalog/validation";
+import type {
+  CatalogAdmittedScope,
+  CatalogCategoryView,
+  CatalogChannelView,
+  CatalogOfferView,
+  CatalogOverview,
+  CatalogProductView,
+  CatalogTimelineEntry,
+  CatalogVariantView,
+} from "@/lib/catalog/catalog-types";
+
+export type * from "@/lib/catalog/catalog-types";
 
 // Read contracts for the catalog.
 //
@@ -14,88 +25,6 @@ import type { CatalogAvailability, CatalogVisibility } from "@/lib/catalog/valid
 // Projections fail closed. A row that does not match the admitted shape is treated as a load failure
 // rather than being coerced into a view with invented defaults, because a silently reshaped price is
 // indistinguishable from a correct one once it reaches the interface.
-
-export type CatalogScopeView = {
-  organizationId: string;
-  establishmentId: string | null;
-  branchId: string | null;
-};
-
-export type CatalogCategoryView = CatalogScopeView & {
-  id: string;
-  parentCategoryId: string | null;
-  name: string;
-  description: string | null;
-  displayOrder: number;
-  status: string;
-};
-
-export type CatalogProductView = CatalogScopeView & {
-  id: string;
-  categoryId: string | null;
-  name: string;
-  description: string | null;
-  status: string;
-};
-
-export type CatalogVariantView = CatalogScopeView & {
-  id: string;
-  productId: string;
-  name: string;
-  status: string;
-};
-
-export type CatalogChannelView = {
-  id: string;
-  organizationId: string;
-  channelKey: string;
-  displayName: string;
-  description: string | null;
-  status: string;
-};
-
-export type CatalogOfferView = CatalogScopeView & {
-  id: string;
-  salesChannelId: string;
-  productId: string | null;
-  productVariantId: string | null;
-  title: string | null;
-  description: string | null;
-  /** Exact decimal text as persisted; never routed through a binary float. */
-  basePrice: string;
-  currency: string;
-  promotionalPrice: string | null;
-  availability: CatalogAvailability;
-  visibility: CatalogVisibility;
-  status: string;
-  priceRevision: number;
-};
-
-export type CatalogTimelineEntry = {
-  channelOfferId: string;
-  priceRevision: number;
-  basePrice: string;
-  currency: string;
-  promotionalPrice: string | null;
-  availability: CatalogAvailability;
-  visibility: CatalogVisibility;
-  effectiveFrom: string;
-  effectiveTo: string | null;
-  correlationId: string;
-};
-
-export type CatalogOverview =
-  | {
-      ok: true;
-      organizationId: string | null;
-      categories: CatalogCategoryView[];
-      products: CatalogProductView[];
-      variants: CatalogVariantView[];
-      channels: CatalogChannelView[];
-      offers: CatalogOfferView[];
-      timeline: CatalogTimelineEntry[];
-    }
-  | { ok: false };
 
 const EMPTY_OVERVIEW: CatalogOverview = { ok: false };
 
@@ -143,7 +72,7 @@ export async function loadCatalogOverview(
   const needle = normalizeSearch(search);
 
   try {
-    const [categories, products, variants, channels, pricing, timeline] = await Promise.all([
+    const [categories, products, variants, channels, pricing, timeline, scopes] = await Promise.all([
       loadAllPages((from, to) => client
         .from("product_categories")
         .select("id, organization_id, establishment_id, branch_id, parent_category_id, name, description, display_order, status", { count: "exact" })
@@ -182,9 +111,11 @@ export async function loadCatalogOverview(
           .range(from, to);
         return offerId ? query.eq("channel_offer_id", offerId) : query;
       }),
+      client.rpc("catalog_admitted_scopes", { p_permission_key: "catalog.write" }),
     ]);
 
     if (!categories || !products || !variants || !channels || !pricing || !timeline) return EMPTY_OVERVIEW;
+    if (scopes.error) return EMPTY_OVERVIEW;
 
     const categoryViews = mapRows(
       categories.filter((row) => matches(optionalText(row.name), needle) || matches(optionalText(row.description), needle)),
@@ -334,6 +265,19 @@ export async function loadCatalogOverview(
       return EMPTY_OVERVIEW;
     }
 
+    const scopeViews: CatalogAdmittedScope[] = [];
+    for (const row of scopes.data ?? []) {
+      const organizationId = requiredText(row.organization_id);
+      const organizationName = requiredText(row.organization_name);
+      if (!organizationId || !organizationName) return EMPTY_OVERVIEW;
+      scopeViews.push({
+        organizationId,
+        establishmentId: optionalText(row.establishment_id),
+        branchId: optionalText(row.branch_id),
+        organizationName,
+      });
+    }
+
     const organizationIds = new Set([
       ...categoryViews.map((row) => row.organizationId),
       ...productViews.map((row) => row.organizationId),
@@ -343,6 +287,7 @@ export async function loadCatalogOverview(
     return {
       ok: true,
       organizationId: organizationIds.size === 1 ? [...organizationIds][0] : null,
+      writeScopes: scopeViews,
       categories: categoryViews,
       products: productViews,
       variants: variantViews,

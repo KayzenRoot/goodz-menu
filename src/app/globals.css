@@ -136,3 +136,67 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
   .auth-content { padding: 23px 22px 25px; }.auth-card-top { margin-bottom: 31px; }.auth-heading { margin-bottom: 24px; }.auth-heading h1, .auth-unavailable h1 { font-size: 29px; }.auth-form { gap: 16px; }.auth-field input { height: 51px; }.auth-submit { min-height: 51px; }.auth-privacy-note { margin-top: 21px; }
   .tenant-entry-header { flex-direction: column; }.tenant-security-actions { justify-content: flex-start; }.auth-logout-wrap { justify-items: start; }.tenant-list { margin-top: 26px; }.tenant-empty-state { margin-top: 28px; padding: 32px 18px; }
 }
+
+/* Catalog management. Same tokens as the rest of the shell: every surface, border and state colour
+   resolves from the light or dark variable set, so the catalog has no palette of its own. */
+.catalog-console { display: grid; width: 100%; gap: 26px; margin-top: 24px; }
+.catalog-search { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; padding: 15px; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface-raised); }
+.catalog-search .catalog-field { flex: 1 1 220px; }
+.catalog-section { display: grid; gap: 14px; }
+.catalog-section h2 { margin: 8px 0 0; color: var(--text-primary); font-size: 17px; font-weight: 620; letter-spacing: -.5px; }
+.catalog-list { display: grid; gap: 11px; margin: 0; padding: 0; list-style: none; }
+.catalog-list-nested { margin-top: 11px; padding-left: 13px; border-left: 2px solid var(--border-subtle); }
+.catalog-card { display: grid; gap: 11px; padding: 15px; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); box-shadow: 0 4px 14px rgb(29 57 42 / 2%); }
+.catalog-card-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 11px; }
+.catalog-card-head > div { display: grid; gap: 4px; min-width: 0; }
+.catalog-card-head strong { color: var(--text-primary); font-size: 13px; font-weight: 650; }
+.catalog-card-head small { color: var(--text-muted); font-size: 10px; }
+/* Every grid item on the path from the console down to a field opts out of the automatic minimum
+   size. Without it a nowrap table's min-content width pushes the whole chain past a narrow viewport,
+   and the ancestor that clips the overflow turns the excess into content the operator cannot reach. */
+.catalog-offer, .catalog-card, .catalog-inline-form, .catalog-form, .catalog-search { min-width: 0; max-width: 100%; }
+/* An explicit minmax(0, 1fr) track keeps the offer's stacked forms from adopting an automatic track
+   sized by their content, which is what let a narrow card lay its forms out at desktop width. */
+.catalog-offer { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.catalog-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 11px; }
+.catalog-inline-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 11px; align-items: end; padding-top: 11px; border-top: 1px solid var(--border-subtle); }
+.catalog-inline-form .catalog-feedback, .catalog-inline-form .catalog-button { grid-column: 1 / -1; }
+.catalog-form { padding: 13px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); }
+.catalog-field { display: grid; gap: 6px; min-width: 0; }
+.catalog-field label { color: var(--text-primary); font-size: 11px; font-weight: 620; }
+.catalog-field input, .catalog-field select { width: 100%; min-height: 38px; padding: 0 11px; border: 1px solid var(--border-strong); border-radius: 9px; background: var(--surface); color: var(--text-primary); font: inherit; font-size: 12px; }
+.catalog-field input:focus-visible, .catalog-field select:focus-visible { border-color: var(--accent); outline: 3px solid color-mix(in srgb, var(--accent), transparent 76%); outline-offset: 1px; }
+.catalog-field small { color: var(--text-muted); font-size: 9px; line-height: 1.5; }
+.catalog-checkbox { display: flex; min-height: 24px; align-items: center; gap: 7px; color: var(--text-secondary); font-size: 11px; cursor: pointer; }
+.catalog-checkbox input { width: 18px; height: 18px; accent-color: var(--accent); }
+.catalog-hint { margin: 0; color: var(--text-muted); font-size: 10px; }
+.catalog-button { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; padding: 0 14px; border: 1px solid #14573c; border-radius: 9px; background: #176a4b; color: #fff; font-size: 11px; font-weight: 650; cursor: pointer; transition: background .16s ease, transform .16s ease; }
+.catalog-button:hover:not(:disabled) { transform: translateY(-1px); background: #12583e; }
+.catalog-button:disabled { cursor: wait; opacity: .7; }
+.catalog-button-secondary { border-color: var(--border-strong); background: var(--surface); color: var(--text-secondary); }
+.catalog-button-secondary:hover:not(:disabled) { background: var(--canvas-deep); }
+.catalog-feedback { margin: 0; min-height: 15px; color: var(--text-muted); font-size: 10px; line-height: 1.5; }
+.catalog-feedback-ok { color: var(--success); }
+.catalog-feedback-invalid { color: var(--warning); }
+.catalog-feedback-failed { color: var(--danger); }
+.catalog-disclosure { border: 1px solid var(--border-subtle); border-radius: 13px; background: var(--surface); }
+.catalog-disclosure > summary { padding: 11px 14px; color: var(--text-secondary); font-size: 11px; font-weight: 640; cursor: pointer; }
+.catalog-disclosure > summary:focus-visible { border-radius: 13px; outline: 3px solid color-mix(in srgb, var(--accent), transparent 76%); outline-offset: 2px; }
+.catalog-disclosure > *:not(summary) { margin: 0 13px 13px; }
+.catalog-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+.catalog-table th, .catalog-table td { padding: 7px 8px; border-bottom: 1px solid var(--border-subtle); text-align: left; white-space: nowrap; }
+.catalog-table th { color: var(--text-muted); font-weight: 640; }
+.catalog-table td { color: var(--text-secondary); }
+.catalog-table-scroll { min-width: 0; max-width: 100%; overflow-x: auto; }
+.catalog-table-scroll:focus-visible { border-radius: 9px; outline: 3px solid color-mix(in srgb, var(--accent), transparent 76%); outline-offset: 2px; }
+.catalog-scope-note { color: var(--text-muted); font-size: 10px; line-height: 1.5; }
+.catalog-empty-line { margin: 0; padding: 11px 13px; border: 1px dashed var(--border-strong); border-radius: 12px; color: var(--text-muted); font-size: 11px; }
+.catalog-heading-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: start; }
+@media (max-width: 640px) {
+  .catalog-console { gap: 21px; }
+  .catalog-inline-form { grid-template-columns: minmax(0, 1fr); }
+  .catalog-card { padding: 13px; }
+  .catalog-list-nested { padding-left: 10px; }
+  .catalog-heading-actions { width: 100%; }
+  .catalog-heading-actions > * { flex: 1 1 100%; }
+}
