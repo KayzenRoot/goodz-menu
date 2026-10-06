@@ -7,10 +7,11 @@
 --   2. Row level: SELECT policies resolve tenant membership, an explicit catalog capability and a
 --      fail-closed scope match on every exposed catalog table.
 --
--- Scope matching is deliberately asymmetric and fail closed: an organization scoped role sees every
--- row of its organization, an establishment scoped role sees only rows that carry that establishment,
--- and a branch scoped role sees only rows that carry that branch. A tenant-wide row is therefore never
--- exposed to a narrower role, because a narrower role cannot know which branch it would sell it in.
+-- Scope matching is deliberately asymmetric and fail closed: a row is readable only when the caller's
+-- granted scope *contains* the row's scope. An organization scoped role contains every row of its
+-- organization. An establishment scoped role contains only rows that carry that establishment, and a
+-- branch scoped role contains only rows that carry that branch. A row wider than the caller's scope is
+-- therefore never exposed, because a narrower role cannot know which branch it would sell it in.
 
 CREATE OR REPLACE FUNCTION private.catalog_scope_grants(
   p_permission_key text,
@@ -64,17 +65,18 @@ AS $function$
         AND membership.status = private.active_membership_status()
         AND role_permission.permission_key = p_permission_key
         AND CASE
-          WHEN p_branch_id IS NOT NULL THEN
-            private.is_branch_scope(membership_role.scope_type)
+          -- Containment, not kind equality. Matching the row's scope against the role's scope kind
+          -- would hide every branch row from an organization manager, which contradicts the whole
+          -- point of granting that role at organization level.
+          WHEN private.is_organization_scope(membership_role.scope_type) THEN TRUE
+          WHEN private.is_establishment_scope(membership_role.scope_type) THEN
+            p_branch_id IS NULL
+            AND membership_role.establishment_id = p_establishment_id
+          WHEN private.is_branch_scope(membership_role.scope_type) THEN
+            p_branch_id IS NOT NULL
             AND membership_role.establishment_id = p_establishment_id
             AND membership_role.branch_id = p_branch_id
-          WHEN p_establishment_id IS NOT NULL THEN
-            (
-              private.is_establishment_scope(membership_role.scope_type)
-              OR private.is_branch_scope(membership_role.scope_type)
-            )
-            AND membership_role.establishment_id = p_establishment_id
-          ELSE private.is_organization_scope(membership_role.scope_type)
+          ELSE FALSE
         END
     );
 $function$;
