@@ -590,3 +590,78 @@ If deterministic instrumentation shows any of the following, STOP as `BLOCKED` a
 ### STOP CONDITION — CD-003
 
 `GMZ_IMPL_006_CD_003_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-006-CD-004 — Supabase DB-query fixture JSON compatibility
+
+Status: `AUTHORIZED — CORRECTION REQUIRED`
+Review target: PR `#64`
+Authorization base: `f9fa9ecda977245e545cd35ec886f629956f1098`
+Assurance: `HIGH_ASSURANCE`
+
+### Trigger and objective diagnosis
+
+CD-003 corrected the deterministic logout synchronization and Admin Guard status-locator ambiguity within its authorized TEST-ONLY scope. Focused logout proof reached `3 / 3`, but Admin Guard remains deterministically blocked because the shared test fixture `tests/e2e/auth-session-fixture.ts` cannot parse the current Supabase CLI JSON result from `db query --output-format json`.
+
+Current fixture behavior:
+- searches for the first `{` in CLI output;
+- parses from that offset as an object containing `rows`;
+- catches any parse/shape error and silently returns `null`.
+
+Observed CLI behavior for pinned `supabase@2.119.0`:
+- query JSON is emitted as a top-level array of row objects;
+- slicing from the first `{` discards the opening `[` but leaves the closing `]`, producing deterministic invalid JSON;
+- the broad catch masks the parser defect as a missing audit record.
+
+Direct database inspection for the failing correlation ID proves the runtime audit row exists with `event_count = 1`, `action = synthetic.privileged.proof`, `outcome = allow`, `reason_code = authorized`, and `source = admin_guard`. Therefore this delta is a test-fixture compatibility correction, not a runtime audit correction.
+
+### CORRECTION SCOPE
+
+Only the following is authorized:
+
+1. `tests/e2e/auth-session-fixture.ts`
+   - parse the complete JSON payload starting at the earliest valid JSON container marker (`[` or `{`), not blindly from the first object marker;
+   - accept the pinned CLI's top-level row-array form;
+   - retain compatibility with an object form containing a `rows` array if encountered;
+   - normalize to the first row and preserve the existing `event_count` / `event` return contract;
+   - fail loudly on malformed JSON or unexpected output shape instead of converting parser defects to `null`;
+   - keep correlation-id validation and local-only execution unchanged.
+2. Preserve the already prepared CD-003 changes in:
+   - `tests/e2e/auth-session.spec.ts`;
+   - `tests/e2e/mfa-admin-guard.spec.ts`.
+   Those changes remain subject to CD-003 acceptance criteria and must not be broadened.
+3. Re-run focused Admin Guard mobile at least `3 / 3` after fixture correction. Logout focused proof remains required at `>= 3 / 3` on the final candidate.
+4. Run complete E2E normal workers `24 / 24` and complete E2E `--workers=1` `24 / 24`, with full Axe/accessibility PASS.
+5. Run the complete applicable GMZ-IMPL-006 HIGH_ASSURANCE L5 at the exact final HEAD, including CD-001 dependency disposition and CD-002 timeout proof.
+6. Publish the final candidate, obtain fresh exact-head SonarCloud, Socket Project Report, Socket PR Alerts and CodeRabbit results, update Evidence Bundle / Work Order closeout / human checkpoint proposal, and stop for independent objective audit.
+
+### Explicitly prohibited
+
+- any runtime/Auth/MFA/Admin Guard application change;
+- audit writer, schema, migration, RLS, FK, trigger or service-role changes;
+- dependency or `pnpm-lock.yaml` changes;
+- weakening or removing durable-audit assertions;
+- returning `null` on malformed fixture JSON merely to let E2E continue;
+- fixed sleeps, retry masking or index-based selector tricks;
+- `.engineering/CHECKPOINT.json`, `.gef/**`, remote Supabase, production deployment, merge, force-push or credit promotion.
+
+### ACCEPTANCE CRITERIA — CD-004
+
+1. Fixture parses pinned Supabase CLI top-level JSON arrays correctly.
+2. Fixture remains compatible with object-with-`rows` JSON shape.
+3. Malformed or unexpected JSON shape fails visibly; parser errors are not silently converted to `null`.
+4. Direct durable-audit assertion returns the real `event_count = 1` record for the Admin Guard allow path.
+5. Final-candidate logout focused regression: `>= 3 / 3` consecutive PASS.
+6. Final-candidate mobile Admin Guard focused regression: `>= 3 / 3` consecutive PASS.
+7. Full E2E normal workers: `24 / 24`.
+8. Full E2E `--workers=1`: `24 / 24`.
+9. Full-suite Axe/accessibility: PASS, zero violations.
+10. No runtime/schema/dependency/lockfile/GEF mutation.
+11. Complete exact-head HIGH_ASSURANCE L5 passes.
+12. Fresh hosted SonarCloud, Socket and CodeRabbit complete on the final exact HEAD with no unresolved actionable thread.
+13. CRITICAL/HIGH unresolved = `0 / 0` after the existing reviewed CD-001 disposition.
+14. PR #64 remains open and unmerged for final objective audit; production credit remains `44 / 515 = 8.54%` until promotion.
+
+### STOP CONDITION — CD-004
+
+`GMZ_IMPL_006_CD_004_READY_FOR_OBJECTIVE_AUDIT`
