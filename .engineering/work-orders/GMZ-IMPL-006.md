@@ -1,6 +1,6 @@
 # GMZ-IMPL-006 — Durable Audit Trail & Correlation Foundation
 
-Status: `ADMITTED / EXECUTION AUTHORIZED`
+Status: `PROMOTED / COMPLETE`
 Issue: `#62`
 Assurance: `HIGH_ASSURANCE`
 Admission branch: `implementation/gmz-impl-006-durable-audit`
@@ -708,3 +708,26 @@ Only `tests/e2e/auth-session-fixture.ts`, `tests/e2e/auth-session.spec.ts` and `
 ### Final state
 
 `CHECKPOINT.json` remains `BOUND_FOR_EXECUTION` and unchanged. The human Checkpoint Delta in `.engineering/CHECKPOINT.md` is a proposal only and is `NOT APPLIED`. No merge, no main update, no force-push, no credit promotion, no remote Supabase access, no production deployment. PR `#64` remains open and unmerged for independent objective audit.
+
+
+## POST-MERGE PROMOTION
+
+- implementation PR: `#64`
+- exact accepted candidate: `b3c7d0868d20600b32048cf7c30fab8c3ea1f959`
+- merge SHA: `f3f1074fb3f3da4dce4b9120b2868c74c73f615f`
+- objective audit: `APPROVED_FOR_PROMOTION`
+- incremental production credit awarded: `8 / 515`
+- credit allocation:
+  - GMZ-M23: `6`
+  - GMZ-M26: `2`
+- cumulative production credit: `52 / 515 = 10.10%`
+- GMZ-M23 accepted baseline: `7 / 19 — PARTIAL`
+- GMZ-M26 accepted baseline: `11 / 18 — PARTIAL`
+- implementation authorization: `NO`
+- state: `PROMOTED_COMPLETE`
+- raw full dependency audit remains nonzero for `GHSA-vfj7-8cjw-p6xm`; reviewed disposition remains `RESOLVED_NOT_AFFECTED` under the committed guard
+- retention/erasure/pseudonymization/tenant offboarding remain FUTURE prerequisites before production tenant admission
+- next: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
+
+STOP CONDITION:
+`GMZ_IMPL_006_PROMOTED_COMPLETE`
