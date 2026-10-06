@@ -36,8 +36,8 @@ Status: `GMZ_IMPL_006_BOUND_FOR_EXECUTION`
 - Implementation PR: `#64` (`execution/gmz-impl-006-durable-audit`)
 - Implementation merge: `NOT PERFORMED`
 - GMZ-M02 baseline: `19 / 19 — COMPLETE`
-- Current execution disposition: CD-001's audit disposition is `RESOLVED_NOT_AFFECTED`; CD-002's latest complete L5 is `BLOCKED` by E2E failures on published candidate `0a133a1281a5002549f5e90928c4c7a67d49946f`. The earlier `4cb0d43` 24/24 run is historical and does not clear the latest candidate. The raw full audit remains nonzero; `CHECKPOINT.json` remains bound.
-- Next governed action: `Obtain separate authorization for the out-of-scope E2E correction, then rerun complete exact-head L5 before any objective-audit readiness; do not merge or promote credit.`
+- Current execution disposition: CD-001's audit disposition is `RESOLVED_NOT_AFFECTED`; CD-004's exact-head L5 on correction commit `4c30b1d67b126c1a6cde3127a7bafee849f9e2b9` (tree `81b79bfaa17aa2e3ca898375dbe766cd52967256`) is `PASS`, including focused regressions `3 / 3` + `3 / 3`, full E2E `24 / 24` in both default-worker and `--workers=1` modes, and zero Axe violations. The raw full audit remains nonzero by design; `CHECKPOINT.json` remains bound and unchanged.
+- Next governed action: `Independent objective audit of PR #64 at the exact published head; no merge, no credit promotion, and no CHECKPOINT.json change until that audit is accepted.`
 
 ## Progress accounting
 Overall production completion: `44 / 515 = 8.54%`.
