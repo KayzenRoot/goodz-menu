@@ -90,7 +90,7 @@
     "checkpointPath": ".engineering/CHECKPOINT.json",
     "checkpointGitBlobSha": "77b8b2a7dc88d1d97f01e5889f8bf5d2d40a95e8",
     "status": "GMZ_IMPL_007_ADMISSION_CANDIDATE_READY_FOR_REVIEW",
-    "note": "Snapshot at the objectively approved and merged admission. Runtime/schema mutation becomes legal only on the execution branch after this exact execution-base bind passes objective review."
+    "note": "Historical admission checkpoint snapshot captured at the objectively approved and merged admission. Its status is intentionally historical and is not expected to match the current .engineering/CHECKPOINT.json execution status after exact execution-base binding."
   },
   "implementationContract": {
     "catalogCore": "ADMITTED_AFTER_BIND",
