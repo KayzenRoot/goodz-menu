@@ -21,6 +21,22 @@ async function signIn(page: Page, email: string, password: string) {
   await page.getByRole("button", { name: "Entrar" }).click();
 }
 
+/**
+ * The logout control is a client component: its handler only exists once React has hydrated the
+ * server-rendered markup. Clicking before that point is a silent no-op, so the click must be gated
+ * on the handler actually being bound rather than on the element merely being visible.
+ */
+async function waitForHydratedLogoutControl(page: Page) {
+  await page.waitForFunction(
+    () => {
+      const control = document.querySelector("button.auth-logout");
+      return control instanceof HTMLButtonElement && Object.keys(control).some((key) => key.startsWith("__reactProps$"));
+    },
+    undefined,
+    { timeout: 15_000 },
+  );
+}
+
 async function expectAccessible(page: Page) {
   const accessibility = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
@@ -112,10 +128,22 @@ test("logout and malformed session cookies cannot retain protected tenant access
 
   await signIn(page, fixture.authorizedUser.email, fixture.authorizedUser.password);
   await expect(page.getByText(fixture.organizationName, { exact: true })).toBeVisible();
+  await waitForHydratedLogoutControl(page);
+
+  const logoutResponsePromise = page.waitForResponse(
+    (response) => response.request().method() === "POST" && new URL(response.url()).pathname === "/auth/v1/logout",
+    { timeout: 15_000 },
+  );
   await page.getByRole("button", { name: "Sair" }).click();
+  const logoutResponse = await logoutResponsePromise;
+  expect(logoutResponse.ok(), "The real Supabase logout request must succeed.").toBe(true);
+
+  await expect(page.locator(".auth-logout-error")).toHaveCount(0);
   await expect(page).toHaveURL(/\/login$/);
+  await expect.poll(async () => (await context.cookies()).some(({ name }) => name.includes("-auth-token"))).toBe(false);
   await page.goto("/app");
   await expect(page).toHaveURL(/\/login\?next=%2Fapp$/);
+  await expect(page.getByText(fixture.organizationName, { exact: true })).toHaveCount(0);
 });
 
 test("an Auth-revoked session cannot retain protected tenant access", async ({ page, context }) => {

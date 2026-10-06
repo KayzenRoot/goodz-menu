@@ -12,13 +12,18 @@ const localStatus = parseLocalSupabaseStatus(status.stdout);
 
 const apiUrl = localStatus.API_URL ?? localStatus.api_url;
 const anonKey = localStatus.ANON_KEY ?? localStatus.anon_key;
+const serviceRoleKey = localStatus.SERVICE_ROLE_KEY ?? localStatus.service_role_key;
 if (typeof apiUrl !== "string" || !/^http:\/\/(127\.0\.0\.1|localhost|\[::1\])(?::\d+)?$/.test(apiUrl) || typeof anonKey !== "string" || !anonKey) {
   throw new Error("Local Supabase must be healthy and provide a public anon key before E2E.");
+}
+if (typeof serviceRoleKey !== "string" || !serviceRoleKey) {
+  throw new Error("Local Supabase must provide its server-only audit writer credential before E2E.");
 }
 
 process.env.GOODZ_ENVIRONMENT = "local";
 process.env.SUPABASE_API_URL = apiUrl;
 process.env.SUPABASE_ANON_KEY = anonKey;
+process.env.SUPABASE_SERVICE_ROLE_KEY = serviceRoleKey;
 process.env.GOODZ_E2E_TEST_SEAM_SECRET = randomBytes(32).toString("base64url");
 await run(process.execPath, [playwrightCli, "test", ...process.argv.slice(2)], { cwd: root });
 

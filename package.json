@@ -8,6 +8,7 @@
     "dev": "next dev --hostname 127.0.0.1",
     "build": "next build",
     "start": "node scripts/start.mjs",
+    "security:braces-disposition": "node scripts/verify-eslint-braces-not-affected.mjs",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

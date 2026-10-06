@@ -8,9 +8,9 @@
   "assurance": "HIGH_ASSURANCE",
   "admissionBaseRef": "main",
   "admissionBaseSha": "312f0139913e1e4bbe3b15662610f35da39c4db0",
-  "workBranch": "implementation/gmz-impl-006-durable-audit",
-  "executionBaseSha": null,
-  "executionBaseState": "MUST_BIND_AFTER_ADMISSION_PROMOTION",
+  "workBranch": "execution/gmz-impl-006-durable-audit",
+  "executionBaseSha": "2490ed590a6fb21f53d79b7ab7c93fee854c01ee",
+  "executionBaseState": "BOUND_FOR_EXECUTION",
   "sourcePack": "FROZEN_V0_1",
   "productionDenominator": 515,
   "productionEarnedAtAdmission": 44,
@@ -88,9 +88,9 @@
   ],
   "governanceSnapshot": {
     "checkpointPath": ".engineering/CHECKPOINT.json",
-    "checkpointGitBlobSha": "8c9dce18ef7a33ef171bbe712731bdb1fede0b82",
-    "status": "GMZ_IMPL_005_PROMOTED_COMPLETE_READY_FOR_NEXT",
-    "note": "Mutable governance snapshot; excluded from stable lockedSources."
+    "checkpointGitBlobSha": "619ef8dbfc90683c7390357a4f4fa57a2339b911",
+    "status": "GMZ_IMPL_006_BOUND_FOR_EXECUTION",
+    "note": "Execution-base bind snapshot after admission merge; stable sources remain independently fingerprinted."
   },
   "implementationContract": {
     "auditEventPersistence": "ADMITTED",
@@ -129,8 +129,8 @@
     "Executor does not merge"
   ],
   "executor": "GEF heavy executor / Codex",
-  "codexAllowed": false,
-  "codexAuthorizedScope": "BLOCKED until admission merge SHA is bound as executionBaseSha and execution branch descends from it.",
+  "codexAllowed": true,
+  "codexAuthorizedScope": "Only GMZ-IMPL-006 on execution/gmz-impl-006-durable-audit, descended from exact executionBaseSha 2490ed590a6fb21f53d79b7ab7c93fee854c01ee. No merge.",
   "codexProhibited": [
     "main direct mutation",
     "merge",
@@ -148,5 +148,159 @@
     "service-role tenant authorization/read",
     "unrelated cleanup"
   ],
-  "stopCondition": "GMZ_IMPL_006_ADMISSION_READY_FOR_REVIEW"
+  "stopCondition": "GMZ_IMPL_006_READY_FOR_OBJECTIVE_AUDIT",
+  "admissionAudit": {
+    "auditedHead": "4386d98f8bdce81b5b0511f1a70d0cf589bf787b",
+    "critical": 0,
+    "high": 0,
+    "stableSourceFingerprints": "16/16 MATCH",
+    "codeRabbit": "SUCCESS",
+    "unresolvedReviewThreads": 0,
+    "runtimeOrSchemaCodeIntroduced": false,
+    "disposition": "APPROVED_FOR_ADMISSION_PROMOTION"
+  },
+  "admissionMergeSha": "2490ed590a6fb21f53d79b7ab7c93fee854c01ee",
+  "correctionDeltas": [
+    {
+      "id": "GMZ-IMPL-006-CD-001",
+      "status": "AUTHORIZED_CORRECTION_REQUIRED",
+      "reviewedHead": "6e91279f9c42047645fd354e06c3a45c35e723cf",
+      "reason": "Full development dependency audit reports HIGH GHSA-vfj7-8cjw-p6xm in dev-only braces@3.0.3 with no patched npm release; independent review found current Goodz ESLint configuration does not activate @next/eslint-plugin-next settings.next.rootDir fast-glob path.",
+      "dispositionTarget": "RESOLVED_NOT_AFFECTED_WITH_MECHANICAL_GUARD",
+      "allowedMutations": [
+        ".engineering/work-orders/GMZ-IMPL-006.md",
+        ".engineering/execution-packs/GMZ-IMPL-006.md",
+        ".engineering/context-locks/GMZ-IMPL-006.json",
+        ".engineering/evidence/GMZ-IMPL-006-EVIDENCE.md",
+        ".engineering/CHECKPOINT.md proposal only",
+        "package.json script-only delta",
+        "scripts/verify-eslint-braces-not-affected.mjs or equivalent focused guard"
+      ],
+      "dependencyVersionMutation": "FORBIDDEN",
+      "pnpmLockMutation": "FORBIDDEN_UNLESS_SEPARATELY_BLOCKED_AND_REAUTHORIZED",
+      "originalRuntimeScopeMutation": "FORBIDDEN",
+      "requiredProof": [
+        "raw full audit captured truthfully",
+        "production dependency tree has no braces advisory path",
+        "active ESLint flat config has no settings.next.rootDir",
+        "committed mechanical guard fails closed if disposition assumptions change",
+        "Next ESLint recommended rules remain enabled and lint passes",
+        "complete exact-head HIGH_ASSURANCE L5 rerun",
+        "unresolved CRITICAL/HIGH = 0/0 after reviewed disposition"
+      ],
+      "stopCondition": "GMZ_IMPL_006_CD_001_READY_FOR_OBJECTIVE_AUDIT"
+    },
+    {
+      "id": "GMZ-IMPL-006-CD-002",
+      "status": "AUTHORIZED_CORRECTION_REQUIRED",
+      "reviewedHead": "38bc0034f7464c971cb6e98cc05d6a5b1bfc9001",
+      "reason": "Hosted CodeRabbit full review found stale human checkpoint summary and an unbounded mandatory audit RPC wait.",
+      "allowedMutations": [
+        ".engineering/CHECKPOINT.md summary only",
+        ".engineering/work-orders/GMZ-IMPL-006.md",
+        ".engineering/execution-packs/GMZ-IMPL-006.md",
+        ".engineering/context-locks/GMZ-IMPL-006.json",
+        ".engineering/evidence/GMZ-IMPL-006-EVIDENCE.md",
+        "src/lib/supabase/audit-writer.server.ts",
+        "focused tests required to prove timeout fail-closed behavior"
+      ],
+      "forbiddenMutations": [
+        ".engineering/CHECKPOINT.json",
+        "audit_events migration/schema/RLS/immutability",
+        "dependencies/pnpm-lock.yaml",
+        "business-domain runtime/UI",
+        ".gef/**",
+        "remote Supabase",
+        "production deployment"
+      ],
+      "requiredProof": [
+        "3-second audit RPC abort boundary",
+        "timeout/abort cannot produce privileged allow",
+        "generic error redaction preserved",
+        "complete exact-head HIGH_ASSURANCE L5",
+        "fresh hosted SonarCloud Socket CodeRabbit",
+        "unresolved actionable review threads = 0",
+        "CRITICAL/HIGH unresolved = 0/0"
+      ],
+      "futureObservation": "Retention/erasure/pseudonymization and tenant offboarding are required before production tenant admission; not implemented in CD-002.",
+      "stopCondition": "GMZ_IMPL_006_CD_002_READY_FOR_OBJECTIVE_AUDIT"
+    },
+    {
+      "id": "GMZ-IMPL-006-CD-003",
+      "status": "AUTHORIZED_CORRECTION_REQUIRED",
+      "reviewedPublishedHead": "6766326ea64c556b2226dd6603796ab4b5b29e24",
+      "blockedCandidate": "0a133a1281a5002549f5e90928c4c7a67d49946f",
+      "knownGreenPredecessor": "4cb0d4350c7bfca927c01bc848a40a7f71241f67",
+      "diagnosis": "Known-green and later-failing candidates differ only in governance/evidence files; current evidence supports E2E synchronization/selector nondeterminism rather than a proven runtime regression.",
+      "allowedMutations": [
+        ".engineering/work-orders/GMZ-IMPL-006.md",
+        ".engineering/execution-packs/GMZ-IMPL-006.md",
+        ".engineering/context-locks/GMZ-IMPL-006.json",
+        ".engineering/evidence/GMZ-IMPL-006-EVIDENCE.md",
+        ".engineering/CHECKPOINT.md proposal only",
+        "tests/e2e/auth-session.spec.ts",
+        "tests/e2e/mfa-admin-guard.spec.ts"
+      ],
+      "forbiddenMutations": [
+        ".engineering/CHECKPOINT.json",
+        "runtime/Auth/MFA/Admin Guard implementation",
+        "schema/migrations/RLS/FKs/audit immutability",
+        "dependencies/pnpm-lock.yaml",
+        ".gef/**",
+        "remote Supabase",
+        "production deployment"
+      ],
+      "escalationRule": "If deterministic proof reveals a real runtime/Auth/MFA/Admin Guard defect, stop BLOCKED and request a separate runtime correction delta.",
+      "requiredProof": [
+        "focused logout regression >= 3/3",
+        "focused mobile Admin Guard regression >= 3/3",
+        "full E2E normal workers = 24/24",
+        "full E2E workers=1 = 24/24",
+        "full-suite Axe PASS",
+        "complete exact-head HIGH_ASSURANCE L5",
+        "fresh hosted SonarCloud Socket CodeRabbit",
+        "unresolved actionable review threads = 0",
+        "CRITICAL/HIGH unresolved = 0/0"
+      ],
+      "stopCondition": "GMZ_IMPL_006_CD_003_READY_FOR_OBJECTIVE_AUDIT"
+    },
+    {
+      "id": "GMZ-IMPL-006-CD-004",
+      "status": "AUTHORIZED_CORRECTION_REQUIRED",
+      "authorizationBase": "f9fa9ecda977245e545cd35ec886f629956f1098",
+      "diagnosis": "Pinned Supabase CLI db query JSON is a top-level row array; auth-session fixture slices from first object marker and silently masks the resulting parse failure as null. Direct DB proof confirms runtime audit persistence is healthy.",
+      "allowedMutations": [
+        ".engineering/work-orders/GMZ-IMPL-006.md",
+        ".engineering/execution-packs/GMZ-IMPL-006.md",
+        ".engineering/context-locks/GMZ-IMPL-006.json",
+        ".engineering/evidence/GMZ-IMPL-006-EVIDENCE.md",
+        ".engineering/CHECKPOINT.md proposal only",
+        "tests/e2e/auth-session-fixture.ts",
+        "preserve previously prepared CD-003 changes in tests/e2e/auth-session.spec.ts and tests/e2e/mfa-admin-guard.spec.ts"
+      ],
+      "forbiddenMutations": [
+        ".engineering/CHECKPOINT.json",
+        "runtime/Auth/MFA/Admin Guard application code",
+        "audit writer/schema/migrations/RLS/FKs/triggers",
+        "dependencies/pnpm-lock.yaml",
+        ".gef/**",
+        "remote Supabase",
+        "production deployment"
+      ],
+      "requiredProof": [
+        "fixture parses top-level array and object-with-rows shapes",
+        "malformed/unexpected JSON fails visibly",
+        "durable Admin Guard audit assertion observes event_count=1",
+        "focused logout >=3/3",
+        "focused mobile Admin Guard >=3/3",
+        "full E2E normal workers 24/24",
+        "full E2E workers=1 24/24",
+        "full-suite Axe PASS",
+        "complete exact-head HIGH_ASSURANCE L5",
+        "fresh hosted SonarCloud Socket CodeRabbit",
+        "CRITICAL/HIGH unresolved 0/0"
+      ],
+      "stopCondition": "GMZ_IMPL_006_CD_004_READY_FOR_OBJECTIVE_AUDIT"
+    }
+  ]
 }

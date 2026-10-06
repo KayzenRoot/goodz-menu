@@ -256,6 +256,26 @@ async function expectDeniedWrite(api, name, table, method, filters, body, access
   record(name);
 }
 
+async function expectDeniedAuditWrite(api, name, method, filters, body, accessToken) {
+  const url = new URL(`${api.apiUrl}/rest/v1/audit_events`);
+  for (const [column, value] of Object.entries(filters)) url.searchParams.set(column, `eq.${value}`);
+  const response = await fetch(url, {
+    method,
+    headers: {
+      apikey: api.anonKey,
+      authorization: `Bearer ${accessToken || api.anonKey}`,
+      "content-type": "application/json",
+      "content-profile": "public",
+      prefer: "return=minimal",
+    },
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+  });
+  if (response.status !== 401 && response.status !== 403) {
+    throw new Error(`${name} expected direct audit mutation denial, received HTTP ${response.status}.`);
+  }
+  record(name);
+}
+
 async function setMembershipStatus(api, membershipId, status) {
   const revokedAt = status === "revoked" ? "now()" : "NULL";
   await executeFixtureSql(`UPDATE public.organization_memberships SET status = '${status}', revoked_at = ${revokedAt} WHERE id = '${membershipId}';`);
@@ -329,6 +349,16 @@ async function run() {
   await expectDeniedWrite(api, "authenticated cannot insert organizations", "organizations", "POST", {}, { display_name: "Unauthorized" }, users.organization.accessToken);
   await expectDeniedWrite(api, "authenticated cannot update establishments", "establishments", "PATCH", { id: fixture.establishments.a1 }, { display_name: "Unauthorized" }, users.organization.accessToken);
   await expectDeniedWrite(api, "authenticated cannot delete branches", "branches", "DELETE", { id: fixture.branches.a11 }, undefined, users.organization.accessToken);
+
+  await expectDeniedRead(api, "anon cannot enumerate audit events", "audit_events", { organization_id: orgA });
+  await expectDeniedRead(api, "authenticated tenant cannot enumerate own audit events without an admitted viewer", "audit_events", { organization_id: orgA }, users.organization.accessToken);
+  await expectDeniedRead(api, "authenticated tenant cannot enumerate foreign audit events", "audit_events", { organization_id: orgB }, users.organization.accessToken);
+  await expectDeniedAuditWrite(api, "anon cannot insert audit events", "POST", {}, { action: "synthetic.privileged.proof" });
+  await expectDeniedAuditWrite(api, "anon cannot update audit events", "PATCH", { id: randomUUID() }, { reason_code: "authorized" });
+  await expectDeniedAuditWrite(api, "anon cannot delete audit events", "DELETE", { id: randomUUID() });
+  await expectDeniedAuditWrite(api, "authenticated cannot insert audit events", "POST", {}, { action: "synthetic.privileged.proof" }, users.organization.accessToken);
+  await expectDeniedAuditWrite(api, "authenticated cannot update audit events", "PATCH", { id: randomUUID() }, { reason_code: "authorized" }, users.organization.accessToken);
+  await expectDeniedAuditWrite(api, "authenticated cannot delete audit events", "DELETE", { id: randomUUID() }, undefined, users.organization.accessToken);
 
   console.log(`Auth/Data API integration passed ${checks.length} checks using synthetic local users.`);
 }

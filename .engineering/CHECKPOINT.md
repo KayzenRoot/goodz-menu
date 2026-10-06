@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_006_ADMITTED_EXECUTION_BASE_BIND_PENDING`
+Status: `GMZ_IMPL_006_BOUND_FOR_EXECUTION`
 
 ## Current state
 - Project: Goodz Menu
@@ -27,13 +27,17 @@ Status: `GMZ_IMPL_006_ADMITTED_EXECUTION_BASE_BIND_PENDING`
 - Business-domain implementation: `NOT_AUTHORIZED`
 
 ## Active increment
-- Work Order: `NONE`
-- Implementation authorization: `NO`
+- Work Order: `GMZ-IMPL-006`
+- Execution branch: `execution/gmz-impl-006-durable-audit`
+- Exact execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`
+- Context Lock: `BOUND_FOR_EXECUTION` — stable fingerprints `16 / 16 MATCH`
+- Implementation authorization: `YES — GMZ-IMPL-006 ONLY, on this bound branch/base`
 - Last promoted increment: `GMZ-IMPL-005`
-- Implementation PR: `#59`
-- Implementation merge: `f5da78f0e901d4f9c0bc571309332c001f028306`
+- Implementation PR: `#64` (`execution/gmz-impl-006-durable-audit`)
+- Implementation merge: `NOT PERFORMED`
 - GMZ-M02 baseline: `19 / 19 — COMPLETE`
-- Next governed action: `ADMIT NEXT IMPLEMENTATION WORK ORDER`
+- Current execution disposition: CD-001's audit disposition is `RESOLVED_NOT_AFFECTED`; CD-004's exact-head L5 on correction commit `4c30b1d67b126c1a6cde3127a7bafee849f9e2b9` (tree `81b79bfaa17aa2e3ca898375dbe766cd52967256`) is `PASS`, including focused regressions `3 / 3` + `3 / 3`, full E2E `24 / 24` in both default-worker and `--workers=1` modes, and zero Axe violations. The raw full audit remains nonzero by design; `CHECKPOINT.json` remains bound and unchanged.
+- Next governed action: `Independent objective audit of PR #64 at the exact published head; no merge, no credit promotion, and no CHECKPOINT.json change until that audit is accepted.`
 
 ## Progress accounting
 Overall production completion: `44 / 515 = 8.54%`.
@@ -84,10 +88,10 @@ HISTORICAL STOP CONDITION (superseded by CD-001): `GMZ_IMPL_005_READY_FOR_OBJECT
 CORRECTION TOKEN (CD-002): `GMZ_IMPL_004_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
 
 
-## GMZ-IMPL-003 executor closeout
+## Historical GMZ-IMPL-003 executor closeout — superseded by CD corrections and promotion
 - latest implementation code candidate after GMZ-IMPL-003-CD-003: `63a6d3770b2e692ee3e0d9b7d34672a1e8165ad6`
 - execution base: `c08e385dee86eb7af1c133f730e74951891b63f8`
-- implementation PR: `#49` — https://github.com/KayzenRoot/goodz-menu/pull/49; draft, base `main`, not merged
+- historical implementation PR snapshot: `#49` — https://github.com/KayzenRoot/goodz-menu/pull/49; draft/open at the recorded executor-candidate snapshot; later CD corrections and post-merge promotion are recorded below. This is not the active objective-audit action.
 - GEF 1.1.1 preflight and exact-state revalidation: `PASS`; stable source fingerprints `16 / 16 MATCH`; Context Lock `BOUND_FOR_EXECUTION`; entry governance snapshot `MATCH`; `.gef` `UNCHANGED`
 - Sonar objective-review correction: `COMPLETE`; after 48 SQL maintainability HIGH findings were fixed, the current issue API reports `0` open issues and `0` CRITICAL/HIGH
 - exact-head code-candidate L5 at `d3054b2`: `PASS`; pgTAP `117 / 117`; local Auth/Data API `34 / 34`; unit `8 / 8`; E2E `8 / 8`
@@ -99,7 +103,7 @@ CORRECTION TOKEN (CD-002): `GMZ_IMPL_004_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
 - no remote Supabase, production deployment, business-domain implementation, or merge
 - production credit remains `19 / 515`; no GMZ-IMPL-003 credit is earned before objective acceptance and merge
 - disposition: `READY_FOR_OBJECTIVE_AUDIT`; objective audit: `PENDING`
-- next action: `OBJECTIVE_AUDIT_GMZ_IMPL_003`
+- historical next action at that snapshot: `OBJECTIVE_AUDIT_GMZ_IMPL_003` (superseded by subsequent CD corrections and promotion)
 
 STOP CONDITION: `GMZ_IMPL_003_READY_FOR_OBJECTIVE_AUDIT`.
 
@@ -906,3 +910,64 @@ STOP CONDITION: `GMZ_IMPL_005_PROMOTED_COMPLETE`.
 - next action: `AUDIT_AND_MERGE_GMZ_IMPL_006_ADMISSION_THEN_BIND_EXECUTION_BASE`
 
 STOP CONDITION: `GMZ_IMPL_006_ADMISSION_READY_FOR_REVIEW`.
+
+
+## GMZ-IMPL-006 execution-base bind
+
+- admission PR: `#63`
+- admission audited head: `4386d98f8bdce81b5b0511f1a70d0cf589bf787b`
+- admission merge / exact execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`
+- execution branch: `execution/gmz-impl-006-durable-audit`
+- Context Lock stable sources: `16 / 16 MATCH`
+- assurance: `HIGH_ASSURANCE`
+- executor/Codex: `AUTHORIZED FOR GMZ-IMPL-006 ONLY`
+- current earned production credit: `44 / 515 = 8.54%`
+- maximum eligible after later acceptance/merge/promotion: `8 / 515`
+- projected cumulative only after promotion: `52 / 515 = 10.10%`
+- next action: `EXECUTE GMZ-IMPL-006`
+
+STOP CONDITION: `GMZ_IMPL_006_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-006 exact implementation candidate — historical execution attempt (not promoted)
+
+- Implementation candidate: `1055bcf93a37858027165e4e177b9701ec4bdd0d`; tree `520c9eeaa63d3ec4a38a9145f2c8c87a38a9f0b9`.
+- Execution base remains `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`; branch remains `execution/gmz-impl-006-durable-audit`; Context Lock preflight `16 / 16 MATCH`; `.gef` remains unchanged.
+- Latest local L5 record: pgTAP `166 / 166`, Auth/Data API `59 / 59`, unit `50 / 50`, E2E `24 / 24`; detailed command/results and interim instability are in `.engineering/evidence/GMZ-IMPL-006-EVIDENCE.md`.
+- Disposition: `BLOCKED`. Full dependency audit has one unresolved HIGH (`braces <=3.0.3`, dev-only transitive dependency, no patched version listed); production audit passed. SonarCloud, Socket and hosted CodeRabbit passed on published PR head `6ba0d36`.
+- Checkpoint JSON status and current earned production credit are intentionally unchanged: `44 / 515 = 8.54%`. This block is an execution record and proposed delta only; it does not promote execution state or credit.
+- Proposed next action: clear the dependency gate within governed scope, rerun complete exact-head L5, refresh the same evidence bundle/PR, and only then request objective audit.
+
+STOP CONDITION NOT REACHED at that historical attempt: full audit HIGH had no reachability disposition.
+
+## GMZ-IMPL-006-CD-001 — proposed Checkpoint Delta (NOT APPLIED)
+
+- Candidate implementation commit tested: `a62aa978ef0c7b3302c3fe86179a6411a1882e6f`; implementation tree `dc6c49b6c7d129416bfe243790af8414ddafdaa2`; execution base remains `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`.
+- Preflight: repository/branch/base PASS; Context Lock `BOUND_FOR_EXECUTION`; stable source fingerprints `16 / 16 MATCH`; governance snapshot MATCH; `.gef` unchanged.
+- CD-001 guard and exact-head local HIGH_ASSURANCE evidence are recorded in `.engineering/evidence/GMZ-IMPL-006-EVIDENCE.md`.
+- Dependency truth: the raw full audit still exits nonzero for the one HIGH `GHSA-vfj7-8cjw-p6xm`; production audit passes; the guard proves `braces` absent from production and no active `settings.next.rootDir`. Finding disposition: `RESOLVED_NOT_AFFECTED`; raw audit is not called clean.
+- Proposed state for separate objective audit: recognize `GMZ-IMPL-006` as `READY_FOR_OBJECTIVE_AUDIT` only after verifying this evidence and the final PR head. Keep `CHECKPOINT.json` unchanged until that review is accepted.
+- Production earned credit remains `44 / 515 = 8.54%`; no credit promotion is proposed by CD-001. Any later credit remains gated on objective acceptance, merge, and governed promotion.
+- PR #64 remains open/draft and unmerged. Do not change main, `.gef`, execution base, or production scope.
+
+STOP CONDITION proposed for the objective-audit handoff: `GMZ_IMPL_006_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-006-CD-002/CD-003/CD-004 — proposed Checkpoint Delta (NOT APPLIED)
+
+This block supersedes the CD-001 proposed delta above as the current execution record. It is a proposal
+only; `.engineering/CHECKPOINT.json` remains `BOUND_FOR_EXECUTION` and byte-unchanged at blob
+`619ef8dbfc90683c7390357a4f4fa57a2339b911`.
+
+- Governance authorization head for the current delta: `f4b71fd9a5efbd2fb6869284e7b3cddeb13e2e24`.
+- Correction commit under test: `4c30b1d67b126c1a6cde3127a7bafee849f9e2b9`; correction tree `81b79bfaa17aa2e3ca898375dbe766cd52967256`. The closeout commit after this block changes only governance and evidence text.
+- Execution base remains `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`; branch remains `execution/gmz-impl-006-durable-audit`; Context Lock preflight `16 / 16 MATCH`; governance snapshot MATCH; `.gef` unchanged.
+- Correction delta chain: CD-002 bounded the audit-writer RPC with an abort timeout and added a deterministic fail-closed regression; CD-003 corrected deterministic E2E logout synchronization and the Admin Guard status-locator ambiguity and then blocked on an out-of-scope fixture parser defect; CD-004 corrected that fixture. The whole chain is TEST-ONLY plus the already-recorded CD-002 audit-writer bound.
+- Exact-head HIGH_ASSURANCE L5: PASS. Focused mobile Admin Guard `3 / 3`; focused logout `3 / 3`; full E2E `24 / 24` in default-worker mode and `24 / 24` with `--workers=1`; Axe zero violations; unit `51 / 51`; pgTAP `166 / 166`; Auth/Data API `59 / 59`; production build, Docker, health/readiness and client-bundle containment all pass. Full command and result table is in `.engineering/evidence/GMZ-IMPL-006-EVIDENCE.md`.
+- Dependency truth is unchanged from CD-001: production audit passes, the raw full audit still exits nonzero for the single dev-only HIGH `GHSA-vfj7-8cjw-p6xm`, and the committed fail-closed guard keeps the reviewed disposition `RESOLVED_NOT_AFFECTED`. The raw audit is not called clean.
+- CRITICAL unresolved: `0`. HIGH unresolved: `0` after that reviewed disposition.
+- Proposed state for separate objective audit: recognize `GMZ-IMPL-006` as `READY_FOR_OBJECTIVE_AUDIT` only after verifying this evidence and the exact published PR head. Keep `CHECKPOINT.json` unchanged until that review is accepted.
+- Production earned credit remains `44 / 515 = 8.54%`; no credit promotion is proposed by CD-002, CD-003 or CD-004. Any later credit remains gated on objective acceptance, merge and governed promotion.
+- PR #64 remains open and unmerged. Do not change main, `.gef`, the execution base, or production scope. No remote Supabase access and no production deployment were performed.
+
+STOP CONDITION proposed for the objective-audit handoff: `GMZ_IMPL_006_CD_004_READY_FOR_OBJECTIVE_AUDIT`.

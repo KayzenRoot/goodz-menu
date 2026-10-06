@@ -1,6 +1,6 @@
 # GMZ-IMPL-006 — Durable Audit Trail & Correlation Foundation
 
-Status: `ADMISSION_CANDIDATE`
+Status: `ADMITTED / EXECUTION AUTHORIZED`
 Issue: `#62`
 Assurance: `HIGH_ASSURANCE`
 Admission branch: `implementation/gmz-impl-006-durable-audit`
@@ -276,3 +276,435 @@ Admission:
 
 Execution after governed admission promotion and exact bind:
 `GMZ_IMPL_006_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## EXECUTION-BASE BIND
+
+- admission PR: `#63`
+- admission disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
+- exact execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`
+- execution branch: `execution/gmz-impl-006-durable-audit`
+- Context Lock: `BOUND_FOR_EXECUTION`
+- stable source fingerprints: `16 / 16 MATCH`
+- executor/Codex authorization: `YES, GMZ-IMPL-006 ONLY`
+- merge authority: `NO`
+- production credit remains `44 / 515 = 8.54%`
+
+The executor must inspect the repository before mutation, revalidate current Supabase service-role/RLS/security-definer guidance, execute the complete Work Order, run the HIGH_ASSURANCE evidence suite, correct failures introduced by the increment, commit/push to this execution branch, update the same PR, and stop for separate objective audit.
+
+STOP CONDITION:
+`GMZ_IMPL_006_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## Historical execution attempt before CD-001 — 2026-10-04
+
+- Implementation commit: `1055bcf93a37858027165e4e177b9701ec4bdd0d`.
+- Tested implementation tree: `520c9eeaa63d3ec4a38a9145f2c8c87a38a9f0b9`.
+- Local database/Auth/E2E regressions and CodeRabbit local evidence are recorded in `.engineering/evidence/GMZ-IMPL-006-EVIDENCE.md`.
+- Final CodeRabbit local review of the three closeout documents completed with `0 findings`.
+- The full development dependency audit reports one unresolved HIGH in the existing transitive development-only chain `@next/eslint-plugin-next → fast-glob → micromatch → braces <=3.0.3`; the upstream advisory lists no patched version. Production dependency audit passed. No out-of-scope dependency override or upgrade was applied.
+- SonarCloud, Socket Security Pull Request Alerts/Project Report and hosted CodeRabbit status passed on published PR head `6ba0d36c39fa6457b044773ec33e7c39b83251c9`; exact check URLs/results are recorded in the Evidence Bundle.
+- Execution disposition: `BLOCKED`; Work Order acceptance criteria 22–24 are not all satisfied. Do not declare readiness, promote credit, merge, or alter the execution base.
+- Current earned credit remains `44 / 515 = 8.54%`.
+- Proposed next action: resolve the dependency gate within admitted scope or obtain a governed correction; rerun complete L5 and update the same PR before objective audit.
+
+
+## GMZ-IMPL-006-CD-001 — dependency-audit HIGH reachability disposition
+
+Status: `AUTHORIZED — CORRECTION REQUIRED`
+Review target: PR `#64`
+Reviewed head: `6e91279f9c42047645fd354e06c3a45c35e723cf`
+Assurance: `HIGH_ASSURANCE`
+
+### Trigger
+
+The complete development dependency audit reports one `HIGH` advisory, `GHSA-vfj7-8cjw-p6xm / CVE-2026-93687`, for transitive `braces@3.0.3` through `@next/eslint-plugin-next@16.3.8 → fast-glob@3.3.1 → micromatch@4.0.8 → braces@3.0.3`. The production dependency audit passes. The upstream advisory currently lists no patched npm release.
+
+### Independent review finding
+
+The scanner finding is valid, but the currently configured Goodz Menu lint path is not affected by the vulnerable input path:
+
+1. `@next/eslint-plugin-next` uses `fast-glob.globSync(...)` in its root-directory helper only when ESLint `settings.next.rootDir` is configured as a string or array.
+2. Goodz Menu's `eslint.config.mjs` does not define `settings.next.rootDir`; the plugin therefore uses `context.cwd` and does not invoke that glob-processing branch in the current configuration.
+3. `braces` is present only in the development toolchain; the production dependency audit has no HIGH/CRITICAL finding from this advisory.
+4. No dependency override, fork, fake version, advisory suppression, or broad toolchain replacement is authorized merely to make the scanner green.
+
+This is not a blanket waiver. The disposition is valid only while the reachability conditions above remain mechanically guarded and the production tree remains unaffected.
+
+### CORRECTION SCOPE
+
+Only the following corrective work is authorized:
+
+1. Add a focused machine-verifiable security guard, preferably `scripts/verify-eslint-braces-not-affected.mjs`, plus a package script such as `security:braces-disposition`.
+2. The guard MUST fail if any active flat ESLint config entry defines a non-null `settings.next.rootDir` value.
+3. The guard MUST prove that `braces` is absent from the production dependency tree; use deterministic package-manager output or equivalent local inspection.
+4. Record the exact dev dependency chain and the upstream call-path/reachability rationale in the Evidence Bundle.
+5. Preserve the raw full-audit result truthfully: if `pnpm audit` still reports the advisory, do not claim the raw scanner passed. Instead record the specific advisory as `RESOLVED_NOT_AFFECTED` only after the mechanical guard and reachability evidence pass.
+6. Rerun lint and prove the Next ESLint rules remain enabled and functional.
+7. Rerun the complete applicable HIGH_ASSURANCE L5 at the exact corrected final HEAD, including production audit, full audit capture, guard, unit, build, E2E, pgTAP, Auth/Data API, Docker/Supabase/Auth/Postgres, secret/client-bundle checks, DB checks, SonarCloud, Socket and CodeRabbit.
+8. Update the existing `.engineering/evidence/GMZ-IMPL-006-EVIDENCE.md`, Work Order closeout and proposed Checkpoint Delta. Do not promote credit.
+9. Commit/push only to `execution/gmz-impl-006-durable-audit`; keep PR #64 open/draft and unmerged.
+
+### Explicitly prohibited in CD-001
+
+- upgrading, downgrading, overriding or forking `braces`, `micromatch`, `fast-glob`, `@next/eslint-plugin-next`, Next.js or ESLint solely to bypass the advisory;
+- changing `pnpm-lock.yaml` unless a separately demonstrated correction blocker requires a new governed delta;
+- disabling Next ESLint rules;
+- changing `settings.next.rootDir` to manufacture a proof result;
+- suppressing/ignoring the advisory without evidence;
+- application/runtime/schema/business changes unrelated to this correction;
+- merge, force-push, history rewrite, remote Supabase or production deployment.
+
+### ACCEPTANCE CRITERIA — CD-001
+
+1. The raw advisory and exact dependency chain remain explicitly documented.
+2. Upstream advisory status is recorded as having no patched npm release at correction time.
+3. Production dependency tree contains no affected `braces` path.
+4. Active ESLint config contains no `settings.next.rootDir` value.
+5. A committed guard automatically fails if either condition 3 or 4 stops being true.
+6. Next ESLint recommended rules remain enabled; `pnpm lint` passes.
+7. No dependency version or lockfile mutation is introduced by CD-001.
+8. The finding is recorded as `RESOLVED_NOT_AFFECTED`, not deleted or falsely reported as a passing raw audit.
+9. Unresolved CRITICAL/HIGH after disposition: `0 / 0`.
+10. Complete exact-head HIGH_ASSURANCE L5 passes with the correction guard included.
+11. Evidence Bundle distinguishes scanner result, reachability disposition, proof and residual risk.
+12. PR #64 remains open/draft; no merge or production-credit promotion occurs.
+
+### STOP CONDITION — CD-001
+
+If every CD-001 criterion and the original GMZ-IMPL-006 criteria are objectively satisfied:
+
+`GMZ_IMPL_006_CD_001_READY_FOR_OBJECTIVE_AUDIT`
+
+If the guard/reachability proof fails, `braces` appears in production, the vulnerable `rootDir` path becomes active, or any other unresolved CRITICAL/HIGH remains:
+
+`BLOCKED`
+
+### CD-001 execution closeout — 2026-10-04
+
+- Correction implementation commit: `a62aa978ef0c7b3302c3fe86179a6411a1882e6f`; tree `dc6c49b6c7d129416bfe243790af8414ddafdaa2`.
+- Preflight PASS: repository `KayzenRoot/goodz-menu`, branch `execution/gmz-impl-006-durable-audit`, execution base `2490ed590a6fb21f53d79b7ab7c93fee854c01ee` ancestral, Context Lock `BOUND_FOR_EXECUTION`, `16 / 16` fingerprints MATCH, governance snapshot MATCH, clean tree before correction, and `.gef` unchanged.
+- Only `package.json` and `scripts/verify-eslint-braces-not-affected.mjs` changed for the correction. No dependency version, `pnpm-lock.yaml`, Next lint rule, runtime, schema, business-scope, or `.gef` changes.
+- The guard's five deterministic self-tests passed. On the candidate it found `braces` absent from the 211 resolved production package entries, found no active `settings.next.rootDir`, pinned `@next/eslint-plugin-next@16.3.8`, and confirmed all 22 Next recommended rules remain enabled.
+- `pnpm audit --prod --audit-level=high` passed. The raw full audit truthfully remains exit `1` with exactly one HIGH (`GHSA-vfj7-8cjw-p6xm`, `braces@3.0.3`, no patched release listed), through the development-only chain `@next/eslint-plugin-next -> fast-glob -> micromatch -> braces`. Following the admitted, mechanically enforced reachability proof, this specific finding is `RESOLVED_NOT_AFFECTED`; it is not reported as a raw audit pass. Residual risk is recorded in the Evidence Bundle.
+- CD-001 HIGH_ASSURANCE local L5 is recorded in `.engineering/evidence/GMZ-IMPL-006-EVIDENCE.md`: frozen strict-peer install, lint, typecheck, unit `50 / 50`, production build, E2E/Axe `24 / 24`, Supabase reset, pgTAP `166 / 166`, Auth/Data API `59 / 59`, migration/type equivalence, DB lint/advisors, dependency/peer/secret checks, Docker build/up/health, local Supabase/Auth/Postgres, readiness/runtime logs, client-bundle containment, guard, and `.gef` integrity all passed. SonarCloud, Socket and hosted CodeRabbit are verified against the published PR head and linked in PR #64; any non-success state blocks objective-audit readiness.
+- Current severity disposition: `CRITICAL unresolved: 0`; `HIGH unresolved: 0`; `GHSA-vfj7-8cjw-p6xm: RESOLVED_NOT_AFFECTED`.
+- Final local CodeRabbit review returned one MINOR suggestion to defer PR `#64` behind PR `#49`; it was rejected as stale against `.engineering/evidence/GMZ-IMPL-003-PROMOTION-EVIDENCE.md`, which records PR `#49` merged and objective-audit-approved, and the current GMZ-IMPL-006 Context Lock/checkpoint binding. No CRITICAL/HIGH issue was identified.
+- Checkpoint remains unpromoted: production earned credit is still `44 / 515 = 8.54%`; `CHECKPOINT.json` is not changed by this correction. The proposed delta is documented in `CHECKPOINT.md` for the objective auditor.
+- PR #64 remains open and draft; no merge, main change, remote Supabase, production deploy, or force-push.
+- CD-001 execution disposition: `READY_FOR_OBJECTIVE_AUDIT`, pending separate objective audit.
+
+STOP CONDITION reached:
+`GMZ_IMPL_006_CD_001_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-006-CD-002 — hosted-review availability and checkpoint correction
+
+Status: `AUTHORIZED — CORRECTION REQUIRED`
+Review target: PR `#64`
+Reviewed head: `38bc0034f7464c971cb6e98cc05d6a5b1bfc9001`
+Trigger: hosted CodeRabbit full review after PR left draft state.
+Assurance: `HIGH_ASSURANCE`
+
+### Objective findings
+
+1. `MINOR / Functional Correctness` — `.engineering/CHECKPOINT.md` top-level Active increment summary still describes the historical pre-CD-001 blocker and next action, while the later CD-001 proposal records `RESOLVED_NOT_AFFECTED` and readiness for objective audit.
+2. `MINOR / Stability & Availability` — `src/lib/supabase/audit-writer.server.ts` awaits the mandatory `append_audit_event` RPC without an explicit bounded abort signal. A stalled audit backend can therefore delay a privileged action for the HTTP client's much longer default timeout. The security result already fails closed on thrown persistence error, so a bounded timeout is compatible with the architecture and improves availability.
+3. `TRIVIAL / FUTURE` — retention, erasure/pseudonymization and tenant-offboarding semantics must be designed before real production tenant data is admitted. This observation does **not** authorize weakening current append-only immutability, changing the migration, or expanding scope in CD-002.
+
+### CORRECTION SCOPE
+
+Only these changes are authorized:
+
+1. In `.engineering/CHECKPOINT.md`, correct the Active increment human summary so it distinguishes the historical pre-CD-001 state from the proposed CD-001 ready state. Do not alter `.engineering/CHECKPOINT.json` or promote credit.
+2. In `src/lib/supabase/audit-writer.server.ts`, add a bounded `AbortSignal.timeout(3_000)` to the `append_audit_event` RPC request while preserving the existing generic error handling and fail-closed `audit_unavailable` behavior.
+3. Add focused automated proof that timeout/abort of audit persistence cannot produce an allowed privileged decision. Prefer the smallest deterministic unit/integration seam; do not introduce sleep-based/flaky timing tests if a controlled rejection/abort proof is sufficient.
+4. Update the existing Evidence Bundle and Work Order closeout with CD-002 exact-head results.
+5. Reply to and resolve the two hosted CodeRabbit actionable threads only after the correction and evidence pass.
+6. Record the retention/erasure/offboarding observation as `FUTURE / production-admission prerequisite`; no migration/runtime implementation for it is admitted here.
+7. Rerun the complete applicable HIGH_ASSURANCE L5 at the final exact HEAD and obtain fresh hosted SonarCloud, Socket and CodeRabbit results after publication.
+
+### Explicitly prohibited
+
+- changing the `audit_events` immutability trigger, FKs, RLS or migration for retention/offboarding;
+- introducing purge/pseudonymization implementation in this delta;
+- altering dependency versions or `pnpm-lock.yaml`;
+- changing service-role authority, tenant authorization semantics, business-domain behavior or product UI;
+- changing `.engineering/CHECKPOINT.json` or promoting credit;
+- merge, force-push, history rewrite, remote Supabase or production deployment.
+
+### ACCEPTANCE CRITERIA — CD-002
+
+1. Human checkpoint summary no longer presents the pre-CD-001 BLOCKED state as current.
+2. Audit RPC has an explicit 3-second abort boundary.
+3. Abort/timeout preserves fail-closed behavior: no would-be privileged allow can escape as allowed when audit persistence times out.
+4. Existing generic error handling still prevents provider/credential/payload leakage.
+5. Existing audit correlation, metadata, RLS, immutable DB path and service-role containment remain unchanged.
+6. No migration/schema/dependency/lockfile change is introduced.
+7. Retention/erasure/offboarding is documented as FUTURE and prerequisite before production tenant admission, without weakening current immutability.
+8. Complete exact-head HIGH_ASSURANCE L5 passes.
+9. Fresh hosted CodeRabbit has no unresolved actionable thread; SonarCloud and Socket gates pass.
+10. CRITICAL/HIGH unresolved = `0 / 0`.
+11. PR #64 remains open and unmerged for final objective re-audit.
+
+### STOP CONDITION — CD-002
+
+`GMZ_IMPL_006_CD_002_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-006-CD-002 — successful exact-head revalidation
+
+The earlier CD-002 E2E failures recorded in the Evidence Bundle remain historical attempts. A later complete desktop/mobile run on the published candidate passed; it supersedes the earlier blocked disposition without changing MFA or business scope.
+
+- Tested HEAD: `4cb0d4350c7bfca927c01bc848a40a7f71241f67`; tree: `0dcfb784d31615e8f703f4e7494c1efcda207448`; execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`.
+- GEF 1.1.1 preflight: PASS — correct repository/branch/PR, clean starting tree, execution base ancestral, Context Lock `BOUND_FOR_EXECUTION`, `16 / 16` source fingerprints MATCH, governance snapshot MATCH, `.gef` unchanged, and `CHECKPOINT.json` unchanged.
+- Frozen install/strict peers: PASS; CD-001 self-tests `5 / 5` and live braces disposition guard PASS; `pnpm why braces` confirms the dev-only chain. Production audit PASS. The full raw audit truthfully remains exit `1` with the single HIGH `GHSA-vfj7-8cjw-p6xm`; the committed reachability guard keeps its reviewed disposition `RESOLVED_NOT_AFFECTED`.
+- Lint PASS; typecheck PASS; unit `51 / 51` across 11 files; production build PASS.
+- Full desktop/mobile E2E and embedded Axe assertions: `24 / 24` PASS, zero Axe violations. This includes the local TOTP/Admin Guard flow and user-metadata spoof regression.
+- Local Supabase reset PASS; pgTAP `166 / 166` across 3 SQL files; Auth/Data API `59 / 59`; all 3 migrations applied; generated DB types match tracked output; database lint and security/performance advisors report no issues.
+- Secret-pattern scan: 235 tracked paths, zero targeted credential-pattern file hits. Client bundle: 20 static files, zero local service-role value, service-role name, or audit-writer hits. Docker config/build/force-recreate PASS; container healthy; health/readiness HTTP `200 / 200`; Supabase status JSON valid; Auth health/REST `200 / 200`; Postgres `pg_isready` and `SELECT 1` PASS; 11 runtime log lines with zero error/severe or secret matches; `.gef` diff empty.
+- Fresh hosted checks on this published HEAD: SonarCloud PASS; both Socket checks PASS; hosted CodeRabbit PASS. Both actionable CodeRabbit threads are resolved/outdated after the correction proof was present.
+- CRITICAL/HIGH unresolved: `0 / 0` after the specific CD-001 disposition. Raw audit remains nonzero and is not described as passing.
+- Credit remains `44 / 515 = 8.54%`; no promotion, merge, main mutation, force-push, dependency/lockfile/schema/migration/RLS change, or scope expansion.
+- CD-002 disposition: `READY_FOR_OBJECTIVE_AUDIT` proposed for separate review; `CHECKPOINT.json` remains `GMZ_IMPL_006_BOUND_FOR_EXECUTION` until that review. PR #64 remains open and unmerged.
+
+STOP CONDITION:
+`GMZ_IMPL_006_CD_002_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-006-CD-002 — latest exact-head rerun blocked
+
+This is the latest published-candidate validation record and supersedes the earlier `4cb0d43` successful L5 proposal. The later run does not meet the CD-002 stop condition; no E2E/MFA/Auth-session test or business runtime/UI file was changed because it is outside the authorized mutation set.
+
+- Tested HEAD: `0a133a1281a5002549f5e90928c4c7a67d49946f`; tree: `bc6d04e247a07fe16ace68501fb5651f9d73c8e0`; execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`.
+- GEF 1.1.1 preflight: PASS — correct repository/branch/PR, clean pre-test tree, base ancestral, Context Lock `BOUND_FOR_EXECUTION`, `16 / 16` fingerprints MATCH, governance snapshot MATCH, `.gef` intact and `CHECKPOINT.json` unchanged.
+- Frozen install/strict peers PASS; CD-001 guard and self-tests `5 / 5` PASS; production audit PASS; full raw audit remains exit `1` with exactly the dev-only HIGH `GHSA-vfj7-8cjw-p6xm`, truthfully not called a pass and retained as `RESOLVED_NOT_AFFECTED` by the committed guard. Lint PASS; typecheck PASS; unit `51 / 51`; production build PASS.
+- Supabase reset PASS; pgTAP `166 / 166`; Auth/Data API `59 / 59`; migration status shows all 3 expected migrations; generated database types equivalent; DB lint/advisors clear.
+- Latest full default-worker E2E after local DB reset: `23 / 24` PASS. The remaining desktop logout/cookie test at `tests/e2e/auth-session.spec.ts:100` stayed on `/app` instead of reaching `/login`. A complete one-worker run also ended `23 / 24`, with the existing mobile Admin Guard E2E failing its strict `getByRole("status")` assertion because two status elements were present. An earlier concurrent attempt saw local Postgres connection termination and cascading fixture timeouts. Axe assertions ran in successful cases, but the complete E2E/Axe gate is BLOCKED; no full accessibility pass is claimed.
+- Docker Compose config/build/force-recreate PASS; web container healthy; health/readiness `200 / 200`; Supabase status JSON valid; Auth health/REST `200 / 200`; Postgres `pg_isready` and `SELECT 1` PASS. Secret-pattern scan has zero hits; 20 client static files contain zero service-role value/name or audit-writer matches; 15 runtime log lines have zero error/severe or secret matches; `.gef` diff empty.
+- Fresh hosted SonarCloud, Socket Project Report, Socket PR Alerts and CodeRabbit status on `0a133a1` all PASS. The separate review thread requesting a truthful checkpoint status is corrected in this record; resolve it only after the updated record is published and fresh review confirms no new actionable issue.
+- CRITICAL/HIGH unresolved: `0 / 0` after CD-001's specific disposition. Raw full audit remains nonzero and visible.
+- Credit remains `44 / 515 = 8.54%`; no merge, credit promotion, main mutation, force-push, dependency/lockfile/schema/migration/RLS/business-scope change.
+- Current disposition: `BLOCKED` by required exact-head E2E/Axe failure outside CD-002's authorized correction set. The stop condition is not reached. `CHECKPOINT.json` remains `GMZ_IMPL_006_BOUND_FOR_EXECUTION`; do not claim `READY_FOR_OBJECTIVE_AUDIT` until a separately authorized correction and fresh full L5 pass.
+
+
+## GMZ-IMPL-006-CD-002 execution record — candidate blocked by L5
+
+- Authorized governance HEAD: `4af23fd1641eaa5fb38accbe100bc544eda11fc6`; execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`.
+- Tested correction candidate: `f922eaafbef25965c38cb1ff1cec5b5532fe4622`; tree: `9364365e5db7a86d3ceefa3cb1101fdbdb431554`.
+- GEF preflight at the authorized HEAD: PASS — correct repository/branch/PR, execution-base ancestry, Context Lock `BOUND_FOR_EXECUTION`, `16 / 16 MATCH`, governance snapshot MATCH, clean entry tree, `.gef` unchanged, local Supabase status valid. `CHECKPOINT.json` remains unchanged since the authorized HEAD.
+- CD-002 code correction: `append_audit_event` now carries `AbortSignal.timeout(3_000)`; generic provider-error redaction and `audit_unavailable` fail-closed handling are preserved. Deterministic abort regression returns `{ allowed: false, reason: "audit_unavailable" }` for a would-be allow. Targeted unit test, lint, and typecheck passed; complete unit suite: `51 / 51` across 11 files.
+- Human checkpoint summary only: corrected to distinguish CD-001's `RESOLVED_NOT_AFFECTED` disposition from the active CD-002 final validation. No `CHECKPOINT.json` mutation.
+- CD-001 preserved: braces guard self-tests `5 / 5`; guard confirms `braces` absent from 211 resolved production packages, no active `settings.next.rootDir`, and 22 recommended Next ESLint rules enabled. Production audit passes; raw full audit remains exit `1` with one HIGH `GHSA-vfj7-8cjw-p6xm`, disposition `RESOLVED_NOT_AFFECTED`; it is not represented as a raw audit pass. Dependency versions and lockfile remain unchanged.
+- Candidate L5 passes: frozen install with strict peers; lint; typecheck; unit; production build; local Supabase reset; pgTAP `166 / 166`; Auth/Data API `59 / 59`; all 3 expected migrations applied; generated DB types equivalent to tracked output; DB lint/advisors clear; production audit; 216 tracked text files secret scan with zero matches; 20 client static files with zero service-role containment hits; Docker config/build/up and healthy web container; health/readiness `200 / 200`; local Auth/REST `200 / 200`; Postgres readiness and `SELECT 1`; 14 runtime log lines with zero error/severe or secret matches; `.gef` unchanged.
+- Full E2E does **not** pass: the initial desktop/mobile run completed `21 / 24`; after a local DB reset, the serial desktop/mobile run completed `22 / 24`; an isolated desktop reproduction also failed. Remaining failures are in the pre-existing MFA enrollment/cancellation flow before any audit-writer RPC: a synthetic user's enrollment returned the existing generic failure instead of a QR code, and a cancellation path retained an unverified local Auth factor. The audit timeout was not reached by these failing steps. No MFA/UI code was changed because CD-002 forbids that scope. The complete E2E/Axe gate therefore remains BLOCKED; no full Axe pass is claimed.
+- Exact-head hosted SonarCloud, Socket and CodeRabbit results were not yet available at this execution-record commit; capture only fresh results after publishing this candidate. The two actionable CodeRabbit threads remain unresolved until the correction is present in the published candidate and hosted review is refreshed.
+- Future-only observation: retention, erasure/pseudonymization and tenant offboarding remain prerequisites before production tenant admission. Not implemented; audit immutability/migration/RLS are unchanged.
+- Production credit remains `44 / 515 = 8.54%`; no promotion, merge, main mutation or force-push.
+- Disposition: `BLOCKED` by the required full E2E/Axe gate outside CD-002's authorized correction scope. Do not claim `GMZ_IMPL_006_CD_002_READY_FOR_OBJECTIVE_AUDIT` until the existing MFA regression passes under separately authorized scope or fresh exact-head rerun evidence clears it.
+
+
+## GMZ-IMPL-006-CD-003 — deterministic E2E gate stabilization
+
+Status: `AUTHORIZED — CORRECTION REQUIRED`
+Review target: PR `#64`
+Reviewed published head: `6766326ea64c556b2226dd6603796ab4b5b29e24`
+Blocked code candidate: `0a133a1281a5002549f5e90928c4c7a67d49946f`
+Known-green predecessor: `4cb0d4350c7bfca927c01bc848a40a7f71241f67`
+Assurance: `HIGH_ASSURANCE`
+
+### Trigger and independent diagnosis
+
+The latest exact-head L5 remains blocked because two different full-suite runs ended at `23 / 24`:
+
+1. desktop logout/session regression stayed on `/app` instead of reaching `/login`;
+2. mobile Admin Guard run hit a strict-locator ambiguity from generic `getByRole("status")` while two status elements were present.
+
+Independent compare proves that `4cb0d435...` and `0a133a128...` differ only in:
+- `.engineering/evidence/GMZ-IMPL-006-EVIDENCE.md`;
+- `.engineering/work-orders/GMZ-IMPL-006.md`.
+
+No runtime, auth, MFA, Admin Guard or E2E source changed between the earlier `24 / 24` run and the later failing run. Therefore the current evidence supports a test-determinism/synchronization defect, not a proven product-runtime regression. This classification does not waive the gate: exact-head E2E must still become deterministically green.
+
+### CORRECTION SCOPE
+
+Only test/evidence hardening is authorized:
+
+1. `tests/e2e/auth-session.spec.ts`:
+   - make logout synchronization deterministic;
+   - observe the actual Supabase logout request/response or equivalent deterministic completion signal;
+   - require successful logout completion, redirect to `/login`, session-cookie clearance and subsequent denial of protected `/app` access;
+   - bounded waits are allowed; arbitrary sleeps are forbidden;
+   - do not weaken any logout/session security assertion.
+2. `tests/e2e/mfa-admin-guard.spec.ts`:
+   - replace ambiguous generic status-role assertions in the affected Admin Guard flow with state-specific, semantically exact locators/text;
+   - do not use `.first()`, `.nth()` or another selector trick that can hide simultaneous wrong states;
+   - preserve all positive and negative authorization/MFA assertions.
+3. Focused stability proof:
+   - run the logout scenario repeatedly;
+   - run the Admin Guard scenario repeatedly on mobile;
+   - require deterministic success without source changes between runs.
+4. Full-suite proof:
+   - complete desktop/mobile E2E must pass `24 / 24` with normal worker configuration;
+   - complete suite must also pass `24 / 24` with `--workers=1`;
+   - Axe/accessibility must pass in the complete green suite.
+5. After E2E stabilization, rerun the complete applicable GMZ-IMPL-006 HIGH_ASSURANCE L5 at the exact final HEAD and obtain fresh hosted SonarCloud, Socket and CodeRabbit results.
+6. Update Evidence Bundle, Work Order closeout and human checkpoint proposal only. `CHECKPOINT.json` remains unchanged until objective audit/promotion.
+
+### Runtime escalation rule
+
+CD-003 does **not** authorize product runtime/Auth/MFA/Admin Guard changes.
+
+If deterministic instrumentation shows any of the following, STOP as `BLOCKED` and request a separate runtime correction delta:
+- logout request returns an actual provider/application error;
+- logout reports success but session cookie remains effective after bounded completion;
+- protected `/app` remains accessible after confirmed successful logout;
+- Admin Guard renders mutually invalid states because of a real runtime state bug rather than locator ambiguity.
+
+### Explicitly prohibited
+
+- runtime/Auth/MFA/Admin Guard implementation changes;
+- schema/migration/RLS/FK/immutability changes;
+- dependency or `pnpm-lock.yaml` changes;
+- weakening security/accessibility assertions;
+- retries configured merely to mask failure;
+- fixed sleeps used as synchronization;
+- `.first()`/index-based status selection that hides duplicate live states;
+- `.gef/**`, remote Supabase, production deployment, merge, force-push or credit promotion.
+
+### ACCEPTANCE CRITERIA — CD-003
+
+1. Logout E2E deterministically proves provider completion, redirect, cookie/session invalidation and protected-route denial.
+2. Admin Guard mobile E2E uses unambiguous semantic/state-specific locators and still proves the same security behavior.
+3. Focused logout regression passes at least `3 / 3` consecutive executions.
+4. Focused mobile Admin Guard regression passes at least `3 / 3` consecutive executions.
+5. Full E2E normal workers: `24 / 24`.
+6. Full E2E one worker: `24 / 24`.
+7. Full-suite Axe/accessibility: PASS, zero violations.
+8. No runtime/schema/dependency/lockfile/GEF mutation is introduced.
+9. Complete exact-head HIGH_ASSURANCE L5 passes, including CD-001 and CD-002 proofs.
+10. Fresh hosted SonarCloud, Socket and CodeRabbit gates complete with no unresolved actionable thread.
+11. CRITICAL/HIGH unresolved = `0 / 0`.
+12. PR #64 remains open and unmerged for final objective re-audit.
+
+### STOP CONDITION — CD-003
+
+`GMZ_IMPL_006_CD_003_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-006-CD-004 — Supabase DB-query fixture JSON compatibility
+
+Status: `AUTHORIZED — CORRECTION REQUIRED`
+Review target: PR `#64`
+Authorization base: `f9fa9ecda977245e545cd35ec886f629956f1098`
+Assurance: `HIGH_ASSURANCE`
+
+### Trigger and objective diagnosis
+
+CD-003 corrected the deterministic logout synchronization and Admin Guard status-locator ambiguity within its authorized TEST-ONLY scope. Focused logout proof reached `3 / 3`, but Admin Guard remains deterministically blocked because the shared test fixture `tests/e2e/auth-session-fixture.ts` cannot parse the current Supabase CLI JSON result from `db query --output-format json`.
+
+Current fixture behavior:
+- searches for the first `{` in CLI output;
+- parses from that offset as an object containing `rows`;
+- catches any parse/shape error and silently returns `null`.
+
+Observed CLI behavior for pinned `supabase@2.119.0`:
+- query JSON is emitted as a top-level array of row objects;
+- slicing from the first `{` discards the opening `[` but leaves the closing `]`, producing deterministic invalid JSON;
+- the broad catch masks the parser defect as a missing audit record.
+
+Direct database inspection for the failing correlation ID proves the runtime audit row exists with `event_count = 1`, `action = synthetic.privileged.proof`, `outcome = allow`, `reason_code = authorized`, and `source = admin_guard`. Therefore this delta is a test-fixture compatibility correction, not a runtime audit correction.
+
+### CORRECTION SCOPE
+
+Only the following is authorized:
+
+1. `tests/e2e/auth-session-fixture.ts`
+   - parse the complete JSON payload starting at the earliest valid JSON container marker (`[` or `{`), not blindly from the first object marker;
+   - accept the pinned CLI's top-level row-array form;
+   - retain compatibility with an object form containing a `rows` array if encountered;
+   - normalize to the first row and preserve the existing `event_count` / `event` return contract;
+   - fail loudly on malformed JSON or unexpected output shape instead of converting parser defects to `null`;
+   - keep correlation-id validation and local-only execution unchanged.
+2. Preserve the already prepared CD-003 changes in:
+   - `tests/e2e/auth-session.spec.ts`;
+   - `tests/e2e/mfa-admin-guard.spec.ts`.
+   Those changes remain subject to CD-003 acceptance criteria and must not be broadened.
+3. Re-run focused Admin Guard mobile at least `3 / 3` after fixture correction. Logout focused proof remains required at `>= 3 / 3` on the final candidate.
+4. Run complete E2E normal workers `24 / 24` and complete E2E `--workers=1` `24 / 24`, with full Axe/accessibility PASS.
+5. Run the complete applicable GMZ-IMPL-006 HIGH_ASSURANCE L5 at the exact final HEAD, including CD-001 dependency disposition and CD-002 timeout proof.
+6. Publish the final candidate, obtain fresh exact-head SonarCloud, Socket Project Report, Socket PR Alerts and CodeRabbit results, update Evidence Bundle / Work Order closeout / human checkpoint proposal, and stop for independent objective audit.
+
+### Explicitly prohibited
+
+- any runtime/Auth/MFA/Admin Guard application change;
+- audit writer, schema, migration, RLS, FK, trigger or service-role changes;
+- dependency or `pnpm-lock.yaml` changes;
+- weakening or removing durable-audit assertions;
+- returning `null` on malformed fixture JSON merely to let E2E continue;
+- fixed sleeps, retry masking or index-based selector tricks;
+- `.engineering/CHECKPOINT.json`, `.gef/**`, remote Supabase, production deployment, merge, force-push or credit promotion.
+
+### ACCEPTANCE CRITERIA — CD-004
+
+1. Fixture parses pinned Supabase CLI top-level JSON arrays correctly.
+2. Fixture remains compatible with object-with-`rows` JSON shape.
+3. Malformed or unexpected JSON shape fails visibly; parser errors are not silently converted to `null`.
+4. Direct durable-audit assertion returns the real `event_count = 1` record for the Admin Guard allow path.
+5. Final-candidate logout focused regression: `>= 3 / 3` consecutive PASS.
+6. Final-candidate mobile Admin Guard focused regression: `>= 3 / 3` consecutive PASS.
+7. Full E2E normal workers: `24 / 24`.
+8. Full E2E `--workers=1`: `24 / 24`.
+9. Full-suite Axe/accessibility: PASS, zero violations.
+10. No runtime/schema/dependency/lockfile/GEF mutation.
+11. Complete exact-head HIGH_ASSURANCE L5 passes.
+12. Fresh hosted SonarCloud, Socket and CodeRabbit complete on the final exact HEAD with no unresolved actionable thread.
+13. CRITICAL/HIGH unresolved = `0 / 0` after the existing reviewed CD-001 disposition.
+14. PR #64 remains open and unmerged for final objective audit; production credit remains `44 / 515 = 8.54%` until promotion.
+
+### STOP CONDITION — CD-004
+
+`GMZ_IMPL_006_CD_004_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-006-CD-004 — execution closeout
+
+Status: `EXECUTED — READY FOR OBJECTIVE AUDIT`
+Governance authorization HEAD: `f4b71fd9a5efbd2fb6869284e7b3cddeb13e2e24`
+Correction commit under test: `4c30b1d67b126c1a6cde3127a7bafee849f9e2b9`
+Correction tree under test: `81b79bfaa17aa2e3ca898375dbe766cd52967256`
+Execution base: `2490ed590a6fb21f53d79b7ab7c93fee854c01ee`
+
+### Scope actually changed
+
+Only `tests/e2e/auth-session-fixture.ts`, `tests/e2e/auth-session.spec.ts` and `tests/e2e/mfa-admin-guard.spec.ts` changed. CD-003's two spec corrections were preserved byte-identically and were not broadened. No runtime, Auth, MFA or Admin Guard application code, audit writer, schema, migration, RLS, FK, trigger, dependency, `pnpm-lock.yaml` or `.gef` path was touched. `.engineering/CHECKPOINT.json` is unchanged at blob `619ef8dbfc90683c7390357a4f4fa57a2339b911`.
+
+### Acceptance criteria disposition
+
+| # | Criterion | Result |
+|---|---|---|
+| 1 | Parses pinned CLI top-level JSON arrays | MET — earliest container marker `[` or `{`, complete parse |
+| 2 | Remains compatible with object-with-`rows` | MET — both forms normalize to the first row |
+| 3 | Malformed/unexpected shape fails visibly | MET — generic credential-free errors; no `catch { return null }` remains on the parser path |
+| 4 | Audit assertion returns the real record | MET — `event_count = 1` allow record now read instead of skipped |
+| 5 | Logout focused `>= 3 / 3` on final candidate | MET — 3/3 (32.2s / 34.0s / 33.5s) |
+| 6 | Mobile Admin Guard focused `>= 3 / 3` on final candidate | MET — 3/3 (1.9m / 2.0m / 1.9m) |
+| 7 | Full E2E normal workers `24 / 24` | MET — 24 passed (4.9m) |
+| 8 | Full E2E `--workers=1` `24 / 24` | MET — 24 passed (5.8m) |
+| 9 | Full-suite Axe PASS, zero violations | MET — strict `toEqual([])` assertions in the passing suite |
+| 10 | No runtime/schema/dependency/lockfile/GEF mutation | MET |
+| 11 | Complete exact-head HIGH_ASSURANCE L5 | MET — full L5 table in the Evidence Bundle |
+| 12 | Fresh hosted SonarCloud/Socket/CodeRabbit on the final exact head | MET — evaluated at the final published head; no prior-SHA reuse |
+| 13 | CRITICAL/HIGH unresolved `0 / 0` | MET — after the reviewed CD-001 `RESOLVED_NOT_AFFECTED` disposition; raw audit HIGH stays visible |
+| 14 | PR #64 open/unmerged; credit `44 / 515 = 8.54%` | MET |
+
+### Residual items for the objective auditor
+
+- `GHSA-vfj7-8cjw-p6xm` keeps the CD-001 disposition `RESOLVED_NOT_AFFECTED` conditional on the committed fail-closed guard; the raw full audit is exit `1` with exactly one HIGH.
+- Public tables carry RLS without `FORCE ROW LEVEL SECURITY`, owned by the migration role `postgres`, so no application role can bypass RLS through ownership. Pre-existing schema state, recorded as an observation.
+- Retention, erasure/pseudonymization and tenant offboarding remain `FUTURE / prerequisite before production tenant admission`.
+- Evidence screenshots rewritten as an E2E side effect were reverted; they are outside this delta's write set.
+
+### Final state
+
+`CHECKPOINT.json` remains `BOUND_FOR_EXECUTION` and unchanged. The human Checkpoint Delta in `.engineering/CHECKPOINT.md` is a proposal only and is `NOT APPLIED`. No merge, no main update, no force-push, no credit promotion, no remote Supabase access, no production deployment. PR `#64` remains open and unmerged for independent objective audit.
