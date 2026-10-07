@@ -420,6 +420,11 @@ O stop condition do Work Order **não foi atingido**.
 - Tree do commit de implementação: `86ccf5b5f3ee147bb3636683f5f23aab044686d0`.
 - Context Lock: `BOUND_FOR_EXECUTION`; fingerprints: `16 / 16 MATCH`; `.gef` sem diff; `CHECKPOINT.json` preservado.
 - Revisão local CodeRabbit após as correções: `0 issues`.
+- Checks hospedados após publicar `599a001b21e04e0204c7e7b521d9d8881a7b55e0`: SonarCloud Code Analysis,
+  Socket Security Project Report e Socket Security Pull Request Alerts reportaram PASS. O check
+  hospedado CodeRabbit marcou `Review skipped: draft pull request`; isso não conta como revisão
+  objetiva/independente. Esses checks correspondem ao SHA citado e precisam ser conferidos novamente
+  caso um novo commit seja publicado.
 - Correções de revisão nesta revalidação: estado de rascunho por formulário de catálogo com reset após sucesso e preservação após recusa; fuso explícito `America/Sao_Paulo` para o histórico; fixture E2E lendo duas linhas e serializando instantes ISO UTC; removida declaração `IMMUTABLE` falsa do helper PL/pgSQL que sempre levanta exceção.
 - Validações no snapshot de implementação: frozen install/strict peers PASS; lint PASS; typecheck PASS; unit `93 / 93` PASS; build PASS; `security:braces-disposition` PASS; production audit PASS; secret scan `256` arquivos texto, `0` padrões; client bundle `21` arquivos, `0` identificadores de service-role e `0` padrões de token.
 - O raw `pnpm audit` segue `RAW FAIL`, com exatamente um HIGH `GHSA-vfj7-8cjw-p6xm` no grafo dev-only; o guard continua registrando `RESOLVED_NOT_AFFECTED` por reachability e configuração ESLint. O raw audit não é apresentado como PASS.

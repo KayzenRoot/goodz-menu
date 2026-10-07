@@ -295,7 +295,12 @@ reutilizados como prova final. `docker compose config` isoladamente não substit
   dependência continua explicitamente não PASS e com disposição condicional documentada acima.
 - Crédito: sem promoção; `52 / 515 = 10.10%`.
 - Checkpoint JSON: permanece `GMZ_IMPL_007_BOUND_FOR_EXECUTION`.
-- PR `#69`: deve permanecer draft, não mergeada. Verificações hospedadas no head publicado mais recente
-  ainda precisam ser consultadas.
+- PR `#69`: permanece draft e não mergeada. Após publicar `599a001b21e04e0204c7e7b521d9d8881a7b55e0`,
+  SonarCloud Code Analysis, Socket Security Project Report e Socket Security Pull Request Alerts
+  reportaram PASS. O check hospedado CodeRabbit reportou PASS com `Review skipped: draft pull request`;
+  isso não é revisão objetiva/independente. CodeRabbit local no snapshot de implementação: `0 issues`.
+- O commit `599a001` contém apenas documentação após o snapshot de implementação `98bd039`. Os resultados
+  hospedados acima são vinculados ao SHA `599a001` e devem ser tratados como históricos se outro commit
+  for publicado.
 - Estado: `BLOCKED_FOR_OBJECTIVE_AUDIT`; somente uma recuperação segura do host seguida do HIGH_ASSURANCE
   L5 completo pode liberar nova avaliação do stop condition.
