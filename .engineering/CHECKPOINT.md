@@ -65,6 +65,34 @@ Execute only the admitted GMZ-IMPL-007 catalog slice on `execution/gmz-impl-007-
 STOP CONDITION: `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`.
 
 
+## GMZ-IMPL-007 revalidação corretiva — BLOQUEADA
+
+Atualização de 2026-10-07: esta seção supersede a proposta READY acima para o candidato corrente.
+O candidato **não está pronto para auditoria objetiva** e o stop condition não foi atingido.
+
+- Branch: `execution/gmz-impl-007-catalog-core`; base: `1b64fbfbef3d31d215f4a2a1e30e88f8f946860c`.
+- Snapshot de implementação validado: `98bd0390cef640fc34a0729933578388a2b0d74a`;
+  tree: `86ccf5b5f3ee147bb3636683f5f23aab044686d0`.
+- Context Lock `BOUND_FOR_EXECUTION`; `16 / 16` fingerprints; `.gef` intacto.
+- Lint, typecheck, unit `93 / 93`, build, frozen install, guard de reachability, audit de produção e
+  secret/client-bundle scans: PASS. CodeRabbit local final: `0 issues`.
+- O raw full audit segue com um HIGH de desenvolvimento `GHSA-vfj7-8cjw-p6xm`; reachability permanece
+  `RESOLVED_NOT_AFFECTED`, condicionado ao guard, sem mascarar o resultado bruto.
+- Docker Desktop não inicia; o cliente não conecta a `dockerDesktopLinuxEngine` e qualquer distro WSL2
+  testada falha com `HCS/ERROR_NOT_SUPPORTED`. Docker build/up, reset Supabase e as provas dependentes
+  (pgTAP, Auth/Data API, E2E/Axe, DB advisors, readiness e runtime logs) ficam pendentes até recuperação
+  do host e rerun no HEAD publicado.
+- Os discos existentes em `D:\DockerLive` foram preservados. A recuperação final demanda acesso
+  administrativo e possivelmente reinício do Windows, indisponível nesta sessão não elevada.
+- `.engineering/CHECKPOINT.json` permanece em `GMZ_IMPL_007_BOUND_FOR_EXECUTION`, com `52 / 515 = 10.10%`;
+  nenhum crédito foi promovido. PR `#69` continua draft e não foi mergeada.
+
+Próxima ação: recuperar WSL/HCS preservando `D:\DockerLive`, depois executar o HIGH_ASSURANCE L5 completo
+no HEAD remoto final. Somente então reavaliar `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`.
+
+STOP CONDITION atual: `BLOCKED_FOR_OBJECTIVE_AUDIT`.
+
+
 ## Historical GMZ-IMPL-005 execution closeout — superseded by CD-001
 
 - exact execution base: `036d26b92d32ccb6ef69e46721e48b339d1b7332`

@@ -220,3 +220,82 @@ and links are recorded in the PR `#69` description.
 
 STOP CONDITION:
 `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`
+
+## Revalidação corretiva — snapshot de implementação 98bd039
+
+Esta seção registra a revalidação posterior às revisões CodeRabbit locais. Ela supersede a conclusão
+READY da execução histórica acima para o candidato corrente. O stop condition **não foi atingido**.
+
+| Identidade | Valor |
+|---|---|
+| Repositório / branch | `KayzenRoot/goodz-menu` / `execution/gmz-impl-007-catalog-core` |
+| Execution base | `1b64fbfbef3d31d215f4a2a1e30e88f8f946860c` |
+| HEAD do snapshot de implementação validado | `98bd0390cef640fc34a0729933578388a2b0d74a` |
+| Tree do snapshot de implementação | `86ccf5b5f3ee147bb3636683f5f23aab044686d0` |
+| Context Lock / fingerprints | `BOUND_FOR_EXECUTION` / `16 / 16 MATCH` |
+| `.gef` | íntegro; zero diff relativo à execution base |
+| `CHECKPOINT.json` | preservado; crédito continua `52 / 515 = 10.10%` |
+
+### Correções verificadas nesta revalidação
+
+- Cada editor/creator mantém estado de ação próprio. Campos de texto e selects agora preservam o rascunho
+  após falha e retornam ao valor inicial/valor canônico atualizado somente após sucesso.
+- O histórico de preço formata ambas as datas com `timeZone: America/Sao_Paulo`. O E2E usa browser UTC,
+  lê as duas últimas revisões do banco e compara `effective_from`/`effective_to` com o horário esperado.
+- O fixture E2E ganhou leitura que preserva todas as linhas retornadas e serializa instantes em ISO 8601
+  UTC com precisão de milissegundos.
+- `private.reject_catalog_scope` não declara mais `IMMUTABLE`: a função PL/pgSQL levanta exceção e não
+  satisfaz o contrato de função imutável.
+- A revisão CodeRabbit local final executada sobre o snapshot de implementação terminou com `0 issues`.
+
+### Validações novas no snapshot exato
+
+| Check | Resultado |
+|---|---|
+| `pnpm install --frozen-lockfile --strict-peer-dependencies` | PASS — pnpm `12.8.1`, sem mudança no lockfile |
+| Lint | PASS |
+| Typecheck | PASS em execução sequencial após o build |
+| Unit | PASS — `93 / 93`, 13 arquivos |
+| Production build | PASS — Next.js `16.3.8`, Turbopack |
+| `pnpm why braces` | PASS — cadeia somente de desenvolvimento via `@next/eslint-plugin-next` |
+| `security:braces-disposition` | PASS — `braces` ausente dos `211` pacotes de produção; zero `settings.next.rootDir` ativo; 22 regras recomendadas do Next habilitadas; `RESOLVED_NOT_AFFECTED` |
+| Production dependency audit | PASS — sem vulnerabilidades conhecidas |
+| Raw full dependency audit | **RAW FAIL** — exatamente um HIGH `GHSA-vfj7-8cjw-p6xm`; não foi mascarado |
+| Secret-pattern scan | PASS — `256` arquivos texto rastreados; `0` padrões |
+| Client-bundle scan | PASS — `21` arquivos; `0` identificadores service-role; `0` padrões de token |
+| Docker compose config | PASS |
+| `.gef` integrity | PASS |
+
+Uma tentativa concorrente de typecheck e build encontrou ausência momentânea de `.next/types`, pois o
+build os estava regenerando; o typecheck foi repetido sequencialmente e passou. O resultado concorrente
+não foi contabilizado como PASS.
+
+### Bloqueio do host e provas não reexecutadas
+
+O Docker Desktop não consegue iniciar o daemon; `docker compose build web`, `docker compose up` e `docker
+info` falham conectando ao named pipe `npipe:////./pipe/dockerDesktopLinuxEngine`. O comando
+`supabase db reset --local` falha com `LocalDbRunningError` pelo mesmo motivo. Além disso,
+`wsl -d Ubuntu-24.04 -- uname -r` falha em `Wsl/Service/CreateInstance/CreateVm/HCS/ERROR_NOT_SUPPORTED`.
+Uma instância do instalador por usuário restaurou os binários do Docker Desktop, mas o backend e a criação
+de VMs WSL2 continuam indisponíveis.
+
+Os VHDX já existentes em `D:\DockerLive` foram verificados e não foram apagados, movidos ou
+reinitializados por esta execução. A sessão atual não tem privilégio administrativo para reparar a camada
+Windows/WSL/HCS ou reiniciar o host.
+
+Por isso, neste snapshot **não foram reexecutados com sucesso**: reset Supabase, pgTAP completo após a
+última edição SQL, Auth/Data API, migration status, generated-type equivalence, DB lint/advisors, E2E
+desktop/mobile e Axe, Docker build/up/health, health/readiness, Supabase/Auth/Postgres, runtime logs e
+SonarCloud/Socket/CodeRabbit hospedado no SHA final. Resultados antigos continuam históricos e não são
+reutilizados como prova final. `docker compose config` isoladamente não substitui essas provas.
+
+### Situação do incremento
+
+- CRITICAL/HIGH de código não resolvido: `0 / 0` conforme a revisão local atual; o raw advisory HIGH de
+  dependência continua explicitamente não PASS e com disposição condicional documentada acima.
+- Crédito: sem promoção; `52 / 515 = 10.10%`.
+- Checkpoint JSON: permanece `GMZ_IMPL_007_BOUND_FOR_EXECUTION`.
+- PR `#69`: deve permanecer draft, não mergeada. Verificações hospedadas no head publicado mais recente
+  ainda precisam ser consultadas.
+- Estado: `BLOCKED_FOR_OBJECTIVE_AUDIT`; somente uma recuperação segura do host seguida do HIGH_ASSURANCE
+  L5 completo pode liberar nova avaliação do stop condition.

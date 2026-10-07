@@ -408,3 +408,24 @@ audit. On acceptance only: `61 / 515 = 11.84%`.
 
 Outcome:
 `READY_FOR_OBJECTIVE_AUDIT`
+
+## Revalidação corretiva após revisão local — 2026-10-07
+
+Esta seção registra o estado atual e supersede o outcome READY acima para o candidato revalidado.
+O stop condition do Work Order **não foi atingido**.
+
+- Branch: `execution/gmz-impl-007-catalog-core`.
+- Execution base: `1b64fbfbef3d31d215f4a2a1e30e88f8f946860c` (ancestral do candidato).
+- Commit de implementação validado: `98bd0390cef640fc34a0729933578388a2b0d74a`.
+- Tree do commit de implementação: `86ccf5b5f3ee147bb3636683f5f23aab044686d0`.
+- Context Lock: `BOUND_FOR_EXECUTION`; fingerprints: `16 / 16 MATCH`; `.gef` sem diff; `CHECKPOINT.json` preservado.
+- Revisão local CodeRabbit após as correções: `0 issues`.
+- Correções de revisão nesta revalidação: estado de rascunho por formulário de catálogo com reset após sucesso e preservação após recusa; fuso explícito `America/Sao_Paulo` para o histórico; fixture E2E lendo duas linhas e serializando instantes ISO UTC; removida declaração `IMMUTABLE` falsa do helper PL/pgSQL que sempre levanta exceção.
+- Validações no snapshot de implementação: frozen install/strict peers PASS; lint PASS; typecheck PASS; unit `93 / 93` PASS; build PASS; `security:braces-disposition` PASS; production audit PASS; secret scan `256` arquivos texto, `0` padrões; client bundle `21` arquivos, `0` identificadores de service-role e `0` padrões de token.
+- O raw `pnpm audit` segue `RAW FAIL`, com exatamente um HIGH `GHSA-vfj7-8cjw-p6xm` no grafo dev-only; o guard continua registrando `RESOLVED_NOT_AFFECTED` por reachability e configuração ESLint. O raw audit não é apresentado como PASS.
+- `docker compose config --quiet` PASS. Docker build/up e `supabase db reset --local` falharam porque o daemon não atende ao named pipe `dockerDesktopLinuxEngine`. Docker Desktop informa que não consegue iniciar; `wsl -d Ubuntu-24.04 -- uname -r` falha em `Wsl/Service/CreateInstance/CreateVm/HCS/ERROR_NOT_SUPPORTED`.
+- Nenhum VHDX em `D:\DockerLive` foi apagado, movido ou reinitializado. O reparo do host requer restaurar WSL/HCS com privilégio administrativo e, se necessário, reiniciar o Windows; essa capacidade não está disponível nesta sessão não elevada.
+- Por esse bloqueio, E2E/Axe, pgTAP e Auth/Data API no HEAD corretivo, migration status, DB lint/advisors, readiness/Auth/Postgres e runtime logs **não foram concluídos no snapshot atual**. Resultados anteriores dessas provas permanecem históricos e não são reutilizados como evidência do candidato atual.
+- Crédito permanece `52 / 515 = 10.10%`; `.engineering/CHECKPOINT.json` não foi alterado; PR `#69` permanece draft e sem merge.
+
+Estado atual: `BLOCKED_FOR_OBJECTIVE_AUDIT` até recuperação do host e execução do HIGH_ASSURANCE L5 completo no HEAD publicado.
