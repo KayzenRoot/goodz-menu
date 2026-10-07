@@ -434,3 +434,84 @@ O stop condition do Work Order **não foi atingido**.
 - Crédito permanece `52 / 515 = 10.10%`; `.engineering/CHECKPOINT.json` não foi alterado; PR `#69` permanece draft e sem merge.
 
 Estado atual: `BLOCKED_FOR_OBJECTIVE_AUDIT` até recuperação do host e execução do HIGH_ASSURANCE L5 completo no HEAD publicado.
+
+
+## GMZ-IMPL-007-CD-001 — OBJECTIVE REVIEW CORRECTION DELTA
+
+Status: `AUTHORIZED_FOR_CORRECTION`
+
+Objective-review implementation HEAD: `5e0712a0084126d39e0b36d9236892715e9c375b`  
+CodeRabbit hosted implementation review: `812e624c-c4cc-48fa-91bf-733d75c92a2a`  
+Production credit: unchanged at `52 / 515 = 10.10%`  
+Merge authority: `NO`
+
+### Confirmed findings
+
+1. **MAJOR / functional correctness — establishment containment**
+   - `private.catalog_scope_grants` currently requires `p_branch_id IS NULL` for an establishment-scoped role.
+   - That contradicts the promoted tenant hierarchy, where an establishment scope contains every branch in that establishment.
+   - Correction: an establishment-scoped catalog role must admit rows whose `establishment_id` matches, whether the row is establishment-level or branch-level.
+   - Negative boundaries remain mandatory: sibling establishment, foreign establishment and foreign tenant stay denied.
+
+2. **MAJOR / security least privilege — settlement helper EXECUTE**
+   - The promoted membership migration grants `USAGE ON SCHEMA private TO authenticated`.
+   - `private.catalog_settle` and `private.catalog_settle_revision` are `SECURITY DEFINER` helpers and were omitted from the explicit function revocation block.
+   - PostgreSQL function EXECUTE defaults must not be relied on here.
+   - Correction: explicitly `REVOKE ALL` on both exact signatures from `PUBLIC, anon, authenticated, service_role`.
+   - Add deterministic privilege proof that `authenticated` cannot execute either helper directly.
+
+3. **MINOR / test integrity — false-negative presentation-control assertion**
+   - `tests/e2e/catalog.spec.ts` queries the text `Salvar apresentação` with `getByLabel`, although it is a button.
+   - Correction: use a semantic button-role locator so the assertion fails if a forbidden presentation control is rendered.
+
+4. **LOW / performance hardening — deferred**
+   - Unbounded overview loading of append-only price history is real scalability debt but is not an acceptance criterion of this slice.
+   - Tracked separately in **Issue #70**. CD-001 MUST NOT expand into that optimization.
+
+### Authorized write set
+
+Runtime / SQL / tests:
+- `supabase/migrations/20261005090100_catalog_authorization.sql`
+- `supabase/migrations/20261005090200_catalog_contracts.sql`
+- `supabase/tests/database/catalog_tenant_authorization.test.sql`
+- `tests/supabase/catalog-authorization.integration.mjs` only if needed for establishment-scope authenticated proof
+- `tests/e2e/catalog.spec.ts`
+
+Governance / evidence:
+- `.engineering/work-orders/GMZ-IMPL-007.md`
+- `.engineering/execution-packs/GMZ-IMPL-007.md`
+- `.engineering/context-locks/GMZ-IMPL-007.json`
+- `.engineering/evidence/GMZ-IMPL-007-EVIDENCE.md`
+- `.engineering/CHECKPOINT.md` proposal only
+
+### Forbidden
+
+- `.engineering/CHECKPOINT.json`
+- `.gef/**`
+- dependency or lockfile changes
+- unrelated UI redesign
+- price-history performance work from Issue #70
+- remote Supabase / production deployment
+- provider integrations
+- inventory / recipes / POS / orders / finance
+- service-role catalog business authority
+- merge, force-push, history rewrite, direct main mutation
+
+### Acceptance proof
+
+- Establishment-scoped catalog principal:
+  - can read a branch-scoped catalog row inside its assigned establishment;
+  - can create/write an admitted branch-scoped row inside its assigned establishment;
+  - cannot read/write sibling-establishment or foreign-tenant rows.
+- Organization- and branch-scoped behavior remains correct.
+- `authenticated` has no EXECUTE privilege on either `private.catalog_settle` helper signature.
+- Public catalog wrappers continue to function with current-user authority.
+- Reader E2E presentation-control negative assertion is semantically real, not vacuous.
+- Focused pgTAP / integration / E2E proofs pass.
+- Complete ELEVATED exact-head L5 is rerun after the correction.
+- Fresh SonarCloud, Socket and CodeRabbit run on the exact final HEAD.
+- Unresolved CRITICAL/HIGH = `0 / 0`.
+- PR remains open/draft and unmerged.
+
+CD-001 STOP CONDITION:
+`GMZ_IMPL_007_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
