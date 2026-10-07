@@ -175,7 +175,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .catalog-button:disabled { cursor: wait; opacity: .7; }
 .catalog-button-secondary { border-color: var(--border-strong); background: var(--surface); color: var(--text-secondary); }
 .catalog-button-secondary:hover:not(:disabled) { background: var(--canvas-deep); }
-.catalog-feedback { margin: 0; min-height: 15px; color: var(--text-muted); font-size: 10px; line-height: 1.5; }
+.catalog-feedback { display: block; margin: 0; min-height: 15px; color: var(--text-muted); font-size: 10px; line-height: 1.5; }
 .catalog-feedback-ok { color: var(--success); }
 .catalog-feedback-invalid { color: var(--warning); }
 .catalog-feedback-failed { color: var(--danger); }
@@ -198,7 +198,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .catalog-confirmation-head { display: grid; gap: 5px; }
 .catalog-confirmation-head h2 { margin: 0; color: var(--text-primary); font-size: 15px; font-weight: 620; letter-spacing: -.4px; }
 .catalog-confirmation-head p { margin: 0; color: var(--text-secondary); font-size: 11px; line-height: 1.65; }
-.catalog-confirmation-ok { margin: 0; padding: 11px 13px; border: 1px solid color-mix(in srgb, var(--success), var(--border-subtle) 58%); border-radius: 13px; background: color-mix(in srgb, var(--success), var(--surface) 94%); color: var(--success-strong); font-size: 11px; line-height: 1.6; }
+.catalog-confirmation-ok { display: block; margin: 0; padding: 11px 13px; border: 1px solid color-mix(in srgb, var(--success), var(--border-subtle) 58%); border-radius: 13px; background: color-mix(in srgb, var(--success), var(--surface) 94%); color: var(--success-strong); font-size: 11px; line-height: 1.6; }
 @media (max-width: 640px) {
   .catalog-console { gap: 21px; }
   .catalog-inline-form { grid-template-columns: minmax(0, 1fr); }

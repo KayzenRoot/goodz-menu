@@ -107,10 +107,9 @@ export async function confirmPrivilegedIdentity(
     const at = nowSeconds();
     if (
       claimsError
-      || !claims
-      || claims.sub !== identityId
-      || claims.aal !== "aal2"
-      || !hasFreshTotpProof(claims.amr, at)
+      || claims?.sub !== identityId
+      || claims?.aal !== "aal2"
+      || !hasFreshTotpProof(claims?.amr, at)
       || !hasFreshPasswordAuthentication(claims, at)
     ) {
       return { ok: false, message: "A confirmação não foi reconhecida como recente. Tente novamente." };

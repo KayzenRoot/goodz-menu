@@ -14,6 +14,73 @@
 --     never updated or deleted, and catalog rows are never hard deleted.
 
 -- ---------------------------------------------------------------------------
+-- 0. Catalog vocabulary
+-- ---------------------------------------------------------------------------
+-- Every catalog status, availability, visibility and audit source is named in exactly one place
+-- below. A column default, a CHECK constraint, an index predicate and a server contract all have
+-- to agree on the spelling; naming the value once means a later change cannot leave one of them
+-- behind, and a reader can find the whole vocabulary in one screen.
+
+CREATE OR REPLACE FUNCTION private.catalog_status_active()
+RETURNS text LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path = ''
+AS $function$ SELECT 'active' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_status_archived()
+RETURNS text LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path = ''
+AS $function$ SELECT 'archived' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_availability_available()
+RETURNS text LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path = ''
+AS $function$ SELECT 'available' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_availability_unavailable()
+RETURNS text LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path = ''
+AS $function$ SELECT 'unavailable' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_visibility_visible()
+RETURNS text LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path = ''
+AS $function$ SELECT 'visible' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_visibility_hidden()
+RETURNS text LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path = ''
+AS $function$ SELECT 'hidden' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_audit_source_contract()
+RETURNS text LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path = ''
+AS $function$ SELECT 'catalog_contract' $function$;
+
+-- A required human label is one that carries at least one character that is not whitespace.
+CREATE OR REPLACE FUNCTION private.catalog_required_text_pattern()
+RETURNS text LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path = ''
+AS $function$ SELECT '[^[:space:]]' $function$;
+
+REVOKE ALL ON FUNCTION
+  private.catalog_status_active(),
+  private.catalog_status_archived(),
+  private.catalog_availability_available(),
+  private.catalog_availability_unavailable(),
+  private.catalog_visibility_visible(),
+  private.catalog_visibility_hidden(),
+  private.catalog_audit_source_contract(),
+  private.catalog_required_text_pattern()
+  FROM PUBLIC, anon, authenticated, service_role;
+
+-- A column default and a CHECK constraint are evaluated with the privileges of the role that writes
+-- the row, so the named vocabulary has to be executable by that role. Each of these returns a
+-- constant and authorizes nothing: the private schema is not exposed through the Data API, and the
+-- catalog tables themselves grant SELECT only, so a client still cannot write a catalog row.
+GRANT EXECUTE ON FUNCTION
+  private.catalog_status_active(),
+  private.catalog_status_archived(),
+  private.catalog_availability_available(),
+  private.catalog_availability_unavailable(),
+  private.catalog_visibility_visible(),
+  private.catalog_visibility_hidden(),
+  private.catalog_audit_source_contract(),
+  private.catalog_required_text_pattern()
+  TO authenticated;
+
+-- ---------------------------------------------------------------------------
 -- 1. Durable audit vocabulary widening
 -- ---------------------------------------------------------------------------
 -- public.audit_events was pinned by single-value CHECK constraints to the GMZ-IMPL-005 synthetic
@@ -108,7 +175,7 @@ ALTER TABLE public.audit_events
       'channel_offer'
     )),
   ADD CONSTRAINT audit_events_source_check
-    CHECK (source IN ('admin_guard', 'catalog_contract')),
+    CHECK (source IN ('admin_guard', private.catalog_audit_source_contract())),
   ADD CONSTRAINT audit_events_metadata_check
     CHECK (
       CASE source
@@ -123,7 +190,7 @@ ALTER TABLE public.audit_events
 ALTER TABLE public.audit_events
   ADD CONSTRAINT audit_events_catalog_authorization_check
     CHECK (
-      source <> 'catalog_contract'
+      source <> private.catalog_audit_source_contract()
       OR (
         outcome = 'allow'
         AND reason_code = 'authorized'
@@ -135,7 +202,7 @@ ALTER TABLE public.audit_events
 
 CREATE INDEX audit_events_organization_target_idx
   ON public.audit_events (organization_id, target_type, target_id, created_at DESC)
-  WHERE source = 'catalog_contract';
+  WHERE source = private.catalog_audit_source_contract();
 
 -- ---------------------------------------------------------------------------
 -- 2. ProductCategory
@@ -150,7 +217,7 @@ CREATE TABLE public.product_categories (
   name text NOT NULL,
   description text,
   display_order integer NOT NULL DEFAULT 0,
-  status text NOT NULL DEFAULT 'active',
+  status text NOT NULL DEFAULT private.catalog_status_active(),
   archived_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT pg_catalog.now(),
   updated_at timestamptz NOT NULL DEFAULT pg_catalog.now(),
@@ -178,15 +245,15 @@ CREATE TABLE public.product_categories (
   CONSTRAINT product_categories_parent_not_self_check
     CHECK (parent_category_id IS DISTINCT FROM id),
   CONSTRAINT product_categories_name_check
-    CHECK (name ~ '[^[:space:]]' AND char_length(name) <= 120),
+    CHECK (name ~ private.catalog_required_text_pattern() AND char_length(name) <= 120),
   CONSTRAINT product_categories_description_check
     CHECK (description IS NULL OR char_length(description) <= 1000),
   CONSTRAINT product_categories_display_order_check
     CHECK (display_order BETWEEN -100000 AND 100000),
   CONSTRAINT product_categories_status_check
-    CHECK (status IN ('active', 'archived')),
+    CHECK (status IN (private.catalog_status_active(), private.catalog_status_archived())),
   CONSTRAINT product_categories_archival_state_check
-    CHECK ((status = 'archived') = (archived_at IS NOT NULL))
+    CHECK ((status = private.catalog_status_archived()) = (archived_at IS NOT NULL))
 );
 
 CREATE INDEX product_categories_tenant_order_idx
@@ -214,7 +281,7 @@ CREATE TABLE public.products (
   category_id uuid,
   name text NOT NULL,
   description text,
-  status text NOT NULL DEFAULT 'active',
+  status text NOT NULL DEFAULT private.catalog_status_active(),
   archived_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT pg_catalog.now(),
   updated_at timestamptz NOT NULL DEFAULT pg_catalog.now(),
@@ -241,13 +308,13 @@ CREATE TABLE public.products (
   CONSTRAINT products_scope_shape_check
     CHECK (branch_id IS NULL OR establishment_id IS NOT NULL),
   CONSTRAINT products_name_check
-    CHECK (name ~ '[^[:space:]]' AND char_length(name) <= 120),
+    CHECK (name ~ private.catalog_required_text_pattern() AND char_length(name) <= 120),
   CONSTRAINT products_description_check
     CHECK (description IS NULL OR char_length(description) <= 1000),
   CONSTRAINT products_status_check
-    CHECK (status IN ('active', 'archived')),
+    CHECK (status IN (private.catalog_status_active(), private.catalog_status_archived())),
   CONSTRAINT products_archival_state_check
-    CHECK ((status = 'archived') = (archived_at IS NOT NULL))
+    CHECK ((status = private.catalog_status_archived()) = (archived_at IS NOT NULL))
 );
 
 CREATE INDEX products_tenant_order_idx
@@ -270,7 +337,7 @@ CREATE TABLE public.product_variants (
   branch_id uuid,
   product_id uuid NOT NULL,
   name text NOT NULL,
-  status text NOT NULL DEFAULT 'active',
+  status text NOT NULL DEFAULT private.catalog_status_active(),
   archived_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT pg_catalog.now(),
   updated_at timestamptz NOT NULL DEFAULT pg_catalog.now(),
@@ -298,11 +365,11 @@ CREATE TABLE public.product_variants (
   CONSTRAINT product_variants_scope_shape_check
     CHECK (branch_id IS NULL OR establishment_id IS NOT NULL),
   CONSTRAINT product_variants_name_check
-    CHECK (name ~ '[^[:space:]]' AND char_length(name) <= 120),
+    CHECK (name ~ private.catalog_required_text_pattern() AND char_length(name) <= 120),
   CONSTRAINT product_variants_status_check
-    CHECK (status IN ('active', 'archived')),
+    CHECK (status IN (private.catalog_status_active(), private.catalog_status_archived())),
   CONSTRAINT product_variants_archival_state_check
-    CHECK ((status = 'archived') = (archived_at IS NOT NULL))
+    CHECK ((status = private.catalog_status_archived()) = (archived_at IS NOT NULL))
 );
 
 CREATE INDEX product_variants_product_order_idx
@@ -318,7 +385,7 @@ CREATE TABLE public.sales_channels (
   channel_key text NOT NULL,
   display_name text NOT NULL,
   description text,
-  status text NOT NULL DEFAULT 'active',
+  status text NOT NULL DEFAULT private.catalog_status_active(),
   archived_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT pg_catalog.now(),
   updated_at timestamptz NOT NULL DEFAULT pg_catalog.now(),
@@ -333,13 +400,13 @@ CREATE TABLE public.sales_channels (
   CONSTRAINT sales_channels_channel_key_check
     CHECK (channel_key ~ '^[a-z][a-z0-9_-]{0,63}$'),
   CONSTRAINT sales_channels_display_name_check
-    CHECK (display_name ~ '[^[:space:]]' AND char_length(display_name) <= 120),
+    CHECK (display_name ~ private.catalog_required_text_pattern() AND char_length(display_name) <= 120),
   CONSTRAINT sales_channels_description_check
     CHECK (description IS NULL OR char_length(description) <= 1000),
   CONSTRAINT sales_channels_status_check
-    CHECK (status IN ('active', 'archived')),
+    CHECK (status IN (private.catalog_status_active(), private.catalog_status_archived())),
   CONSTRAINT sales_channels_archival_state_check
-    CHECK ((status = 'archived') = (archived_at IS NOT NULL))
+    CHECK ((status = private.catalog_status_archived()) = (archived_at IS NOT NULL))
 );
 
 CREATE INDEX sales_channels_tenant_order_idx
@@ -362,9 +429,9 @@ CREATE TABLE public.channel_offers (
   base_price_amount numeric(19,4) NOT NULL,
   base_price_currency text NOT NULL,
   promotional_price_amount numeric(19,4),
-  availability text NOT NULL DEFAULT 'available',
-  visibility text NOT NULL DEFAULT 'visible',
-  status text NOT NULL DEFAULT 'active',
+  availability text NOT NULL DEFAULT private.catalog_availability_available(),
+  visibility text NOT NULL DEFAULT private.catalog_visibility_visible(),
+  status text NOT NULL DEFAULT private.catalog_status_active(),
   archived_at timestamptz,
   price_revision integer NOT NULL DEFAULT 1,
   created_at timestamptz NOT NULL DEFAULT pg_catalog.now(),
@@ -415,13 +482,13 @@ CREATE TABLE public.channel_offers (
       OR (promotional_price_amount >= 0 AND promotional_price_amount < base_price_amount)
     ),
   CONSTRAINT channel_offers_availability_check
-    CHECK (availability IN ('available', 'unavailable')),
+    CHECK (availability IN (private.catalog_availability_available(), private.catalog_availability_unavailable())),
   CONSTRAINT channel_offers_visibility_check
-    CHECK (visibility IN ('visible', 'hidden')),
+    CHECK (visibility IN (private.catalog_visibility_visible(), private.catalog_visibility_hidden())),
   CONSTRAINT channel_offers_status_check
-    CHECK (status IN ('active', 'archived')),
+    CHECK (status IN (private.catalog_status_active(), private.catalog_status_archived())),
   CONSTRAINT channel_offers_archival_state_check
-    CHECK ((status = 'archived') = (archived_at IS NOT NULL)),
+    CHECK ((status = private.catalog_status_archived()) = (archived_at IS NOT NULL)),
   CONSTRAINT channel_offers_price_revision_check
     CHECK (price_revision >= 1)
 );
@@ -458,8 +525,8 @@ CREATE TABLE public.channel_offer_price_history (
   base_price_amount numeric(19,4) NOT NULL,
   base_price_currency text NOT NULL,
   promotional_price_amount numeric(19,4),
-  availability text NOT NULL,
-  visibility text NOT NULL,
+  availability text NOT NULL DEFAULT private.catalog_availability_available(),
+  visibility text NOT NULL DEFAULT private.catalog_visibility_visible(),
   effective_from timestamptz NOT NULL,
   recorded_by_user_id uuid NOT NULL,
   correlation_id uuid NOT NULL,
@@ -491,9 +558,9 @@ CREATE TABLE public.channel_offer_price_history (
       OR (promotional_price_amount >= 0 AND promotional_price_amount < base_price_amount)
     ),
   CONSTRAINT channel_offer_price_history_availability_check
-    CHECK (availability IN ('available', 'unavailable')),
+    CHECK (availability IN (private.catalog_availability_available(), private.catalog_availability_unavailable())),
   CONSTRAINT channel_offer_price_history_visibility_check
-    CHECK (visibility IN ('visible', 'hidden'))
+    CHECK (visibility IN (private.catalog_visibility_visible(), private.catalog_visibility_hidden()))
 );
 
 -- Reconstruction uses effective_from ordering; a row is never rewritten to close its interval.
@@ -603,6 +670,21 @@ CREATE TRIGGER catalog_command_receipts_append_only
 -- 9. Scope containment guards
 -- ---------------------------------------------------------------------------
 
+-- A scope that is not contained is refused with one SQLSTATE and one message shape, so every
+-- containment guard reads the same way.
+CREATE OR REPLACE FUNCTION private.reject_catalog_scope(p_message text)
+RETURNS void
+LANGUAGE plpgsql
+SET search_path = ''
+AS $function$
+BEGIN
+  RAISE EXCEPTION '%', p_message
+    USING ERRCODE = '23514';
+END;
+$function$;
+
+REVOKE ALL ON FUNCTION private.reject_catalog_scope(text) FROM PUBLIC, anon, authenticated, service_role;
+
 CREATE OR REPLACE FUNCTION private.catalog_scope_contains(
   p_parent_organization_id uuid,
   p_parent_establishment_id uuid,
@@ -626,91 +708,95 @@ $function$;
 REVOKE ALL ON FUNCTION private.catalog_scope_contains(uuid, uuid, uuid, uuid, uuid, uuid)
   FROM PUBLIC, anon, authenticated, service_role;
 
+-- A child row is admitted only when the row it hangs from is at least as wide as the child.
+-- A parent that is absent leaves the parent scope unknown, and an unknown scope is not wider than
+-- anything, so the child is refused there too. Every catalog parent is compared the same way.
+CREATE OR REPLACE FUNCTION private.catalog_assert_child_scope(
+  p_parent_organization_id uuid,
+  p_parent_establishment_id uuid,
+  p_parent_branch_id uuid,
+  p_child_organization_id uuid,
+  p_child_establishment_id uuid,
+  p_child_branch_id uuid,
+  p_rejection_message text
+)
+RETURNS void
+LANGUAGE plpgsql
+SET search_path = ''
+AS $function$
+BEGIN
+  IF COALESCE(private.catalog_scope_contains(
+    p_parent_organization_id,
+    p_parent_establishment_id,
+    p_parent_branch_id,
+    p_child_organization_id,
+    p_child_establishment_id,
+    p_child_branch_id
+  ), false) IS NOT TRUE THEN
+    PERFORM private.reject_catalog_scope(p_rejection_message);
+  END IF;
+END;
+$function$;
+
+REVOKE ALL ON FUNCTION private.catalog_assert_child_scope(uuid, uuid, uuid, uuid, uuid, uuid, text)
+  FROM PUBLIC, anon, authenticated, service_role;
+
 CREATE OR REPLACE FUNCTION private.guard_catalog_child_scope()
 RETURNS trigger
 LANGUAGE plpgsql
 SET search_path = ''
 AS $function$
 DECLARE
-  v_allowed boolean;
+  v_parent_organization_id uuid;
+  v_parent_establishment_id uuid;
+  v_parent_branch_id uuid;
+  v_rejection_message text;
 BEGIN
-  IF TG_TABLE_NAME = 'product_variants' THEN
-    SELECT private.catalog_scope_contains(
-        parent_product.organization_id,
-        parent_product.establishment_id,
-        parent_product.branch_id,
-        NEW.organization_id,
-        NEW.establishment_id,
-        NEW.branch_id
-      )
-    INTO v_allowed
+  -- Each branch only locates the parent of the row being written; the containment decision itself is
+  -- taken once below. The offer's parent column is read off the row as jsonb because the other three
+  -- tables this trigger serves have no product_id column to test. A channel offer that names no
+  -- product hangs from a variant instead, and a category with no parent is contained by nothing.
+  IF TG_TABLE_NAME = 'product_variants'
+    OR (TG_TABLE_NAME = 'channel_offers' AND pg_catalog.to_jsonb(NEW) ->> 'product_id' IS NOT NULL) THEN
+    SELECT parent_product.organization_id, parent_product.establishment_id, parent_product.branch_id
+    INTO v_parent_organization_id, v_parent_establishment_id, v_parent_branch_id
     FROM public.products AS parent_product
     WHERE parent_product.organization_id = NEW.organization_id
       AND parent_product.id = NEW.product_id;
 
-    IF v_allowed IS NOT TRUE THEN
-      RAISE EXCEPTION 'Product variant scope must stay inside its canonical product scope.'
-        USING ERRCODE = '23514';
-    END IF;
+    v_rejection_message := CASE TG_TABLE_NAME
+      WHEN 'product_variants' THEN 'Product variant scope must stay inside its canonical product scope.'
+      ELSE 'Channel offer scope must stay inside its canonical product scope.'
+    END;
   ELSIF TG_TABLE_NAME = 'channel_offers' THEN
-    IF NEW.product_id IS NOT NULL THEN
-      SELECT private.catalog_scope_contains(
-          parent_product.organization_id,
-          parent_product.establishment_id,
-          parent_product.branch_id,
-          NEW.organization_id,
-          NEW.establishment_id,
-          NEW.branch_id
-        )
-      INTO v_allowed
-      FROM public.products AS parent_product
-      WHERE parent_product.organization_id = NEW.organization_id
-        AND parent_product.id = NEW.product_id;
+    SELECT parent_variant.organization_id, parent_variant.establishment_id, parent_variant.branch_id
+    INTO v_parent_organization_id, v_parent_establishment_id, v_parent_branch_id
+    FROM public.product_variants AS parent_variant
+    WHERE parent_variant.organization_id = NEW.organization_id
+      AND parent_variant.id = NEW.product_variant_id;
 
-      IF v_allowed IS NOT TRUE THEN
-        RAISE EXCEPTION 'Channel offer scope must stay inside its canonical product scope.'
-          USING ERRCODE = '23514';
-      END IF;
-    ELSE
-      SELECT private.catalog_scope_contains(
-          parent_variant.organization_id,
-          parent_variant.establishment_id,
-          parent_variant.branch_id,
-          NEW.organization_id,
-          NEW.establishment_id,
-          NEW.branch_id
-        )
-      INTO v_allowed
-      FROM public.product_variants AS parent_variant
-      WHERE parent_variant.organization_id = NEW.organization_id
-        AND parent_variant.id = NEW.product_variant_id;
+    v_rejection_message := 'Channel offer scope must stay inside its canonical product variant scope.';
+  ELSIF TG_TABLE_NAME = 'product_categories' AND NEW.parent_category_id IS NOT NULL THEN
+    SELECT parent_category.organization_id, parent_category.establishment_id, parent_category.branch_id
+    INTO v_parent_organization_id, v_parent_establishment_id, v_parent_branch_id
+    FROM public.product_categories AS parent_category
+    WHERE parent_category.organization_id = NEW.organization_id
+      AND parent_category.id = NEW.parent_category_id;
 
-      IF v_allowed IS NOT TRUE THEN
-        RAISE EXCEPTION 'Channel offer scope must stay inside its canonical product variant scope.'
-          USING ERRCODE = '23514';
-      END IF;
-    END IF;
-  ELSIF TG_TABLE_NAME = 'product_categories' THEN
-    IF NEW.parent_category_id IS NOT NULL THEN
-      SELECT private.catalog_scope_contains(
-          parent_category.organization_id,
-          parent_category.establishment_id,
-          parent_category.branch_id,
-          NEW.organization_id,
-          NEW.establishment_id,
-          NEW.branch_id
-        )
-      INTO v_allowed
-      FROM public.product_categories AS parent_category
-      WHERE parent_category.organization_id = NEW.organization_id
-        AND parent_category.id = NEW.parent_category_id;
-
-      IF v_allowed IS NOT TRUE THEN
-        RAISE EXCEPTION 'Category scope must stay inside its parent category scope.'
-          USING ERRCODE = '23514';
-      END IF;
-    END IF;
+    v_rejection_message := 'Category scope must stay inside its parent category scope.';
+  ELSE
+    RETURN NEW;
   END IF;
+
+  PERFORM private.catalog_assert_child_scope(
+    v_parent_organization_id,
+    v_parent_establishment_id,
+    v_parent_branch_id,
+    NEW.organization_id,
+    NEW.establishment_id,
+    NEW.branch_id,
+    v_rejection_message
+  );
 
   RETURN NEW;
 END;

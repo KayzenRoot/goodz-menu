@@ -20,7 +20,6 @@ import {
   updateVariantAction,
   confirmPrivilegedIdentityAction,
   type CatalogActionState,
-  type PrivilegedIdentityActionState,
 } from "@/app/app/catalog/actions";
 import type {
   CatalogAdmittedScope,
@@ -42,6 +41,18 @@ import type {
 
 type Action = (previous: CatalogActionState, formData: FormData) => Promise<CatalogActionState>;
 
+const actionResetTokens = new WeakMap<object, number>();
+let nextActionResetToken = 1;
+
+function actionResetToken(state: CatalogActionState | undefined): string {
+  if (state == null) return "initial";
+  const existing = actionResetTokens.get(state);
+  if (existing !== undefined) return String(existing);
+  const next = nextActionResetToken++;
+  actionResetTokens.set(state, next);
+  return String(next);
+}
+
 /**
  * Whether this session currently carries the confirmation a commercial mutation needs.
  *
@@ -54,14 +65,12 @@ export type CatalogCommercialConfirmation = {
 };
 
 function Feedback({ state, pending, label }: Readonly<{ state: CatalogActionState; pending: boolean; label: string }>) {
+  const message = pending ? "Salvando…" : (state?.message ?? label);
+  const tone = state ? `catalog-feedback-${state.kind}` : "";
   return (
-    <p
-      className={`catalog-feedback ${state ? `catalog-feedback-${state.kind}` : ""}`}
-      role="status"
-      aria-live="polite"
-    >
-      {pending ? "Salvando…" : state ? state.message : label}
-    </p>
+    <output className={`catalog-feedback ${tone}`} aria-live="polite">
+      {message}
+    </output>
   );
 }
 
@@ -88,17 +97,24 @@ function ScopeFields({ scope }: Readonly<{ scope: { organizationId: string; esta
  * held here rather than in the form, so it survives that reset, and the server value is what the field
  * starts from and returns to when the record is re-read from a place the operator did not type.
  */
-function Field({ label, name, defaultValue, type = "text", inputMode, hint, required = true }: Readonly<{
+function Field({ label, name, defaultValue, resetKey, type = "text", inputMode, hint, required = true }: Readonly<{
   label: string;
   name: string;
   defaultValue?: string;
+  resetKey?: CatalogActionState;
   type?: string;
   inputMode?: "text" | "numeric" | "decimal";
   hint?: string;
   required?: boolean;
 }>) {
   const id = useId();
-  const [draft, setDraft] = useState<string | null>(null);
+  const resetToken = actionResetToken(resetKey);
+  const [draft, setDraft] = useState<{ resetToken: string; value: string } | null>(null);
+  const value = draft?.resetToken === resetToken
+    ? draft.value
+    : resetKey?.kind === "ok"
+      ? defaultValue ?? ""
+      : draft?.value ?? defaultValue ?? "";
   return (
     <div className="catalog-field">
       <label htmlFor={id}>{label}</label>
@@ -106,8 +122,8 @@ function Field({ label, name, defaultValue, type = "text", inputMode, hint, requ
         id={id}
         name={name}
         type={type}
-        value={draft ?? defaultValue ?? ""}
-        onChange={(event) => setDraft(event.target.value)}
+        value={value}
+        onChange={(event) => setDraft({ resetToken, value: event.target.value })}
         inputMode={inputMode}
         required={required}
         aria-describedby={hint ? `${id}-hint` : undefined}
@@ -126,26 +142,33 @@ function Field({ label, name, defaultValue, type = "text", inputMode, hint, requ
  * accepted or refused. Keying the element by the current choice remounts it, which marks the default
  * option to the choice that was just made, and the field survives the reset.
  */
-function SelectField({ label, name, options, defaultValue, hint, describedBy }: Readonly<{
+function SelectField({ label, name, options, defaultValue, resetKey, hint, describedBy }: Readonly<{
   label: string;
   name: string;
   options: readonly { value: string; label: string }[];
   defaultValue?: string;
+  resetKey?: CatalogActionState;
   hint?: string;
   describedBy?: string;
 }>) {
   const id = useId();
-  const [draft, setDraft] = useState<string | null>(null);
-  const value = draft ?? defaultValue ?? "";
+  const resetToken = actionResetToken(resetKey);
+  const [draft, setDraft] = useState<{ resetToken: string; value: string } | null>(null);
+  const value = draft?.resetToken === resetToken
+    ? draft.value
+    : resetKey?.kind === "ok"
+      ? defaultValue ?? ""
+      : draft?.value ?? defaultValue ?? "";
+
   return (
     <div className="catalog-field">
       <label htmlFor={id}>{label}</label>
       <select
-        key={value}
+        key={`${id}-${resetToken}`}
         id={id}
         name={name}
         defaultValue={value}
-        onChange={(event) => setDraft(event.target.value)}
+        onChange={(event) => setDraft({ resetToken, value: event.target.value })}
         aria-describedby={describedBy ?? (hint ? `${id}-hint` : undefined)}
       >
         {options.map((option) => (
@@ -174,13 +197,14 @@ const VISIBILITY_OPTIONS = [
  * disclosures repeat those labels again. Without the entity in the name a screen reader announces
  * the same field over and over with nothing to tell the entries apart.
  */
+function admittedScopeLabel(scope: CatalogAdmittedScope): string {
+  if (scope.branchId) return `${scope.organizationName} · filial`;
+  if (scope.establishmentId) return `${scope.organizationName} · estabelecimento`;
+  return scope.organizationName;
+}
+
 function ScopeNotice({ scope }: Readonly<{ scope: CatalogAdmittedScope }>) {
-  const where = scope.branchId
-    ? `${scope.organizationName} · filial`
-    : scope.establishmentId
-      ? `${scope.organizationName} · estabelecimento`
-      : scope.organizationName;
-  return <small className="catalog-scope-note">Novos itens entram em {where}.</small>;
+  return <small className="catalog-scope-note">Novos itens entram em {admittedScopeLabel(scope)}.</small>;
 }
 
 export function CatalogConsole({ overview, search, commercialConfirmation }: Readonly<{
@@ -265,7 +289,6 @@ function CatalogSearch({ defaultValue }: Readonly<{ defaultValue: string }>) {
 }
 
 function CategorySection({ categories, scope }: Readonly<{ categories: CatalogCategoryView[]; scope: CatalogAdmittedScope | null }>) {
-  const [state, action, pending] = useActionState(updateCategoryAction as Action, null);
   return (
     <section className="catalog-section" aria-labelledby="catalog-categories-title">
       <div className="section-heading-row">
@@ -286,18 +309,25 @@ function CategorySection({ categories, scope }: Readonly<{ categories: CatalogCa
               </div>
               <CategoryArchiver categoryId={category.id} archived={category.status === "archived"} />
             </div>
-            <form action={action} className="catalog-inline-form">
-              <HiddenId name="categoryId" value={category.id} />
-              <Field label={`Nome de ${category.name}`} name="name" defaultValue={category.name} />
-              <Field label={`Descrição de ${category.name}`} name="description" defaultValue={category.description ?? ""} required={false} />
-              <Field label={`Ordem de ${category.name}`} name="displayOrder" defaultValue={String(category.displayOrder)} inputMode="numeric" />
-              <button className="catalog-button" type="submit" disabled={pending}>Salvar</button>
-              <Feedback state={state} pending={pending} label="" />
-            </form>
+            <CategoryEditor category={category} />
           </li>
         ))}
       </ul>
     </section>
+  );
+}
+
+function CategoryEditor({ category }: Readonly<{ category: CatalogCategoryView }>) {
+  const [state, action, pending] = useActionState(updateCategoryAction as Action, null);
+  return (
+    <form action={action} className="catalog-inline-form">
+      <HiddenId name="categoryId" value={category.id} />
+      <Field label={`Nome de ${category.name}`} name="name" defaultValue={category.name} resetKey={state} />
+      <Field label={`Descrição de ${category.name}`} name="description" defaultValue={category.description ?? ""} resetKey={state} required={false} />
+      <Field label={`Ordem de ${category.name}`} name="displayOrder" defaultValue={String(category.displayOrder)} resetKey={state} inputMode="numeric" />
+      <button className="catalog-button" type="submit" disabled={pending}>Salvar</button>
+      <Feedback state={state} pending={pending} label="" />
+    </form>
   );
 }
 
@@ -313,9 +343,9 @@ function CategoryCreator({ scope }: Readonly<{ scope: CatalogAdmittedScope }>) {
       <form action={action} className="catalog-form">
         <ScopeFields scope={scope} />
         <ScopeNotice scope={scope} />
-        <Field label="Nome da nova categoria" name="name" />
-        <Field label="Descrição da nova categoria" name="description" required={false} />
-        <Field label="Ordem da nova categoria" name="displayOrder" defaultValue="0" inputMode="numeric" />
+        <Field label="Nome da nova categoria" name="name" resetKey={state} />
+        <Field label="Descrição da nova categoria" name="description" resetKey={state} required={false} />
+        <Field label="Ordem da nova categoria" name="displayOrder" defaultValue="0" resetKey={state} inputMode="numeric" />
         <button className="catalog-button" type="submit" disabled={pending}>Criar categoria</button>
         <Feedback state={state} pending={pending} label="" />
       </form>
@@ -346,7 +376,6 @@ function ProductSection({ products, variants, categories, scope }: Readonly<{
   categories: CatalogCategoryView[];
   scope: CatalogAdmittedScope | null;
 }>) {
-  const [state, action, pending] = useActionState(updateProductAction as Action, null);
   return (
     <section className="catalog-section" aria-labelledby="catalog-products-title">
       <div className="section-heading-row">
@@ -375,18 +404,25 @@ function ProductSection({ products, variants, categories, scope }: Readonly<{
               </div>
               <ProductArchiver productId={product.id} archived={product.status === "archived"} />
             </div>
-            <form action={action} className="catalog-inline-form">
-              <HiddenId name="productId" value={product.id} />
-              <Field label={`Nome de ${product.name}`} name="name" defaultValue={product.name} />
-              <Field label={`Descrição de ${product.name}`} name="description" defaultValue={product.description ?? ""} required={false} />
-              <button className="catalog-button" type="submit" disabled={pending}>Salvar</button>
-              <Feedback state={state} pending={pending} label="" />
-            </form>
+            <ProductEditor product={product} />
             <VariantList variants={variants.filter((variant) => variant.productId === product.id)} />
           </li>
         ))}
       </ul>
     </section>
+  );
+}
+
+function ProductEditor({ product }: Readonly<{ product: CatalogProductView }>) {
+  const [state, action, pending] = useActionState(updateProductAction as Action, null);
+  return (
+    <form action={action} className="catalog-inline-form">
+      <HiddenId name="productId" value={product.id} />
+      <Field label={`Nome de ${product.name}`} name="name" defaultValue={product.name} resetKey={state} />
+      <Field label={`Descrição de ${product.name}`} name="description" defaultValue={product.description ?? ""} resetKey={state} required={false} />
+      <button className="catalog-button" type="submit" disabled={pending}>Salvar</button>
+      <Feedback state={state} pending={pending} label="" />
+    </form>
   );
 }
 
@@ -398,12 +434,13 @@ function ProductCreator({ scope, categories }: Readonly<{ scope: CatalogAdmitted
       <form action={action} className="catalog-form">
         <ScopeFields scope={scope} />
         <ScopeNotice scope={scope} />
-        <Field label="Nome do novo produto" name="name" />
-        <Field label="Descrição do novo produto" name="description" required={false} />
+        <Field label="Nome do novo produto" name="name" resetKey={state} />
+        <Field label="Descrição do novo produto" name="description" resetKey={state} required={false} />
         <SelectField
           label="Categoria do novo produto"
           name="categoryId"
           defaultValue=""
+          resetKey={state}
           options={[
             { value: "", label: "Sem categoria" },
             ...categories.map((category) => ({ value: category.id, label: category.name })),
@@ -443,9 +480,10 @@ function VariantCreator({ scope, products }: Readonly<{ scope: CatalogAdmittedSc
           label="Produto da nova variante"
           name="productId"
           defaultValue={products[0].id}
+          resetKey={state}
           options={products.map((product) => ({ value: product.id, label: product.name }))}
         />
-        <Field label="Nome da nova variante" name="name" />
+        <Field label="Nome da nova variante" name="name" resetKey={state} />
         <button className="catalog-button" type="submit" disabled={pending}>Criar variante</button>
         <Feedback state={state} pending={pending} label="" />
       </form>
@@ -454,7 +492,6 @@ function VariantCreator({ scope, products }: Readonly<{ scope: CatalogAdmittedSc
 }
 
 function VariantList({ variants }: Readonly<{ variants: CatalogVariantView[] }>) {
-  const [state, action, pending] = useActionState(updateVariantAction as Action, null);
   if (variants.length === 0) return null;
 
   return (
@@ -467,19 +504,26 @@ function VariantList({ variants }: Readonly<{ variants: CatalogVariantView[] }>)
               <small>{variant.status === "active" ? "Ativa" : "Arquivada"}</small>
             </div>
           </div>
-          <form action={action} className="catalog-inline-form">
-            <HiddenId name="variantId" value={variant.id} />
-            <Field label={`Nome de ${variant.name}`} name="name" defaultValue={variant.name} />
-            <label className="catalog-checkbox">
-              <input type="checkbox" name="archived" defaultChecked={variant.status === "archived"} />
-              <span>{`Arquivar ${variant.name}`}</span>
-            </label>
-            <button className="catalog-button" type="submit" disabled={pending}>Salvar variante</button>
-            <Feedback state={state} pending={pending} label="" />
-          </form>
+          <VariantEditor variant={variant} />
         </li>
       ))}
     </ul>
+  );
+}
+
+function VariantEditor({ variant }: Readonly<{ variant: CatalogVariantView }>) {
+  const [state, action, pending] = useActionState(updateVariantAction as Action, null);
+  return (
+    <form action={action} className="catalog-inline-form">
+      <HiddenId name="variantId" value={variant.id} />
+      <Field label={`Nome de ${variant.name}`} name="name" defaultValue={variant.name} resetKey={state} />
+      <label className="catalog-checkbox">
+        <input type="checkbox" name="archived" defaultChecked={variant.status === "archived"} />
+        <span>{`Arquivar ${variant.name}`}</span>
+      </label>
+      <button className="catalog-button" type="submit" disabled={pending}>Salvar variante</button>
+      <Feedback state={state} pending={pending} label="" />
+    </form>
   );
 }
 
@@ -519,9 +563,9 @@ function ChannelCreator({ scope }: Readonly<{ scope: CatalogAdmittedScope }>) {
       <form action={action} className="catalog-form">
         <ScopeFields scope={scope} />
         <ScopeNotice scope={scope} />
-        <Field label="Chave do novo canal" name="channelKey" hint="Identificador estável, sem acentos ou espaços." />
-        <Field label="Nome exibido do novo canal" name="displayName" />
-        <Field label="Descrição do novo canal" name="description" required={false} />
+        <Field label="Chave do novo canal" name="channelKey" resetKey={state} hint="Identificador estável, sem acentos ou espaços." />
+        <Field label="Nome exibido do novo canal" name="displayName" resetKey={state} />
+        <Field label="Descrição do novo canal" name="description" resetKey={state} required={false} />
         <button className="catalog-button" type="submit" disabled={pending}>Criar canal</button>
         <Feedback state={state} pending={pending} label="" />
       </form>
@@ -534,8 +578,8 @@ function ChannelEditor({ channel }: Readonly<{ channel: CatalogChannelView }>) {
   return (
     <form action={action} className="catalog-inline-form">
       <HiddenId name="channelId" value={channel.id} />
-      <Field label={`Nome exibido de ${channel.displayName}`} name="displayName" defaultValue={channel.displayName} />
-      <Field label={`Descrição de ${channel.displayName}`} name="description" defaultValue={channel.description ?? ""} required={false} />
+      <Field label={`Nome exibido de ${channel.displayName}`} name="displayName" defaultValue={channel.displayName} resetKey={state} />
+      <Field label={`Descrição de ${channel.displayName}`} name="description" defaultValue={channel.description ?? ""} resetKey={state} required={false} />
       <button className="catalog-button" type="submit" disabled={pending}>Salvar canal</button>
       <Feedback state={state} pending={pending} label="" />
     </form>
@@ -555,15 +599,15 @@ function ChannelEditor({ channel }: Readonly<{ channel: CatalogChannelView }>) {
  */
 function CommercialConfirmation({ confirmation }: Readonly<{ confirmation: CatalogCommercialConfirmation }>) {
   const [state, action, pending] =
-    useActionState<PrivilegedIdentityActionState, FormData>(confirmPrivilegedIdentityAction, null);
+    useActionState<CatalogActionState, FormData>(confirmPrivilegedIdentityAction, null);
   const passwordId = useId();
   const codeId = useId();
 
   if (confirmation.confirmed) {
     return (
-      <p className="catalog-confirmation catalog-confirmation-ok" role="status">
+      <output className="catalog-confirmation catalog-confirmation-ok">
         Identidade confirmada nesta sessão: preço, disponibilidade e visibilidade podem ser alterados.
-      </p>
+      </output>
     );
   }
 
@@ -670,6 +714,7 @@ function OfferCreator({ scope, products, variants, channels }: Readonly<{
           label="Canal da nova oferta"
           name="salesChannelId"
           defaultValue={channels[0]?.id ?? ""}
+          resetKey={state}
           options={channels.map((channel) => ({ value: channel.id, label: channel.displayName }))}
         />
         {/* The two target fields share one hint because the rule is about the pair: an offer names a
@@ -678,6 +723,7 @@ function OfferCreator({ scope, products, variants, channels }: Readonly<{
           label="Produto da nova oferta"
           name="productId"
           defaultValue=""
+          resetKey={state}
           describedBy="catalog-offer-target-hint"
           // An offer can name a variant instead of a product, so the product has to be clearable.
           options={[
@@ -690,15 +736,16 @@ function OfferCreator({ scope, products, variants, channels }: Readonly<{
           label="Variante da nova oferta"
           name="productVariantId"
           defaultValue=""
+          resetKey={state}
           describedBy="catalog-offer-target-hint"
           options={[
             { value: "", label: "Nenhuma variante" },
             ...variants.map((variant) => ({ value: variant.id, label: variant.name })),
           ]}
         />
-        <Field label="Preço base da nova oferta" name="basePrice" inputMode="decimal" hint="Valor exato, com até 4 casas decimais." />
-        <Field label="Moeda da nova oferta" name="currency" defaultValue="BRL" />
-        <Field label="Preço promocional da nova oferta" name="promotionalPrice" required={false} inputMode="decimal" hint="Deixe vazio para não aplicar promoção." />
+        <Field label="Preço base da nova oferta" name="basePrice" resetKey={state} inputMode="decimal" hint="Valor exato, com até 4 casas decimais." />
+        <Field label="Moeda da nova oferta" name="currency" defaultValue="BRL" resetKey={state} />
+        <Field label="Preço promocional da nova oferta" name="promotionalPrice" resetKey={state} required={false} inputMode="decimal" hint="Deixe vazio para não aplicar promoção." />
         <button className="catalog-button" type="submit" disabled={pending}>Criar oferta</button>
         <Feedback state={state} pending={pending} label="" />
       </form>
@@ -737,8 +784,8 @@ function OfferEditor({ offer, timeline, canWrite, canManagePrice, canManageAvail
       {canManagePrice ? (
         <form action={priceAction} className="catalog-inline-form">
           <HiddenId name="offerId" value={offer.id} />
-          <Field label={`Preço base de ${label}`} name="basePrice" defaultValue={offer.basePrice} inputMode="decimal" />
-          <Field label={`Preço promocional de ${label}`} name="promotionalPrice" defaultValue={offer.promotionalPrice ?? ""} required={false} inputMode="decimal" />
+          <Field label={`Preço base de ${label}`} name="basePrice" defaultValue={offer.basePrice} resetKey={priceState} inputMode="decimal" />
+          <Field label={`Preço promocional de ${label}`} name="promotionalPrice" defaultValue={offer.promotionalPrice ?? ""} resetKey={priceState} required={false} inputMode="decimal" />
           <button className="catalog-button" type="submit" disabled={pricing}>Atualizar preços</button>
           <Feedback state={priceState} pending={pricing} label="" />
         </form>
@@ -747,8 +794,8 @@ function OfferEditor({ offer, timeline, canWrite, canManagePrice, canManageAvail
       {canWrite ? (
         <form action={presentationAction} className="catalog-inline-form">
           <HiddenId name="offerId" value={offer.id} />
-          <Field label={`Título no canal de ${label}`} name="title" defaultValue={offer.title ?? ""} required={false} />
-          <Field label={`Descrição no canal de ${label}`} name="description" defaultValue={offer.description ?? ""} required={false} />
+          <Field label={`Título no canal de ${label}`} name="title" defaultValue={offer.title ?? ""} resetKey={presentationState} required={false} />
+          <Field label={`Descrição no canal de ${label}`} name="description" defaultValue={offer.description ?? ""} resetKey={presentationState} required={false} />
           <button className="catalog-button" type="submit" disabled={presentationPending}>Salvar apresentação</button>
           <Feedback state={presentationState} pending={presentationPending} label="" />
         </form>
@@ -758,14 +805,14 @@ function OfferEditor({ offer, timeline, canWrite, canManagePrice, canManageAvail
         <>
           <form action={availabilityAction} className="catalog-inline-form">
             <HiddenId name="offerId" value={offer.id} />
-            <SelectField label={`Disponibilidade de ${label}`} name="availability" options={AVAILABILITY_OPTIONS} defaultValue={offer.availability} />
+            <SelectField label={`Disponibilidade de ${label}`} name="availability" options={AVAILABILITY_OPTIONS} defaultValue={offer.availability} resetKey={availabilityState} />
             <button className="catalog-button" type="submit" disabled={availabilityPending}>Atualizar disponibilidade</button>
             <Feedback state={availabilityState} pending={availabilityPending} label="" />
           </form>
 
           <form action={visibilityAction} className="catalog-inline-form">
             <HiddenId name="offerId" value={offer.id} />
-            <SelectField label={`Visibilidade de ${label}`} name="visibility" options={VISIBILITY_OPTIONS} defaultValue={offer.visibility} />
+            <SelectField label={`Visibilidade de ${label}`} name="visibility" options={VISIBILITY_OPTIONS} defaultValue={offer.visibility} resetKey={visibilityState} />
             <button className="catalog-button" type="submit" disabled={visibilityPending}>Atualizar visibilidade</button>
             <Feedback state={visibilityState} pending={visibilityPending} label="" />
           </form>
@@ -781,7 +828,10 @@ function PriceTimeline({ entries, label }: Readonly<{ entries: CatalogTimelineEn
   return (
     <details className="catalog-disclosure">
       <summary>{`Histórico de preços de ${label} (${entries.length})`}</summary>
-      <div className="catalog-table-scroll" tabIndex={0} role="region" aria-label={`Histórico de preços de ${label}`}>
+      {/* The timeline scrolls sideways on a narrow viewport, and a scroll container that cannot take
+          focus cannot be reached with a keyboard. The section carries the landmark natively and the
+          tab stop is the price of that reachability. */}
+      <section className="catalog-table-scroll" tabIndex={0} aria-label={`Histórico de preços de ${label}`}>
         <table className="catalog-table">
           <caption className="sr-only">{`Histórico de preços de ${label}`}</caption>
           <thead>
@@ -807,13 +857,13 @@ function PriceTimeline({ entries, label }: Readonly<{ entries: CatalogTimelineEn
                 <td>{entry.promotionalPrice ?? "—"}</td>
                 <td>{entry.availability === "available" ? "Disponível" : "Indisponível"}</td>
                 <td>{entry.visibility === "visible" ? "Visível" : "Oculta"}</td>
-                <td>{new Date(entry.effectiveFrom).toLocaleString("pt-BR")}</td>
-                <td>{entry.effectiveTo ? new Date(entry.effectiveTo).toLocaleString("pt-BR") : "atual"}</td>
+                <td>{new Date(entry.effectiveFrom).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}</td>
+                <td>{entry.effectiveTo ? new Date(entry.effectiveTo).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "atual"}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
+      </section>
     </details>
   );
 }

@@ -6,15 +6,26 @@ import { createHmac } from "node:crypto";
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
+/**
+ * Base32 padding is always trailing, so it is walked off by index rather than matched with `/=+$/`.
+ * That pattern restarts at every character of a run of `=` and is therefore super-linear in the
+ * length of the run, which is exactly the input a hostile or malformed fixture secret would supply.
+ */
+function stripTrailingPadding(secret: string): string {
+  let end = secret.length;
+  while (end > 0 && secret[end - 1] === "=") end -= 1;
+  return secret.slice(0, end).toUpperCase();
+}
+
 function decodeBase32(secret: string): Buffer {
-  const normalized = secret.replace(/=+$/g, "").toUpperCase();
+  const normalized = stripTrailingPadding(secret);
   let bits = "";
   for (const character of normalized) {
     const value = ALPHABET.indexOf(character);
     if (value < 0) throw new Error("The local TOTP fixture is unavailable.");
     bits += value.toString(2).padStart(5, "0");
   }
-  const bytes = bits.match(/.{8}/g)?.map((part) => parseInt(part, 2)) ?? [];
+  const bytes = bits.match(/.{8}/g)?.map((part) => Number.parseInt(part, 2)) ?? [];
   return Buffer.from(bytes);
 }
 

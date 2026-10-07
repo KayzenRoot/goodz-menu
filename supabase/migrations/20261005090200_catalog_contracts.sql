@@ -17,6 +17,439 @@
 -- the only mutation path available to an ordinary authenticated client.
 
 -- ---------------------------------------------------------------------------
+-- 0. Catalog vocabulary and shared refusals
+-- ---------------------------------------------------------------------------
+-- The contracts below name the same capability, resource kind, persisted field and refusal shape
+-- many times over. Each of them is written once here and referenced by name afterwards, so a
+-- capability cannot be authorized under one spelling and audited under another, and a reader can
+-- see the entire catalog vocabulary without reading every contract.
+
+CREATE OR REPLACE FUNCTION private.catalog_permission_read()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'catalog.read' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_permission_write()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'catalog.write' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_permission_price()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'catalog.price.manage' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_permission_availability()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'catalog.availability.manage' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_target_category()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'product_category' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_target_product()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'product' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_target_variant()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'product_variant' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_target_channel()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'sales_channel' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_target_offer()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'channel_offer' $function$;
+
+-- The names the durable audit metadata reports as changed. These are persisted column names, and
+-- naming them here keeps the audit metadata speaking the same language as the table it describes.
+CREATE OR REPLACE FUNCTION private.catalog_field_name()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'name' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_field_description()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'description' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_field_display_order()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'display_order' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_field_title()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'title' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_field_display_name()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'display_name' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_field_status()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'status' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_field_availability()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'availability' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_field_visibility()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'visibility' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_field_correlation_id()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'correlation_id' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_field_base_price_amount()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'base_price_amount' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_field_promotional_price_amount()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'promotional_price_amount' $function$;
+
+-- The previous and next value of a multi-field change are rendered into one audit string, so they
+-- are joined by a separator that cannot occur inside a catalog label or a decimal amount.
+CREATE OR REPLACE FUNCTION private.catalog_state_separator()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT '|' $function$;
+
+-- Keys of the caller's own verified JWT, named so the step-up proof reads the same way everywhere.
+CREATE OR REPLACE FUNCTION private.catalog_claim_amr()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'amr' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_claim_timestamp()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'timestamp' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_claim_method()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'method' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_authenticator_totp()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'totp' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_authenticator_password()
+RETURNS text LANGUAGE sql IMMUTABLE SET search_path = ''
+AS $function$ SELECT 'password' $function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_assert_correlation(p_correlation_id uuid)
+RETURNS void
+LANGUAGE plpgsql
+IMMUTABLE
+SET search_path = ''
+AS $function$
+BEGIN
+  PERFORM private.catalog_assert_input(
+    private.catalog_field_correlation_id(),
+    p_correlation_id IS NOT NULL
+  );
+END;
+$function$;
+
+-- A required human label is one that carries at least one character that is not whitespace.
+CREATE OR REPLACE FUNCTION private.catalog_assert_label(p_field text, p_value text)
+RETURNS void
+LANGUAGE plpgsql
+IMMUTABLE
+SET search_path = ''
+AS $function$
+BEGIN
+  PERFORM private.catalog_assert_input(
+    p_field,
+    p_value IS NOT NULL
+      AND p_value ~ private.catalog_required_text_pattern()
+      AND char_length(p_value) BETWEEN 1 AND 120
+  );
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_assert_description(p_description text)
+RETURNS void
+LANGUAGE plpgsql
+IMMUTABLE
+SET search_path = ''
+AS $function$
+BEGIN
+  PERFORM private.catalog_assert_input(
+    private.catalog_field_description(),
+    p_description IS NULL OR char_length(p_description) <= 1000
+  );
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_assert_display_order(p_display_order integer)
+RETURNS void
+LANGUAGE plpgsql
+IMMUTABLE
+SET search_path = ''
+AS $function$
+BEGIN
+  PERFORM private.catalog_assert_input(
+    private.catalog_field_display_order(),
+    p_display_order BETWEEN -100000 AND 100000
+  );
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_assert_title(p_title text)
+RETURNS void
+LANGUAGE plpgsql
+IMMUTABLE
+SET search_path = ''
+AS $function$
+BEGIN
+  PERFORM private.catalog_assert_input(
+    private.catalog_field_title(),
+    p_title IS NULL OR char_length(p_title) BETWEEN 1 AND 120
+  );
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION private.catalog_assert_display_name(p_display_name text)
+RETURNS void
+LANGUAGE plpgsql
+IMMUTABLE
+SET search_path = ''
+AS $function$
+BEGIN
+  PERFORM private.catalog_assert_input(
+    private.catalog_field_display_name(),
+    p_display_name IS NOT NULL
+      AND p_display_name ~ private.catalog_required_text_pattern()
+      AND char_length(p_display_name) BETWEEN 1 AND 120
+  );
+END;
+$function$;
+
+-- A base price is never negative, and a promotional price is only ever a strict reduction of it.
+CREATE OR REPLACE FUNCTION private.catalog_assert_price(
+  p_base_price_amount numeric,
+  p_promotional_price_amount numeric
+)
+RETURNS void
+LANGUAGE plpgsql
+IMMUTABLE
+SET search_path = ''
+AS $function$
+BEGIN
+  PERFORM private.catalog_assert_input(
+    private.catalog_field_base_price_amount(),
+    p_base_price_amount IS NOT NULL AND p_base_price_amount >= 0
+  );
+  PERFORM private.catalog_assert_input(
+    private.catalog_field_promotional_price_amount(),
+    p_promotional_price_amount IS NULL
+      OR (p_promotional_price_amount >= 0 AND p_promotional_price_amount < p_base_price_amount)
+  );
+END;
+$function$;
+
+-- A step-up proof is one entry of the caller's own authentication-method list: the named method,
+-- with a timestamp inside the freshness window. The claims are the ones PostgREST already verified.
+CREATE OR REPLACE FUNCTION private.catalog_amr_is_fresh(
+  p_amr jsonb,
+  p_method text,
+  p_window_seconds integer
+)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SET search_path = ''
+AS $function$
+  SELECT EXISTS (
+    SELECT 1
+    FROM pg_catalog.jsonb_array_elements(
+      CASE
+        WHEN pg_catalog.jsonb_typeof(p_amr) = 'array' THEN p_amr
+        ELSE '[]'::jsonb
+      END
+    ) AS entry
+    WHERE entry ->> private.catalog_claim_method() = p_method
+      AND entry ->> private.catalog_claim_timestamp() ~ '^[0-9]{1,19}$'
+      AND (entry ->> private.catalog_claim_timestamp())::bigint
+        >= pg_catalog.floor(EXTRACT(epoch FROM pg_catalog.now()))::bigint - p_window_seconds
+      AND (entry ->> private.catalog_claim_timestamp())::bigint
+        <= pg_catalog.floor(EXTRACT(epoch FROM pg_catalog.now()))::bigint + 1
+  );
+$function$;
+
+REVOKE ALL ON FUNCTION
+  private.catalog_permission_read(),
+  private.catalog_permission_write(),
+  private.catalog_permission_price(),
+  private.catalog_permission_availability(),
+  private.catalog_target_category(),
+  private.catalog_target_product(),
+  private.catalog_target_variant(),
+  private.catalog_target_channel(),
+  private.catalog_target_offer(),
+  private.catalog_field_name(),
+  private.catalog_field_description(),
+  private.catalog_field_display_order(),
+  private.catalog_field_title(),
+  private.catalog_field_display_name(),
+  private.catalog_field_status(),
+  private.catalog_field_availability(),
+  private.catalog_field_visibility(),
+  private.catalog_field_correlation_id(),
+  private.catalog_field_base_price_amount(),
+  private.catalog_field_promotional_price_amount(),
+  private.catalog_state_separator(),
+  private.catalog_claim_amr(),
+  private.catalog_claim_timestamp(),
+  private.catalog_claim_method(),
+  private.catalog_authenticator_totp(),
+  private.catalog_authenticator_password(),
+  private.catalog_assert_correlation(uuid),
+  private.catalog_assert_label(text, text),
+  private.catalog_assert_description(text),
+  private.catalog_assert_display_order(integer),
+  private.catalog_assert_title(text),
+  private.catalog_assert_display_name(text),
+  private.catalog_assert_price(numeric, numeric),
+  private.catalog_amr_is_fresh(jsonb, text, integer)
+  FROM PUBLIC, anon, authenticated, service_role;
+
+-- ---------------------------------------------------------------------------
+-- 0a. Row locks
+-- ---------------------------------------------------------------------------
+-- Every mutation of an existing row reads it under a row lock before it decides anything, so a
+-- concurrent repricing cannot interleave with a decision taken from the state before it, and a row
+-- the session cannot see is refused as one rather than reported as absent.
+
+CREATE OR REPLACE FUNCTION private.catalog_lock_offer(p_offer_id uuid)
+RETURNS public.channel_offers
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $function$
+DECLARE
+  v_offer public.channel_offers;
+BEGIN
+  SELECT * INTO v_offer
+  FROM public.channel_offers
+  WHERE id = p_offer_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'The requested channel offer is not available to the current session.'
+      USING ERRCODE = '42501';
+  END IF;
+
+  RETURN v_offer;
+END;
+$function$;
+
+REVOKE ALL ON FUNCTION private.catalog_lock_offer(uuid)
+  FROM PUBLIC, anon, authenticated, service_role;
+
+
+CREATE OR REPLACE FUNCTION private.catalog_lock_category(p_category_id uuid)
+RETURNS public.product_categories
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $function$
+DECLARE
+  v_locked public.product_categories;
+BEGIN
+  SELECT * INTO v_locked
+  FROM public.product_categories
+  WHERE id = p_category_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'The requested category is not available to the current session.'
+      USING ERRCODE = '42501';
+  END IF;
+
+  RETURN v_locked;
+END;
+$function$;
+
+REVOKE ALL ON FUNCTION private.catalog_lock_category(uuid)
+  FROM PUBLIC, anon, authenticated, service_role;
+
+CREATE OR REPLACE FUNCTION private.catalog_lock_product(p_product_id uuid)
+RETURNS public.products
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $function$
+DECLARE
+  v_locked public.products;
+BEGIN
+  SELECT * INTO v_locked
+  FROM public.products
+  WHERE id = p_product_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'The requested product is not available to the current session.'
+      USING ERRCODE = '42501';
+  END IF;
+
+  RETURN v_locked;
+END;
+$function$;
+
+REVOKE ALL ON FUNCTION private.catalog_lock_product(uuid)
+  FROM PUBLIC, anon, authenticated, service_role;
+
+CREATE OR REPLACE FUNCTION private.catalog_lock_variant(p_variant_id uuid)
+RETURNS public.product_variants
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $function$
+DECLARE
+  v_locked public.product_variants;
+BEGIN
+  SELECT * INTO v_locked
+  FROM public.product_variants
+  WHERE id = p_variant_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'The requested variant is not available to the current session.'
+      USING ERRCODE = '42501';
+  END IF;
+
+  RETURN v_locked;
+END;
+$function$;
+
+REVOKE ALL ON FUNCTION private.catalog_lock_variant(uuid)
+  FROM PUBLIC, anon, authenticated, service_role;
+
+CREATE OR REPLACE FUNCTION private.catalog_lock_sales_channel(p_channel_id uuid)
+RETURNS public.sales_channels
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $function$
+DECLARE
+  v_locked public.sales_channels;
+BEGIN
+  SELECT * INTO v_locked
+  FROM public.sales_channels
+  WHERE id = p_channel_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'The requested sales channel is not available to the current session.'
+      USING ERRCODE = '42501';
+  END IF;
+
+  RETURN v_locked;
+END;
+$function$;
+
+REVOKE ALL ON FUNCTION private.catalog_lock_sales_channel(uuid)
+  FROM PUBLIC, anon, authenticated, service_role;
+
+-- ---------------------------------------------------------------------------
 -- 1. Contract helpers
 -- ---------------------------------------------------------------------------
 
@@ -102,43 +535,27 @@ SECURITY DEFINER
 SET search_path = ''
 AS $function$
 DECLARE
-  v_now bigint := pg_catalog.floor(EXTRACT(epoch FROM pg_catalog.now()))::bigint;
   v_claims jsonb := (SELECT auth.jwt());
+  v_window_seconds integer := 300;
 BEGIN
   IF v_claims IS NULL OR (v_claims ->> 'aal') IS DISTINCT FROM 'aal2' THEN
     RAISE EXCEPTION 'A second authentication factor is required for this catalog operation.'
       USING ERRCODE = '42501';
   END IF;
 
-  IF NOT EXISTS (
-    SELECT 1
-    FROM pg_catalog.jsonb_array_elements(
-      CASE
-        WHEN pg_catalog.jsonb_typeof(v_claims -> 'amr') = 'array' THEN v_claims -> 'amr'
-        ELSE '[]'::jsonb
-      END
-    ) AS entry
-    WHERE entry ->> 'method' = 'totp'
-      AND entry ->> 'timestamp' ~ '^[0-9]{1,19}$'
-      AND (entry ->> 'timestamp')::bigint >= v_now - 300
-      AND (entry ->> 'timestamp')::bigint <= v_now + 1
+  IF NOT private.catalog_amr_is_fresh(
+    v_claims -> private.catalog_claim_amr(),
+    private.catalog_authenticator_totp(),
+    v_window_seconds
   ) THEN
     RAISE EXCEPTION 'A recent two-step verification is required for this catalog operation.'
       USING ERRCODE = '42501';
   END IF;
 
-  IF NOT EXISTS (
-    SELECT 1
-    FROM pg_catalog.jsonb_array_elements(
-      CASE
-        WHEN pg_catalog.jsonb_typeof(v_claims -> 'amr') = 'array' THEN v_claims -> 'amr'
-        ELSE '[]'::jsonb
-      END
-    ) AS entry
-    WHERE entry ->> 'method' = 'password'
-      AND entry ->> 'timestamp' ~ '^[0-9]{1,19}$'
-      AND (entry ->> 'timestamp')::bigint >= v_now - 300
-      AND (entry ->> 'timestamp')::bigint <= v_now + 1
+  IF NOT private.catalog_amr_is_fresh(
+    v_claims -> private.catalog_claim_amr(),
+    private.catalog_authenticator_password(),
+    v_window_seconds
   ) THEN
     RAISE EXCEPTION 'A recent password reauthentication is required for this catalog operation.'
       USING ERRCODE = '42501';
@@ -219,7 +636,7 @@ BEGIN
     'allow',
     'authorized',
     p_correlation_id,
-    'catalog_contract',
+    private.catalog_audit_source_contract(),
     p_metadata
   )
   RETURNING id INTO v_audit_event_id;
@@ -277,7 +694,10 @@ CREATE OR REPLACE FUNCTION private.catalog_replay(
   p_organization_id uuid,
   p_actor_user_id uuid,
   p_idempotency_key uuid,
-  p_correlation_id uuid
+  p_correlation_id uuid,
+  p_expected_actions text[],
+  p_expected_target_type text,
+  p_expected_target_id uuid
 )
 RETURNS jsonb
 LANGUAGE plpgsql
@@ -307,10 +727,21 @@ BEGIN
       USING ERRCODE = '42501';
   END IF;
 
+  IF p_expected_actions IS NULL
+    OR pg_catalog.cardinality(p_expected_actions) = 0
+    OR p_expected_target_type IS NULL
+    OR NOT (v_receipt.action = ANY(p_expected_actions))
+    OR v_receipt.target_type IS DISTINCT FROM p_expected_target_type
+    OR (p_expected_target_id IS NOT NULL AND v_receipt.target_id IS DISTINCT FROM p_expected_target_id)
+  THEN
+    RAISE EXCEPTION 'The idempotency key was already used for a different command.'
+      USING ERRCODE = '22023';
+  END IF;
+
   RETURN pg_catalog.jsonb_build_object(
     'action', v_receipt.action,
     'audit_event_id', v_receipt.audit_event_id,
-    'correlation_id', v_receipt.correlation_id,
+    private.catalog_field_correlation_id(), v_receipt.correlation_id,
     'price_revision', v_receipt.resulting_price_revision,
     'replayed', true,
     'target_id', v_receipt.target_id,
@@ -335,12 +766,156 @@ AS $function$
   SELECT pg_catalog.jsonb_build_object(
     'action', p_action,
     'audit_event_id', p_audit_event_id,
-    'correlation_id', p_correlation_id,
+    private.catalog_field_correlation_id(), p_correlation_id,
     'price_revision', p_price_revision,
     'replayed', false,
     'target_id', p_target_id,
     'target_type', p_target_type
   );
+$function$;
+
+-- A contract cannot proceed without a caller it can attribute the change to and a request it can
+-- correlate, and it needs both or neither, so the two facts are established by one admission step.
+CREATE OR REPLACE FUNCTION private.catalog_admit_session(p_correlation_id uuid)
+RETURNS uuid
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $function$
+DECLARE
+  v_actor_user_id uuid;
+BEGIN
+  v_actor_user_id := private.catalog_require_actor();
+  PERFORM private.catalog_assert_correlation(p_correlation_id);
+  RETURN v_actor_user_id;
+END;
+$function$;
+
+-- Every admitted catalog command ends the same way: the audit event that justifies it, the
+-- receipt that turns a repeated submission into a replay, and the result the caller receives.
+-- Spelling that spine out once keeps each contract about the commercial transition it performs,
+-- which is the part that differs, instead of about bookkeeping that is identical by construction.
+CREATE OR REPLACE FUNCTION private.catalog_settle(
+  p_action text,
+  p_target_type text,
+  p_target_id uuid,
+  p_organization_id uuid,
+  p_establishment_id uuid,
+  p_branch_id uuid,
+  p_actor_user_id uuid,
+  p_correlation_id uuid,
+  p_idempotency_key uuid,
+  p_price_revision integer,
+  p_metadata jsonb
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $function$
+DECLARE
+  v_audit_event_id uuid;
+BEGIN
+  v_audit_event_id := private.catalog_append_audit(
+    p_action, p_target_type, p_target_id,
+    p_organization_id, p_establishment_id, p_branch_id,
+    p_actor_user_id, p_correlation_id, p_metadata
+  );
+
+  PERFORM private.catalog_record_receipt(
+    p_organization_id, p_idempotency_key, p_actor_user_id, p_correlation_id, v_audit_event_id,
+    p_action, p_target_type, p_target_id, p_price_revision
+  );
+
+  RETURN private.catalog_command_result(
+    p_action, p_target_type, p_target_id, p_price_revision, v_audit_event_id, p_correlation_id
+  );
+END;
+$function$;
+
+-- A commercial change is not settled by its audit event alone: it also has to leave the revision
+-- behind. The revision is written after the audit event exists because the history row is what points
+-- back at it, and the receipt is written last so a replay can never stand in front of the truth it
+-- replays.
+CREATE OR REPLACE FUNCTION private.catalog_settle_revision(
+  p_offer_id uuid,
+  p_revision integer,
+  p_audit_event_id uuid,
+  p_organization_id uuid,
+  p_actor_user_id uuid,
+  p_correlation_id uuid,
+  p_idempotency_key uuid,
+  p_action text,
+  p_target_type text,
+  p_base_price_amount numeric,
+  p_base_price_currency text,
+  p_promotional_price_amount numeric,
+  p_availability text,
+  p_visibility text
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $function$
+BEGIN
+  INSERT INTO public.channel_offer_price_history (
+    organization_id, channel_offer_id, price_revision,
+    base_price_amount, base_price_currency, promotional_price_amount,
+    availability, visibility, effective_from,
+    recorded_by_user_id, correlation_id, audit_event_id
+  )
+  VALUES (
+    p_organization_id, p_offer_id, p_revision,
+    p_base_price_amount, p_base_price_currency, p_promotional_price_amount,
+    p_availability, p_visibility, pg_catalog.now(),
+    p_actor_user_id, p_correlation_id, p_audit_event_id
+  );
+
+  PERFORM private.catalog_record_receipt(
+    p_organization_id, p_idempotency_key, p_actor_user_id, p_correlation_id, p_audit_event_id,
+    p_action, p_target_type, p_offer_id, p_revision
+  );
+
+  RETURN private.catalog_command_result(
+    p_action, p_target_type, p_offer_id, p_revision, p_audit_event_id, p_correlation_id
+  );
+END;
+$function$;
+
+-- A contract that acts on a row it did not create resolves its scope from that stored row rather
+-- than from anything the caller supplied, which is what stops a caller from widening the scope it
+-- is authorized for. Authorizing that scope and recognising a submission it has already applied are
+-- one decision about the caller, so they are taken together here. The row arrives as jsonb because
+-- the five catalog tables do not share a row type, and a table that has no establishment or branch
+-- column simply has no such key, which is the organization-wide scope that table is written at.
+CREATE OR REPLACE FUNCTION private.catalog_admit_stored(
+  p_permission_key text,
+  p_stored_row jsonb,
+  p_actor_user_id uuid,
+  p_idempotency_key uuid,
+  p_correlation_id uuid,
+  p_expected_actions text[],
+  p_expected_target_type text
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $function$
+DECLARE
+  v_organization_id uuid := (p_stored_row ->> 'organization_id')::uuid;
+  v_establishment_id uuid := (p_stored_row ->> 'establishment_id')::uuid;
+  v_branch_id uuid := (p_stored_row ->> 'branch_id')::uuid;
+BEGIN
+  PERFORM private.catalog_authorize(p_permission_key, v_organization_id, v_establishment_id, v_branch_id);
+  RETURN private.catalog_replay(
+    v_organization_id, p_actor_user_id, p_idempotency_key, p_correlation_id,
+    p_expected_actions, p_expected_target_type, (p_stored_row ->> 'id')::uuid
+  );
+END;
 $function$;
 
 CREATE OR REPLACE FUNCTION private.catalog_price_state(p_amount numeric, p_currency text, p_promotional_amount numeric)
@@ -349,19 +924,21 @@ LANGUAGE sql
 IMMUTABLE
 SET search_path = ''
 AS $function$
-  SELECT p_amount::text || '|' || p_currency
-    || '|' || COALESCE(p_promotional_amount::text, 'none');
+  SELECT p_amount::text || private.catalog_state_separator() || p_currency
+    || private.catalog_state_separator() || COALESCE(p_promotional_amount::text, 'none');
 $function$;
 
 REVOKE ALL ON FUNCTION private.catalog_actor_user_id() FROM PUBLIC, anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION private.catalog_require_actor() FROM PUBLIC, anon, authenticated, service_role;
+REVOKE ALL ON FUNCTION private.catalog_admit_session(uuid) FROM PUBLIC, anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION private.catalog_authorize(text, uuid, uuid, uuid) FROM PUBLIC, anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION private.catalog_assert_input(text, boolean) FROM PUBLIC, anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION private.catalog_require_step_up() FROM PUBLIC, anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION private.catalog_audit_metadata(text, text, text[], text, text) FROM PUBLIC, anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION private.catalog_append_audit(text, text, uuid, uuid, uuid, uuid, uuid, uuid, jsonb) FROM PUBLIC, anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION private.catalog_record_receipt(uuid, uuid, uuid, uuid, uuid, text, text, uuid, integer) FROM PUBLIC, anon, authenticated, service_role;
-REVOKE ALL ON FUNCTION private.catalog_replay(uuid, uuid, uuid, uuid) FROM PUBLIC, anon, authenticated, service_role;
+REVOKE ALL ON FUNCTION private.catalog_replay(uuid, uuid, uuid, uuid, text[], text, uuid) FROM PUBLIC, anon, authenticated, service_role;
+REVOKE ALL ON FUNCTION private.catalog_admit_stored(text, jsonb, uuid, uuid, uuid, text[], text) FROM PUBLIC, anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION private.catalog_command_result(text, text, uuid, integer, uuid, uuid) FROM PUBLIC, anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION private.catalog_price_state(numeric, text, numeric) FROM PUBLIC, anon, authenticated, service_role;
 
@@ -388,21 +965,23 @@ AS $function$
 DECLARE
   v_actor_user_id uuid;
   v_category_id uuid;
-  v_audit_event_id uuid;
   v_replayed jsonb;
+  v_action text;
 BEGIN
-  v_actor_user_id := private.catalog_require_actor();
-  PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
-  PERFORM private.catalog_authorize('catalog.write', p_organization_id, p_establishment_id, p_branch_id);
+  v_actor_user_id := private.catalog_admit_session(p_correlation_id);
+  PERFORM private.catalog_authorize(private.catalog_permission_write(), p_organization_id, p_establishment_id, p_branch_id);
 
-  v_replayed := private.catalog_replay(p_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
+  v_replayed := private.catalog_replay(
+    p_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id,
+    ARRAY['catalog.category.created']::text[], private.catalog_target_category(), NULL
+  );
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
 
-  PERFORM private.catalog_assert_input('name', p_name ~ '[^[:space:]]' AND char_length(p_name) BETWEEN 1 AND 120);
-  PERFORM private.catalog_assert_input('description', p_description IS NULL OR char_length(p_description) <= 1000);
-  PERFORM private.catalog_assert_input('display_order', p_display_order BETWEEN -100000 AND 100000);
+  PERFORM private.catalog_assert_label(private.catalog_field_name(), p_name);
+  PERFORM private.catalog_assert_description(p_description);
+  PERFORM private.catalog_assert_display_order(p_display_order);
 
   INSERT INTO public.product_categories (
     organization_id, establishment_id, branch_id, parent_category_id,
@@ -414,20 +993,13 @@ BEGIN
   )
   RETURNING id INTO v_category_id;
 
-  v_audit_event_id := private.catalog_append_audit(
-    'catalog.category.created', 'product_category', v_category_id,
+  v_action := 'catalog.category.created';
+
+  RETURN private.catalog_settle(
+    v_action, private.catalog_target_category(), v_category_id,
     p_organization_id, p_establishment_id, p_branch_id,
-    v_actor_user_id, p_correlation_id,
-    private.catalog_audit_metadata('catalog.write', 'product_category', ARRAY['name'], NULL, p_name)
-  );
-
-  PERFORM private.catalog_record_receipt(
-    p_organization_id, p_idempotency_key, v_actor_user_id, p_correlation_id, v_audit_event_id,
-    'catalog.category.created', 'product_category', v_category_id, NULL
-  );
-
-  RETURN private.catalog_command_result(
-    'catalog.category.created', 'product_category', v_category_id, NULL, v_audit_event_id, p_correlation_id
+    v_actor_user_id, p_correlation_id, p_idempotency_key, NULL,
+    private.catalog_audit_metadata(private.catalog_permission_write(), private.catalog_target_category(), ARRAY[private.catalog_field_name()], NULL, p_name)
   );
 END;
 $function$;
@@ -448,39 +1020,25 @@ AS $function$
 DECLARE
   v_actor_user_id uuid;
   v_previous record;
-  v_organization_id uuid;
-  v_establishment_id uuid;
-  v_branch_id uuid;
-  v_audit_event_id uuid;
   v_replayed jsonb;
+  v_action text;
 BEGIN
-  v_actor_user_id := private.catalog_require_actor();
-  PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
+  v_actor_user_id := private.catalog_admit_session(p_correlation_id);
 
-  SELECT * INTO v_previous
-  FROM public.product_categories
-  WHERE id = p_category_id
-  FOR UPDATE;
+  v_previous := private.catalog_lock_category(p_category_id);
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'The requested category is not available to the current session.'
-      USING ERRCODE = '42501';
-  END IF;
-
-  v_organization_id := v_previous.organization_id;
-  v_establishment_id := v_previous.establishment_id;
-  v_branch_id := v_previous.branch_id;
-
-  PERFORM private.catalog_authorize('catalog.write', v_organization_id, v_establishment_id, v_branch_id);
-
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
+  v_replayed := private.catalog_admit_stored(
+    private.catalog_permission_write(), pg_catalog.to_jsonb(v_previous),
+    v_actor_user_id, p_idempotency_key, p_correlation_id,
+    ARRAY['catalog.category.updated']::text[], private.catalog_target_category()
+  );
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
 
-  PERFORM private.catalog_assert_input('name', p_name ~ '[^[:space:]]' AND char_length(p_name) BETWEEN 1 AND 120);
-  PERFORM private.catalog_assert_input('description', p_description IS NULL OR char_length(p_description) <= 1000);
-  PERFORM private.catalog_assert_input('display_order', p_display_order BETWEEN -100000 AND 100000);
+  PERFORM private.catalog_assert_label(private.catalog_field_name(), p_name);
+  PERFORM private.catalog_assert_description(p_description);
+  PERFORM private.catalog_assert_display_order(p_display_order);
 
   UPDATE public.product_categories
   SET name = p_name,
@@ -489,24 +1047,18 @@ BEGIN
       updated_at = pg_catalog.now()
   WHERE id = p_category_id;
 
-  v_audit_event_id := private.catalog_append_audit(
-    'catalog.category.updated', 'product_category', p_category_id,
-    v_organization_id, v_establishment_id, v_branch_id,
-    v_actor_user_id, p_correlation_id,
+  v_action := 'catalog.category.updated';
+
+  RETURN private.catalog_settle(
+    v_action, private.catalog_target_category(), p_category_id,
+    v_previous.organization_id, v_previous.establishment_id, v_previous.branch_id,
+    v_actor_user_id, p_correlation_id, p_idempotency_key, NULL,
     private.catalog_audit_metadata(
-      'catalog.write', 'product_category', ARRAY['name', 'display_order'],
-      v_previous.name || '|' || v_previous.display_order::text,
-      p_name || '|' || p_display_order::text
-    )
-  );
+      private.catalog_permission_write(), private.catalog_target_category(), ARRAY[private.catalog_field_name(), private.catalog_field_display_order()],
+      v_previous.name || private.catalog_state_separator() || v_previous.display_order::text,
+      p_name || private.catalog_state_separator() || p_display_order::text
+  )
 
-  PERFORM private.catalog_record_receipt(
-    v_organization_id, p_idempotency_key, v_actor_user_id, p_correlation_id, v_audit_event_id,
-    'catalog.category.updated', 'product_category', p_category_id, NULL
-  );
-
-  RETURN private.catalog_command_result(
-    'catalog.category.updated', 'product_category', p_category_id, NULL, v_audit_event_id, p_correlation_id
   );
 END;
 $function$;
@@ -525,60 +1077,37 @@ AS $function$
 DECLARE
   v_actor_user_id uuid;
   v_previous record;
-  v_organization_id uuid;
-  v_establishment_id uuid;
-  v_branch_id uuid;
-  v_audit_event_id uuid;
   v_replayed jsonb;
   v_action text;
 BEGIN
   v_actor_user_id := private.catalog_require_actor();
-  PERFORM private.catalog_assert_input('archived', p_archived IS NOT NULL);
-  PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
+  PERFORM private.catalog_assert_input(private.catalog_status_archived(), p_archived IS NOT NULL);
+  PERFORM private.catalog_assert_correlation(p_correlation_id);
 
-  SELECT * INTO v_previous
-  FROM public.product_categories
-  WHERE id = p_category_id
-  FOR UPDATE;
+  v_previous := private.catalog_lock_category(p_category_id);
+  v_action := CASE WHEN p_archived THEN 'catalog.category.archived' ELSE 'catalog.category.reactivated' END;
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'The requested category is not available to the current session.'
-      USING ERRCODE = '42501';
-  END IF;
-
-  v_organization_id := v_previous.organization_id;
-  v_establishment_id := v_previous.establishment_id;
-  v_branch_id := v_previous.branch_id;
-
-  PERFORM private.catalog_authorize('catalog.write', v_organization_id, v_establishment_id, v_branch_id);
-
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
+  v_replayed := private.catalog_admit_stored(
+    private.catalog_permission_write(), pg_catalog.to_jsonb(v_previous),
+    v_actor_user_id, p_idempotency_key, p_correlation_id,
+    ARRAY[v_action]::text[],
+    private.catalog_target_category()
+  );
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
 
-  v_action := CASE WHEN p_archived THEN 'catalog.category.archived' ELSE 'catalog.category.reactivated' END;
-
   UPDATE public.product_categories
-  SET status = CASE WHEN p_archived THEN 'archived' ELSE 'active' END,
+  SET status = CASE WHEN p_archived THEN private.catalog_status_archived() ELSE private.catalog_status_active() END,
       archived_at = CASE WHEN p_archived THEN pg_catalog.now() ELSE NULL END,
       updated_at = pg_catalog.now()
   WHERE id = p_category_id;
 
-  v_audit_event_id := private.catalog_append_audit(
-    v_action, 'product_category', p_category_id,
-    v_organization_id, v_establishment_id, v_branch_id,
-    v_actor_user_id, p_correlation_id,
-    private.catalog_audit_metadata('catalog.write', 'product_category', ARRAY['status'], v_previous.status, CASE WHEN p_archived THEN 'archived' ELSE 'active' END)
-  );
-
-  PERFORM private.catalog_record_receipt(
-    v_organization_id, p_idempotency_key, v_actor_user_id, p_correlation_id, v_audit_event_id,
-    v_action, 'product_category', p_category_id, NULL
-  );
-
-  RETURN private.catalog_command_result(
-    v_action, 'product_category', p_category_id, NULL, v_audit_event_id, p_correlation_id
+  RETURN private.catalog_settle(
+    v_action, private.catalog_target_category(), p_category_id,
+    v_previous.organization_id, v_previous.establishment_id, v_previous.branch_id,
+    v_actor_user_id, p_correlation_id, p_idempotency_key, NULL,
+    private.catalog_audit_metadata(private.catalog_permission_write(), private.catalog_target_category(), ARRAY[private.catalog_field_status()], v_previous.status, CASE WHEN p_archived THEN private.catalog_status_archived() ELSE private.catalog_status_active() END)
   );
 END;
 $function$;
@@ -605,20 +1134,22 @@ AS $function$
 DECLARE
   v_actor_user_id uuid;
   v_product_id uuid;
-  v_audit_event_id uuid;
   v_replayed jsonb;
+  v_action text;
 BEGIN
-  v_actor_user_id := private.catalog_require_actor();
-  PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
-  PERFORM private.catalog_authorize('catalog.write', p_organization_id, p_establishment_id, p_branch_id);
+  v_actor_user_id := private.catalog_admit_session(p_correlation_id);
+  PERFORM private.catalog_authorize(private.catalog_permission_write(), p_organization_id, p_establishment_id, p_branch_id);
 
-  v_replayed := private.catalog_replay(p_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
+  v_replayed := private.catalog_replay(
+    p_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id,
+    ARRAY['catalog.product.created']::text[], private.catalog_target_product(), NULL
+  );
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
 
-  PERFORM private.catalog_assert_input('name', p_name ~ '[^[:space:]]' AND char_length(p_name) BETWEEN 1 AND 120);
-  PERFORM private.catalog_assert_input('description', p_description IS NULL OR char_length(p_description) <= 1000);
+  PERFORM private.catalog_assert_label(private.catalog_field_name(), p_name);
+  PERFORM private.catalog_assert_description(p_description);
 
   INSERT INTO public.products (
     organization_id, establishment_id, branch_id, category_id, name, description
@@ -628,20 +1159,13 @@ BEGIN
   )
   RETURNING id INTO v_product_id;
 
-  v_audit_event_id := private.catalog_append_audit(
-    'catalog.product.created', 'product', v_product_id,
+  v_action := 'catalog.product.created';
+
+  RETURN private.catalog_settle(
+    v_action, private.catalog_target_product(), v_product_id,
     p_organization_id, p_establishment_id, p_branch_id,
-    v_actor_user_id, p_correlation_id,
-    private.catalog_audit_metadata('catalog.write', 'product', ARRAY['name'], NULL, p_name)
-  );
-
-  PERFORM private.catalog_record_receipt(
-    p_organization_id, p_idempotency_key, v_actor_user_id, p_correlation_id, v_audit_event_id,
-    'catalog.product.created', 'product', v_product_id, NULL
-  );
-
-  RETURN private.catalog_command_result(
-    'catalog.product.created', 'product', v_product_id, NULL, v_audit_event_id, p_correlation_id
+    v_actor_user_id, p_correlation_id, p_idempotency_key, NULL,
+    private.catalog_audit_metadata(private.catalog_permission_write(), private.catalog_target_product(), ARRAY[private.catalog_field_name()], NULL, p_name)
   );
 END;
 $function$;
@@ -661,38 +1185,24 @@ AS $function$
 DECLARE
   v_actor_user_id uuid;
   v_previous record;
-  v_organization_id uuid;
-  v_establishment_id uuid;
-  v_branch_id uuid;
-  v_audit_event_id uuid;
   v_replayed jsonb;
+  v_action text;
 BEGIN
-  v_actor_user_id := private.catalog_require_actor();
-  PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
+  v_actor_user_id := private.catalog_admit_session(p_correlation_id);
 
-  SELECT * INTO v_previous
-  FROM public.products
-  WHERE id = p_product_id
-  FOR UPDATE;
+  v_previous := private.catalog_lock_product(p_product_id);
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'The requested product is not available to the current session.'
-      USING ERRCODE = '42501';
-  END IF;
-
-  v_organization_id := v_previous.organization_id;
-  v_establishment_id := v_previous.establishment_id;
-  v_branch_id := v_previous.branch_id;
-
-  PERFORM private.catalog_authorize('catalog.write', v_organization_id, v_establishment_id, v_branch_id);
-
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
+  v_replayed := private.catalog_admit_stored(
+    private.catalog_permission_write(), pg_catalog.to_jsonb(v_previous),
+    v_actor_user_id, p_idempotency_key, p_correlation_id,
+    ARRAY['catalog.product.updated']::text[], private.catalog_target_product()
+  );
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
 
-  PERFORM private.catalog_assert_input('name', p_name ~ '[^[:space:]]' AND char_length(p_name) BETWEEN 1 AND 120);
-  PERFORM private.catalog_assert_input('description', p_description IS NULL OR char_length(p_description) <= 1000);
+  PERFORM private.catalog_assert_label(private.catalog_field_name(), p_name);
+  PERFORM private.catalog_assert_description(p_description);
 
   UPDATE public.products
   SET name = p_name,
@@ -700,20 +1210,13 @@ BEGIN
       updated_at = pg_catalog.now()
   WHERE id = p_product_id;
 
-  v_audit_event_id := private.catalog_append_audit(
-    'catalog.product.updated', 'product', p_product_id,
-    v_organization_id, v_establishment_id, v_branch_id,
-    v_actor_user_id, p_correlation_id,
-    private.catalog_audit_metadata('catalog.write', 'product', ARRAY['name', 'description'], v_previous.name, p_name)
-  );
+  v_action := 'catalog.product.updated';
 
-  PERFORM private.catalog_record_receipt(
-    v_organization_id, p_idempotency_key, v_actor_user_id, p_correlation_id, v_audit_event_id,
-    'catalog.product.updated', 'product', p_product_id, NULL
-  );
-
-  RETURN private.catalog_command_result(
-    'catalog.product.updated', 'product', p_product_id, NULL, v_audit_event_id, p_correlation_id
+  RETURN private.catalog_settle(
+    v_action, private.catalog_target_product(), p_product_id,
+    v_previous.organization_id, v_previous.establishment_id, v_previous.branch_id,
+    v_actor_user_id, p_correlation_id, p_idempotency_key, NULL,
+    private.catalog_audit_metadata(private.catalog_permission_write(), private.catalog_target_product(), ARRAY[private.catalog_field_name(), private.catalog_field_description()], v_previous.name, p_name)
   );
 END;
 $function$;
@@ -732,41 +1235,28 @@ AS $function$
 DECLARE
   v_actor_user_id uuid;
   v_previous record;
-  v_organization_id uuid;
-  v_establishment_id uuid;
-  v_branch_id uuid;
-  v_audit_event_id uuid;
   v_replayed jsonb;
   v_action text;
   v_next_status text;
 BEGIN
   v_actor_user_id := private.catalog_require_actor();
-  PERFORM private.catalog_assert_input('archived', p_archived IS NOT NULL);
-  PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
+  PERFORM private.catalog_assert_input(private.catalog_status_archived(), p_archived IS NOT NULL);
+  PERFORM private.catalog_assert_correlation(p_correlation_id);
 
-  SELECT * INTO v_previous
-  FROM public.products
-  WHERE id = p_product_id
-  FOR UPDATE;
+  v_previous := private.catalog_lock_product(p_product_id);
+  v_action := CASE WHEN p_archived THEN 'catalog.product.archived' ELSE 'catalog.product.reactivated' END;
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'The requested product is not available to the current session.'
-      USING ERRCODE = '42501';
-  END IF;
-
-  v_organization_id := v_previous.organization_id;
-  v_establishment_id := v_previous.establishment_id;
-  v_branch_id := v_previous.branch_id;
-
-  PERFORM private.catalog_authorize('catalog.write', v_organization_id, v_establishment_id, v_branch_id);
-
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
+  v_replayed := private.catalog_admit_stored(
+    private.catalog_permission_write(), pg_catalog.to_jsonb(v_previous),
+    v_actor_user_id, p_idempotency_key, p_correlation_id,
+    ARRAY[v_action]::text[],
+    private.catalog_target_product()
+  );
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
 
-  v_action := CASE WHEN p_archived THEN 'catalog.product.archived' ELSE 'catalog.product.reactivated' END;
-  v_next_status := CASE WHEN p_archived THEN 'archived' ELSE 'active' END;
+  v_next_status := CASE WHEN p_archived THEN private.catalog_status_archived() ELSE private.catalog_status_active() END;
 
   IF v_previous.status IS DISTINCT FROM v_next_status THEN
     UPDATE public.products
@@ -776,20 +1266,11 @@ BEGIN
     WHERE id = p_product_id;
   END IF;
 
-  v_audit_event_id := private.catalog_append_audit(
-    v_action, 'product', p_product_id,
-    v_organization_id, v_establishment_id, v_branch_id,
-    v_actor_user_id, p_correlation_id,
-    private.catalog_audit_metadata('catalog.write', 'product', ARRAY['status'], v_previous.status, v_next_status)
-  );
-
-  PERFORM private.catalog_record_receipt(
-    v_organization_id, p_idempotency_key, v_actor_user_id, p_correlation_id, v_audit_event_id,
-    v_action, 'product', p_product_id, NULL
-  );
-
-  RETURN private.catalog_command_result(
-    v_action, 'product', p_product_id, NULL, v_audit_event_id, p_correlation_id
+  RETURN private.catalog_settle(
+    v_action, private.catalog_target_product(), p_product_id,
+    v_previous.organization_id, v_previous.establishment_id, v_previous.branch_id,
+    v_actor_user_id, p_correlation_id, p_idempotency_key, NULL,
+    private.catalog_audit_metadata(private.catalog_permission_write(), private.catalog_target_product(), ARRAY[private.catalog_field_status()], v_previous.status, v_next_status)
   );
 END;
 $function$;
@@ -815,19 +1296,21 @@ AS $function$
 DECLARE
   v_actor_user_id uuid;
   v_variant_id uuid;
-  v_audit_event_id uuid;
   v_replayed jsonb;
+  v_action text;
 BEGIN
-  v_actor_user_id := private.catalog_require_actor();
-  PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
-  PERFORM private.catalog_authorize('catalog.write', p_organization_id, p_establishment_id, p_branch_id);
+  v_actor_user_id := private.catalog_admit_session(p_correlation_id);
+  PERFORM private.catalog_authorize(private.catalog_permission_write(), p_organization_id, p_establishment_id, p_branch_id);
 
-  v_replayed := private.catalog_replay(p_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
+  v_replayed := private.catalog_replay(
+    p_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id,
+    ARRAY['catalog.variant.created']::text[], private.catalog_target_variant(), NULL
+  );
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
 
-  PERFORM private.catalog_assert_input('name', p_name ~ '[^[:space:]]' AND char_length(p_name) BETWEEN 1 AND 120);
+  PERFORM private.catalog_assert_label(private.catalog_field_name(), p_name);
 
   INSERT INTO public.product_variants (
     organization_id, establishment_id, branch_id, product_id, name
@@ -837,20 +1320,13 @@ BEGIN
   )
   RETURNING id INTO v_variant_id;
 
-  v_audit_event_id := private.catalog_append_audit(
-    'catalog.variant.created', 'product_variant', v_variant_id,
+  v_action := 'catalog.variant.created';
+
+  RETURN private.catalog_settle(
+    v_action, private.catalog_target_variant(), v_variant_id,
     p_organization_id, p_establishment_id, p_branch_id,
-    v_actor_user_id, p_correlation_id,
-    private.catalog_audit_metadata('catalog.write', 'product_variant', ARRAY['name'], NULL, p_name)
-  );
-
-  PERFORM private.catalog_record_receipt(
-    p_organization_id, p_idempotency_key, v_actor_user_id, p_correlation_id, v_audit_event_id,
-    'catalog.variant.created', 'product_variant', v_variant_id, NULL
-  );
-
-  RETURN private.catalog_command_result(
-    'catalog.variant.created', 'product_variant', v_variant_id, NULL, v_audit_event_id, p_correlation_id
+    v_actor_user_id, p_correlation_id, p_idempotency_key, NULL,
+    private.catalog_audit_metadata(private.catalog_permission_write(), private.catalog_target_variant(), ARRAY[private.catalog_field_name()], NULL, p_name)
   );
 END;
 $function$;
@@ -870,43 +1346,32 @@ AS $function$
 DECLARE
   v_actor_user_id uuid;
   v_previous record;
-  v_organization_id uuid;
-  v_establishment_id uuid;
-  v_branch_id uuid;
-  v_audit_event_id uuid;
   v_replayed jsonb;
   v_action text;
   v_next_status text;
 BEGIN
   v_actor_user_id := private.catalog_require_actor();
-  PERFORM private.catalog_assert_input('archived', p_archived IS NOT NULL);
-  PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
+  PERFORM private.catalog_assert_input(private.catalog_status_archived(), p_archived IS NOT NULL);
+  PERFORM private.catalog_assert_correlation(p_correlation_id);
 
-  SELECT * INTO v_previous
-  FROM public.product_variants
-  WHERE id = p_variant_id
-  FOR UPDATE;
+  v_previous := private.catalog_lock_variant(p_variant_id);
+  PERFORM private.catalog_assert_label(private.catalog_field_name(), p_name);
+  v_next_status := CASE WHEN p_archived THEN private.catalog_status_archived() ELSE private.catalog_status_active() END;
+  v_action := CASE
+    WHEN p_name IS DISTINCT FROM v_previous.name THEN 'catalog.variant.updated'
+    WHEN p_archived THEN 'catalog.variant.archived'
+    ELSE 'catalog.variant.reactivated'
+  END;
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'The requested variant is not available to the current session.'
-      USING ERRCODE = '42501';
-  END IF;
-
-  v_organization_id := v_previous.organization_id;
-  v_establishment_id := v_previous.establishment_id;
-  v_branch_id := v_previous.branch_id;
-
-  PERFORM private.catalog_authorize('catalog.write', v_organization_id, v_establishment_id, v_branch_id);
-
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
+  v_replayed := private.catalog_admit_stored(
+    private.catalog_permission_write(), pg_catalog.to_jsonb(v_previous),
+    v_actor_user_id, p_idempotency_key, p_correlation_id,
+    ARRAY['catalog.variant.updated', 'catalog.variant.archived', 'catalog.variant.reactivated']::text[],
+    private.catalog_target_variant()
+  );
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
-
-  PERFORM private.catalog_assert_input('name', p_name ~ '[^[:space:]]' AND char_length(p_name) BETWEEN 1 AND 120);
-
-  v_next_status := CASE WHEN p_archived THEN 'archived' ELSE 'active' END;
-  v_action := CASE WHEN p_archived THEN 'catalog.variant.archived' ELSE 'catalog.variant.reactivated' END;
 
   UPDATE public.product_variants
   SET name = p_name,
@@ -915,27 +1380,16 @@ BEGIN
       updated_at = pg_catalog.now()
   WHERE id = p_variant_id;
 
-  v_audit_event_id := private.catalog_append_audit(
-    CASE WHEN p_name IS DISTINCT FROM v_previous.name THEN 'catalog.variant.updated' ELSE v_action END,
-    'product_variant', p_variant_id,
-    v_organization_id, v_establishment_id, v_branch_id,
-    v_actor_user_id, p_correlation_id,
+  RETURN private.catalog_settle(
+    v_action,
+    private.catalog_target_variant(), p_variant_id,
+    v_previous.organization_id, v_previous.establishment_id, v_previous.branch_id,
+    v_actor_user_id, p_correlation_id, p_idempotency_key, NULL,
     private.catalog_audit_metadata(
-      'catalog.write', 'product_variant', ARRAY['name', 'status'],
-      v_previous.name || '|' || v_previous.status,
-      p_name || '|' || v_next_status
+      private.catalog_permission_write(), private.catalog_target_variant(), ARRAY[private.catalog_field_name(), private.catalog_field_status()],
+      v_previous.name || private.catalog_state_separator() || v_previous.status,
+      p_name || private.catalog_state_separator() || v_next_status
     )
-  );
-
-  PERFORM private.catalog_record_receipt(
-    v_organization_id, p_idempotency_key, v_actor_user_id, p_correlation_id, v_audit_event_id,
-    CASE WHEN p_name IS DISTINCT FROM v_previous.name THEN 'catalog.variant.updated' ELSE v_action END,
-    'product_variant', p_variant_id, NULL
-  );
-
-  RETURN private.catalog_command_result(
-    CASE WHEN p_name IS DISTINCT FROM v_previous.name THEN 'catalog.variant.updated' ELSE v_action END,
-    'product_variant', p_variant_id, NULL, v_audit_event_id, p_correlation_id
   );
 END;
 $function$;
@@ -960,21 +1414,23 @@ AS $function$
 DECLARE
   v_actor_user_id uuid;
   v_channel_id uuid;
-  v_audit_event_id uuid;
   v_replayed jsonb;
+  v_action text;
 BEGIN
-  v_actor_user_id := private.catalog_require_actor();
-  PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
-  PERFORM private.catalog_authorize('catalog.write', p_organization_id, NULL, NULL);
+  v_actor_user_id := private.catalog_admit_session(p_correlation_id);
+  PERFORM private.catalog_authorize(private.catalog_permission_write(), p_organization_id, NULL, NULL);
 
-  v_replayed := private.catalog_replay(p_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
+  v_replayed := private.catalog_replay(
+    p_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id,
+    ARRAY['catalog.sales_channel.created']::text[], private.catalog_target_channel(), NULL
+  );
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
 
   PERFORM private.catalog_assert_input('channel_key', p_channel_key ~ '^[a-z][a-z0-9_-]{0,63}$');
-  PERFORM private.catalog_assert_input('display_name', p_display_name ~ '[^[:space:]]' AND char_length(p_display_name) BETWEEN 1 AND 120);
-  PERFORM private.catalog_assert_input('description', p_description IS NULL OR char_length(p_description) <= 1000);
+  PERFORM private.catalog_assert_display_name(p_display_name);
+  PERFORM private.catalog_assert_description(p_description);
 
   INSERT INTO public.sales_channels (
     organization_id, channel_key, display_name, description
@@ -984,20 +1440,13 @@ BEGIN
   )
   RETURNING id INTO v_channel_id;
 
-  v_audit_event_id := private.catalog_append_audit(
-    'catalog.sales_channel.created', 'sales_channel', v_channel_id,
+  v_action := 'catalog.sales_channel.created';
+
+  RETURN private.catalog_settle(
+    v_action, private.catalog_target_channel(), v_channel_id,
     p_organization_id, NULL, NULL,
-    v_actor_user_id, p_correlation_id,
-    private.catalog_audit_metadata('catalog.write', 'sales_channel', ARRAY['channel_key'], NULL, p_channel_key)
-  );
-
-  PERFORM private.catalog_record_receipt(
-    p_organization_id, p_idempotency_key, v_actor_user_id, p_correlation_id, v_audit_event_id,
-    'catalog.sales_channel.created', 'sales_channel', v_channel_id, NULL
-  );
-
-  RETURN private.catalog_command_result(
-    'catalog.sales_channel.created', 'sales_channel', v_channel_id, NULL, v_audit_event_id, p_correlation_id
+    v_actor_user_id, p_correlation_id, p_idempotency_key, NULL,
+    private.catalog_audit_metadata(private.catalog_permission_write(), private.catalog_target_channel(), ARRAY['channel_key'], NULL, p_channel_key)
   );
 END;
 $function$;
@@ -1017,30 +1466,23 @@ AS $function$
 DECLARE
   v_actor_user_id uuid;
   v_previous record;
-  v_organization_id uuid;
-  v_audit_event_id uuid;
   v_replayed jsonb;
   v_action text;
   v_next_status text;
   v_archived boolean;
 BEGIN
-  v_actor_user_id := private.catalog_require_actor();
-  PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
+  v_actor_user_id := private.catalog_admit_session(p_correlation_id);
 
-  SELECT * INTO v_previous
-  FROM public.sales_channels
-  WHERE id = p_channel_id
-  FOR UPDATE;
+  v_previous := private.catalog_lock_sales_channel(p_channel_id);
+  v_archived := v_previous.status = private.catalog_status_archived();
+  v_next_status := CASE WHEN v_archived THEN private.catalog_status_archived() ELSE private.catalog_status_active() END;
+  v_action := 'catalog.sales_channel.updated';
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'The requested sales channel is not available to the current session.'
-      USING ERRCODE = '42501';
-  END IF;
-
-  v_organization_id := v_previous.organization_id;
-  PERFORM private.catalog_authorize('catalog.write', v_organization_id, NULL, NULL);
-
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
+  v_replayed := private.catalog_admit_stored(
+    private.catalog_permission_write(), pg_catalog.to_jsonb(v_previous),
+    v_actor_user_id, p_idempotency_key, p_correlation_id,
+    ARRAY['catalog.sales_channel.updated']::text[], private.catalog_target_channel()
+  );
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -1048,16 +1490,8 @@ BEGIN
   IF p_display_name IS NULL THEN
     p_display_name := v_previous.display_name;
   END IF;
-  IF p_description IS NULL THEN
-    p_description := v_previous.description;
-  END IF;
-  v_archived := v_previous.status = 'archived';
-
-  PERFORM private.catalog_assert_input('display_name', p_display_name ~ '[^[:space:]]' AND char_length(p_display_name) BETWEEN 1 AND 120);
-  PERFORM private.catalog_assert_input('description', p_description IS NULL OR char_length(p_description) <= 1000);
-
-  v_next_status := CASE WHEN v_archived THEN 'archived' ELSE 'active' END;
-  v_action := CASE WHEN v_archived THEN 'catalog.sales_channel.archived' ELSE 'catalog.sales_channel.updated' END;
+  PERFORM private.catalog_assert_display_name(p_display_name);
+  PERFORM private.catalog_assert_description(p_description);
 
   UPDATE public.sales_channels
   SET display_name = p_display_name,
@@ -1067,20 +1501,11 @@ BEGIN
       updated_at = pg_catalog.now()
   WHERE id = p_channel_id;
 
-  v_audit_event_id := private.catalog_append_audit(
-    v_action, 'sales_channel', p_channel_id,
-    v_organization_id, NULL, NULL,
-    v_actor_user_id, p_correlation_id,
-    private.catalog_audit_metadata('catalog.write', 'sales_channel', ARRAY['display_name', 'description'], v_previous.display_name, p_display_name)
-  );
-
-  PERFORM private.catalog_record_receipt(
-    v_organization_id, p_idempotency_key, v_actor_user_id, p_correlation_id, v_audit_event_id,
-    v_action, 'sales_channel', p_channel_id, NULL
-  );
-
-  RETURN private.catalog_command_result(
-    v_action, 'sales_channel', p_channel_id, NULL, v_audit_event_id, p_correlation_id
+  RETURN private.catalog_settle(
+    v_action, private.catalog_target_channel(), p_channel_id,
+    v_previous.organization_id, NULL, NULL,
+    v_actor_user_id, p_correlation_id, p_idempotency_key, NULL,
+    private.catalog_audit_metadata(private.catalog_permission_write(), private.catalog_target_channel(), ARRAY[private.catalog_field_display_name(), private.catalog_field_description()], v_previous.display_name, p_display_name)
   );
 END;
 $function$;
@@ -1114,27 +1539,25 @@ DECLARE
   v_offer_id uuid;
   v_audit_event_id uuid;
   v_replayed jsonb;
+  v_action text;
 BEGIN
-  v_actor_user_id := private.catalog_require_actor();
-  PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
+  v_actor_user_id := private.catalog_admit_session(p_correlation_id);
   PERFORM private.catalog_assert_input(
     'target',
     num_nonnulls(p_product_id, p_product_variant_id) = 1
   );
-  PERFORM private.catalog_assert_input('title', p_title IS NULL OR char_length(p_title) BETWEEN 1 AND 120);
-  PERFORM private.catalog_assert_input('description', p_description IS NULL OR char_length(p_description) <= 1000);
-  PERFORM private.catalog_assert_input('base_price_amount', p_base_price_amount >= 0);
+  PERFORM private.catalog_assert_title(p_title);
+  PERFORM private.catalog_assert_description(p_description);
+  PERFORM private.catalog_assert_price(p_base_price_amount, p_promotional_price_amount);
   PERFORM private.catalog_assert_input('base_price_currency', p_base_price_currency ~ '^[A-Z]{3}$');
-  PERFORM private.catalog_assert_input(
-    'promotional_price_amount',
-    p_promotional_price_amount IS NULL
-      OR (p_promotional_price_amount >= 0 AND p_promotional_price_amount < p_base_price_amount)
-  );
 
-  PERFORM private.catalog_authorize('catalog.price.manage', p_organization_id, p_establishment_id, p_branch_id);
+  PERFORM private.catalog_authorize(private.catalog_permission_price(), p_organization_id, p_establishment_id, p_branch_id);
   PERFORM private.catalog_require_step_up();
 
-  v_replayed := private.catalog_replay(p_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
+  v_replayed := private.catalog_replay(
+    p_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id,
+    ARRAY['catalog.channel_offer.created']::text[], private.catalog_target_offer(), NULL
+  );
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -1151,36 +1574,24 @@ BEGIN
   )
   RETURNING id INTO v_offer_id;
 
+  v_action := 'catalog.channel_offer.created';
+
   v_audit_event_id := private.catalog_append_audit(
-    'catalog.channel_offer.created', 'channel_offer', v_offer_id,
+    v_action, private.catalog_target_offer(), v_offer_id,
     p_organization_id, p_establishment_id, p_branch_id,
     v_actor_user_id, p_correlation_id,
     private.catalog_audit_metadata(
-      'catalog.price.manage', 'channel_offer', ARRAY['base_price_amount', 'promotional_price_amount'],
-      NULL, private.catalog_price_state(p_base_price_amount, p_base_price_currency, p_promotional_price_amount)
-    )
-  );
-
-  INSERT INTO public.channel_offer_price_history (
-    organization_id, channel_offer_id, price_revision,
-    base_price_amount, base_price_currency, promotional_price_amount,
-    availability, visibility, effective_from,
-    recorded_by_user_id, correlation_id, audit_event_id
+        private.catalog_permission_price(), private.catalog_target_offer(), ARRAY[private.catalog_field_base_price_amount(), private.catalog_field_promotional_price_amount()],
+        NULL, private.catalog_price_state(p_base_price_amount, p_base_price_currency, p_promotional_price_amount)
   )
-  VALUES (
-    p_organization_id, v_offer_id, 1,
-    p_base_price_amount, p_base_price_currency, p_promotional_price_amount,
-    'available', 'visible', pg_catalog.now(),
-    v_actor_user_id, p_correlation_id, v_audit_event_id
+
   );
 
-  PERFORM private.catalog_record_receipt(
-    p_organization_id, p_idempotency_key, v_actor_user_id, p_correlation_id, v_audit_event_id,
-    'catalog.channel_offer.created', 'channel_offer', v_offer_id, 1
-  );
-
-  RETURN private.catalog_command_result(
-    'catalog.channel_offer.created', 'channel_offer', v_offer_id, 1, v_audit_event_id, p_correlation_id
+  RETURN private.catalog_settle_revision(
+    v_offer_id, 1, v_audit_event_id, p_organization_id,
+    v_actor_user_id, p_correlation_id, p_idempotency_key,
+    v_action, private.catalog_target_offer(),
+    p_base_price_amount, p_base_price_currency, p_promotional_price_amount, 'available', 'visible'
   );
 END;
 $function$;
@@ -1200,34 +1611,21 @@ AS $function$
 DECLARE
   v_actor_user_id uuid;
   v_previous record;
-  v_organization_id uuid;
-  v_establishment_id uuid;
-  v_branch_id uuid;
-  v_audit_event_id uuid;
   v_replayed jsonb;
+  v_action text;
 BEGIN
-  v_actor_user_id := private.catalog_require_actor();
-  PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
-  PERFORM private.catalog_assert_input('title', p_title IS NULL OR char_length(p_title) BETWEEN 1 AND 120);
-  PERFORM private.catalog_assert_input('description', p_description IS NULL OR char_length(p_description) <= 1000);
+  v_actor_user_id := private.catalog_admit_session(p_correlation_id);
+  PERFORM private.catalog_assert_title(p_title);
+  PERFORM private.catalog_assert_description(p_description);
 
-  SELECT * INTO v_previous
-  FROM public.channel_offers
-  WHERE id = p_offer_id
-  FOR UPDATE;
+  v_previous := private.catalog_lock_offer(p_offer_id);
+  v_action := 'catalog.channel_offer.updated';
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'The requested channel offer is not available to the current session.'
-      USING ERRCODE = '42501';
-  END IF;
-
-  v_organization_id := v_previous.organization_id;
-  v_establishment_id := v_previous.establishment_id;
-  v_branch_id := v_previous.branch_id;
-
-  PERFORM private.catalog_authorize('catalog.write', v_organization_id, v_establishment_id, v_branch_id);
-
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
+  v_replayed := private.catalog_admit_stored(
+    private.catalog_permission_write(), pg_catalog.to_jsonb(v_previous),
+    v_actor_user_id, p_idempotency_key, p_correlation_id,
+    ARRAY['catalog.channel_offer.updated']::text[], private.catalog_target_offer()
+  );
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -1238,20 +1636,11 @@ BEGIN
       updated_at = pg_catalog.now()
   WHERE id = p_offer_id;
 
-  v_audit_event_id := private.catalog_append_audit(
-    'catalog.channel_offer.updated', 'channel_offer', p_offer_id,
-    v_organization_id, v_establishment_id, v_branch_id,
-    v_actor_user_id, p_correlation_id,
-    private.catalog_audit_metadata('catalog.write', 'channel_offer', ARRAY['title', 'description'], v_previous.title, p_title)
-  );
-
-  PERFORM private.catalog_record_receipt(
-    v_organization_id, p_idempotency_key, v_actor_user_id, p_correlation_id, v_audit_event_id,
-    'catalog.channel_offer.updated', 'channel_offer', p_offer_id, v_previous.price_revision
-  );
-
-  RETURN private.catalog_command_result(
-    'catalog.channel_offer.updated', 'channel_offer', p_offer_id, v_previous.price_revision, v_audit_event_id, p_correlation_id
+  RETURN private.catalog_settle(
+    v_action, private.catalog_target_offer(), p_offer_id,
+    v_previous.organization_id, v_previous.establishment_id, v_previous.branch_id,
+    v_actor_user_id, p_correlation_id, p_idempotency_key, v_previous.price_revision,
+    private.catalog_audit_metadata(private.catalog_permission_write(), private.catalog_target_offer(), ARRAY[private.catalog_field_title(), private.catalog_field_description()], v_previous.title, p_title)
   );
 END;
 $function$;
@@ -1271,42 +1660,34 @@ AS $function$
 DECLARE
   v_actor_user_id uuid;
   v_previous record;
-  v_organization_id uuid;
-  v_establishment_id uuid;
-  v_branch_id uuid;
   v_audit_event_id uuid;
   v_replayed jsonb;
   v_revision integer;
   v_next_currency text;
+  v_action text;
 BEGIN
-  v_actor_user_id := private.catalog_require_actor();
-  PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
-  PERFORM private.catalog_assert_input('base_price_amount', p_base_price_amount >= 0);
-  PERFORM private.catalog_assert_input(
-    'promotional_price_amount',
-    p_promotional_price_amount IS NULL
-      OR (p_promotional_price_amount >= 0 AND p_promotional_price_amount < p_base_price_amount)
-  );
+  v_actor_user_id := private.catalog_admit_session(p_correlation_id);
+  PERFORM private.catalog_assert_price(p_base_price_amount, p_promotional_price_amount);
 
-  SELECT * INTO v_previous
-  FROM public.channel_offers
-  WHERE id = p_offer_id
-  FOR UPDATE;
+  v_previous := private.catalog_lock_offer(p_offer_id);
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'The requested channel offer is not available to the current session.'
-      USING ERRCODE = '42501';
-  END IF;
-
-  v_organization_id := v_previous.organization_id;
-  v_establishment_id := v_previous.establishment_id;
-  v_branch_id := v_previous.branch_id;
   v_next_currency := v_previous.base_price_currency;
 
-  PERFORM private.catalog_authorize('catalog.price.manage', v_organization_id, v_establishment_id, v_branch_id);
+  PERFORM private.catalog_authorize(private.catalog_permission_price(), v_previous.organization_id, v_previous.establishment_id, v_previous.branch_id);
   PERFORM private.catalog_require_step_up();
 
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
+  v_action := CASE
+    WHEN p_promotional_price_amount IS DISTINCT FROM v_previous.promotional_price_amount
+      AND p_base_price_amount IS NOT DISTINCT FROM v_previous.base_price_amount
+      THEN 'catalog.channel_offer.promotional_price_changed'
+    ELSE 'catalog.channel_offer.price_changed'
+  END;
+
+  v_replayed := private.catalog_replay(
+    v_previous.organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id,
+    ARRAY['catalog.channel_offer.price_changed', 'catalog.channel_offer.promotional_price_changed']::text[],
+    private.catalog_target_offer(), p_offer_id
+  );
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -1321,22 +1702,16 @@ BEGIN
   v_revision := v_previous.price_revision + 1;
 
   v_audit_event_id := private.catalog_append_audit(
-    CASE
-      WHEN p_base_price_amount IS DISTINCT FROM v_previous.base_price_amount
-        AND p_promotional_price_amount IS DISTINCT FROM v_previous.promotional_price_amount
-        THEN 'catalog.channel_offer.price_changed'
-      WHEN p_promotional_price_amount IS DISTINCT FROM v_previous.promotional_price_amount
-        THEN 'catalog.channel_offer.promotional_price_changed'
-      ELSE 'catalog.channel_offer.price_changed'
-    END,
-    'channel_offer', p_offer_id,
-    v_organization_id, v_establishment_id, v_branch_id,
+    v_action,
+    private.catalog_target_offer(), p_offer_id,
+    v_previous.organization_id, v_previous.establishment_id, v_previous.branch_id,
     v_actor_user_id, p_correlation_id,
     private.catalog_audit_metadata(
-      'catalog.price.manage', 'channel_offer', ARRAY['base_price_amount', 'promotional_price_amount'],
-      private.catalog_price_state(v_previous.base_price_amount, v_next_currency, v_previous.promotional_price_amount),
-      private.catalog_price_state(p_base_price_amount, v_next_currency, p_promotional_price_amount)
-    )
+        private.catalog_permission_price(), private.catalog_target_offer(), ARRAY[private.catalog_field_base_price_amount(), private.catalog_field_promotional_price_amount()],
+        private.catalog_price_state(v_previous.base_price_amount, v_next_currency, v_previous.promotional_price_amount),
+        private.catalog_price_state(p_base_price_amount, v_next_currency, p_promotional_price_amount)
+  )
+
   );
 
   UPDATE public.channel_offers
@@ -1346,26 +1721,11 @@ BEGIN
       updated_at = pg_catalog.now()
   WHERE id = p_offer_id;
 
-  INSERT INTO public.channel_offer_price_history (
-    organization_id, channel_offer_id, price_revision,
-    base_price_amount, base_price_currency, promotional_price_amount,
-    availability, visibility, effective_from,
-    recorded_by_user_id, correlation_id, audit_event_id
-  )
-  VALUES (
-    v_organization_id, p_offer_id, v_revision,
-    p_base_price_amount, v_next_currency, p_promotional_price_amount,
-    v_previous.availability, v_previous.visibility, pg_catalog.now(),
-    v_actor_user_id, p_correlation_id, v_audit_event_id
-  );
-
-  PERFORM private.catalog_record_receipt(
-    v_organization_id, p_idempotency_key, v_actor_user_id, p_correlation_id, v_audit_event_id,
-    'catalog.channel_offer.price_changed', 'channel_offer', p_offer_id, v_revision
-  );
-
-  RETURN private.catalog_command_result(
-    'catalog.channel_offer.price_changed', 'channel_offer', p_offer_id, v_revision, v_audit_event_id, p_correlation_id
+  RETURN private.catalog_settle_revision(
+    p_offer_id, v_revision, v_audit_event_id, v_previous.organization_id,
+    v_actor_user_id, p_correlation_id, p_idempotency_key,
+    v_action, private.catalog_target_offer(),
+    p_base_price_amount, v_next_currency, p_promotional_price_amount, v_previous.availability, v_previous.visibility
   );
 END;
 $function$;
@@ -1384,35 +1744,27 @@ AS $function$
 DECLARE
   v_actor_user_id uuid;
   v_previous record;
-  v_organization_id uuid;
-  v_establishment_id uuid;
-  v_branch_id uuid;
   v_audit_event_id uuid;
   v_replayed jsonb;
   v_revision integer;
+  v_action text;
 BEGIN
-  v_actor_user_id := private.catalog_require_actor();
-  PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
-  PERFORM private.catalog_assert_input('availability', p_availability IN ('available', 'unavailable'));
+  v_actor_user_id := private.catalog_admit_session(p_correlation_id);
+  PERFORM private.catalog_assert_input(
+    private.catalog_field_availability(),
+    p_availability IN (private.catalog_availability_available(), private.catalog_availability_unavailable())
+  );
 
-  SELECT * INTO v_previous
-  FROM public.channel_offers
-  WHERE id = p_offer_id
-  FOR UPDATE;
+  v_previous := private.catalog_lock_offer(p_offer_id);
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'The requested channel offer is not available to the current session.'
-      USING ERRCODE = '42501';
-  END IF;
-
-  v_organization_id := v_previous.organization_id;
-  v_establishment_id := v_previous.establishment_id;
-  v_branch_id := v_previous.branch_id;
-
-  PERFORM private.catalog_authorize('catalog.availability.manage', v_organization_id, v_establishment_id, v_branch_id);
+  PERFORM private.catalog_authorize(private.catalog_permission_availability(), v_previous.organization_id, v_previous.establishment_id, v_previous.branch_id);
   PERFORM private.catalog_require_step_up();
 
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
+  v_replayed := private.catalog_replay(
+    v_previous.organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id,
+    ARRAY['catalog.channel_offer.availability_changed']::text[],
+    private.catalog_target_offer(), p_offer_id
+  );
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -1424,11 +1776,13 @@ BEGIN
 
   v_revision := v_previous.price_revision + 1;
 
+  v_action := 'catalog.channel_offer.availability_changed';
+
   v_audit_event_id := private.catalog_append_audit(
-    'catalog.channel_offer.availability_changed', 'channel_offer', p_offer_id,
-    v_organization_id, v_establishment_id, v_branch_id,
+    v_action, private.catalog_target_offer(), p_offer_id,
+    v_previous.organization_id, v_previous.establishment_id, v_previous.branch_id,
     v_actor_user_id, p_correlation_id,
-    private.catalog_audit_metadata('catalog.availability.manage', 'channel_offer', ARRAY['availability'], v_previous.availability, p_availability)
+    private.catalog_audit_metadata(private.catalog_permission_availability(), private.catalog_target_offer(), ARRAY[private.catalog_field_availability()], v_previous.availability, p_availability)
   );
 
   UPDATE public.channel_offers
@@ -1437,26 +1791,11 @@ BEGIN
       updated_at = pg_catalog.now()
   WHERE id = p_offer_id;
 
-  INSERT INTO public.channel_offer_price_history (
-    organization_id, channel_offer_id, price_revision,
-    base_price_amount, base_price_currency, promotional_price_amount,
-    availability, visibility, effective_from,
-    recorded_by_user_id, correlation_id, audit_event_id
-  )
-  VALUES (
-    v_organization_id, p_offer_id, v_revision,
-    v_previous.base_price_amount, v_previous.base_price_currency, v_previous.promotional_price_amount,
-    p_availability, v_previous.visibility, pg_catalog.now(),
-    v_actor_user_id, p_correlation_id, v_audit_event_id
-  );
-
-  PERFORM private.catalog_record_receipt(
-    v_organization_id, p_idempotency_key, v_actor_user_id, p_correlation_id, v_audit_event_id,
-    'catalog.channel_offer.availability_changed', 'channel_offer', p_offer_id, v_revision
-  );
-
-  RETURN private.catalog_command_result(
-    'catalog.channel_offer.availability_changed', 'channel_offer', p_offer_id, v_revision, v_audit_event_id, p_correlation_id
+  RETURN private.catalog_settle_revision(
+    p_offer_id, v_revision, v_audit_event_id, v_previous.organization_id,
+    v_actor_user_id, p_correlation_id, p_idempotency_key,
+    v_action, private.catalog_target_offer(),
+    v_previous.base_price_amount, v_previous.base_price_currency, v_previous.promotional_price_amount, p_availability, v_previous.visibility
   );
 END;
 $function$;
@@ -1475,35 +1814,27 @@ AS $function$
 DECLARE
   v_actor_user_id uuid;
   v_previous record;
-  v_organization_id uuid;
-  v_establishment_id uuid;
-  v_branch_id uuid;
   v_audit_event_id uuid;
   v_replayed jsonb;
   v_revision integer;
+  v_action text;
 BEGIN
-  v_actor_user_id := private.catalog_require_actor();
-  PERFORM private.catalog_assert_input('correlation_id', p_correlation_id IS NOT NULL);
-  PERFORM private.catalog_assert_input('visibility', p_visibility IN ('visible', 'hidden'));
+  v_actor_user_id := private.catalog_admit_session(p_correlation_id);
+  PERFORM private.catalog_assert_input(
+    private.catalog_field_visibility(),
+    p_visibility IN (private.catalog_visibility_visible(), private.catalog_visibility_hidden())
+  );
 
-  SELECT * INTO v_previous
-  FROM public.channel_offers
-  WHERE id = p_offer_id
-  FOR UPDATE;
+  v_previous := private.catalog_lock_offer(p_offer_id);
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'The requested channel offer is not available to the current session.'
-      USING ERRCODE = '42501';
-  END IF;
-
-  v_organization_id := v_previous.organization_id;
-  v_establishment_id := v_previous.establishment_id;
-  v_branch_id := v_previous.branch_id;
-
-  PERFORM private.catalog_authorize('catalog.availability.manage', v_organization_id, v_establishment_id, v_branch_id);
+  PERFORM private.catalog_authorize(private.catalog_permission_availability(), v_previous.organization_id, v_previous.establishment_id, v_previous.branch_id);
   PERFORM private.catalog_require_step_up();
 
-  v_replayed := private.catalog_replay(v_organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id);
+  v_replayed := private.catalog_replay(
+    v_previous.organization_id, v_actor_user_id, p_idempotency_key, p_correlation_id,
+    ARRAY['catalog.channel_offer.visibility_changed']::text[],
+    private.catalog_target_offer(), p_offer_id
+  );
   IF v_replayed IS NOT NULL THEN
     RETURN v_replayed;
   END IF;
@@ -1515,11 +1846,13 @@ BEGIN
 
   v_revision := v_previous.price_revision + 1;
 
+  v_action := 'catalog.channel_offer.visibility_changed';
+
   v_audit_event_id := private.catalog_append_audit(
-    'catalog.channel_offer.visibility_changed', 'channel_offer', p_offer_id,
-    v_organization_id, v_establishment_id, v_branch_id,
+    v_action, private.catalog_target_offer(), p_offer_id,
+    v_previous.organization_id, v_previous.establishment_id, v_previous.branch_id,
     v_actor_user_id, p_correlation_id,
-    private.catalog_audit_metadata('catalog.availability.manage', 'channel_offer', ARRAY['visibility'], v_previous.visibility, p_visibility)
+    private.catalog_audit_metadata(private.catalog_permission_availability(), private.catalog_target_offer(), ARRAY[private.catalog_field_visibility()], v_previous.visibility, p_visibility)
   );
 
   UPDATE public.channel_offers
@@ -1528,26 +1861,11 @@ BEGIN
       updated_at = pg_catalog.now()
   WHERE id = p_offer_id;
 
-  INSERT INTO public.channel_offer_price_history (
-    organization_id, channel_offer_id, price_revision,
-    base_price_amount, base_price_currency, promotional_price_amount,
-    availability, visibility, effective_from,
-    recorded_by_user_id, correlation_id, audit_event_id
-  )
-  VALUES (
-    v_organization_id, p_offer_id, v_revision,
-    v_previous.base_price_amount, v_previous.base_price_currency, v_previous.promotional_price_amount,
-    v_previous.availability, p_visibility, pg_catalog.now(),
-    v_actor_user_id, p_correlation_id, v_audit_event_id
-  );
-
-  PERFORM private.catalog_record_receipt(
-    v_organization_id, p_idempotency_key, v_actor_user_id, p_correlation_id, v_audit_event_id,
-    'catalog.channel_offer.visibility_changed', 'channel_offer', p_offer_id, v_revision
-  );
-
-  RETURN private.catalog_command_result(
-    'catalog.channel_offer.visibility_changed', 'channel_offer', p_offer_id, v_revision, v_audit_event_id, p_correlation_id
+  RETURN private.catalog_settle_revision(
+    p_offer_id, v_revision, v_audit_event_id, v_previous.organization_id,
+    v_actor_user_id, p_correlation_id, p_idempotency_key,
+    v_action, private.catalog_target_offer(),
+    v_previous.base_price_amount, v_previous.base_price_currency, v_previous.promotional_price_amount, v_previous.availability, p_visibility
   );
 END;
 $function$;

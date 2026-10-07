@@ -20,7 +20,7 @@ test.describe.configure({ mode: "serial" });
 // this surface needs the longer leash, and says so rather than letting a hook time out quietly.
 test.setTimeout(180_000);
 
-test.use({ screenshot: "off", trace: "off" });
+test.use({ screenshot: "off", trace: "off", timezoneId: "UTC" });
 
 let fixture: CatalogUiFixture;
 let totpSecret: string;
@@ -172,6 +172,8 @@ test("a catalog manager lists and searches only their own tenant, and edits stru
   await categoryCreator.getByLabel("Nome da nova categoria").fill(categoryName);
   await submitForm(page, categoryCreator.locator("form"));
   await expect(categoryCreator.locator(".catalog-feedback-ok")).toHaveText("Categoria criada.");
+  await expect(categoryCreator.getByLabel("Nome da nova categoria")).toHaveValue("");
+  await expect(categoryCreator.getByLabel("Ordem da nova categoria")).toHaveValue("0");
   await expect(cardHeading(page, categoryName)).toBeVisible();
 
   const productName = `E2E ${Date.now()} Pão de fermentação natural`;
@@ -183,7 +185,10 @@ test("a catalog manager lists and searches only their own tenant, and edits stru
 
   const variantName = `E2E ${Date.now()} Pão escuro`;
   const variantCreator = await openDisclosure(page, "Nova variante");
-  await variantCreator.getByLabel("Produto da nova variante").selectOption({ label: productName });
+  const variantProduct = variantCreator.getByLabel("Produto da nova variante");
+  await variantProduct.focus();
+  await variantProduct.selectOption({ label: productName });
+  await expect(variantProduct).toBeFocused();
   await variantCreator.getByLabel("Nome da nova variante").fill(variantName);
   await submitForm(page, variantCreator.locator("form"));
   await expect(variantCreator.locator(".catalog-feedback-ok")).toHaveText("Variante criada.");
@@ -206,7 +211,10 @@ test("a catalog manager lists and searches only their own tenant, and edits stru
   await categoryForm.getByLabel(`Nome de ${categoryName}`).fill(renamed);
   await submitForm(page, categoryForm);
   await expect(categoryForm.locator(".catalog-feedback-ok")).toHaveText("Categoria atualizada.");
+  await expect(categoryForm.getByLabel(`Nome de ${renamed}`)).toHaveValue(renamed);
   await expect(cardHeading(page, renamed)).toBeVisible();
+  const unrelatedCategoryForm = formOf(page, `Nome de ${fixture.seededCategoryName}`);
+  await expect(unrelatedCategoryForm.locator("output")).toHaveText("");
 
   // Archival is material and audited, and it is not a price change, so it stays permission-bound.
   const productCard = cardTitled(page, productName);
@@ -249,6 +257,8 @@ test("a money action is refused without a fresh confirmation, and a priced chang
   await expect(confirmedForm.locator(".catalog-feedback-invalid")).toHaveText(
     "Informe um valor decimal positivo com até 4 casas.",
   );
+  await expect(confirmedForm.getByLabel(`Preço base de ${fixture.seededOfferTitle}`)).toHaveValue("-1");
+  await expect(confirmedForm.getByLabel(`Preço promocional de ${fixture.seededOfferTitle}`)).toHaveValue("");
 
   await confirmedForm.getByLabel(`Preço base de ${fixture.seededOfferTitle}`).fill("7.5000");
   await confirmedForm.getByLabel(`Preço promocional de ${fixture.seededOfferTitle}`).fill("9.9000");
@@ -297,6 +307,14 @@ test("a money action is refused without a fresh confirmation, and a priced chang
   await expect(closedRow).toHaveCount(1);
   await expect(closedRow).toContainText(`${before.base_price} BRL`);
   await expect(closedRow).not.toContainText("atual");
+  const timelineInstants = await fixture.readLatestTimelineInstants();
+  expect(timelineInstants).toHaveLength(2);
+  await expect(openRows.locator("td").nth(5)).toHaveText(
+    new Date(timelineInstants[0].effective_from).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
+  );
+  await expect(closedRow.locator("td").nth(6)).toHaveText(
+    new Date(timelineInstants[1].effective_to!).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
+  );
   await expectAccessible(page);
 
   // Availability and material visibility are the other two privileged commercial acts. Each one moves
@@ -328,7 +346,11 @@ test("a money action is refused without a fresh confirmation, and a priced chang
   // a creation.
   await page.goto("/app/catalog");
   const offerCreator = await openDisclosure(page, "Nova oferta");
-  await offerCreator.getByLabel("Canal da nova oferta").selectOption({ label: runChannelName });
+  const channelSelect = offerCreator.getByLabel("Canal da nova oferta");
+  const initialChannel = await channelSelect.inputValue();
+  await channelSelect.focus();
+  await channelSelect.selectOption({ label: runChannelName });
+  await expect(channelSelect).toBeFocused();
   await offerCreator.getByLabel("Variante da nova oferta").selectOption({ label: fixture.seededVariantName });
   await offerCreator.getByLabel("Produto da nova oferta").selectOption("");
   await offerCreator.getByLabel("Preço base da nova oferta").fill("-3");
@@ -349,6 +371,8 @@ test("a money action is refused without a fresh confirmation, and a priced chang
   await offerCreator.getByLabel("Preço base da nova oferta").fill("12.3400");
   await submitForm(page, offerCreator.locator("form"));
   await expect(offerCreator.locator(".catalog-feedback-ok")).toHaveText("Oferta criada.");
+  await expect(channelSelect).toHaveValue(initialChannel);
+  await expect(offerCreator.getByLabel("Variante da nova oferta")).toHaveValue("");
   await expectAccessible(page);
 });
 

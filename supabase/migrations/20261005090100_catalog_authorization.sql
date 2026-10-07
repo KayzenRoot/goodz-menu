@@ -85,6 +85,45 @@ REVOKE ALL ON FUNCTION private.catalog_scope_grants(text, uuid, uuid, uuid)
   FROM PUBLIC, anon, authenticated, service_role;
 GRANT EXECUTE ON FUNCTION private.catalog_scope_grants(text, uuid, uuid, uuid) TO authenticated;
 
+-- The read policies below differ only in the scope they admit, so the capability itself is named
+-- once here instead of in seven policies.
+CREATE OR REPLACE FUNCTION private.catalog_readable_scoped(
+  p_organization_id uuid,
+  p_establishment_id uuid,
+  p_branch_id uuid
+)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $function$
+  SELECT (SELECT private.catalog_scope_grants('catalog.read', p_organization_id, p_establishment_id, p_branch_id));
+$function$;
+
+-- Organization-scoped tables carry no establishment or branch: the role scope must still contain the
+-- row, which for these tables means the organization alone.
+CREATE OR REPLACE FUNCTION private.catalog_readable_organization(p_organization_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $function$
+  SELECT (SELECT private.catalog_scope_grants('catalog.read', p_organization_id, NULL, NULL));
+$function$;
+
+REVOKE ALL ON FUNCTION private.catalog_readable_scoped(uuid, uuid, uuid),
+  private.catalog_readable_organization(uuid)
+  FROM PUBLIC, anon, authenticated, service_role;
+
+-- A row level policy is evaluated with the privileges of the calling role, so the wrappers the
+-- policies call have to be executable by that role. They authorize nothing on their own: each one
+-- delegates to private.catalog_scope_grants, which is where the membership and capability live.
+GRANT EXECUTE ON FUNCTION private.catalog_readable_scoped(uuid, uuid, uuid),
+  private.catalog_readable_organization(uuid)
+TO authenticated;
+
 ALTER TABLE public.product_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.product_variants ENABLE ROW LEVEL SECURITY;
@@ -121,43 +160,43 @@ CREATE POLICY product_categories_catalog_select
   ON public.product_categories
   FOR SELECT
   TO authenticated
-  USING ((SELECT private.catalog_scope_grants('catalog.read', organization_id, establishment_id, branch_id)));
+  USING ((SELECT private.catalog_readable_scoped(organization_id, establishment_id, branch_id)));
 
 CREATE POLICY products_catalog_select
   ON public.products
   FOR SELECT
   TO authenticated
-  USING ((SELECT private.catalog_scope_grants('catalog.read', organization_id, establishment_id, branch_id)));
+  USING ((SELECT private.catalog_readable_scoped(organization_id, establishment_id, branch_id)));
 
 CREATE POLICY product_variants_catalog_select
   ON public.product_variants
   FOR SELECT
   TO authenticated
-  USING ((SELECT private.catalog_scope_grants('catalog.read', organization_id, establishment_id, branch_id)));
+  USING ((SELECT private.catalog_readable_scoped(organization_id, establishment_id, branch_id)));
 
 CREATE POLICY sales_channels_catalog_select
   ON public.sales_channels
   FOR SELECT
   TO authenticated
-  USING ((SELECT private.catalog_scope_grants('catalog.read', organization_id, NULL, NULL)));
+  USING ((SELECT private.catalog_readable_organization(organization_id)));
 
 CREATE POLICY channel_offers_catalog_select
   ON public.channel_offers
   FOR SELECT
   TO authenticated
-  USING ((SELECT private.catalog_scope_grants('catalog.read', organization_id, establishment_id, branch_id)));
+  USING ((SELECT private.catalog_readable_scoped(organization_id, establishment_id, branch_id)));
 
 CREATE POLICY channel_offer_price_history_catalog_select
   ON public.channel_offer_price_history
   FOR SELECT
   TO authenticated
-  USING ((SELECT private.catalog_scope_grants('catalog.read', organization_id, NULL, NULL)));
+  USING ((SELECT private.catalog_readable_organization(organization_id)));
 
 CREATE POLICY catalog_command_receipts_catalog_select
   ON public.catalog_command_receipts
   FOR SELECT
   TO authenticated
-  USING ((SELECT private.catalog_scope_grants('catalog.read', organization_id, NULL, NULL)));
+  USING ((SELECT private.catalog_readable_organization(organization_id)));
 
 -- Reconstructable price timeline. security_invoker keeps the underlying catalog policy authoritative.
 -- Monetary columns are projected as text: the Data API serialises a bare numeric as a JSON number,

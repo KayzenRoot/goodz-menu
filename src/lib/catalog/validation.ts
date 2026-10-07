@@ -27,7 +27,7 @@ export type ValidationResult<T> =
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const CURRENCY_PATTERN = /^[A-Z]{3}$/;
 const CHANNEL_KEY_PATTERN = /^[a-z][a-z0-9_-]{0,63}$/;
-const INTEGER_PATTERN = /^-?[0-9]{1,9}$/;
+const INTEGER_PATTERN = /^-?\d{1,9}$/;
 
 type Collector = { issues: ValidationIssue[] };
 

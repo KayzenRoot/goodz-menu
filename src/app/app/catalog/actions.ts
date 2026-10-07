@@ -234,8 +234,6 @@ export async function updateOfferVisibilityAction(
   return dispatch(buildOfferVisibilityCommand, formData, updateChannelOfferVisibility);
 }
 
-export type PrivilegedIdentityActionState = CatalogActionState;
-
 /**
  * Confirms the caller's identity for the privileged commercial commands that follow.
  *
@@ -245,9 +243,9 @@ export type PrivilegedIdentityActionState = CatalogActionState;
  * that follows would be refused no matter what the operator typed.
  */
 export async function confirmPrivilegedIdentityAction(
-  _previous: PrivilegedIdentityActionState,
+  _previous: CatalogActionState,
   formData: FormData,
-): Promise<PrivilegedIdentityActionState> {
+): Promise<CatalogActionState> {
   const outcome = await confirmPrivilegedIdentity(formData.get("reauth-password"), formData.get("totp-code"));
   if (!outcome.ok) return { kind: "failed", message: outcome.message, code: "privileged_confirmation_required" };
   revalidatePath(CATALOG_PATH);

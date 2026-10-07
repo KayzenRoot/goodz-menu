@@ -98,9 +98,12 @@ function failure(code: CatalogCommandFailureCode): CatalogCommandOutcome {
 }
 
 function mapDatabaseError(error: unknown): CatalogCommandOutcome {
-  const code = typeof error === "object" && error !== null && "code" in error
-    ? String((error as { code?: unknown }).code ?? "")
-    : "";
+  const raw = typeof error === "object" && error !== null && "code" in error
+    ? (error as { code?: unknown }).code
+    : undefined;
+  // Only a string carries meaning here. Stringifying anything else would produce
+  // "[object Object]", which matches no SQLSTATE below and would silently report "unavailable".
+  const code = typeof raw === "string" ? raw : "";
   if (code === UNAUTHORIZED) return failure("unauthorized");
   if (code === UNIQUE_VIOLATION) return failure("conflict");
   if (code === INVALID_PARAMETER_VALUE || code === CHECK_VIOLATION || code === FOREIGN_KEY_VIOLATION) {
@@ -262,12 +265,13 @@ type ContractArguments = {
 };
 
 // Compiles only while every contract is described above and none of the descriptions is unused.
+// It is exported rather than asserted with a bare expression so the check survives a compiler that
+// would otherwise treat an unused binding as removable.
 type UndescribedContract = Exclude<RpcName, keyof ContractArguments>;
 type UnreachableContract = Exclude<keyof ContractArguments, RpcName>;
-const catalogContractsAreFullyDescribed: [UndescribedContract, UnreachableContract] extends [never, never]
+export const catalogContractsAreFullyDescribed: [UndescribedContract, UnreachableContract] extends [never, never]
   ? true
   : never = true;
-void catalogContractsAreFullyDescribed;
 
 /**
  * The generated types describe a Postgres numeric as a JavaScript number because the Data API

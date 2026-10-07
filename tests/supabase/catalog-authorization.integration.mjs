@@ -7,6 +7,18 @@ import { fileURLToPath } from "node:url";
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const supabaseCli = resolve(repositoryRoot, "node_modules/supabase/dist/supabase.js");
 const apiUrlPattern = /^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(?::\d+)?$/;
+// Every path this run assembles is written here as a literal, so the pattern is an allowlist rather
+// than a filter: nothing that reaches fetch is allowed to walk out of the two endpoints below.
+const adminPathPattern = /^\/admin\/users(?:\/[0-9a-f-]{36})?(?:\?[a-z0-9_=&]*)?$/;
+const relationPathPattern = /^[a-z][a-z0-9_]*$/;
+const controlCharacters = /[\s\u0000-\u001f\u007f]+/g;
+
+// Anything a refusal message or an assertion name carries is echoed to the console, so control
+// characters are folded away before printing: a server-supplied message must not be able to forge
+// extra log lines.
+function sanitizeForLog(text) {
+  return String(text).replace(controlCharacters, " ").slice(0, 300);
+}
 
 // The fixture is a stable two-tenant skeleton. Catalog rows are archival by design and the schema
 // refuses to hard delete them, so the skeleton is reused idempotently across runs rather than being
@@ -123,8 +135,22 @@ async function getLocalApi() {
 const FIXTURE_PASSWORD = `T-${randomBytes(24).toString("base64url")}a9!`;
 const fixtureEmail = (label) => `gmz-impl-007-api-${label}@goodz.test`;
 
+// The allowlist patterns above are checked here rather than trusted: a path that does not match
+// never reaches the network, so neither API traversal nor a request that leaves the local origin is
+// possible from this harness.
+function localEndpoint(api, prefix, path, pattern) {
+  if (!pattern.test(path)) {
+    throw new TypeError(`Refusing a request to an undeclared local path: ${sanitizeForLog(path)}`);
+  }
+  const endpoint = new URL(`${api.apiUrl}${prefix}${path}`);
+  if (endpoint.origin !== new URL(api.apiUrl).origin) {
+    throw new TypeError("Refusing a catalog request that left the local Supabase origin.");
+  }
+  return endpoint;
+}
+
 async function adminRequest(api, path, method, body) {
-  return fetch(`${api.apiUrl}/auth/v1${path}`, {
+  return fetch(localEndpoint(api, "/auth/v1", path, adminPathPattern), {
     method,
     headers: {
       apikey: api.serviceRoleKey,
@@ -267,7 +293,7 @@ INSERT INTO public.channel_offers (id, organization_id, sales_channel_id, produc
 
 function record(name) {
   checks.push(name);
-  console.log(`PASS ${name}`);
+  console.log(`PASS ${sanitizeForLog(name)}`);
 }
 
 function requestHeaders(api, accessToken) {
@@ -277,7 +303,7 @@ function requestHeaders(api, accessToken) {
 }
 
 async function selectRows(api, path, accessToken, search = {}) {
-  const url = new URL(`${api.apiUrl}/rest/v1/${path}`);
+  const url = localEndpoint(api, "/rest/v1/", path, relationPathPattern);
   for (const [key, value] of Object.entries(search)) url.searchParams.set(key, value);
   const response = await fetch(url, { headers: requestHeaders(api, accessToken) });
   const body = await response.json().catch(() => null);
@@ -308,7 +334,7 @@ async function expectDeniedRead(api, name, path, accessToken) {
 }
 
 async function expectDeniedWrite(api, name, path, method, filters, body, accessToken) {
-  const url = new URL(`${api.apiUrl}/rest/v1/${path}`);
+  const url = localEndpoint(api, "/rest/v1/", path, relationPathPattern);
   for (const [key, value] of Object.entries(filters)) url.searchParams.set(key, value);
   const response = await fetch(url, {
     method,
@@ -330,6 +356,7 @@ const CONTRACT_PARAMETERS = {
     "p_name", "p_description", "p_display_order", "p_correlation_id", "p_idempotency_key",
   ],
   catalog_update_category: ["p_category_id", "p_name", "p_description", "p_display_order", "p_correlation_id", "p_idempotency_key"],
+  catalog_update_variant: ["p_variant_id", "p_name", "p_archived", "p_correlation_id", "p_idempotency_key"],
   catalog_create_channel_offer: [
     "p_organization_id", "p_establishment_id", "p_branch_id", "p_sales_channel_id",
     "p_product_id", "p_product_variant_id", "p_title", "p_description",
@@ -349,7 +376,7 @@ function withFullSignature(fn, payload) {
 }
 
 async function callContract(api, name, fn, payload, accessToken) {
-  const response = await fetch(`${api.apiUrl}/rest/v1/rpc/${fn}`, {
+  const response = await fetch(localEndpoint(api, "/rest/v1/rpc/", fn, relationPathPattern), {
     method: "POST",
     headers: { ...requestHeaders(api, accessToken), "content-type": "application/json" },
     body: JSON.stringify(withFullSignature(fn, payload)),
@@ -379,18 +406,9 @@ async function expectContractRefused(api, name, fn, payload, accessToken, expect
   record(name);
 }
 
-async function run() {
-  const api = await getLocalApi();
-
-  users.aManager = await ensureAuthenticatedUser(api, "tenant-a-manager");
-  users.aReader = await ensureAuthenticatedUser(api, "tenant-a-reader");
-  users.aWithout = await ensureAuthenticatedUser(api, "tenant-a-without-capability");
-  users.bManager = await ensureAuthenticatedUser(api, "tenant-b-manager");
-
-  await executeFixtureSql(fixtureSql());
-
+async function assertAnonymousHoldsNothing(api) {
   // -------------------------------------------------------------------------
-  // 1. The anonymous client holds nothing
+  // The anonymous client holds nothing
   // -------------------------------------------------------------------------
   await expectDeniedRead(api, "anon cannot read the canonical product table", "products", undefined);
   await expectDeniedRead(api, "anon cannot read the product category table", "product_categories", undefined);
@@ -412,9 +430,11 @@ async function run() {
       p_correlation_id: randomUUID(), p_idempotency_key: randomUUID(),
     }, undefined, "permission denied"
   );
+}
 
+async function assertTenantBoundaryIsEnforced(api) {
   // -------------------------------------------------------------------------
-  // 2. Own tenant allow, foreign tenant deny, no enumeration
+  // Own tenant allow, foreign tenant deny, no enumeration
   // -------------------------------------------------------------------------
   // Catalog rows are archival and this fixture is reused across runs, so the assertions are scoped
   // to the fixture identifiers instead of total row counts: a growing catalog must not make the
@@ -445,9 +465,11 @@ async function run() {
   );
   await expectRows(api, "a catalog reader reads the catalog it is granted", "products", users.aReader.accessToken, 1, { select: "id", id: `eq.${tenant.products.a}` });
   await expectRows(api, "a member without catalog.read sees no catalog row", "products", users.aWithout.accessToken, 0, { select: "id", id: `eq.${tenant.products.a}` });
+}
 
+async function assertMoneyCrossesTheWireAsText(api) {
   // -------------------------------------------------------------------------
-  // 3. Exact money crosses the Data API as decimal text
+  // Exact money crosses the Data API as decimal text
   // -------------------------------------------------------------------------
   // PostgREST serialises a bare numeric column as a JSON number, which a browser reads back through
   // an IEEE-754 double. The projection publishes text instead, so the admitted digits survive the
@@ -459,7 +481,7 @@ async function run() {
     throw new Error(`The raw offer row was not readable: ${JSON.stringify(raw.body)}.`);
   }
   if (typeof raw.body[0].base_price_amount !== "number") {
-    throw new Error(`Expected the raw numeric column to arrive as a JSON number, received ${typeof raw.body[0].base_price_amount}.`);
+    throw new TypeError(`Expected the raw numeric column to arrive as a JSON number, received ${typeof raw.body[0].base_price_amount}.`);
   }
   record("the raw offer table serialises money as a JSON number, which is the hazard the projection removes");
 
@@ -488,13 +510,15 @@ async function run() {
   }
   for (const row of timeline.body) {
     if (typeof row.base_price_amount !== "string") {
-      throw new Error("The price timeline projected money as a JSON number.");
+      throw new TypeError("The price timeline projected money as a JSON number.");
     }
   }
   record("the price timeline projects money as exact decimal text for every revision it returns");
+}
 
+async function assertDirectClientMutationIsDenied(api) {
   // -------------------------------------------------------------------------
-  // 4. Direct client mutation is denied across the whole catalog surface
+  // Direct client mutation is denied across the whole catalog surface
   // -------------------------------------------------------------------------
   await expectDeniedWrite(api, "authenticated cannot insert a category", "product_categories", "POST", {}, { organization_id: tenant.organizations.a, name: "Unauthorized" }, users.aManager.accessToken);
   await expectDeniedWrite(api, "authenticated cannot update a category", "product_categories", "PATCH", { id: `eq.${tenant.categories.a}` }, { name: "Unauthorized" }, users.aManager.accessToken);
@@ -511,9 +535,11 @@ async function run() {
   await expectDeniedWrite(api, "authenticated cannot rewrite a price history row", "channel_offer_price_history", "PATCH", { id: `eq.${tenant.offers.a}` }, { base_price_amount: "1.0000" }, users.aManager.accessToken);
   await expectDeniedWrite(api, "authenticated cannot delete a price history row", "channel_offer_price_history", "DELETE", { id: `eq.${tenant.offers.a}` }, undefined, users.aManager.accessToken);
   await expectDeniedWrite(api, "authenticated cannot forge a command receipt", "catalog_command_receipts", "POST", {}, { organization_id: tenant.organizations.a, idempotency_key: randomUUID(), actor_user_id: users.aManager.id, correlation_id: randomUUID(), audit_event_id: randomUUID(), action: "catalog.product.created", target_type: "product", target_id: randomUUID() }, users.aManager.accessToken);
+}
 
+async function assertCommandCapabilityAndTenant(api) {
   // -------------------------------------------------------------------------
-  // 5. Commands enforce capability and tenant, and the Data API is the only path
+  // Commands enforce capability and tenant, and the Data API is the only path
   // -------------------------------------------------------------------------
   await expectContractAllowed(
     api, "a tenant manager holding catalog.write creates a category through the Data API", "catalog_create_category",
@@ -551,6 +577,35 @@ async function run() {
     }, users.aWithout.accessToken, "not authorized for this catalog operation"
   );
   await expectContractRefused(
+    api, "a catalog reader cannot update a variant", "catalog_update_variant",
+    {
+      p_variant_id: tenant.variants.a, p_name: "Unauthorized variant name", p_archived: false,
+      p_correlation_id: randomUUID(), p_idempotency_key: randomUUID(),
+    }, users.aReader.accessToken, "not authorized for this catalog operation"
+  );
+  const variantResult = await expectContractAllowed(
+    api, "a tenant manager holding catalog.write updates its tenant variant", "catalog_update_variant",
+    {
+      p_variant_id: tenant.variants.a, p_name: `Data API variant ${runTag}`, p_archived: false,
+      p_correlation_id: randomUUID(), p_idempotency_key: randomUUID(),
+    }, users.aManager.accessToken
+  );
+  if (variantResult?.action !== "catalog.variant.updated" || variantResult?.target_id !== tenant.variants.a) {
+    throw new Error("The admitted variant command returned an unexpected durable result.");
+  }
+  record("the admitted variant command reports its action and target");
+  const updatedVariant = await selectRows(api, "product_variants", users.aManager.accessToken, {
+    select: "id,name,status", id: `eq.${tenant.variants.a}`,
+  });
+  if (
+    updatedVariant.body?.length !== 1
+    || updatedVariant.body[0].name !== `Data API variant ${runTag}`
+    || updatedVariant.body[0].status !== "active"
+  ) {
+    throw new Error("The admitted variant command did not persist its tenant-scoped state.");
+  }
+  record("the admitted variant command persists only the requested tenant variant");
+  await expectContractRefused(
     api, "a single-factor Data API session cannot reprice an offer", "catalog_update_channel_offer_price",
     {
       p_offer_id: tenant.offers.a, p_base_price_amount: "1.0000",
@@ -585,9 +640,11 @@ async function run() {
     throw new Error(`A refused privileged mutation changed the offer: ${JSON.stringify(unchanged.body)}.`);
   }
   record("no refused privileged mutation changed the persisted price or the revision");
+}
 
+async function assertAdmittedScopesAreTenantBound(api) {
   // -------------------------------------------------------------------------
-  // 6. The admitted scope read contract is tenant bound
+  // The admitted scope read contract is tenant bound
   // -------------------------------------------------------------------------
   const managerScopes = await expectContractAllowed(
     api, "a tenant manager reads its own admitted write scopes", "catalog_admitted_scopes",
@@ -624,9 +681,11 @@ async function run() {
     throw new Error(`A foreign manager must only ever see its own scopes: ${JSON.stringify(foreignScopes.body)}.`);
   }
   record("a foreign manager sees only its own admitted scopes");
+}
 
+async function assertReplayIsRecognised(api) {
   // -------------------------------------------------------------------------
-  // 7. Replay is recognised over the wire
+  // Replay is recognised over the wire
   // -------------------------------------------------------------------------
   const replayKey = randomUUID();
   const replayPayload = {
@@ -645,6 +704,25 @@ async function run() {
     { ...replayPayload, p_correlation_id: randomUUID() }, users.aReader.accessToken,
     "not authorized for this catalog operation"
   );
+}
+
+async function run() {
+  const api = await getLocalApi();
+
+  users.aManager = await ensureAuthenticatedUser(api, "tenant-a-manager");
+  users.aReader = await ensureAuthenticatedUser(api, "tenant-a-reader");
+  users.aWithout = await ensureAuthenticatedUser(api, "tenant-a-without-capability");
+  users.bManager = await ensureAuthenticatedUser(api, "tenant-b-manager");
+
+  await executeFixtureSql(fixtureSql());
+
+  await assertAnonymousHoldsNothing(api);
+  await assertTenantBoundaryIsEnforced(api);
+  await assertMoneyCrossesTheWireAsText(api);
+  await assertDirectClientMutationIsDenied(api);
+  await assertCommandCapabilityAndTenant(api);
+  await assertAdmittedScopesAreTenantBound(api);
+  await assertReplayIsRecognised(api);
 
   console.log(`Catalog Auth/Data API integration passed ${checks.length} checks using synthetic local users.`);
 }
@@ -660,6 +738,6 @@ try {
 }
 
 if (failure) {
-  console.error(failure instanceof Error ? failure.message : "Catalog Auth/Data API integration failed.");
+  console.error(sanitizeForLog(failure instanceof Error ? failure.message : "Catalog Auth/Data API integration failed."));
   process.exitCode = 1;
 }

@@ -35,7 +35,8 @@ export type CatalogOfferState = {
   open_revisions: number;
   audit_rows: number;
 };
-type OfferState = CatalogOfferState;
+
+export type CatalogTimelineInstant = { effective_from: string; effective_to: string | null };
 
 function offerStateSql(offerId: string) {
   return `SELECT
@@ -71,6 +72,8 @@ export type CatalogUiFixture = {
   foreignCategoryName: string;
   /** Exact persisted commercial state of an offer, read straight from the local database. */
   readOfferState(offerId?: string): Promise<CatalogOfferState>;
+  /** Latest timeline instants, read straight from the local database for deterministic timezone proof. */
+  readLatestTimelineInstants(offerId?: string): Promise<CatalogTimelineInstant[]>;
 };
 
 const root = process.cwd();
@@ -151,7 +154,10 @@ function runSupabase(args: string[]): Promise<string> {
     child.once("error", reject);
     child.once("close", (code, signal) => {
       if (code === 0) resolve(stdout);
-      else reject(new Error(`Local Supabase command failed (${signal || `exit ${code}`}). ${sanitize(`${stderr}\n${stdout}`)}`));
+      else {
+        const reason = signal || `exit ${code}`;
+        reject(new Error(`Local Supabase command failed (${reason}). ${sanitize([stderr, stdout].join("\n"))}`));
+      }
     });
   });
 }
@@ -171,20 +177,27 @@ function sanitize(value: string) {
 }
 
 async function executeSql(sql: string) {
-  // The CLI accepts one prepared statement per request; fixture mutations depend on this order.
-  for (const statement of sql.split(";").map((part) => part.trim()).filter(Boolean)) {
-    await runSupabase(["db", "query", "--local", statement]);
-  }
+  // The CLI accepts one prepared statement per request; fixture mutations depend on this order, so
+  // they are chained one at a time rather than launched together.
+  const statements = sql.split(";").map((part) => part.trim()).filter(Boolean);
+  await statements.reduce<Promise<unknown>>(
+    (previous, statement) => previous.then(() => runSupabase(["db", "query", "--local", statement])),
+    Promise.resolve(),
+  );
 }
 
-async function queryJson<T>(sql: string): Promise<T> {
+async function queryJsonRows<T>(sql: string): Promise<T[]> {
   const output = await runSupabase(["db", "query", "--local", "--output-format", "json", sql]);
   const jsonStart = output.search(/[[{]/);
   if (jsonStart < 0) throw new Error("A leitura local do catálogo não retornou um resultado legível.");
   const parsed = JSON.parse(output.slice(jsonStart)) as T[] | { rows?: T[] };
   const rows = Array.isArray(parsed) ? parsed : parsed.rows;
   if (!Array.isArray(rows) || rows.length === 0) throw new Error("A leitura local do catálogo não retornou nenhuma linha.");
-  return rows[0];
+  return rows;
+}
+
+async function queryJson<T>(sql: string): Promise<T> {
+  return (await queryJsonRows<T>(sql))[0];
 }
 
 async function getLocalApi(): Promise<LocalApi> {
@@ -421,13 +434,23 @@ INSERT INTO public.channel_offer_price_history (id, organization_id, channel_off
   // The baseline is read rather than asserted, because catalog truth is archival: after a second run
   // the offer legitimately carries a different price, a later revision and a longer timeline. Every
   // assertion about a change is therefore relative to what this read observes.
-  const seeded = await queryJson<OfferState>(offerStateSql(ids.offer));
+  const seeded = await queryJson<CatalogOfferState>(offerStateSql(ids.offer));
   if (typeof seeded.price_revision !== "number" || seeded.price_revision < 1) {
     throw new Error("The catalog E2E fixture offer has no usable commercial state; reset the local database.");
   }
 
-  async function readOfferState(offerId = ids.offer): Promise<OfferState> {
-    return queryJson<OfferState>(offerStateSql(offerId));
+  async function readOfferState(offerId = ids.offer): Promise<CatalogOfferState> {
+    return queryJson<CatalogOfferState>(offerStateSql(offerId));
+  }
+
+  async function readLatestTimelineInstants(offerId = ids.offer): Promise<CatalogTimelineInstant[]> {
+    return queryJsonRows<CatalogTimelineInstant>(`SELECT
+  to_char(effective_from AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS effective_from,
+  to_char(effective_to AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS effective_to
+FROM public.channel_offer_price_timeline
+WHERE channel_offer_id = '${offerId}'
+ORDER BY price_revision DESC
+LIMIT 2;`);
   }
 
   return {
@@ -448,6 +471,7 @@ INSERT INTO public.channel_offer_price_history (id, organization_id, channel_off
     seededOfferTitle: names.offerTitle,
     foreignCategoryName: names.foreignCategory,
     readOfferState,
+    readLatestTimelineInstants,
   };
 }
 

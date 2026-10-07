@@ -90,7 +90,7 @@ isOneToOne: false
                     "audit_event_id": string,"availability": string,"base_price_amount": number,"base_price_currency": string,"channel_offer_id": string,"correlation_id": string,"effective_from": string,"id": string,"organization_id": string,"price_revision": number,"promotional_price_amount": number | null,"recorded_at": string,"recorded_by_user_id": string,"visibility": string
                   }
                   Insert: {
-                    "audit_event_id": string,"availability": string,"base_price_amount": number,"base_price_currency": string,"channel_offer_id": string,"correlation_id": string,"effective_from": string,"id"?: string,"organization_id": string,"price_revision": number,"promotional_price_amount"?: number | null,"recorded_at"?: string,"recorded_by_user_id": string,"visibility": string
+                    "audit_event_id": string,"availability"?: string,"base_price_amount": number,"base_price_currency": string,"channel_offer_id": string,"correlation_id": string,"effective_from": string,"id"?: string,"organization_id": string,"price_revision": number,"promotional_price_amount"?: number | null,"recorded_at"?: string,"recorded_by_user_id": string,"visibility"?: string
                   }
                   Update: {
                     "audit_event_id"?: string,"availability"?: string,"base_price_amount"?: number,"base_price_currency"?: string,"channel_offer_id"?: string,"correlation_id"?: string,"effective_from"?: string,"id"?: string,"organization_id"?: string,"price_revision"?: number,"promotional_price_amount"?: number | null,"recorded_at"?: string,"recorded_by_user_id"?: string,"visibility"?: string

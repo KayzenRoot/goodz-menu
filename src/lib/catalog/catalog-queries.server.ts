@@ -107,6 +107,7 @@ export async function loadCatalogOverview(
         const query = client
           .from("channel_offer_price_timeline")
           .select("channel_offer_id, price_revision, base_price_amount, base_price_currency, promotional_price_amount, availability, visibility, effective_from, effective_to, correlation_id", { count: "exact" })
+          .order("channel_offer_id", { ascending: true })
           .order("price_revision", { ascending: false })
           .range(from, to);
         return offerId ? query.eq("channel_offer_id", offerId) : query;

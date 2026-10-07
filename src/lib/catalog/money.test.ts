@@ -78,8 +78,8 @@ describe("compareMoney", () => {
   it("distinguishes amounts a binary float would round together", () => {
     // In IEEE-754 the float sum of 0.1 and 0.2 is not the float 0.3; the exact comparison must not
     // inherit that, and must still separate two amounts four places apart.
-    expect(0.1 + 0.2 === 0.3).toBe(false);
-    expect(Number("0.3000") === 0.1 + 0.2).toBe(false);
+    expect(0.1 + 0.2).not.toBe(0.3);
+    expect(Number("0.3000")).not.toBe(0.1 + 0.2);
     expect(compareMoney(money("0.1000"), money("0.2000"))).toBe(-1);
     expect(compareMoney(money("0.3000"), money("0.3001"))).toBe(-1);
   });
