@@ -87,3 +87,38 @@ After governed execution:
 
 STOP CONDITION:
 `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`
+
+
+## GMZ-IMPL-007-CD-001 — Correction Execution Pack
+
+Authorization source: objective review of `5e0712a0084126d39e0b36d9236892715e9c375b`.
+
+### Decision-economy rule — Jev / TypeSafe
+
+The executor has the TypeSafe/Jev skill and MCP installed. Use them to reduce expensive coding-model reasoning **only when the decision is atomic and structured**, for example:
+- choose one option from a closed set;
+- score candidates against a stated rubric;
+- evaluate a narrow true/false proposition;
+- classify or route a task before selecting a handler.
+
+Prefer one batched Jev call for independent atomic questions. Use returned probabilities/confidence as routing evidence. If confidence is low, the state is underspecified, or the decision is security/auth/money/high-impact, Jev is advisory only: verify with deterministic repository evidence/tests and use the primary coding model for the required reasoning. Do **not** use Jev as a replacement for code generation, SQL authoring, multi-step reasoning, open-ended architecture, or final objective acceptance.
+
+Repository truth, locked sources, tests and deterministic security proof outrank any model judgment.
+
+### CD-001 execution order
+
+1. Preflight exact branch/ancestry, Context Lock, `16 / 16 MATCH`, clean tree, `.gef` unchanged.
+2. Correct establishment-scope containment in `catalog_scope_grants`.
+3. Add positive and negative establishment-scoped catalog pgTAP proof; extend authenticated integration proof only if needed.
+4. Explicitly revoke EXECUTE on exact `private.catalog_settle` and `private.catalog_settle_revision` signatures from `PUBLIC, anon, authenticated, service_role`.
+5. Add deterministic privilege assertions proving the helpers cannot be invoked directly by `authenticated`.
+6. Correct the reader E2E locator to a semantic button-role assertion.
+7. Run focused proofs first.
+8. Run complete ELEVATED L5 at the exact corrected implementation head.
+9. Publish evidence, refresh hosted SonarCloud/Socket/CodeRabbit on the exact final head, leave PR open/draft.
+10. Do not touch Issue #70 performance hardening in this delta.
+
+If any correction requires widening runtime scope beyond the authorized write set, STOP `BLOCKED` and request a separate delta.
+
+CD-001 STOP CONDITION:
+`GMZ_IMPL_007_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
