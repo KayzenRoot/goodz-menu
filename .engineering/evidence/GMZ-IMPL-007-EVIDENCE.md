@@ -304,3 +304,25 @@ reutilizados como prova final. `docker compose config` isoladamente não substit
   for publicado.
 - Estado: `BLOCKED_FOR_OBJECTIVE_AUDIT`; somente uma recuperação segura do host seguida do HIGH_ASSURANCE
   L5 completo pode liberar nova avaliação do stop condition.
+
+
+## Objective review — hosted implementation review / CD-001 authorization
+
+Reviewed implementation HEAD: `5e0712a0084126d39e0b36d9236892715e9c375b`.
+
+Fresh hosted CodeRabbit full implementation review `812e624c-c4cc-48fa-91bf-733d75c92a2a` completed over the implementation delta and produced three actionable inline findings plus one performance nit.
+
+Independent verification:
+- **CONFIRMED MAJOR functional:** `catalog_scope_grants` excludes branch rows for an establishment-scoped role by requiring `p_branch_id IS NULL`. This contradicts the promoted tenant hierarchy, whose pgTAP proof explicitly requires an establishment-scoped role to read every branch in its assigned establishment.
+- **CONFIRMED MAJOR security hardening / least privilege:** the promoted membership migration ultimately grants `USAGE ON SCHEMA private TO authenticated`; the two `SECURITY DEFINER` settlement helpers are absent from the explicit REVOKE block. They must receive exact-signature `REVOKE ALL` and deterministic privilege proof.
+- **CONFIRMED MINOR test integrity:** the reader presentation-control assertion uses `getByLabel` for a button and is vacuous.
+- **CONFIRMED LOW performance debt:** catalog overview loads the full append-only price timeline when no offer is selected. Deferred to Issue #70 because bounded timeline loading is outside this Work Order's acceptance criteria and should not enlarge a security/authorization correction delta.
+
+Disposition: `CORRECTION_REQUIRED`.
+
+No implementation merge or credit promotion is authorized. Credit remains `52 / 515 = 10.10%`.
+
+Authorized correction: `GMZ-IMPL-007-CD-001`.
+
+Required completion token:
+`GMZ_IMPL_007_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
