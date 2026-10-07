@@ -1093,3 +1093,22 @@ accepts the increment. Nothing below has been promoted.
 - proposed credit on acceptance: `61 / 515 = 11.84%` (GMZ-M06 `7`, GMZ-M26 `2`) — not granted here
 
 STOP CONDITION: `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-007-CD-001 — proposed Checkpoint Delta (NOT APPLIED)
+
+- Objective-review implementation HEAD: `5e0712a0084126d39e0b36d9236892715e9c375b`.
+- Fresh hosted CodeRabbit implementation review: completed; `3` actionable inline findings.
+- Confirmed findings: `2 MAJOR / 1 MINOR`.
+  - establishment scope incorrectly excludes branch rows inside the assigned establishment;
+  - two private SECURITY DEFINER settlement helpers lack explicit EXECUTE revocation while `authenticated` has private-schema USAGE;
+  - reader E2E presentation-control assertion is vacuous.
+- LOW performance hardening for unbounded overview price-history loading is deferred to Issue `#70`.
+- Correction Delta: `GMZ-IMPL-007-CD-001`.
+- `.engineering/CHECKPOINT.json`: unchanged.
+- production credit: unchanged at `52 / 515 = 10.10%`.
+- PR `#69`: remains OPEN/DRAFT and unmerged.
+- next action: execute CD-001, run complete exact-head ELEVATED L5 and fresh hosted review.
+
+CORRECTION TOKEN:
+`GMZ_IMPL_007_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
