@@ -70,8 +70,7 @@ AS $function$
           -- point of granting that role at organization level.
           WHEN private.is_organization_scope(membership_role.scope_type) THEN TRUE
           WHEN private.is_establishment_scope(membership_role.scope_type) THEN
-            p_branch_id IS NULL
-            AND membership_role.establishment_id = p_establishment_id
+            membership_role.establishment_id = p_establishment_id
           WHEN private.is_branch_scope(membership_role.scope_type) THEN
             p_branch_id IS NOT NULL
             AND membership_role.establishment_id = p_establishment_id

@@ -81,7 +81,11 @@ CREATE TABLE public.pgtap_catalog_tenant_fixture (
   organization_scope text NOT NULL,
   currency_brl text NOT NULL,
   availability_available text NOT NULL,
-  visibility_visible text NOT NULL
+  visibility_visible text NOT NULL,
+  user_establishment_manager uuid NOT NULL,
+  role_establishment_manager uuid NOT NULL,
+  membership_establishment_manager uuid NOT NULL,
+  membership_role_establishment_manager uuid NOT NULL
 );
 INSERT INTO public.pgtap_catalog_tenant_fixture VALUES (
 '85000000-0000-4000-8000-000000000010',
@@ -144,7 +148,11 @@ INSERT INTO public.pgtap_catalog_tenant_fixture VALUES (
 'organization',
 'BRL',
 'available',
-'visible'
+  'visible',
+  '85000000-0000-4000-8000-000000000007',
+  '85000000-0000-4000-8000-000000000026',
+  '85000000-0000-4000-8000-000000000036',
+  '85000000-0000-4000-8000-000000000046'
 );
 
 -- The catalog assertions below run as anon and authenticated, and the claims of the session under
@@ -187,7 +195,8 @@ VALUES
   ((SELECT user_branch_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT authenticated_role FROM public.pgtap_catalog_tenant_fixture), (SELECT authenticated_role FROM public.pgtap_catalog_tenant_fixture), 'gmz007-branch-manager@example.invalid', now(), (SELECT empty_metadata FROM public.pgtap_catalog_tenant_fixture), (SELECT empty_metadata FROM public.pgtap_catalog_tenant_fixture), now(), now()),
   ((SELECT user_no_capability FROM public.pgtap_catalog_tenant_fixture), (SELECT authenticated_role FROM public.pgtap_catalog_tenant_fixture), (SELECT authenticated_role FROM public.pgtap_catalog_tenant_fixture), 'gmz007-no-capability@example.invalid', now(), (SELECT empty_metadata FROM public.pgtap_catalog_tenant_fixture), (SELECT empty_metadata FROM public.pgtap_catalog_tenant_fixture), now(), now()),
   ((SELECT user_foreign_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT authenticated_role FROM public.pgtap_catalog_tenant_fixture), (SELECT authenticated_role FROM public.pgtap_catalog_tenant_fixture), 'gmz007-foreign-manager@example.invalid', now(), (SELECT empty_metadata FROM public.pgtap_catalog_tenant_fixture), (SELECT empty_metadata FROM public.pgtap_catalog_tenant_fixture), now(), now()),
-  ((SELECT user_readonly FROM public.pgtap_catalog_tenant_fixture), (SELECT authenticated_role FROM public.pgtap_catalog_tenant_fixture), (SELECT authenticated_role FROM public.pgtap_catalog_tenant_fixture), 'gmz007-readonly@example.invalid', now(), (SELECT empty_metadata FROM public.pgtap_catalog_tenant_fixture), (SELECT empty_metadata FROM public.pgtap_catalog_tenant_fixture), now(), now());
+  ((SELECT user_readonly FROM public.pgtap_catalog_tenant_fixture), (SELECT authenticated_role FROM public.pgtap_catalog_tenant_fixture), (SELECT authenticated_role FROM public.pgtap_catalog_tenant_fixture), 'gmz007-readonly@example.invalid', now(), (SELECT empty_metadata FROM public.pgtap_catalog_tenant_fixture), (SELECT empty_metadata FROM public.pgtap_catalog_tenant_fixture), now(), now()),
+  ((SELECT user_establishment_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT authenticated_role FROM public.pgtap_catalog_tenant_fixture), (SELECT authenticated_role FROM public.pgtap_catalog_tenant_fixture), 'gmz007-establishment-manager@example.invalid', now(), (SELECT empty_metadata FROM public.pgtap_catalog_tenant_fixture), (SELECT empty_metadata FROM public.pgtap_catalog_tenant_fixture), now(), now());
 
 INSERT INTO public.organizations (id, display_name) VALUES
   ((SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), 'GMZ-IMPL-007 tenant A'),
@@ -207,7 +216,8 @@ INSERT INTO public.tenant_roles (id, organization_id, role_key, display_name) VA
   ((SELECT role_branch_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), 'gmz007-branch-manager', 'Branch catalog manager'),
   ('85000000-0000-4000-8000-000000000022', (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), 'gmz007-no-capability', 'Role without catalog capability'),
   ((SELECT role_foreign_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT tenant_b FROM public.pgtap_catalog_tenant_fixture), 'gmz007-foreign-manager', 'Foreign catalog manager'),
-  ((SELECT role_readonly FROM public.pgtap_catalog_tenant_fixture), (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), 'gmz007-readonly', 'Catalog reader');
+  ((SELECT role_readonly FROM public.pgtap_catalog_tenant_fixture), (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), 'gmz007-readonly', 'Catalog reader'),
+  ((SELECT role_establishment_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), 'gmz007-establishment-manager', 'Establishment catalog manager');
 
 -- The capability vocabulary reuses the existing permissions model rather than introducing a parallel
 -- one, and it is split so that price and availability are separately grantable.
@@ -220,6 +230,8 @@ INSERT INTO public.role_permissions (organization_id, role_id, permission_key) V
   ((SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT role_branch_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT catalog_write FROM public.pgtap_catalog_tenant_fixture)),
   ((SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT role_branch_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT catalog_price_manage FROM public.pgtap_catalog_tenant_fixture)),
   ((SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT role_readonly FROM public.pgtap_catalog_tenant_fixture), (SELECT catalog_read FROM public.pgtap_catalog_tenant_fixture)),
+  ((SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT role_establishment_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT catalog_read FROM public.pgtap_catalog_tenant_fixture)),
+  ((SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT role_establishment_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT catalog_write FROM public.pgtap_catalog_tenant_fixture)),
   ((SELECT tenant_b FROM public.pgtap_catalog_tenant_fixture), (SELECT role_foreign_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT catalog_read FROM public.pgtap_catalog_tenant_fixture)),
   ((SELECT tenant_b FROM public.pgtap_catalog_tenant_fixture), (SELECT role_foreign_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT catalog_write FROM public.pgtap_catalog_tenant_fixture)),
   ((SELECT tenant_b FROM public.pgtap_catalog_tenant_fixture), (SELECT role_foreign_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT catalog_price_manage FROM public.pgtap_catalog_tenant_fixture)),
@@ -231,21 +243,25 @@ VALUES
   ((SELECT membership_branch_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT user_branch_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT active_status FROM public.pgtap_catalog_tenant_fixture)),
   ((SELECT membership_no_capability FROM public.pgtap_catalog_tenant_fixture), (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT user_no_capability FROM public.pgtap_catalog_tenant_fixture), (SELECT active_status FROM public.pgtap_catalog_tenant_fixture)),
   ((SELECT membership_foreign_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT tenant_b FROM public.pgtap_catalog_tenant_fixture), (SELECT user_foreign_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT active_status FROM public.pgtap_catalog_tenant_fixture)),
-  ((SELECT membership_readonly FROM public.pgtap_catalog_tenant_fixture), (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT user_readonly FROM public.pgtap_catalog_tenant_fixture), (SELECT active_status FROM public.pgtap_catalog_tenant_fixture));
+  ((SELECT membership_readonly FROM public.pgtap_catalog_tenant_fixture), (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT user_readonly FROM public.pgtap_catalog_tenant_fixture), (SELECT active_status FROM public.pgtap_catalog_tenant_fixture)),
+  ((SELECT membership_establishment_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT user_establishment_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT active_status FROM public.pgtap_catalog_tenant_fixture));
 INSERT INTO public.membership_roles (id, organization_id, membership_id, role_id, scope_type, establishment_id, branch_id)
 VALUES
   ('85000000-0000-4000-8000-000000000040', (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT membership_org_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT role_org_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT organization_scope FROM public.pgtap_catalog_tenant_fixture), NULL, NULL),
   ('85000000-0000-4000-8000-000000000041', (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT membership_branch_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT role_branch_manager FROM public.pgtap_catalog_tenant_fixture), 'branch', (SELECT establishment_a1 FROM public.pgtap_catalog_tenant_fixture), (SELECT branch_a1_1 FROM public.pgtap_catalog_tenant_fixture)),
   ('85000000-0000-4000-8000-000000000042', (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT membership_no_capability FROM public.pgtap_catalog_tenant_fixture), '85000000-0000-4000-8000-000000000022', (SELECT organization_scope FROM public.pgtap_catalog_tenant_fixture), NULL, NULL),
   ('85000000-0000-4000-8000-000000000043', (SELECT tenant_b FROM public.pgtap_catalog_tenant_fixture), (SELECT membership_foreign_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT role_foreign_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT organization_scope FROM public.pgtap_catalog_tenant_fixture), NULL, NULL),
-  ('85000000-0000-4000-8000-000000000044', (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT membership_readonly FROM public.pgtap_catalog_tenant_fixture), (SELECT role_readonly FROM public.pgtap_catalog_tenant_fixture), (SELECT organization_scope FROM public.pgtap_catalog_tenant_fixture), NULL, NULL);
+  ('85000000-0000-4000-8000-000000000044', (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT membership_readonly FROM public.pgtap_catalog_tenant_fixture), (SELECT role_readonly FROM public.pgtap_catalog_tenant_fixture), (SELECT organization_scope FROM public.pgtap_catalog_tenant_fixture), NULL, NULL),
+  ((SELECT membership_role_establishment_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT membership_establishment_manager FROM public.pgtap_catalog_tenant_fixture), (SELECT role_establishment_manager FROM public.pgtap_catalog_tenant_fixture), 'establishment', (SELECT establishment_a1 FROM public.pgtap_catalog_tenant_fixture), NULL);
 
 INSERT INTO public.product_categories (id, organization_id, name, display_order) VALUES
   ((SELECT category_a FROM public.pgtap_catalog_tenant_fixture), (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), 'Bebidas', 10),
   ((SELECT category_b FROM public.pgtap_catalog_tenant_fixture), (SELECT tenant_b FROM public.pgtap_catalog_tenant_fixture), 'Bebidas estrangeiras', 10);
 INSERT INTO public.product_categories (id, organization_id, establishment_id, branch_id, name, display_order) VALUES
   ('85000000-0000-4000-8000-000000000051', (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT establishment_a1 FROM public.pgtap_catalog_tenant_fixture), (SELECT branch_a1_1 FROM public.pgtap_catalog_tenant_fixture), 'Bebidas da filial', 5),
-  ((SELECT category_a_sibling FROM public.pgtap_catalog_tenant_fixture), (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT establishment_a1 FROM public.pgtap_catalog_tenant_fixture), (SELECT branch_a1_2 FROM public.pgtap_catalog_tenant_fixture), 'Bebidas da filial irmã', 5);
+  ((SELECT category_a_sibling FROM public.pgtap_catalog_tenant_fixture), (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT establishment_a1 FROM public.pgtap_catalog_tenant_fixture), (SELECT branch_a1_2 FROM public.pgtap_catalog_tenant_fixture), 'Bebidas da filial irmã', 5),
+  ('85000000-0000-4000-8000-000000000056', (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), (SELECT establishment_a2 FROM public.pgtap_catalog_tenant_fixture), (SELECT branch_a2_1 FROM public.pgtap_catalog_tenant_fixture), 'Bebidas de outro estabelecimento', 5),
+  ('85000000-0000-4000-8000-000000000057', (SELECT tenant_b FROM public.pgtap_catalog_tenant_fixture), (SELECT establishment_b1 FROM public.pgtap_catalog_tenant_fixture), (SELECT branch_b1_1 FROM public.pgtap_catalog_tenant_fixture), 'Bebidas de outro tenant', 5);
 
 INSERT INTO public.products (id, organization_id, name) VALUES
   ((SELECT product_a FROM public.pgtap_catalog_tenant_fixture), (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture), 'Café expresso'),
@@ -293,13 +309,46 @@ SELECT throws_ok(
 );
 RESET ROLE;
 
+SELECT ok(
+  NOT has_function_privilege('anon', 'private.catalog_settle(text,text,uuid,uuid,uuid,uuid,uuid,uuid,uuid,integer,jsonb)', 'EXECUTE')
+  AND NOT has_function_privilege('authenticated', 'private.catalog_settle(text,text,uuid,uuid,uuid,uuid,uuid,uuid,uuid,integer,jsonb)', 'EXECUTE')
+  AND NOT has_function_privilege('service_role', 'private.catalog_settle(text,text,uuid,uuid,uuid,uuid,uuid,uuid,uuid,integer,jsonb)', 'EXECUTE')
+  AND NOT EXISTS (
+    SELECT 1
+    FROM pg_catalog.pg_proc AS catalog_function
+    CROSS JOIN LATERAL pg_catalog.aclexplode(
+      COALESCE(catalog_function.proacl, pg_catalog.acldefault('f', catalog_function.proowner))
+    ) AS privilege
+    WHERE catalog_function.oid = 'private.catalog_settle(text,text,uuid,uuid,uuid,uuid,uuid,uuid,uuid,integer,jsonb)'::regprocedure
+      AND privilege.grantee = 0
+      AND privilege.privilege_type = 'EXECUTE'
+  ),
+  'catalog_settle denies EXECUTE to PUBLIC, anon, authenticated, and service_role'
+);
+SELECT ok(
+  NOT has_function_privilege('anon', 'private.catalog_settle_revision(uuid,integer,uuid,uuid,uuid,uuid,uuid,text,text,numeric,text,numeric,text,text)', 'EXECUTE')
+  AND NOT has_function_privilege('authenticated', 'private.catalog_settle_revision(uuid,integer,uuid,uuid,uuid,uuid,uuid,text,text,numeric,text,numeric,text,text)', 'EXECUTE')
+  AND NOT has_function_privilege('service_role', 'private.catalog_settle_revision(uuid,integer,uuid,uuid,uuid,uuid,uuid,text,text,numeric,text,numeric,text,text)', 'EXECUTE')
+  AND NOT EXISTS (
+    SELECT 1
+    FROM pg_catalog.pg_proc AS catalog_function
+    CROSS JOIN LATERAL pg_catalog.aclexplode(
+      COALESCE(catalog_function.proacl, pg_catalog.acldefault('f', catalog_function.proowner))
+    ) AS privilege
+    WHERE catalog_function.oid = 'private.catalog_settle_revision(uuid,integer,uuid,uuid,uuid,uuid,uuid,text,text,numeric,text,numeric,text,text)'::regprocedure
+      AND privilege.grantee = 0
+      AND privilege.privilege_type = 'EXECUTE'
+  ),
+  'catalog_settle_revision denies EXECUTE to PUBLIC, anon, authenticated, and service_role'
+);
+
 -- ---------------------------------------------------------------------------
 -- 3. Own tenant allow, sibling deny, foreign tenant deny, no enumeration
 -- ---------------------------------------------------------------------------
 
 SET LOCAL ROLE authenticated;
 SELECT public.pgtap_catalog_assume_session((SELECT user_org_manager FROM public.pgtap_catalog_tenant_fixture));
-SELECT is((SELECT count(*)::integer FROM public.product_categories), 3, 'an organization manager sees its own categories, including the branch-scoped ones');
+SELECT is((SELECT count(*)::integer FROM public.product_categories), 4, 'an organization manager sees its own categories across establishments and branches');
 SELECT is((SELECT count(*)::integer FROM public.products), 2, 'an organization manager sees its own canonical products');
 SELECT is((SELECT count(*)::integer FROM public.product_variants), 1, 'an organization manager sees its own variants');
 SELECT is((SELECT count(*)::integer FROM public.sales_channels), 1, 'an organization manager sees only its own channels');
@@ -546,7 +595,78 @@ SELECT is(
 RESET ROLE;
 
 -- ---------------------------------------------------------------------------
--- 7. A tenant with an empty catalog is still able to create its first row
+-- 7. An establishment scope contains every branch in that establishment only
+-- ---------------------------------------------------------------------------
+
+SET LOCAL ROLE authenticated;
+SELECT public.pgtap_catalog_assume_session((SELECT user_establishment_manager FROM public.pgtap_catalog_tenant_fixture));
+SELECT is(
+  (SELECT count(*)::integer FROM public.product_categories WHERE branch_id = (SELECT branch_a1_1 FROM public.pgtap_catalog_tenant_fixture)),
+  2,
+  'an establishment-scoped reader sees all catalog categories in its first branch'
+);
+SELECT is(
+  (SELECT count(*)::integer FROM public.product_categories WHERE branch_id = (SELECT branch_a1_2 FROM public.pgtap_catalog_tenant_fixture)),
+  1,
+  'an establishment-scoped reader also sees catalog categories in its other branch'
+);
+SELECT is(
+  (SELECT count(*)::integer FROM public.product_categories WHERE establishment_id = (SELECT establishment_a2 FROM public.pgtap_catalog_tenant_fixture)),
+  0,
+  'an establishment-scoped reader cannot see a sibling establishment row'
+);
+SELECT is(
+  (SELECT count(*)::integer FROM public.product_categories WHERE organization_id = (SELECT tenant_b FROM public.pgtap_catalog_tenant_fixture)),
+  0,
+  'an establishment-scoped reader cannot see a foreign tenant branch row'
+);
+SELECT is(
+  (SELECT count(*)::integer FROM public.product_categories WHERE id = (SELECT category_a FROM public.pgtap_catalog_tenant_fixture)),
+  0,
+  'an establishment-scoped reader cannot widen to a tenant-wide catalog row'
+);
+SELECT lives_ok(
+  $$SELECT public.catalog_create_category(
+    p_organization_id => (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture),
+    p_establishment_id => (SELECT establishment_a1 FROM public.pgtap_catalog_tenant_fixture),
+    p_branch_id => (SELECT branch_a1_1 FROM public.pgtap_catalog_tenant_fixture), p_parent_category_id => NULL,
+    p_name => 'Establishment branch one write', p_description => NULL, p_display_order => 30,
+    p_correlation_id => gen_random_uuid(), p_idempotency_key => gen_random_uuid())$$,
+  'an establishment-scoped writer creates a row in its assigned branch'
+);
+SELECT lives_ok(
+  $$SELECT public.catalog_create_category(
+    p_organization_id => (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture),
+    p_establishment_id => (SELECT establishment_a1 FROM public.pgtap_catalog_tenant_fixture),
+    p_branch_id => (SELECT branch_a1_2 FROM public.pgtap_catalog_tenant_fixture), p_parent_category_id => NULL,
+    p_name => 'Establishment branch two write', p_description => NULL, p_display_order => 30,
+    p_correlation_id => gen_random_uuid(), p_idempotency_key => gen_random_uuid())$$,
+  'an establishment-scoped writer creates a row in another branch of its assigned establishment'
+);
+SELECT throws_ok(
+  $$SELECT public.catalog_create_category(
+    p_organization_id => (SELECT tenant_a FROM public.pgtap_catalog_tenant_fixture),
+    p_establishment_id => (SELECT establishment_a2 FROM public.pgtap_catalog_tenant_fixture),
+    p_branch_id => (SELECT branch_a2_1 FROM public.pgtap_catalog_tenant_fixture), p_parent_category_id => NULL,
+    p_name => (SELECT unauthorized_label FROM public.pgtap_catalog_tenant_fixture), p_description => NULL, p_display_order => 30,
+    p_correlation_id => gen_random_uuid(), p_idempotency_key => gen_random_uuid())$$,
+  (SELECT insufficient_privilege FROM public.pgtap_catalog_tenant_fixture), (SELECT unauthorized_message FROM public.pgtap_catalog_tenant_fixture),
+  'an establishment-scoped writer cannot create a row in a sibling establishment'
+);
+SELECT throws_ok(
+  $$SELECT public.catalog_create_category(
+    p_organization_id => (SELECT tenant_b FROM public.pgtap_catalog_tenant_fixture),
+    p_establishment_id => (SELECT establishment_b1 FROM public.pgtap_catalog_tenant_fixture),
+    p_branch_id => (SELECT branch_b1_1 FROM public.pgtap_catalog_tenant_fixture), p_parent_category_id => NULL,
+    p_name => (SELECT unauthorized_label FROM public.pgtap_catalog_tenant_fixture), p_description => NULL, p_display_order => 30,
+    p_correlation_id => gen_random_uuid(), p_idempotency_key => gen_random_uuid())$$,
+  (SELECT insufficient_privilege FROM public.pgtap_catalog_tenant_fixture), (SELECT unauthorized_message FROM public.pgtap_catalog_tenant_fixture),
+  'an establishment-scoped writer cannot create a row in a foreign tenant'
+);
+RESET ROLE;
+
+-- ---------------------------------------------------------------------------
+-- 8. A tenant with an empty catalog is still able to create its first row
 -- ---------------------------------------------------------------------------
 
 INSERT INTO auth.users (id, aud, role, email, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
@@ -598,7 +718,7 @@ SELECT is(
 RESET ROLE;
 
 -- ---------------------------------------------------------------------------
--- 8. Required capability per command class
+-- 9. Required capability per command class
 -- ---------------------------------------------------------------------------
 
 SET LOCAL ROLE authenticated;

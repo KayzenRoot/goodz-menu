@@ -389,7 +389,7 @@ test("a catalog reader and a foreign tenant manager are shown no controls and no
   await expect(page.getByLabel(/^Preço base de/)).toHaveCount(0);
   await expect(page.getByLabel(/^Disponibilidade de/)).toHaveCount(0);
   await expect(page.getByLabel(/^Visibilidade de/)).toHaveCount(0);
-  await expect(page.getByLabel(/^Salvar apresentação$/)).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Salvar apresentação", exact: true })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: /Confirme a identidade antes de alterar preço/ })).toHaveCount(0);
   await expectAccessible(page);
 

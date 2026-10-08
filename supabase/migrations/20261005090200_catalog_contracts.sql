@@ -941,6 +941,8 @@ REVOKE ALL ON FUNCTION private.catalog_replay(uuid, uuid, uuid, uuid, text[], te
 REVOKE ALL ON FUNCTION private.catalog_admit_stored(text, jsonb, uuid, uuid, uuid, text[], text) FROM PUBLIC, anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION private.catalog_command_result(text, text, uuid, integer, uuid, uuid) FROM PUBLIC, anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION private.catalog_price_state(numeric, text, numeric) FROM PUBLIC, anon, authenticated, service_role;
+REVOKE ALL ON FUNCTION private.catalog_settle(text, text, uuid, uuid, uuid, uuid, uuid, uuid, uuid, integer, jsonb) FROM PUBLIC, anon, authenticated, service_role;
+REVOKE ALL ON FUNCTION private.catalog_settle_revision(uuid, integer, uuid, uuid, uuid, uuid, uuid, text, text, numeric, text, numeric, text, text) FROM PUBLIC, anon, authenticated, service_role;
 
 -- ---------------------------------------------------------------------------
 -- 2. ProductCategory contracts

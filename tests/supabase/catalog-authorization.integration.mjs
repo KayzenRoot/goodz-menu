@@ -25,27 +25,46 @@ function sanitizeForLog(text) {
 // torn down and rebuilt. Only the synthetic identities are removed at the end.
 const tenant = {
   organizations: { a: "87000000-0000-4000-8000-000000000010", b: "87000000-0000-4000-8000-000000000011" },
-  establishments: { a1: "87000000-0000-4000-8000-000000000012", b1: "87000000-0000-4000-8000-000000000014" },
-  branches: { a11: "87000000-0000-4000-8000-000000000015" },
+  establishments: {
+    a1: "87000000-0000-4000-8000-000000000012",
+    a2: "87000000-0000-4000-8000-000000000013",
+    b1: "87000000-0000-4000-8000-000000000014",
+  },
+  branches: {
+    a11: "87000000-0000-4000-8000-000000000015",
+    a12: "87000000-0000-4000-8000-000000000016",
+    a21: "87000000-0000-4000-8000-000000000017",
+    b11: "87000000-0000-4000-8000-000000000018",
+  },
   roles: {
     aManager: "87000000-0000-4000-8000-000000000020",
     aReader: "87000000-0000-4000-8000-000000000021",
     aWithout: "87000000-0000-4000-8000-000000000022",
     bManager: "87000000-0000-4000-8000-000000000023",
+    aEstablishment: "87000000-0000-4000-8000-000000000024",
   },
   memberships: {
     aManager: "87000000-0000-4000-8000-000000000030",
     aReader: "87000000-0000-4000-8000-000000000031",
     aWithout: "87000000-0000-4000-8000-000000000032",
     bManager: "87000000-0000-4000-8000-000000000033",
+    aEstablishment: "87000000-0000-4000-8000-000000000034",
   },
   membershipRoles: {
     aManager: "87000000-0000-4000-8000-000000000040",
     aReader: "87000000-0000-4000-8000-000000000041",
     aWithout: "87000000-0000-4000-8000-000000000042",
     bManager: "87000000-0000-4000-8000-000000000043",
+    aEstablishment: "87000000-0000-4000-8000-000000000044",
   },
-  categories: { a: "87000000-0000-4000-8000-000000000050", b: "87000000-0000-4000-8000-000000000051" },
+  categories: {
+    a: "87000000-0000-4000-8000-000000000050",
+    b: "87000000-0000-4000-8000-000000000051",
+    a11: "87000000-0000-4000-8000-000000000052",
+    a12: "87000000-0000-4000-8000-000000000053",
+    a21: "87000000-0000-4000-8000-000000000054",
+    b11: "87000000-0000-4000-8000-000000000055",
+  },
   products: { a: "87000000-0000-4000-8000-000000000060", b: "87000000-0000-4000-8000-000000000061" },
   variants: { a: "87000000-0000-4000-8000-000000000070" },
   channels: { a: "87000000-0000-4000-8000-000000000080", b: "87000000-0000-4000-8000-000000000081" },
@@ -244,20 +263,27 @@ INSERT INTO public.organizations (id, display_name) VALUES
   ('${org.b}', 'GMZ-IMPL-007 Data API tenant B') ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.establishments (id, organization_id, display_name) VALUES
   ('${est.a1}', '${org.a}', 'Data API establishment A1'),
+  ('${est.a2}', '${org.a}', 'Data API establishment A2'),
   ('${est.b1}', '${org.b}', 'Data API establishment B1') ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.branches (id, organization_id, establishment_id, display_name) VALUES
-  ('${branch.a11}', '${org.a}', '${est.a1}', 'Data API branch A1-1') ON CONFLICT (id) DO NOTHING;
+  ('${branch.a11}', '${org.a}', '${est.a1}', 'Data API branch A1-1'),
+  ('${branch.a12}', '${org.a}', '${est.a1}', 'Data API branch A1-2'),
+  ('${branch.a21}', '${org.a}', '${est.a2}', 'Data API branch A2-1'),
+  ('${branch.b11}', '${org.b}', '${est.b1}', 'Data API branch B1-1') ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.tenant_roles (id, organization_id, role_key, display_name) VALUES
   ('${role.aManager}', '${org.a}', 'gmz007-api-manager', 'Data API catalog manager'),
   ('${role.aReader}', '${org.a}', 'gmz007-api-reader', 'Data API catalog reader'),
   ('${role.aWithout}', '${org.a}', 'gmz007-api-without', 'Data API role without capability'),
-  ('${role.bManager}', '${org.b}', 'gmz007-api-foreign', 'Data API foreign catalog manager') ON CONFLICT (id) DO NOTHING;
+  ('${role.bManager}', '${org.b}', 'gmz007-api-foreign', 'Data API foreign catalog manager'),
+  ('${role.aEstablishment}', '${org.a}', 'gmz007-api-establishment', 'Data API establishment catalog manager') ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.role_permissions (organization_id, role_id, permission_key) VALUES
   ('${org.a}', '${role.aManager}', 'catalog.read'),
   ('${org.a}', '${role.aManager}', 'catalog.write'),
   ('${org.a}', '${role.aManager}', 'catalog.price.manage'),
   ('${org.a}', '${role.aManager}', 'catalog.availability.manage'),
   ('${org.a}', '${role.aReader}', 'catalog.read'),
+  ('${org.a}', '${role.aEstablishment}', 'catalog.read'),
+  ('${org.a}', '${role.aEstablishment}', 'catalog.write'),
   ('${org.b}', '${role.bManager}', 'catalog.read'),
   ('${org.b}', '${role.bManager}', 'catalog.write'),
   ('${org.b}', '${role.bManager}', 'catalog.price.manage') ON CONFLICT DO NOTHING;
@@ -265,7 +291,8 @@ INSERT INTO public.organization_memberships (id, organization_id, user_id, statu
   ('${membership.aManager}', '${org.a}', '${byLabel.aManager}', 'active'),
   ('${membership.aReader}', '${org.a}', '${byLabel.aReader}', 'active'),
   ('${membership.aWithout}', '${org.a}', '${byLabel.aWithout}', 'active'),
-  ('${membership.bManager}', '${org.b}', '${byLabel.bManager}', 'active')
+  ('${membership.bManager}', '${org.b}', '${byLabel.bManager}', 'active'),
+  ('${membership.aEstablishment}', '${org.a}', '${byLabel.aEstablishment}', 'active')
   -- Rebind rather than skip: a membership whose user_id still names a removed identity would
   -- otherwise survive forever and silently deny the very tenant it belongs to.
   ON CONFLICT (id) DO UPDATE SET user_id = EXCLUDED.user_id, status = EXCLUDED.status;
@@ -273,11 +300,20 @@ INSERT INTO public.membership_roles (id, organization_id, membership_id, role_id
   ('${membershipRole.aManager}', '${org.a}', '${membership.aManager}', '${role.aManager}', 'organization', NULL, NULL),
   ('${membershipRole.aReader}', '${org.a}', '${membership.aReader}', '${role.aReader}', 'organization', NULL, NULL),
   ('${membershipRole.aWithout}', '${org.a}', '${membership.aWithout}', '${role.aWithout}', 'organization', NULL, NULL),
-  ('${membershipRole.bManager}', '${org.b}', '${membership.bManager}', '${role.bManager}', 'organization', NULL, NULL)
-  ON CONFLICT (id) DO UPDATE SET role_id = EXCLUDED.role_id, scope_type = EXCLUDED.scope_type;
+  ('${membershipRole.bManager}', '${org.b}', '${membership.bManager}', '${role.bManager}', 'organization', NULL, NULL),
+  ('${membershipRole.aEstablishment}', '${org.a}', '${membership.aEstablishment}', '${role.aEstablishment}', 'establishment', '${est.a1}', NULL)
+  ON CONFLICT (id) DO UPDATE SET role_id = EXCLUDED.role_id, scope_type = EXCLUDED.scope_type,
+    establishment_id = EXCLUDED.establishment_id, branch_id = EXCLUDED.branch_id;
 INSERT INTO public.product_categories (id, organization_id, name, display_order) VALUES
   ('${tenant.categories.a}', '${org.a}', 'Data API bebidas', 10),
   ('${tenant.categories.b}', '${org.b}', 'Data API bebidas estrangeiras', 10) ON CONFLICT (id) DO NOTHING;
+INSERT INTO public.product_categories (id, organization_id, establishment_id, branch_id, name, display_order) VALUES
+  ('${tenant.categories.a11}', '${org.a}', '${est.a1}', '${branch.a11}', 'Data API A1 branch one', 11),
+  ('${tenant.categories.a12}', '${org.a}', '${est.a1}', '${branch.a12}', 'Data API A1 branch two', 12),
+  ('${tenant.categories.a21}', '${org.a}', '${est.a2}', '${branch.a21}', 'Data API sibling establishment', 21),
+  ('${tenant.categories.b11}', '${org.b}', '${est.b1}', '${branch.b11}', 'Data API foreign tenant branch', 31)
+  ON CONFLICT (id) DO UPDATE SET organization_id = EXCLUDED.organization_id, establishment_id = EXCLUDED.establishment_id,
+    branch_id = EXCLUDED.branch_id, name = EXCLUDED.name, display_order = EXCLUDED.display_order;
 INSERT INTO public.products (id, organization_id, category_id, name) VALUES
   ('${tenant.products.a}', '${org.a}', '${tenant.categories.a}', 'Data API café expresso'),
   ('${tenant.products.b}', '${org.b}', '${tenant.categories.b}', 'Data API café estrangeiro') ON CONFLICT (id) DO NOTHING;
@@ -465,6 +501,71 @@ async function assertTenantBoundaryIsEnforced(api) {
   );
   await expectRows(api, "a catalog reader reads the catalog it is granted", "products", users.aReader.accessToken, 1, { select: "id", id: `eq.${tenant.products.a}` });
   await expectRows(api, "a member without catalog.read sees no catalog row", "products", users.aWithout.accessToken, 0, { select: "id", id: `eq.${tenant.products.a}` });
+}
+
+async function assertEstablishmentScopeContainsItsBranches(api) {
+  const accessToken = users.aEstablishment.accessToken;
+  await expectRows(
+    api, "an establishment-scoped reader sees a branch row in its assigned establishment",
+    "product_categories", accessToken, 1, { select: "id", id: `eq.${tenant.categories.a11}` }
+  );
+  await expectRows(
+    api, "an establishment-scoped reader sees rows from every branch in that establishment",
+    "product_categories", accessToken, 1, { select: "id", id: `eq.${tenant.categories.a12}` }
+  );
+  await expectRows(
+    api, "an establishment-scoped reader cannot see a sibling establishment branch",
+    "product_categories", accessToken, 0, { select: "id", id: `eq.${tenant.categories.a21}` }
+  );
+  await expectRows(
+    api, "an establishment-scoped reader cannot see a foreign tenant branch",
+    "product_categories", accessToken, 0, { select: "id", id: `eq.${tenant.categories.b11}` }
+  );
+  await expectRows(
+    api, "an establishment-scoped reader cannot widen to a tenant-wide row",
+    "product_categories", accessToken, 0, { select: "id", id: `eq.${tenant.categories.a}` }
+  );
+
+  const createAtFirstBranch = await expectContractAllowed(
+    api, "an establishment-scoped writer creates a row in its assigned branch", "catalog_create_category",
+    {
+      p_organization_id: tenant.organizations.a, p_establishment_id: tenant.establishments.a1,
+      p_branch_id: tenant.branches.a11, p_name: `Establishment branch one ${runTag}`, p_display_order: 20,
+      p_correlation_id: randomUUID(), p_idempotency_key: randomUUID(),
+    }, accessToken
+  );
+  if (createAtFirstBranch?.action !== "catalog.category.created" || !createAtFirstBranch?.target_id) {
+    throw new Error("The establishment-scoped branch command returned an unexpected result.");
+  }
+  await expectRows(
+    api, "the establishment-scoped reader sees the row it created in its assigned branch",
+    "product_categories", accessToken, 1, { select: "id", id: `eq.${createAtFirstBranch.target_id}` }
+  );
+
+  await expectContractAllowed(
+    api, "an establishment-scoped writer creates a row in another branch of its assigned establishment", "catalog_create_category",
+    {
+      p_organization_id: tenant.organizations.a, p_establishment_id: tenant.establishments.a1,
+      p_branch_id: tenant.branches.a12, p_name: `Establishment branch two ${runTag}`, p_display_order: 20,
+      p_correlation_id: randomUUID(), p_idempotency_key: randomUUID(),
+    }, accessToken
+  );
+  await expectContractRefused(
+    api, "an establishment-scoped writer cannot create a row in a sibling establishment", "catalog_create_category",
+    {
+      p_organization_id: tenant.organizations.a, p_establishment_id: tenant.establishments.a2,
+      p_branch_id: tenant.branches.a21, p_name: "Unauthorized sibling establishment", p_display_order: 20,
+      p_correlation_id: randomUUID(), p_idempotency_key: randomUUID(),
+    }, accessToken, "not authorized for this catalog operation"
+  );
+  await expectContractRefused(
+    api, "an establishment-scoped writer cannot create a row in a foreign tenant", "catalog_create_category",
+    {
+      p_organization_id: tenant.organizations.b, p_establishment_id: tenant.establishments.b1,
+      p_branch_id: tenant.branches.b11, p_name: "Unauthorized foreign tenant", p_display_order: 20,
+      p_correlation_id: randomUUID(), p_idempotency_key: randomUUID(),
+    }, accessToken, "not authorized for this catalog operation"
+  );
 }
 
 async function assertMoneyCrossesTheWireAsText(api) {
@@ -713,11 +814,13 @@ async function run() {
   users.aReader = await ensureAuthenticatedUser(api, "tenant-a-reader");
   users.aWithout = await ensureAuthenticatedUser(api, "tenant-a-without-capability");
   users.bManager = await ensureAuthenticatedUser(api, "tenant-b-manager");
+  users.aEstablishment = await ensureAuthenticatedUser(api, "tenant-a-establishment-manager");
 
   await executeFixtureSql(fixtureSql());
 
   await assertAnonymousHoldsNothing(api);
   await assertTenantBoundaryIsEnforced(api);
+  await assertEstablishmentScopeContainsItsBranches(api);
   await assertMoneyCrossesTheWireAsText(api);
   await assertDirectClientMutationIsDenied(api);
   await assertCommandCapabilityAndTenant(api);
