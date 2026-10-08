@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_007_ADMISSION_CANDIDATE_READY_FOR_REVIEW`
+Status: `GMZ_IMPL_007_BOUND_FOR_EXECUTION`
 
 ## Current state
 - Project: Goodz Menu
@@ -24,24 +24,26 @@ Status: `GMZ_IMPL_007_ADMISSION_CANDIDATE_READY_FOR_REVIEW`
 - AI Architecture: `APPROVED_V0.1`
 - UI/UX Design System: `APPROVED_V0.1`
 - Security Control Matrix: `APPROVED_V0.1`
-- Business-domain implementation: `NOT_AUTHORIZED`
+- Business-domain implementation: `AUTHORIZED — GMZ-IMPL-007 ONLY`
 
 ## Active increment
 - Work Order: `GMZ-IMPL-007`
 - Issue: `#67`
-- Admission branch: `implementation/gmz-impl-007-catalog-core`
-- Admission base: `f98b54a2a933e1cf312575a571afb57566422d82`
+- Admission PR: `#68 — MERGED`
+- Admission audited head: `9abc2f690f035b41801662688cb6f7ab9e2e9f9a`
+- Exact execution base: `1b64fbfbef3d31d215f4a2a1e30e88f8f946860c`
+- Execution branch: `execution/gmz-impl-007-catalog-core`
 - Assurance: `ELEVATED`
-- Implementation authorization: `NO — admission audit/merge and exact execution-base bind required first`
-- Last promoted increment: `GMZ-IMPL-006`
+- Context Lock: `BOUND_FOR_EXECUTION`
+- Implementation authorization: `YES — GMZ-IMPL-007 ONLY`
 - Current earned production credit: `52 / 515 = 10.10%`
 - Predeclared maximum later slice: `9 / 515`
   - GMZ-M06: `7`
   - GMZ-M26: `2`
-- Projected only after later acceptance/merge/promotion: `61 / 515 = 11.84%`
-- Admission scope: canonical catalog Product/ProductVariant/ChannelOffer foundation with tenant-safe RLS, exact/versioned price, durable material-mutation audit and minimal management UI
-- Explicitly not admitted: modifiers/combos/media runtime, recipes, inventory, POS, orders, finance, provider sync, remote Supabase, production deployment
-- Next governed action: `OBJECTIVE AUDIT OF GMZ-IMPL-007 ADMISSION`
+- Projected only after objective acceptance/merge/promotion: `61 / 515 = 11.84%`
+- Admitted runtime scope: canonical Product/ProductVariant/ChannelOffer foundation, exact/versioned price, tenant-safe RLS, current user-authority server mutations, Admin Guard + durable audit for material commercial mutations, minimal accessible management UI
+- Explicitly unauthorized: modifiers/combos/media runtime, recipes, inventory, POS, orders, finance, provider sync, remote Supabase, production deployment
+- Next governed action: `EXECUTE GMZ-IMPL-007 W0 → W10`
 
 ## Progress accounting
 Overall production completion: `52 / 515 = 10.10%`.
@@ -58,9 +60,37 @@ GMZ-SRC-001 is preserved byte-exact in repository truth:
 The former Source Pack freeze blocker is closed by verified evidence.
 
 ## Next legal action
-Objectively audit the governance-only GMZ-IMPL-007 admission candidate. If approved, merge the admission and bind the exact execution base before any executor mutation.
+Execute only the admitted GMZ-IMPL-007 catalog slice on `execution/gmz-impl-007-catalog-core`, descending from exact execution base `1b64fbfbef3d31d215f4a2a1e30e88f8f946860c`. The executor must complete ELEVATED evidence and stop without merge.
 
-STOP CONDITION: `GMZ_IMPL_007_ADMISSION_READY_FOR_REVIEW`.
+STOP CONDITION: `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-007 revalidação corretiva — BLOQUEADA
+
+Atualização de 2026-10-07: esta seção supersede a proposta READY acima para o candidato corrente.
+O candidato **não está pronto para auditoria objetiva** e o stop condition não foi atingido.
+
+- Branch: `execution/gmz-impl-007-catalog-core`; base: `1b64fbfbef3d31d215f4a2a1e30e88f8f946860c`.
+- Snapshot de implementação validado: `98bd0390cef640fc34a0729933578388a2b0d74a`;
+  tree: `86ccf5b5f3ee147bb3636683f5f23aab044686d0`.
+- Context Lock `BOUND_FOR_EXECUTION`; `16 / 16` fingerprints; `.gef` intacto.
+- Lint, typecheck, unit `93 / 93`, build, frozen install, guard de reachability, audit de produção e
+  secret/client-bundle scans: PASS. CodeRabbit local final: `0 issues`.
+- O raw full audit segue com um HIGH de desenvolvimento `GHSA-vfj7-8cjw-p6xm`; reachability permanece
+  `RESOLVED_NOT_AFFECTED`, condicionado ao guard, sem mascarar o resultado bruto.
+- Docker Desktop não inicia; o cliente não conecta a `dockerDesktopLinuxEngine` e qualquer distro WSL2
+  testada falha com `HCS/ERROR_NOT_SUPPORTED`. Docker build/up, reset Supabase e as provas dependentes
+  (pgTAP, Auth/Data API, E2E/Axe, DB advisors, readiness e runtime logs) ficam pendentes até recuperação
+  do host e rerun no HEAD publicado.
+- Os discos existentes em `D:\DockerLive` foram preservados. A recuperação final demanda acesso
+  administrativo e possivelmente reinício do Windows, indisponível nesta sessão não elevada.
+- `.engineering/CHECKPOINT.json` permanece em `GMZ_IMPL_007_BOUND_FOR_EXECUTION`, com `52 / 515 = 10.10%`;
+  nenhum crédito foi promovido. PR `#69` continua draft e não foi mergeada.
+
+Próxima ação: recuperar WSL/HCS preservando `D:\DockerLive`, depois executar o HIGH_ASSURANCE L5 completo
+no HEAD remoto final. Somente então reavaliar `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`.
+
+STOP CONDITION atual: `BLOCKED_FOR_OBJECTIVE_AUDIT`.
 
 
 ## Historical GMZ-IMPL-005 execution closeout — superseded by CD-001
@@ -1015,3 +1045,112 @@ STOP CONDITION: `GMZ_IMPL_006_PROMOTED_COMPLETE`.
 - next action: `AUDIT_AND_MERGE_GMZ_IMPL_007_ADMISSION_THEN_BIND_EXECUTION_BASE`
 
 STOP CONDITION: `GMZ_IMPL_007_ADMISSION_READY_FOR_REVIEW`.
+
+
+## GMZ-IMPL-007 execution-base bind
+
+- admission PR: `#68`
+- admission audited head: `9abc2f690f035b41801662688cb6f7ab9e2e9f9a`
+- admission merge / exact execution base: `1b64fbfbef3d31d215f4a2a1e30e88f8f946860c`
+- execution branch: `execution/gmz-impl-007-catalog-core`
+- Context Lock stable sources: `16 / 16 MATCH`
+- assurance: `ELEVATED`
+- executor/Codex: `AUTHORIZED FOR GMZ-IMPL-007 ONLY`
+- current earned production credit: `52 / 515 = 10.10%`
+- maximum eligible after later objective acceptance/merge/promotion: `9 / 515`
+- projected cumulative only after promotion: `61 / 515 = 11.84%`
+- next action: `EXECUTE GMZ-IMPL-007`
+
+STOP CONDITION: `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-007 checkpoint delta proposal — NOT APPLIED
+
+This delta is a proposal only. `CHECKPOINT.json` remains `GMZ_IMPL_007_BOUND_FOR_EXECUTION` with
+`implementationAuthorized = true` and credit `52 / 515 = 10.10%` until an independent objective audit
+accepts the increment. Nothing below has been promoted.
+
+- Work Order: `GMZ-IMPL-007 — Catalog Core & Channel Offers Foundation`
+- Issue: `#67`; PR: `#69` (open, draft, unmerged)
+- execution branch: `execution/gmz-impl-007-catalog-core`
+- exact execution base: `1b64fbfbef3d31d215f4a2a1e30e88f8f946860c`
+- Context Lock: `BOUND_FOR_EXECUTION`; stable sources re-verified at closeout: `16 / 16 MATCH`
+- assurance: `ELEVATED`; merge authority: `NO`
+- ELEVATED validation at the exact head: `PASS`
+  - frozen install/strict peers, lint, typecheck, unit `93 / 93`, production build, local Supabase reset,
+    pgTAP `356 / 356`, Auth/Data API `59 / 59`, catalog Auth/Data API `74 / 74`, migration status,
+    generated-type equivalence, DB lint, security advisors, full E2E `32 / 32` desktop + mobile,
+    Axe zero violations, layout measurement, production audit, secret scan, client-bundle containment,
+    Docker config/build/up/health, readiness, local Supabase/Auth/Postgres, runtime logs, `.gef`
+    integrity
+- raw full dependency audit: `RAW FAIL` preserved — exactly one HIGH `GHSA-vfj7-8cjw-p6xm`, dev-only
+  reachability, no patched version upstream; evidence-backed disposition `RESOLVED_NOT_AFFECTED`,
+  conditional on the committed guard
+- CRITICAL unresolved: `0`
+- HIGH unresolved: `0`
+- evidence: `.engineering/evidence/GMZ-IMPL-007-EVIDENCE.md`
+- proposed next action after objective acceptance: `PROMOTE_GMZ_IMPL_007_AND_ADMIT_NEXT_INCREMENT`
+- proposed credit on acceptance: `61 / 515 = 11.84%` (GMZ-M06 `7`, GMZ-M26 `2`) — not granted here
+
+STOP CONDITION: `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-007-CD-001 — proposed Checkpoint Delta (NOT APPLIED)
+
+- Objective-review implementation HEAD: `5e0712a0084126d39e0b36d9236892715e9c375b`.
+- Fresh hosted CodeRabbit implementation review: completed; `3` actionable inline findings.
+- Confirmed findings: `2 MAJOR / 1 MINOR`.
+  - establishment scope incorrectly excludes branch rows inside the assigned establishment;
+  - two private SECURITY DEFINER settlement helpers lack explicit EXECUTE revocation while `authenticated` has private-schema USAGE;
+  - reader E2E presentation-control assertion is vacuous.
+- LOW performance hardening for unbounded overview price-history loading is deferred to Issue `#70`.
+- Correction Delta: `GMZ-IMPL-007-CD-001`.
+- `.engineering/CHECKPOINT.json`: unchanged.
+- production credit: unchanged at `52 / 515 = 10.10%`.
+- PR `#69`: remains OPEN/DRAFT and unmerged.
+- next action: execute CD-001, run complete exact-head ELEVATED L5 and fresh hosted review.
+
+CORRECTION TOKEN:
+`GMZ_IMPL_007_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-007-CD-001 — execução e checkpoint delta atualizado
+
+- HEAD de implementação validado: `3151f7c9879e90175a2f2c81cccd1017f2b6d593` (tree
+  `e3b4b397a91b538fbbbd52cd6caf027c32024e13`), derivado da execution base autorizada.
+- Context Lock `BOUND_FOR_EXECUTION`; fingerprints `16 / 16 MATCH`; `.gef` e `CHECKPOINT.json`
+  preservados em relação ao HEAD obrigatório inicial.
+- Correções admitidas de CD-001 comprovadas por pgTAP `385 / 385`, Auth/Data API `91` checks e provas
+  focadas da asserção E2E reader em desktop/mobile.
+- A suíte ELEVATED E2E completa **não passou**: `27 / 32` aprovados, `2` falhas e `3` não executados.
+  Falhas atuais: feedback esperado de criação de canal ausente no desktop e QR de enrollment MFA ausente
+  no mobile. Não houve expansão de escopo para tratar esses fluxos.
+- Resultado local restante: pnpm congelado estrito `12.8.1`, lint, typecheck, unit `93 / 93`, build,
+  migrações, tipos, DB lint/advisors, Docker, health/readiness, Supabase/Auth/Postgres e logs passaram.
+  Audit de produção limpo; o audit completo conserva 1 HIGH bruto `GHSA-vfj7-8cjw-p6xm` no grafo
+  dev-only, com guard condicional `RESOLVED_NOT_AFFECTED`.
+- CodeRabbit local: `0 issues`. SonarCloud/Socket/CodeRabbit hospedados serão vinculados após o refresh
+  no HEAD publicado.
+- Checkpoint delta: **NOT APPLIED**. `CHECKPOINT.json` continua `GMZ_IMPL_007_BOUND_FOR_EXECUTION`,
+  implementação autorizada conforme bind existente; crédito continua `52 / 515 = 10.10%`, sem
+  promoção. PR `#69` permanece aberta/em draft e sem merge.
+
+Estado da execução CD-001: `BLOCKED_FOR_OBJECTIVE_AUDIT`.
+
+STOP CONDITION: `GMZ_IMPL_007_CD_001_READY_FOR_OBJECTIVE_AUDIT` — **não atingido**.
+
+
+## GMZ-IMPL-007-CD-002 — objective correction proposal (NOT APPLIED)
+
+- Reviewed PR #69 source/evidence HEAD: `a6c853e4874b67ccefba558c7afd413463196065`.
+- CD-001 original three findings: corrected; focused proofs PASS (pgTAP 385/385, Auth/Data API 91, unit 93/93, reader desktop/mobile).
+- Full E2E: `27/32` PASS, `2` FAIL, `3` NOT RUN. No completed ELEVATED L5 or objective promotion.
+- Blocked scenarios: desktop `Canal criado.` feedback; mobile MFA enrollment QR after reauthentication.
+- SonarCloud: Quality Gate PASS but 22 new code smells (17 CRITICAL/5 MAJOR reported); individual disposition pending.
+- CD-002 authorized for diagnosis-first, bounded correction only; no MFA/Auth runtime mutation admitted.
+- `.engineering/CHECKPOINT.json`: unchanged.
+- Credit: `52 / 515 = 10.10%`, not promoted.
+- PR #69: remains OPEN/DRAFT/UNMERGED.
+- Exact-head full ELEVATED L5, focused repetitions, fresh CodeRabbit/Sonar/Socket required.
+
+STOP TOKEN: `GMZ_IMPL_007_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
