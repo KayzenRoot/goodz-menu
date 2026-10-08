@@ -515,3 +515,29 @@ Governance / evidence:
 
 CD-001 STOP CONDITION:
 `GMZ_IMPL_007_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+### CD-001 execution closeout — 2026-10-07
+
+- Validated implementation commit/tree: `3151f7c9879e90175a2f2c81cccd1017f2b6d593` /
+  `e3b4b397a91b538fbbbd52cd6caf027c32024e13`.
+- Preflight: execution base ancestral; Context Lock `BOUND_FOR_EXECUTION`; `16 / 16 MATCH`; protected
+  `.gef` and `CHECKPOINT.json` unchanged from mandatory starting HEAD `a1b806c549e75b8ce8df65c76aebb68c3ee6e008`.
+- CD-001 establishment containment, exact helper revocations, pgTAP privilege proof and semantic
+  reader assertion are implemented. pgTAP passed `385 / 385`; local Auth/Data API passed `91` checks;
+  focused desktop reader E2E passed `1 / 1`; the mobile reader case passed in the full run.
+- The complete ELEVATED L5 is **BLOCKED**: latest full desktop/mobile E2E completed with `27 / 32`
+  passed, `2` failed and `3` did not run. The failures were missing desktop channel-created feedback
+  and missing QR image after mobile MFA enrollment; neither is part of CD-001 and neither was changed.
+- Other current checks: frozen strict-peer install with pinned pnpm `12.8.1`, lint, typecheck, unit
+  `93 / 93`, build, generated-type equivalence, migration status, DB lint, advisors (`0 WARN / 0 ERROR`),
+  production dependency audit, secret scan, client-bundle containment, Docker health/readiness, local
+  Supabase/Auth/Postgres and runtime logs passed. The raw full audit remains RAW FAIL with one dev-only
+  HIGH `GHSA-vfj7-8cjw-p6xm`; the mechanical reachability guard and five self-tests pass and record
+  `RESOLVED_NOT_AFFECTED`.
+- Local CodeRabbit: `0 issues`. Fresh hosted SonarCloud, Socket and CodeRabbit statuses must be recorded
+  from the published closeout HEAD in PR `#69`.
+- Production credit remains `52 / 515 = 10.10%`; no checkpoint promotion. PR remains OPEN/DRAFT and
+  unmerged.
+
+Execution disposition: `BLOCKED_FOR_OBJECTIVE_AUDIT`; the CD-001 stop condition is **not reached**.

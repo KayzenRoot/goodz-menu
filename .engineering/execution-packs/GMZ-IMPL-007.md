@@ -122,3 +122,14 @@ If any correction requires widening runtime scope beyond the authorized write se
 
 CD-001 STOP CONDITION:
 `GMZ_IMPL_007_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+### CD-001 execution result
+
+Implementation HEAD `3151f7c9879e90175a2f2c81cccd1017f2b6d593` (tree
+`e3b4b397a91b538fbbbd52cd6caf027c32024e13`) contains the authorized scope correction, private-helper
+EXECUTE revocations and semantic E2E locator, with deterministic database and Auth/Data API regressions.
+The full exact candidate ELEVATED L5 did not pass: latest E2E was `27 / 32` passed, `2` failed, `3` did
+not run. The desktop catalog-feedback and mobile MFA QR failures are documented in the Evidence Bundle;
+no unrelated code was changed. Other local gates and Docker/Supabase readiness passed. External hosted
+checks are to be refreshed after publication. Outcome: `BLOCKED_FOR_OBJECTIVE_AUDIT`, not READY.

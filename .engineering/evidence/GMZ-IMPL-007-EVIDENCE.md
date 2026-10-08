@@ -326,3 +326,75 @@ Authorized correction: `GMZ-IMPL-007-CD-001`.
 
 Required completion token:
 `GMZ_IMPL_007_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-007-CD-001 — exact implementation validation closeout
+
+This closeout supersedes the prior CD-001 preflight-only note. The correction is implemented and its
+focused authorization/security proofs pass. The complete ELEVATED L5 is **BLOCKED** by failures in
+the full desktop/mobile E2E run; the stop condition is not claimed.
+
+| Identity | Value |
+|---|---|
+| Repository / branch / PR | `KayzenRoot/goodz-menu` / `execution/gmz-impl-007-catalog-core` / `#69 OPEN, DRAFT` |
+| Mandatory starting HEAD | `a1b806c549e75b8ce8df65c76aebb68c3ee6e008` |
+| Execution base | `1b64fbfbef3d31d215f4a2a1e30e88f8f946860c` (ancestor) |
+| Validated implementation HEAD | `3151f7c9879e90175a2f2c81cccd1017f2b6d593` |
+| Validated implementation tree | `e3b4b397a91b538fbbbd52cd6caf027c32024e13` |
+| Context Lock / fingerprints | `BOUND_FOR_EXECUTION` / `16 / 16 MATCH` |
+| Protected state | `.gef` and `CHECKPOINT.json` unchanged from mandatory starting HEAD |
+| Production credit | unchanged: `52 / 515 = 10.10%` |
+
+### Corrections delivered
+
+- Establishment-scoped catalog authorization now includes branch rows whose `establishment_id` is the
+  assigned establishment. Sibling-establishment and foreign-tenant rows remain denied.
+- Both private settlement helpers receive exact-signature `REVOKE ALL` from `PUBLIC, anon,
+  authenticated, service_role`; pgTAP proves no direct EXECUTE privilege.
+- The reader E2E negative assertion now targets the semantic `button` role.
+- No dependency, lockfile, `.gef`, checkpoint JSON, schema scope, Issue `#70`, remote Supabase,
+  production, or business-domain scope was changed.
+
+### Validation on the implementation tree
+
+| Check | Result |
+|---|---|
+| `corepack pnpm install --frozen-lockfile --strict-peer-dependencies` | PASS — pinned pnpm `12.8.1`; lockfile unchanged |
+| Lint / typecheck | PASS / PASS |
+| Unit | PASS — `93 / 93`, 13 files |
+| Production build | PASS — Next.js `16.3.8` |
+| Focused reader E2E | PASS — desktop `1 / 1`; mobile reader case passed in the full run; Axe assertions passed in these cases |
+| Full E2E desktop + mobile | **FAIL / BLOCKED** — `27 / 32` passed, `2` failed, `3` did not run. Desktop catalog manager did not render expected `Canal criado.` feedback; mobile MFA enrollment did not render the expected QR image after reauthentication. The two failures are outside CD-001 and were not changed. |
+| Supabase reset + pgTAP | PASS — 6 files, `385 / 385` assertions |
+| Local Auth/Data API | PASS — `91` checks with synthetic users, including establishment read/write allow/deny matrix |
+| Generated DB types | PASS — regenerated; tracked `database.types.ts` has no diff |
+| Migration status | PASS — all 6 local migrations match the recorded local status |
+| DB lint | PASS — no schema errors |
+| Local DB advisors | PASS at error/warn gate — `32` INFO, `0` WARN, `0` ERROR (`26` performance and `6` security informational results on the synthetic local database) |
+| `pnpm why braces` / guard | PASS — `braces` is dev-only; 5 guard self-tests pass; absent from 222 resolved production packages; no active `settings.next.rootDir`; all 22 pinned Next recommended rules enabled; disposition `RESOLVED_NOT_AFFECTED` |
+| Production dependency audit | PASS — no known vulnerabilities |
+| Raw full dependency audit | **RAW FAIL preserved** — exactly one HIGH `GHSA-vfj7-8cjw-p6xm` via the dev-only Next ESLint chain. The guard does not suppress or call the raw audit a pass. |
+| Secret-pattern scan | PASS — 249 tracked text files, 0 high-confidence secret patterns |
+| Client bundle containment | PASS — 19 JavaScript assets, 0 service-role identifiers, 0 JWT-pattern matches |
+| Docker | PASS — compose config/build/up; isolated web container healthy; `/api/health` `ok`; `/api/ready` `ready`, Supabase dependency `available` |
+| Local Supabase/Auth/Postgres | PASS — Auth health HTTP `200`; Postgres accepting connections |
+| Runtime log scan | PASS — 11 isolated web log lines, 0 failure-pattern matches |
+| `.gef` / checkpoint JSON | PASS — unchanged from mandatory starting HEAD |
+| Local CodeRabbit | PASS — `0 issues` on the five-file CD-001 diff |
+
+The full E2E failure prevents acceptance of the complete ELEVATED L5. The passing focused desktop reader
+case and passing mobile reader case prove the corrected semantic assertion, but do not replace the full
+suite. SonarCloud, Socket, and hosted CodeRabbit must be refreshed against the published closeout HEAD;
+their fresh statuses and links belong in PR `#69`.
+
+### Disposition
+
+- Correction findings: implemented and covered by passing pgTAP/Auth/Data API/focused E2E proofs.
+- Full ELEVATED L5: `BLOCKED_FOR_OBJECTIVE_AUDIT` until the complete browser suite passes on the exact
+  published candidate. No unrelated fix was made for the desktop channel-feedback or mobile MFA QR
+  failures.
+- `.engineering/CHECKPOINT.json`: unchanged; checkpoint delta remains a proposal only.
+- Credit: unchanged at `52 / 515 = 10.10%`; no promotion.
+- PR `#69`: remain OPEN/DRAFT and unmerged.
+
+CD-001 STOP CONDITION: **NOT REACHED**.

@@ -1112,3 +1112,29 @@ STOP CONDITION: `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`.
 
 CORRECTION TOKEN:
 `GMZ_IMPL_007_CD_001_READY_FOR_OBJECTIVE_AUDIT`.
+
+
+## GMZ-IMPL-007-CD-001 — execução e checkpoint delta atualizado
+
+- HEAD de implementação validado: `3151f7c9879e90175a2f2c81cccd1017f2b6d593` (tree
+  `e3b4b397a91b538fbbbd52cd6caf027c32024e13`), derivado da execution base autorizada.
+- Context Lock `BOUND_FOR_EXECUTION`; fingerprints `16 / 16 MATCH`; `.gef` e `CHECKPOINT.json`
+  preservados em relação ao HEAD obrigatório inicial.
+- Correções admitidas de CD-001 comprovadas por pgTAP `385 / 385`, Auth/Data API `91` checks e provas
+  focadas da asserção E2E reader em desktop/mobile.
+- A suíte ELEVATED E2E completa **não passou**: `27 / 32` aprovados, `2` falhas e `3` não executados.
+  Falhas atuais: feedback esperado de criação de canal ausente no desktop e QR de enrollment MFA ausente
+  no mobile. Não houve expansão de escopo para tratar esses fluxos.
+- Resultado local restante: pnpm congelado estrito `12.8.1`, lint, typecheck, unit `93 / 93`, build,
+  migrações, tipos, DB lint/advisors, Docker, health/readiness, Supabase/Auth/Postgres e logs passaram.
+  Audit de produção limpo; o audit completo conserva 1 HIGH bruto `GHSA-vfj7-8cjw-p6xm` no grafo
+  dev-only, com guard condicional `RESOLVED_NOT_AFFECTED`.
+- CodeRabbit local: `0 issues`. SonarCloud/Socket/CodeRabbit hospedados serão vinculados após o refresh
+  no HEAD publicado.
+- Checkpoint delta: **NOT APPLIED**. `CHECKPOINT.json` continua `GMZ_IMPL_007_BOUND_FOR_EXECUTION`,
+  implementação autorizada conforme bind existente; crédito continua `52 / 515 = 10.10%`, sem
+  promoção. PR `#69` permanece aberta/em draft e sem merge.
+
+Estado da execução CD-001: `BLOCKED_FOR_OBJECTIVE_AUDIT`.
+
+STOP CONDITION: `GMZ_IMPL_007_CD_001_READY_FOR_OBJECTIVE_AUDIT` — **não atingido**.
