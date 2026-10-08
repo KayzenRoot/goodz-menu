@@ -1138,3 +1138,19 @@ CORRECTION TOKEN:
 Estado da execução CD-001: `BLOCKED_FOR_OBJECTIVE_AUDIT`.
 
 STOP CONDITION: `GMZ_IMPL_007_CD_001_READY_FOR_OBJECTIVE_AUDIT` — **não atingido**.
+
+
+## GMZ-IMPL-007-CD-002 — objective correction proposal (NOT APPLIED)
+
+- Reviewed PR #69 source/evidence HEAD: `a6c853e4874b67ccefba558c7afd413463196065`.
+- CD-001 original three findings: corrected; focused proofs PASS (pgTAP 385/385, Auth/Data API 91, unit 93/93, reader desktop/mobile).
+- Full E2E: `27/32` PASS, `2` FAIL, `3` NOT RUN. No completed ELEVATED L5 or objective promotion.
+- Blocked scenarios: desktop `Canal criado.` feedback; mobile MFA enrollment QR after reauthentication.
+- SonarCloud: Quality Gate PASS but 22 new code smells (17 CRITICAL/5 MAJOR reported); individual disposition pending.
+- CD-002 authorized for diagnosis-first, bounded correction only; no MFA/Auth runtime mutation admitted.
+- `.engineering/CHECKPOINT.json`: unchanged.
+- Credit: `52 / 515 = 10.10%`, not promoted.
+- PR #69: remains OPEN/DRAFT/UNMERGED.
+- Exact-head full ELEVATED L5, focused repetitions, fresh CodeRabbit/Sonar/Socket required.
+
+STOP TOKEN: `GMZ_IMPL_007_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
