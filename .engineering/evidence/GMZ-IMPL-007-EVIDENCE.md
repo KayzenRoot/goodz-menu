@@ -398,3 +398,24 @@ their fresh statuses and links belong in PR `#69`.
 - PR `#69`: remain OPEN/DRAFT and unmerged.
 
 CD-001 STOP CONDITION: **NOT REACHED**.
+
+
+## GMZ-IMPL-007-CD-002 — objective re-review and authorization
+
+Current PR HEAD at review: `a6c853e4874b67ccefba558c7afd413463196065`.
+
+CD-001 delivered its three source corrections: establishment branch-containment, settlement helper EXECUTE revocation, and semantic reader button negative assertion. The three CodeRabbit threads were resolved. Focused proof: pgTAP `385/385`, Auth/Data API `91`, unit `93/93`, reader desktop/mobile PASS; Docker and local Supabase healthy.
+
+Full desktop/mobile E2E is objectively **NOT PASS**: `27/32` passed, `2` failed, `3` not run. The unresolved scenarios are desktop `Canal criado.` feedback after a channel submission and mobile MFA QR enrollment after reauthentication. Neither can currently be classified as a product defect or flaky test without inspecting the real Server Action outcomes, persisted DB/factor states, UI and browser traces.
+
+The SonarCloud Quality Gate is PASS but reports 22 new code-quality issues, called 17 CRITICAL and 5 MAJOR code smells in the published PR closeout. These are not documented security vulnerabilities, but their individual source/rule/impact classifications remain to be triaged before objective promotion.
+
+A review of CD-001 authorizes only narrow CD-002 diagnosis and conditional correction described in Work Order / Context Lock / Execution Pack. No E2E pass, resolution of Sonar issues, hosted CodeRabbit full review, merge, or production credit is claimed by this authorization.
+
+Issue #70 price-history pagination remains deferred.
+
+Disposition: `CORRECTION_REQUIRED — CD-002 AUTHORIZED`.
+
+Credit stays `52/515 = 10.10%`; PR #69 remains OPEN/DRAFT.
+
+CD-002 token: `GMZ_IMPL_007_CD_002_READY_FOR_OBJECTIVE_AUDIT`.
