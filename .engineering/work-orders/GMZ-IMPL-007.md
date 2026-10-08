@@ -541,3 +541,70 @@ CD-001 STOP CONDITION:
   unmerged.
 
 Execution disposition: `BLOCKED_FOR_OBJECTIVE_AUDIT`; the CD-001 stop condition is **not reached**.
+
+
+## GMZ-IMPL-007-CD-002 — Deterministic E2E diagnosis and bounded correction
+
+Status: `AUTHORIZED_FOR_DIAGNOSTIC_CORRECTION`
+
+Authorization implementation/evidence HEAD: `a6c853e4874b67ccefba558c7afd413463196065`  
+CD-001 corrected implementation SHA: `3151f7c9879e90175a2f2c81cccd1017f2b6d593`  
+CD-001 corrected implementation tree: `e3b4b397a91b538fbbbd52cd6caf027c32024e13`  
+PR: `#69 OPEN/DRAFT/UNMERGED`  
+Assurance: `ELEVATED`
+
+### Trigger
+
+CD-001 has completed its original three source/test corrections with focused regression proof (pgTAP `385/385`, local Auth/Data API `91`, unit `93/93`, focused reader desktop/mobile PASS). The full two-project browser suite did not pass: `27/32` PASS, `2` FAIL, `3` NOT RUN.
+
+Two current failures must be classified by objective evidence, not assumed flaky:
+1. Desktop catalog manager expected `Canal criado.` after submitting a new SalesChannel. The application contains the success message and `useActionState`; inspect actual Server Action request/response, returned `CatalogActionResult`, validation, persisted channel row, render/hydration and locator before choosing a fix.
+2. Mobile MFA enrollment expected a QR image after reauthentication. Inspect actual Server Action request/response, password-grant/identity, factors, pending factor, UI state, and any project-concurrency/fixture interference. MFA runtime/auth policy is OUTSIDE GMZ-IMPL-007; do not weaken it to make tests green.
+
+### Authorization
+
+**First diagnosis, then the smallest proven correction**. Permitted test/fixture paths:
+- `tests/e2e/catalog.spec.ts`
+- `tests/e2e/mfa-admin-guard.spec.ts`
+- `tests/e2e/catalog-ui-fixture.ts` if proven necessary
+- `tests/e2e/auth-session-fixture.ts` if proven necessary
+
+Permitted catalog runtime paths **only if the failing evidence proves a true catalog product defect**:
+- `src/components/goodz/catalog-console.tsx`
+- `src/app/app/catalog/actions.ts`
+- `src/lib/catalog/catalog-commands.server.ts`
+
+Governance/evidence paths:
+- `.engineering/work-orders/GMZ-IMPL-007.md`
+- `.engineering/execution-packs/GMZ-IMPL-007.md`
+- `.engineering/context-locks/GMZ-IMPL-007.json`
+- `.engineering/evidence/GMZ-IMPL-007-EVIDENCE.md`
+- `.engineering/CHECKPOINT.md` **human proposal only**
+
+Forbidden:
+- `.engineering/CHECKPOINT.json`, `.gef/**`, dependencies, lockfile, migration/schema/RLS, catalog money/audit/privilege weakening;
+- MFA/Auth/Admin Guard/reauthentication runtime code without a separately admitted runtime delta;
+- removing/skipping tests, fixed sleeps, blind retries, `test.skip`, weakening assertions or `first()/nth()` locator camouflage;
+- issue #70, provider adapters, recipes, inventory, POS, orders, finance, production or remote Supabase;
+- merge, push to main, force-push, credit promotion.
+
+If the MFA failure proves a runtime/Auth regression outside test/fixture scope, STOP `BLOCKED` with reproducible evidence, request a separate owned runtime correction. If the catalog defect requires paths outside the narrow authorized runtime set, STOP for authorization expansion, never silent scope creep.
+
+### Acceptance
+
+1. Exact branch/base ancestry and Context Lock preflight; `16/16` locked source fingerprints.
+2. Capture complete failures with Playwright trace/error/action response, browser and server logs; redact tokens/QR/TOTP/passwords and secrets.
+3. Focused desktop channel creation `>=3/3` consecutive at same code revision.
+4. Focused mobile MFA enrollment `>=3/3` consecutive at same code revision; QR behavior, factor lifecycle and security assertions preserved.
+5. Whole E2E normal workers `32/32`; workers=1 `32/32` if fixtures support single-worker setup. No skipped/not-run tests.
+6. Full applicable Axe/accessibility tests PASS with zero violations.
+7. Full `ELEVATED` exact-head L5 repeated, including pgTAP/Auth API, unit, lint/type/build, local DB reset, Docker, health, secret/dependency/security, migration/types, runtime logs, `.gef` integrity.
+8. Preserve raw full dependency audit truth for `GHSA-vfj7-8cjw-p6xm` and revalidate `RESOLVED_NOT_AFFECTED` guard.
+9. SonarCloud reports `22` new issues at authorization HEAD, described as `17 CRITICAL / 5 MAJOR code smells`. Obtain individual rule/file/severity/impact, verify changed-scope relevance, disposition each finding and resolve all actionable release blockers. A PASS Quality Gate alone is not sufficient to claim there are no unresolved CRITICAL/HIGH findings.
+10. Fresh exact-final-HEAD SonarCloud, Socket Project Report, Socket PR Alerts and **manual real hosted CodeRabbit full implementation review**, not `Review skipped: draft pull request`; all actionable review threads resolved only with evidence.
+11. No runtime/security/money weakening, no double count, no merge, no credit promotion; keep `52/515 = 10.10%`.
+12. Document diagnosis, minimal code diff, test counts, Sonar dispositions, hosted results and STOP token.
+
+### STOP CONDITION
+
+`GMZ_IMPL_007_CD_002_READY_FOR_OBJECTIVE_AUDIT`
