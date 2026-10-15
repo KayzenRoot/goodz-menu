@@ -1,0 +1,134 @@
+name: Goodz Fast Track Orchestrator
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "plan has no AI API charge; execute requires an API key"
+        type: choice
+        options: [plan, execute]
+        default: plan
+        required: true
+      issue_numbers:
+        description: "Optional comma-separated issue numbers, empty = all open"
+        type: string
+        default: ""
+      max_agents:
+        description: "Maximum independent issue agents"
+        type: choice
+        options: ['1', '2', '3', '4', '5', '6']
+        default: '4'
+  schedule:
+    - cron: '19 9 * * *' # plan-only; never scheduled paid execution
+
+permissions:
+  contents: read
+  issues: read
+
+concurrency:
+  group: goodz-orchestrator-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: Plan a conflict-free issue wave
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.planner.outputs.ready }}
+      count: ${{ steps.planner.outputs.count }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Restrict to main
+        if: ${{ github.ref != 'refs/heads/main' }}
+        run: |
+          echo 'Run the orchestrator on main to avoid stale code.' >&2
+          exit 1
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate planner tests
+        run: node --test tests/orchestrator/planner.test.mjs
+      - name: Plan from GitHub issues
+        id: planner
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBERS: ${{ inputs.issue_numbers || '' }}
+          MAX_AGENTS: ${{ inputs.max_agents || '4' }}
+        run: |
+          node scripts/goodz-orchestrator.mjs plan \
+            --repo "$GITHUB_REPOSITORY" \
+            --base-sha "$(git rev-parse HEAD)" \
+            --max-agents "$MAX_AGENTS" \
+            --include "$ISSUE_NUMBERS" \
+            --out .goodz-plan
+          cat .goodz-plan/SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Store one Codex master prompt and plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: goodz-issue-wave
+          path: .goodz-plan/
+          retention-days: 14
+
+  execute:
+    name: Optional one Codex session with parallel issue agents
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'execute' && needs.plan.outputs.ready == 'true' }}
+    needs: [plan]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        with:
+          name: goodz-issue-wave
+          path: .goodz-plan
+      - name: Do not start without an API credential
+        env:
+          CODEX_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -z "$CODEX_API_KEY" ]; then
+            echo 'OPENAI_API_KEY Actions secret is required for paid execute mode.' >&2
+            exit 1
+          fi
+      - name: Create a new batch branch
+        env:
+          RUN_ID: ${{ github.run_id }}
+        run: git switch -c "automation/goodz-batch-${RUN_ID}"
+      - name: One master Codex invocation
+        uses: openai/codex-action@v1
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          permission-profile: ':workspace'
+          model: gpt-6-luna
+          effort: max
+          prompt-file: .goodz-plan/prompt.md
+          output-file: .goodz-plan/codex-result.md
+      - name: Validate ownership using pristine checked-in guard
+        env:
+          RUNNER_TMP: ${{ runner.temp }}
+        run: |
+          git show "${GITHUB_SHA}:scripts/goodz-orchestrator.mjs" > "$RUNNER_TMP/goodz-scope-guard.mjs"
+          node "$RUNNER_TMP/goodz-scope-guard.mjs" validate --plan .goodz-plan/plan.json --stage
+          git diff --cached --check
+      - name: Publish one draft integration PR, never auto-merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m "Goodz Fast Track: issue wave ${RUN_ID}"
+          gh auth setup-git
+          git push origin "automation/goodz-batch-${RUN_ID}"
+          gh pr create --draft --base main --head "automation/goodz-batch-${RUN_ID}" \
+            --title "Goodz Fast Track: issue wave ${RUN_ID}" \
+            --body "Multiple independent issues executed under one master Codex prompt. Review the plan artifact, paths, risk-tier evidence and exact SHA before merge. No automatic merge or production credit."
