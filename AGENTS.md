@@ -4,17 +4,16 @@
 This repository follows GEF Bootstrap 1.1.1.
 
 Before acting:
-1. read `.engineering/CHECKPOINT.md`;
-2. read `.engineering/SOURCE-HIERARCHY.md`;
-3. read the active Work Order;
-4. read its Context Lock;
-5. honor WRITE_ALLOWED / WRITE_FORBIDDEN exactly.
+1. read `.engineering/CHECKPOINT.md` and `.engineering/SOURCE-HIERARCHY.md` where relevant;
+2. for **new ROUTINE/STANDARD** work, read the current approved `.engineering/GEF-FAST-TRACK.md` and issue agent contract instead of demanding a separate Work Order/Context Lock;
+3. for **SENSITIVE or in-flight legacy** work, read its active Work Order and Context Lock;
+4. honor the risk-tier write scope and all applicable security/financial/tenant restrictions.
 
 ## Planning
 ChatGPT may author and refine approved planning/governance documentation and coordinate GitHub lifecycle work.
 
 ## Implementation
-Heavy implementation, tests, migrations and build/CI code must follow the active GEF executor contract and an admitted implementation Work Order. No free-form coding against chat memory.
+Heavy implementation follows the admitted execution contract. Under approved Fast Track, a ROUTINE/STANDARD issue contract and batched integration PR replace redundant Work Order/Context Lock PRs; SENSITIVE and already-active legacy increments retain their original approval boundaries. No free-form coding against chat memory.
 
 ## Review
 Every implementation increment requires:
@@ -31,6 +30,16 @@ Every implementation increment requires:
 - no cross-tenant data shortcuts;
 - no weakening RLS/security/test gates to make checks green;
 - money-moving/autonomous investment actions require explicit governed authority.
+
+
+## GEF Fast Track overlay (ADR-0005, active after approval/merge)
+For **new issues**, read `.engineering/GEF-FAST-TRACK.md`. ROUTINE/STANDARD issues may be grouped into one wave with one master Codex prompt, one subagent per independent issue and one integration PR; no separate admission/bind PR per minor correction. Existing active Work Orders/Context Locks are not retroactively replaced.
+
+One lead coordinates isolated issue agents in distinct worktrees, with nonoverlapping file ownership and dependency clearance. If real subagents are unavailable, do not claim parallel execution. Do not fake tests or earned credit.
+
+Use the installed TypeSafe/Jev MCP/skill for small structured Choice/Score/boolean decisions only when available and cost-effective. For money, auth, tenant/security and architecture decisions, deterministic repo evidence/tests and the primary model remain authoritative.
+
+Default requested model: `gpt-6-luna`, reasoning effort `max`, only if supported; do not silently substitute or claim model access.
 
 ## UI/UX
 A feature is not done merely because it works. Applicable UI must be responsive, accessible, consistent in light/dark themes, visually reviewed and aligned with the Goodz design system.
