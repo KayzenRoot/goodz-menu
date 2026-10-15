@@ -4,42 +4,80 @@ import path from 'node:path';
 
 const RESERVED=['.gef/','.github/','.engineering/CHECKPOINT.json','.engineering/PROGRESS-LEDGER.md','.engineering/DECISIONS-LEDGER.md','.engineering/adrs/','pnpm-lock.yaml','.env','.npmrc','supabase/migrations/'];
 const SENSITIVE=[/(^|\/)(auth|mfa|rbac|security|payment|finance|tenant|billing|secret|migration|audit)(\/|\.|-|$)/i,/^src\/lib\/supabase\//i,/^supabase\//i];
-function argumentsOf(argv){const o={command:argv[0]||'plan'};for(let i=1;i<argv.length;i++){if(!argv[i].startsWith('--'))throw Error('Unexpected argument');const k=argv[i].slice(2);o[k]=k==='stage'?true:argv[++i]}return o}
-function fail(s){throw Error(s)}
+function argumentsOf(argv) {
+  const result={command:argv[0]||'plan'};
+  for(let i=1;i<argv.length;i++){
+    if(!argv[i].startsWith('--'))throw new Error('Unexpected argument');
+    const key=argv[i].slice(2);
+    if(key==='stage'){
+      result[key]=true;
+    }else{
+      result[key]=argv[++i];
+    }
+  }
+  return result;
+}
+function fail(message){throw new Error(message)}
 function safePath(s){return typeof s==='string'&&!!s&&!/[\r\n\0\\]/.test(s)&&!s.startsWith('/')&&!s.startsWith('./')&&!s.includes('..')&&!s.startsWith('-')&&/^[a-zA-Z0-9_./*+@-]+$/.test(s)&&!s.includes('***')&&!s.includes('//')}
 function prefix(s){return s.endsWith('/**')?s.slice(0,-2):null}
 function owns(lock,file){const x=prefix(lock);return x?file.startsWith(x):lock===file}
-function collision(a,b){const x=prefix(a),y=prefix(b);return x&&y?(x.startsWith(y)||y.startsWith(x)):x?b.startsWith(x):y?a.startsWith(y):a===b}
+function collision(a,b){
+  const left=prefix(a),right=prefix(b);
+  if(left && right)return left.startsWith(right)||right.startsWith(left);
+  if(left)return b.startsWith(left);
+  if(right)return a.startsWith(right);
+  return a===b;
+}
 function reserved(s){const p=prefix(s)||s;return RESERVED.some(x=>p===x||p.startsWith(x)||(prefix(s)&&x.startsWith(p)))}
 function labels(i){return (i.labels||[]).map(l=>typeof l==='string'?l:l.name)}
-function contract(i){const f=String.fromCharCode(96).repeat(3);const m=(i.body||'').match(new RegExp(f+'goodz-agent\\s*\\n([\\s\\S]*?)\\n'+f,'i'));return m?JSON.parse(m[1]):null}
-function inspect(i,byNum){
- const n=i.number??i.issue_number,b={number:n,title:String(i.title||'').slice(0,160),url:i.html_url||i.url||'',status:'deferred'};
- if(!Number.isInteger(n)||i.pull_request||i.state!=='open')return {...b,why:'not an open issue'};
- let c;try{c=contract(i)}catch{return {...b,why:'invalid goodz-agent JSON'}}
- if(!c)return {...b,why:'missing fenced goodz-agent JSON contract'};
- if(!labels(i).includes('agent-ready'))return {...b,why:'missing agent-ready maintainer label'};
- if(!Array.isArray(c.paths)||!c.paths.length||c.paths.length>24||!c.paths.every(safePath))return {...b,why:'invalid owned paths'};
- if(c.paths.some(reserved))return {...b,why:'reserved governance/credential/migration path'};
- if(!['routine','standard','sensitive'].includes(c.risk))return {...b,why:'invalid risk'};
- if(!['frontend','backend','tests','docs','other'].includes(c.lane))return {...b,why:'invalid lane'};
- const deps=c.dependsOn||[];
- if(!Array.isArray(deps)||deps.some(d=>!Number.isInteger(d)||d===n))return {...b,why:'invalid dependencies'};
- for(const d of deps)if(byNum.get(d)?.state!=='closed')return {...b,why:'dependency #'+d+' not verified closed'};
- const sensitive=/security|credential|auth|mfa|payments?|financial|stock|rls|migration|tenant|privacy|secret/i.test(i.title||'')||c.paths.some(p=>SENSITIVE.some(re=>re.test(p)));
- if(sensitive&&c.risk!=='sensitive')return {...b,why:'risk must be sensitive'};
- if(c.risk==='sensitive'&&!labels(i).includes('agent-sensitive-approved'))return {...b,why:'missing agent-sensitive-approved maintainer label'};
- return {...b,status:'eligible',risk:c.risk,lane:c.lane,paths:[...new Set(c.paths)],dependsOn:deps,priority:Number.isInteger(c.priority)&&c.priority>=1&&c.priority<=5?c.priority:3,acceptance:typeof c.acceptance==='string'?c.acceptance.slice(0,2000):'Fulfil issue criteria without scope expansion.'};
+function contract(i){const match=(i.body||'').match(/```goodz-agent\s*\n([\s\S]*?)\n```/i);return match?JSON.parse(match[1]):null}
+function validationReason(task,issue,byNum,number){
+  if(!task)return 'missing fenced goodz-agent JSON contract';
+  if(!labels(issue).includes('agent-ready'))return 'missing agent-ready maintainer label';
+  if(!Array.isArray(task.paths)||task.paths.length===0||task.paths.length>24||!task.paths.every(safePath))return 'invalid owned paths';
+  if(task.paths.some(reserved))return 'reserved governance/credential/migration path';
+  if(!['routine','standard','sensitive'].includes(task.risk))return 'invalid risk';
+  if(!['frontend','backend','tests','docs','other'].includes(task.lane))return 'invalid lane';
+  const dependencies=task.dependsOn||[];
+  if(!Array.isArray(dependencies)||dependencies.some(d=>!Number.isInteger(d)||d===number))return 'invalid dependencies';
+  for(const dependency of dependencies){
+    if(byNum.get(dependency)?.state!=='closed')return 'dependency #'+dependency+' not verified closed';
+  }
+  const sensitive=/security|credential|auth|mfa|payments?|financial|stock|rls|migration|tenant|privacy|secret/i.test(issue.title||'')||task.paths.some(p=>SENSITIVE.some(re=>re.test(p)));
+  if(sensitive && task.risk!=='sensitive')return 'risk must be sensitive';
+  if(task.risk==='sensitive'&&!labels(issue).includes('agent-sensitive-approved'))return 'missing agent-sensitive-approved maintainer label';
+  return null;
+}
+function inspect(issue,byNum){
+  const number=issue.number??issue.issue_number;
+  const base={number,title:String(issue.title||'').slice(0,160),url:issue.html_url||issue.url||'',status:'deferred'};
+  if(!Number.isInteger(number)||issue.pull_request||issue.state!=='open')return {...base,why:'not an open issue'};
+  let task;
+  try{task=contract(issue)}catch{return {...base,why:'invalid goodz-agent JSON'}}
+  const problem=validationReason(task,issue,byNum,number);
+  if(problem)return {...base,why:problem};
+  const priority=Number.isInteger(task.priority)&&task.priority>=1&&task.priority<=5?task.priority:3;
+  const acceptance=typeof task.acceptance==='string'?task.acceptance.replace(/\s+/g,' ').slice(0,1000):'Fulfil issue criteria without scope expansion.';
+  return {...base,status:'eligible',risk:task.risk,lane:task.lane,paths:[...new Set(task.paths)],dependsOn:task.dependsOn||[],priority,acceptance};
 }
 function select(issues,max,include){
  const byNum=new Map(issues.map(i=>[i.number??i.issue_number,i]));
  const tasks=(include.length?issues.filter(i=>include.includes(i.number??i.issue_number)):issues).map(i=>inspect(i,byNum)).sort((a,b)=>(a.priority??99)-(b.priority??99)||a.number-b.number);
  const selected=[],deferred=[];
  for(const t of tasks){
-  if(t.status!=='eligible'){if(t.why!=='not an open issue')deferred.push(t);continue}
-  if(selected.length>=max){deferred.push({...t,why:'wave capacity reached'});continue}
+  if(t.status!=='eligible'){
+   if(t.why!=='not an open issue')deferred.push(t);
+   continue;
+  }
+  if(selected.length>=max){
+   deferred.push({...t,why:'wave capacity reached'});
+   continue;
+  }
   const conflict=selected.find(s=>s.paths.some(a=>t.paths.some(b=>collision(a,b))));
-  if(conflict){deferred.push({...t,why:'write overlap with #'+conflict.number});continue}
+  if(conflict){
+   deferred.push({...t,why:'write overlap with #'+conflict.number});
+   continue;
+  }
   selected.push({...t,status:'selected'});
  }
  return {selected,deferred,seen:tasks.length};
@@ -60,13 +98,17 @@ async function fetchIssues(repo,token){
  for(let p=1;p<=10;p++){
   const r=await fetch('https://api.github.com/repos/'+repo+'/issues?state=all&per_page=100&page='+p,{headers:{Authorization:'Bearer '+token,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'goodz-orchestrator'}});
   if(!r.ok)fail('GitHub API HTTP '+r.status);
-  const batch=await r.json();all.push(...batch.filter(i=>!i.pull_request));if(batch.length<100)break;
+  const batch=await r.json();
+   all.push(...batch.filter(i=>!i.pull_request));
+   if(batch.length<100)break;
  }
  return all;
 }
 async function plan(o){
  const max=Number(o['max-agents']||4),include=(o.include||'').split(',').map(x=>x.trim()).filter(Boolean).map(Number);
- if(!Number.isInteger(max)||max<1||max>6||include.some(n=>!Number.isInteger(n)||n<1))fail('Invalid max-agents or issue list');
+ if(!Number.isInteger(max)||max<1||max>6||include.some(n=>!Number.isInteger(n)||n<1)){
+  fail('Invalid max-agents or issue list');
+ }
  const issues=o.issues?JSON.parse(await readFile(o.issues,'utf8')):await fetchIssues(o.repo,process.env.GH_TOKEN||process.env.GITHUB_TOKEN);
  if(!Array.isArray(issues))fail('Expected issue array');
  const wave=select(issues,max,include),out={version:1,repository:o.repo||process.env.GITHUB_REPOSITORY||'KayzenRoot/goodz-menu',baseSha:o['base-sha']||'',policy:'GEF-FAST-TRACK-v1',selected:wave.selected,deferred:wave.deferred,issueCount:wave.seen};
@@ -82,9 +124,11 @@ async function validate(o){
  if(!o.changes)fail('--changes file is required');
  const permitted=plan.selected.flatMap(task=>task.paths);
  const changed=(await readFile(o.changes,'utf8')).split(/\r?\n/).filter(Boolean);
- const files=[...new Set(changed)].filter(file=>!file.startsWith('.goodz-plan/')).sort();
+ const files=[...new Set(changed)].filter(file=>!file.startsWith('.goodz-plan/')).sort((a,b)=>a.localeCompare(b));
  if(!files.length)fail('No changes to publish');
- for(const file of files)if(!safePath(file)||reserved(file)||!permitted.some(lock=>owns(lock,file)))fail('Out-of-scope file: '+file);
+ for(const file of files){
+  if(!safePath(file)||reserved(file)||!permitted.some(lock=>owns(lock,file)))fail('Out-of-scope file: '+file);
+ }
  if(o.out)await writeFile(o.out,files.join('\n')+'\n');
  process.stdout.write(JSON.stringify({valid:true,files,issues:plan.selected.map(t=>t.number)},null,2)+'\n');
 }
