@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
-import {execFileSync,spawnSync} from 'node:child_process';
 import path from 'node:path';
 
 const RESERVED=['.gef/','.github/','.engineering/CHECKPOINT.json','.engineering/PROGRESS-LEDGER.md','.engineering/DECISIONS-LEDGER.md','.engineering/adrs/','pnpm-lock.yaml','.env','.npmrc','supabase/migrations/'];
@@ -78,13 +77,15 @@ async function plan(o){
  process.stdout.write(summary);
 }
 async function validate(o){
- const p=JSON.parse(await readFile(o.plan,'utf8'));if(!p.selected?.length)fail('No selected tasks');
- const allow=p.selected.flatMap(x=>x.paths);
- const git=(...a)=>execFileSync('git',a,{encoding:'utf8'}).split('\n').filter(Boolean);
- const files=[...new Set([...git('diff','--name-only','HEAD'),...git('ls-files','--others','--exclude-standard')])].filter(f=>!f.startsWith('.goodz-plan/')).sort();
- if(!files.length)fail('No changes');
- for(const f of files)if(!safePath(f)||reserved(f)||!allow.some(l=>owns(l,f)))fail('Out-of-scope file: '+f);
- if(o.stage){const r=spawnSync('git',['add','--',...files],{encoding:'utf8'});if(r.status!==0)fail('git add failed: '+r.stderr)}
- process.stdout.write(JSON.stringify({valid:true,files,issues:p.selected.map(x=>x.number)},null,2)+'\n');
+ const plan=JSON.parse(await readFile(o.plan,'utf8'));
+ if(!Array.isArray(plan.selected)||!plan.selected.length)fail('No selected tasks');
+ if(!o.changes)fail('--changes file is required');
+ const permitted=plan.selected.flatMap(task=>task.paths);
+ const changed=(await readFile(o.changes,'utf8')).split(/\r?\n/).filter(Boolean);
+ const files=[...new Set(changed)].filter(file=>!file.startsWith('.goodz-plan/')).sort();
+ if(!files.length)fail('No changes to publish');
+ for(const file of files)if(!safePath(file)||reserved(file)||!permitted.some(lock=>owns(lock,file)))fail('Out-of-scope file: '+file);
+ if(o.out)await writeFile(o.out,files.join('\n')+'\n');
+ process.stdout.write(JSON.stringify({valid:true,files,issues:plan.selected.map(t=>t.number)},null,2)+'\n');
 }
 try{const o=argumentsOf(process.argv.slice(2));if(o.command==='plan')await plan(o);else if(o.command==='validate')await validate(o);else fail('Unknown command')}catch(e){process.stderr.write('Goodz orchestrator: '+e.message+'\n');process.exitCode=1;}
