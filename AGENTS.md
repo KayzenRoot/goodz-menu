@@ -32,6 +32,16 @@ Every implementation increment requires:
 - no weakening RLS/security/test gates to make checks green;
 - money-moving/autonomous investment actions require explicit governed authority.
 
+
+## GEF Fast Track overlay (ADR-0005, active after approval/merge)
+For **new issues**, read `.engineering/GEF-FAST-TRACK.md`. ROUTINE/STANDARD issues may be grouped into one wave with one master Codex prompt, one subagent per independent issue and one integration PR; no separate admission/bind PR per minor correction. Existing active Work Orders/Context Locks are not retroactively replaced.
+
+One lead coordinates isolated issue agents in distinct worktrees, with nonoverlapping file ownership and dependency clearance. If real subagents are unavailable, do not claim parallel execution. Do not fake tests or earned credit.
+
+Use the installed TypeSafe/Jev MCP/skill for small structured Choice/Score/boolean decisions only when available and cost-effective. For money, auth, tenant/security and architecture decisions, deterministic repo evidence/tests and the primary model remain authoritative.
+
+Default requested model: `gpt-6-luna`, reasoning effort `max`, only if supported; do not silently substitute or claim model access.
+
 ## UI/UX
 A feature is not done merely because it works. Applicable UI must be responsive, accessible, consistent in light/dark themes, visually reviewed and aligned with the Goodz design system.
 
