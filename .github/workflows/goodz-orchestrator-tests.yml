@@ -1,0 +1,31 @@
+name: Goodz Orchestrator Tests
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/goodz-orchestrator.mjs'
+      - 'tests/orchestrator/**'
+      - '.github/workflows/goodz-orchestrator*.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/goodz-orchestrator.mjs'
+      - 'tests/orchestrator/**'
+
+permissions:
+  contents: read
+
+jobs:
+  planner-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify syntax
+        run: node --check scripts/goodz-orchestrator.mjs
+      - name: Verify scheduling, conflict and safety cases
+        run: node --test tests/orchestrator/planner.test.mjs
