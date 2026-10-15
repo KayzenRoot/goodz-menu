@@ -86,4 +86,9 @@ Status: `ACTIVE`
 **ADR:** ADR-0004.  
 **Status:** APPROVED.
 
-Next decision ID: `D-0021`.
+## D-0021 — GEF Fast Track and parallel delivery
+**Decision:** Introduce a prospective repository-specific risk-tiered operating overlay: ROUTINE/STANDARD work can group independent GitHub issues into one Codex multi-agent wave and one integration PR, replacing redundant admission/bind/promotion PR sequences. SENSITIVE auth/tenant/money/security changes retain explicit trust-boundary admission, negative proofs and independent review. GitHub Actions planner detects dependencies/file conflicts and generates one master prompt; paid Codex execution is opt-in and cannot auto-merge. Existing PR #69 remains on its original Context Lock. No external GEF/Source Pack/checkpoint mutation or artificial credit.  
+**ADR:** ADR-0005.  
+**Status:** PROPOSED; becomes APPROVED when this governance PR merges.
+
+Next decision ID: `D-0022`.
