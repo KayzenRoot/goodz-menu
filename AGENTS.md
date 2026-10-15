@@ -4,17 +4,16 @@
 This repository follows GEF Bootstrap 1.1.1.
 
 Before acting:
-1. read `.engineering/CHECKPOINT.md`;
-2. read `.engineering/SOURCE-HIERARCHY.md`;
-3. read the active Work Order;
-4. read its Context Lock;
-5. honor WRITE_ALLOWED / WRITE_FORBIDDEN exactly.
+1. read `.engineering/CHECKPOINT.md` and `.engineering/SOURCE-HIERARCHY.md` where relevant;
+2. for **new ROUTINE/STANDARD** work, read the current approved `.engineering/GEF-FAST-TRACK.md` and issue agent contract instead of demanding a separate Work Order/Context Lock;
+3. for **SENSITIVE or in-flight legacy** work, read its active Work Order and Context Lock;
+4. honor the risk-tier write scope and all applicable security/financial/tenant restrictions.
 
 ## Planning
 ChatGPT may author and refine approved planning/governance documentation and coordinate GitHub lifecycle work.
 
 ## Implementation
-Heavy implementation, tests, migrations and build/CI code must follow the active GEF executor contract and an admitted implementation Work Order. No free-form coding against chat memory.
+Heavy implementation follows the admitted execution contract. Under approved Fast Track, a ROUTINE/STANDARD issue contract and batched integration PR replace redundant Work Order/Context Lock PRs; SENSITIVE and already-active legacy increments retain their original approval boundaries. No free-form coding against chat memory.
 
 ## Review
 Every implementation increment requires:
