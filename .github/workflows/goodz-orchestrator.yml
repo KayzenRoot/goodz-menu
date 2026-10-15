@@ -119,7 +119,15 @@ jobs:
           RUNNER_TMP: ${{ runner.temp }}
         run: |
           git show "${GITHUB_SHA}:scripts/goodz-orchestrator.mjs" > "$RUNNER_TMP/goodz-scope-guard.mjs"
-          node "$RUNNER_TMP/goodz-scope-guard.mjs" validate --plan .goodz-plan/plan.json --stage
+          git diff --name-only HEAD > .goodz-plan/changed-files.txt
+          git ls-files --others --exclude-standard >> .goodz-plan/changed-files.txt
+          node "$RUNNER_TMP/goodz-scope-guard.mjs" validate \
+            --plan .goodz-plan/plan.json \
+            --changes .goodz-plan/changed-files.txt \
+            --out .goodz-plan/stage-files.txt
+          while IFS= read -r file; do
+            git add -- "$file"
+          done < .goodz-plan/stage-files.txt
           git diff --cached --check
       - name: Publish one draft integration PR, never auto-merge
         env:
