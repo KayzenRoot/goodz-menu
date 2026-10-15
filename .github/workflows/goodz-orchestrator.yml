@@ -21,9 +21,7 @@ on:
   schedule:
     - cron: '19 9 * * *' # plan-only; never scheduled paid execution
 
-permissions:
-  contents: read
-  issues: read
+permissions: {}
 
 concurrency:
   group: goodz-orchestrator-${{ github.ref }}
@@ -33,6 +31,9 @@ jobs:
   plan:
     name: Plan a conflict-free issue wave
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
     outputs:
       ready: ${{ steps.planner.outputs.ready }}
       count: ${{ steps.planner.outputs.count }}
@@ -106,7 +107,7 @@ jobs:
           RUN_ID: ${{ github.run_id }}
         run: git switch -c "automation/goodz-batch-${RUN_ID}"
       - name: One master Codex invocation
-        uses: openai/codex-action@v1
+        uses: openai/codex-action@bdf19a4a223ec2549a3e2274a0cf61556bc07675 # v1 verified commit
         with:
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           permission-profile: ':workspace'
