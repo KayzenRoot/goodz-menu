@@ -1,6 +1,6 @@
 # GMZ-IMPL-007 — Admission Evidence
 
-Status: `ADMISSION_CANDIDATE / GOVERNANCE_ONLY`
+Status: `APPROVED / MERGED / EXECUTION BASE BOUND`
 
 ## Identity
 
@@ -65,3 +65,26 @@ Executor/Codex: `BLOCKED` until admission objective audit + merge + exact execut
 
 STOP CONDITION:
 `GMZ_IMPL_007_ADMISSION_READY_FOR_REVIEW`
+
+
+## Objective admission audit
+
+- admission PR: `#68`
+- audited HEAD: `9abc2f690f035b41801662688cb6f7ab9e2e9f9a`
+- admission merge SHA: `1b64fbfbef3d31d215f4a2a1e30e88f8f946860c`
+- exact execution base: `1b64fbfbef3d31d215f4a2a1e30e88f8f946860c`
+- execution branch: `execution/gmz-impl-007-catalog-core`
+- stable source fingerprints: `16 / 16 MATCH`
+- SonarCloud: `PASS`
+- Socket: `PASS`
+- CodeRabbit exact-head: `SUCCESS / no actionable comments`
+- unresolved review threads: `0`
+- CRITICAL/HIGH: `0 / 0`
+- admission runtime/schema/test implementation: `NONE`
+- disposition: `APPROVED_FOR_ADMISSION_PROMOTION`
+
+Executor authorization after bind:
+`AUTHORIZED FOR GMZ-IMPL-007 ONLY`
+
+Execution STOP CONDITION:
+`GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`

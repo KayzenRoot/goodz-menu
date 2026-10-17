@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@12.8.1",
-  "engines": { "node": ">=22.0.0" },
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
     "build": "next build",
@@ -14,6 +16,7 @@
     "test": "vitest run",
     "test:e2e": "node scripts/run-local-e2e.mjs",
     "test:supabase:authz": "node tests/supabase/tenant-authorization.integration.mjs",
+    "test:supabase:catalog": "node tests/supabase/catalog-authorization.integration.mjs",
     "supabase:init": "supabase init",
     "supabase:start": "supabase start",
     "supabase:status": "supabase status",
