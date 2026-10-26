@@ -8,7 +8,7 @@ Esta branch contém a fundação executável do reboot. O preview valida somente
 - Node.js 24 LTS e pnpm 12.8.1;
 - 8 GB de memória disponível para a stack Supabase local.
 
-Confirme a engine com `docker info`. Os comandos abaixo recusam contextos Docker remotos. O Goodz Menu usa o project ID `goodz-menu-reboot-001`, portas Supabase `56320–56329` e uma rede exclusiva com publicação limitada a `127.0.0.1`. O runtime não liga um projeto Supabase remoto.
+Confirme a engine com `docker info`. Neste setup Windows, os comandos só aceitam as named pipes locais do Docker Desktop para o engine Linux; endpoints TCP e sockets Unix são recusados, inclusive `localhost` e `127.0.0.1`, para evitar que um túnel local direcione comandos a um daemon remoto. O Goodz Menu usa o project ID `goodz-menu-reboot-001`, portas Supabase `56320–56329` e uma rede exclusiva com publicação limitada a `127.0.0.1`. O runtime não liga um projeto Supabase remoto.
 
 ## Primeira inicialização e modo nativo
 

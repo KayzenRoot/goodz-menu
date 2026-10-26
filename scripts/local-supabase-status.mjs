@@ -75,13 +75,18 @@ export async function ensureLocalDocker() {
   } catch {
     throw new Error("O endpoint do contexto Docker não pôde ser validado.");
   }
-  if (typeof endpoint !== "string" || !/^(npipe:|unix:|tcp:\/\/(127\.0\.0\.1|localhost)(:|\/|$))/i.test(endpoint)) {
+  if (!isLocalDockerEndpoint(endpoint)) {
     throw new Error("A stack Goodz só pode usar uma engine Docker local.");
   }
 
   const info = await runCaptured("docker", ["info", "--format", "{{.ServerVersion}}"]);
   if (info.code !== 0) throw new Error("Docker Engine está parado ou indisponível.");
   return info.stdout.trim();
+}
+
+export function isLocalDockerEndpoint(endpoint) {
+  return typeof endpoint === "string" &&
+    /^npipe:\/{4}\.\/pipe\/(?:dockerDesktopLinuxEngine|docker_engine)$/i.test(endpoint);
 }
 
 export async function ensureLoopbackDockerNetwork() {

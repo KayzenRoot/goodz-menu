@@ -8,6 +8,17 @@ This matrix binds the rebuilt foundation to the IDs listed in the historical `GM
 - Test target: `docs/source-pack/TEST-BENCHMARK-PLAN.md` — WCAG 2.2 AA, automated tests plus required manual review.
 - Review snapshot: local candidate before publication; the exact remote PR head and its CI result must be checked after push.
 
+## Historical module mapping
+
+The old `GMZ-IMPL-001` allocated historical credits to these modules. The mapping below records the rebuilt foundation's scope only; the historical credits are not transferred to this candidate.
+
+| Module ID | Foundation mapping | Candidate status |
+| --- | --- | --- |
+| `GMZ-M25` Runtime, Docker & Deployment | `GMZ-REQ-RUN-001` and `GMZ-REQ-RUN-002`; local runtime wrappers and environment boundaries. | **PARTIAL** — local Docker/Supabase lifecycle has not run. |
+| `GMZ-M04` Design System shell | `GMZ-REQ-UX-001` through `GMZ-REQ-UX-008`, limited to applicable foundation shell requirements. | **PARTIAL** — foundation UI exists; product component library and user journeys remain future work. |
+| `GMZ-M26` Validation & Quality Engineering | `GMZ-REQ-QA-003` through `GMZ-REQ-QA-006`, scoped to foundation checks. | **PARTIAL** — automated checks exist; final PR CI and required manual reviews remain outstanding. |
+| `GMZ-M23` Observability/correlation bootstrap | `GMZ-REQ-OBS-001` on health/readiness routes and runtime logs. | **PASS for foundation endpoints** — critical business operations are not part of this candidate. |
+
 | Requirement ID | Foundation mapping and evidence | Candidate status |
 | --- | --- | --- |
 | `GMZ-REQ-RUN-001` | `Dockerfile`, `compose.yaml`, `supabase/config.toml`, `scripts/compose-local.mjs`, `scripts/supabase-local.mjs`, `docs/LOCAL-DEVELOPMENT.md`. Local engine preflight was attempted; Docker Desktop's named pipe was unavailable, so no stack lifecycle ran. | **BLOCKED** — implementation exists; local Docker/Supabase acceptance is unverified. |

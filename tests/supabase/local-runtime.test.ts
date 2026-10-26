@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { isLocalDockerEndpoint } from "../../scripts/local-supabase-status.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const read = (relativePath: string) => readFileSync(path.join(repositoryRoot, relativePath), "utf8");
@@ -37,5 +38,21 @@ describe("isolated local Supabase configuration", () => {
     expect(protectedRuntime).not.toContain(serviceRoleName);
     expect(protectedRuntime).not.toMatch(/https:\/\/[^\s"']+\.supabase\.co/i);
     expect(existsSync(path.join(repositoryRoot, "supabase", ".temp", "project-ref"))).toBe(false);
+  });
+});
+
+describe("local Docker endpoint policy", () => {
+  it.each([
+    ["npipe:////./pipe/dockerDesktopLinuxEngine", true],
+    ["npipe:////./pipe/docker_engine", true],
+    ["tcp://127.0.0.1:2375", false],
+    ["tcp://localhost:2376", false],
+    ["ssh://docker.example.com", false],
+    ["unix:///var/run/docker.sock", false],
+    ["unix://docker.example.com/run/docker.sock", false],
+    ["npipe:////./pipe/remoteEngine", false],
+    ["npipe:////remote/pipe/dockerDesktopLinuxEngine", false],
+  ])("checks endpoint locality for %s", (endpoint, isLocal) => {
+    expect(isLocalDockerEndpoint(endpoint)).toBe(isLocal);
   });
 });
