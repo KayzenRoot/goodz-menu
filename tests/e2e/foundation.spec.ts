@@ -15,6 +15,7 @@ test("foundation shell, runtime health, themes, responsive layout and reduced mo
   await expect(appStatus).toContainText("Aplicação web: Operacional");
   await expect(page.getByText("Sem conexão remota")).toBeVisible();
   await expect(page.getByText("Ainda não iniciado")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Localização atual" })).toBeVisible();
 
   const healthResponse = await page.request.get("/api/health");
   const health = await healthResponse.json() as { correlationId: string; environment: string };
@@ -64,6 +65,56 @@ test("foundation shell, runtime health, themes, responsive layout and reduced mo
   await expect(page.getByRole("button", { name: /Cardápio.*Em breve/ })).toBeDisabled();
   await expect(page.getByRole("button", { name: /Pedidos.*Em breve/ })).toBeDisabled();
   await expect(page.getByRole("button", { name: /Equipe.*Em breve/ })).toBeDisabled();
+  await expectA11y(page);
+});
+
+test("keyboard users can skip navigation and move focus to the main content", async ({ page }) => {
+  await page.goto("/");
+
+  const skipLink = page.getByRole("link", { name: "Pular para o conteúdo" });
+  await page.keyboard.press("Tab");
+  await expect(skipLink).toBeFocused();
+  await expect(skipLink).toHaveCSS("outline-style", "solid");
+  await expect(skipLink).toHaveCSS("outline-width", "3px");
+
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("main")).toBeFocused();
+});
+
+test("theme control keeps a visible focus indicator in keyboard navigation", async ({ page }) => {
+  await page.goto("/");
+
+  const theme = page.getByRole("combobox", { name: "Tema da interface" });
+  let themeFocused = false;
+
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    await page.keyboard.press("Tab");
+    if (await theme.evaluate((element) => element === document.activeElement)) {
+      themeFocused = true;
+      break;
+    }
+  }
+
+  expect(themeFocused).toBe(true);
+  await expect(theme).toBeFocused();
+  await expect(theme).toHaveCSS("outline-style", "solid");
+  await expect(theme).toHaveCSS("outline-width", "3px");
+});
+
+test("foundation reflows at a 320 CSS pixel viewport without page-level overflow", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  await page.goto("/");
+
+  const dimensions = await page.evaluate(() => ({
+    viewportWidth: document.documentElement.clientWidth,
+    pageScrollWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
+  }));
+
+  expect(dimensions.pageScrollWidth).toBeLessThanOrEqual(dimensions.viewportWidth);
+  await expect(page.getByRole("heading", { name: "Uma base clara para o que vem a seguir." })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Navegação principal" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Localização atual" })).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "Tema da interface" })).toBeVisible();
   await expectA11y(page);
 });
 

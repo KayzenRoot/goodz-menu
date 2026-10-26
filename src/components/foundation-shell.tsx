@@ -134,16 +134,16 @@ export function FoundationShell() {
 
       <div className="main-column">
         <header className="topbar">
-          <div className="breadcrumb" aria-label="Localização atual">
-            <span>Goodz Menu</span><span className="breadcrumb-divider">/</span><strong>Fundação</strong>
-          </div>
+          <nav className="breadcrumb" aria-label="Localização atual">
+            <span>Goodz Menu</span><span className="breadcrumb-divider" aria-hidden="true">/</span><strong aria-current="page">Fundação</strong>
+          </nav>
           <div className="topbar-actions">
             <span className="local-indicator"><span className="local-indicator-dot" /> Somente local</span>
             <ThemeControl />
           </div>
         </header>
 
-        <main className="page-content" id="main-content">
+        <main className="page-content" id="main-content" tabIndex={-1}>
           <section className="welcome-panel" aria-labelledby="welcome-title">
             <div className="welcome-copy">
               <p className="eyebrow"><Sparkles aria-hidden="true" size={14} /> NÚCLEO DA PLATAFORMA <span>•</span> MÓDULO 00</p>
