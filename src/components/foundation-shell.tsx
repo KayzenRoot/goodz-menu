@@ -224,19 +224,19 @@ export function FoundationShell() {
             </div>
 
             <div className="feedback-grid">
-              <div className="feedback-card feedback-success" role="status">
+              <div className="feedback-card feedback-success">
                 <span className="feedback-icon"><CircleCheck aria-hidden="true" size={18} /></span>
                 <div><strong>Pronto para seguir</strong><p>Uma etapa local terminou e pode ser revisada.</p></div>
               </div>
-              <div className="feedback-card feedback-info" role="status">
+              <div className="feedback-card feedback-info">
                 <span className="feedback-icon"><Sparkles aria-hidden="true" size={18} /></span>
                 <div><strong>Informação importante</strong><p>O próximo módulo só começa depois da auditoria.</p></div>
               </div>
-              <div className="feedback-card feedback-warning" role="status">
+              <div className="feedback-card feedback-warning">
                 <span className="feedback-icon"><TriangleAlert aria-hidden="true" size={18} /></span>
                 <div><strong>Dependência pendente</strong><p>O Supabase local precisa estar ativo para readiness.</p></div>
               </div>
-              <div className="feedback-card feedback-error" role="alert">
+              <div className="feedback-card feedback-error">
                 <span className="feedback-icon"><CircleAlert aria-hidden="true" size={18} /></span>
                 <div><strong>Falha segura</strong><p>Diagnósticos internos não aparecem nesta mensagem.</p></div>
               </div>

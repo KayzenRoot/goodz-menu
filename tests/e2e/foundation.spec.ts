@@ -16,6 +16,10 @@ test("foundation shell, runtime health, themes, responsive layout and reduced mo
   await expect(page.getByText("Sem conexão remota")).toBeVisible();
   await expect(page.getByText("Ainda não iniciado")).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Localização atual" })).toBeVisible();
+  await expect(page.locator(".feedback-card")).toHaveCount(4);
+  await expect(
+    page.locator(".feedback-card[role='status'], .feedback-card[role='alert'], .feedback-card[aria-live]"),
+  ).toHaveCount(0);
 
   const healthResponse = await page.request.get("/api/health");
   const health = await healthResponse.json() as { correlationId: string; environment: string };
