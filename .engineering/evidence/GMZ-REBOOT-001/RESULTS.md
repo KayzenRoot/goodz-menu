@@ -46,6 +46,7 @@ All six Work Order fingerprints match the approved values:
 | `node scripts/dev.mjs --port 3200`, then GET `/api/health` and `/api/ready` | PASS — liveness `200`; readiness `503` with sanitized `supabase_anon_key_required` while Supabase is unavailable |
 | Workflow YAML and action pins | PASS — YAML parsed; all 4 referenced actions use full 40-character commit SHAs |
 | Supabase reset network preflight | PASS — tests verify creation with `host_binding_ipv4=127.0.0.1` and refusal of a network bound to `0.0.0.0`; the pinned CLI accepts `--network-id`. Reset itself was not run |
+| Reset confirmation guard | PASS — with `GOODZ_ALLOW_LOCAL_DB_RESET=0`, reset exited 2 before engine access |
 | `docker info` | BLOCKED — `desktop-linux` selected, but the Docker Desktop Linux engine named pipe is absent |
 | `git diff --check` | PASS |
 

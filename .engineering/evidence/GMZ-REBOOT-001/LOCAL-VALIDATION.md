@@ -25,6 +25,7 @@ This receipt records command output observed for the source tree committed as `c
 | Local web smoke: `GET /api/health`, `GET /api/ready` without Supabase | 0 | `PASS health=200 readiness=503 reason=supabase_anon_key_required`. |
 | Workflow YAML/action check | 0 | YAML parsed; all 4 action references use full 40-character commit SHAs. |
 | `supabase db reset --network-id goodz-menu-reboot-001-loopback --help` | 0 | Pinned CLI exposes the global `--network-id` flag. Unit tests verify safe loopback-only network creation and refusal of an existing network bound to `0.0.0.0`; the database reset was not run. |
+| `GOODZ_ALLOW_LOCAL_DB_RESET=0 pnpm supabase:reset` | 2 (expected refusal) | Reset printed the confirmation requirement and exited before engine access; the wrapper assertion exited 0. |
 | `docker info` | 1 | Server connection failed because `npipe:////./pipe/dockerDesktopLinuxEngine` was absent. |
 
 The E2E suite uses a synthetic loopback health fixture, not a Supabase stack. The local app smoke validates readiness failure with missing configuration; Supabase success through Docker and the reset lifecycle still require a working local Docker engine.
