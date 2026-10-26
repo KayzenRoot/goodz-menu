@@ -121,6 +121,16 @@ describe("local Docker endpoint policy", () => {
     expect(resolveDockerCliPath(environment, "win32", (candidate) => candidate === userInstall)).toBe(userInstall);
   });
 
+  it("refuses Docker Desktop install roots on UNC network shares", () => {
+    const environment = {
+      ...process.env,
+      ProgramFiles: "\\\\example\\share",
+      LOCALAPPDATA: "\\\\example\\users\\developer\\AppData\\Local",
+    };
+
+    expect(() => resolveDockerCliPath(environment, "win32", () => true)).toThrow("caminho local padrão");
+  });
+
   it.each([
     ["npipe:////./pipe/dockerDesktopLinuxEngine", true],
     ["npipe:////./pipe/docker_engine", true],
