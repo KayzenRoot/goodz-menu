@@ -1,0 +1,37 @@
+# Canonical requirement traceability — GMZ-REBOOT-001
+
+This matrix binds the rebuilt foundation to the IDs listed in the historical `GMZ-IMPL-001` contract and checks them against the current approved requirements. It records only this foundation candidate; it does not claim completion of the later owner, staff, storefront, POS, or tenant journeys.
+
+- Current requirement source: `docs/source-pack/REQUIREMENTS.md`
+- Source status: `APPROVED_V0.1`
+- Source SHA-1 at this review: `2e179c00446980a481e56dd02fe71865a7237f59`
+- Test target: `docs/source-pack/TEST-BENCHMARK-PLAN.md` — WCAG 2.2 AA, automated tests plus required manual review.
+- Review snapshot: local candidate before publication; the exact remote PR head and its CI result must be checked after push.
+
+| Requirement ID | Foundation mapping and evidence | Candidate status |
+| --- | --- | --- |
+| `GMZ-REQ-RUN-001` | `Dockerfile`, `compose.yaml`, `supabase/config.toml`, `scripts/compose-local.mjs`, `scripts/supabase-local.mjs`, `docs/LOCAL-DEVELOPMENT.md`. Local engine preflight was attempted; Docker Desktop's named pipe was unavailable, so no stack lifecycle ran. | **BLOCKED** — implementation exists; local Docker/Supabase acceptance is unverified. |
+| `GMZ-REQ-RUN-002` | `src/lib/env/runtime-env.ts`, `src/lib/env/runtime-env.test.ts`, `scripts/start.mjs`, and `scripts/check-runtime-secrets.mjs`; runtime only accepts the isolated local endpoint and publishable key shape. | **PASS for foundation boundary** — production deployment separation remains out of scope. |
+| `GMZ-REQ-UX-001` | `src/components/theme-provider.tsx`, `src/components/theme-control.tsx`, `src/app/globals.css`, `tests/e2e/foundation.spec.ts`; desktop and mobile light/dark screenshots are committed. | **PASS for foundation shell** — no later product journeys exist yet. |
+| `GMZ-REQ-UX-002` | Design tokens in `src/app/globals.css` and shell in `src/components/foundation-shell.tsx`, guided by `docs/source-pack/UI-UX-DESIGN-SYSTEM.md`. | **PARTIAL** — foundation tokens are used; reusable product component coverage is not complete. |
+| `GMZ-REQ-UX-003` | Controlled `--surface-glass` token and shell treatment in `src/app/globals.css`; contrast checks run in the browser suite. | **PARTIAL** — shell treatment is covered; no representative storefront performance benchmark or human visual review is recorded. |
+| `GMZ-REQ-UX-004` | Reduced-motion rules in `src/app/globals.css` and browser assertion in `tests/e2e/foundation.spec.ts`. | **PASS for foundation shell** — broader product motion patterns remain future work. |
+| `GMZ-REQ-UX-005` | Example success, information, warning, and error states in `src/components/foundation-shell.tsx`. | **PARTIAL** — these are preview examples; a reusable toast system and confirmation, loading, progress, undo, offline, and sync states are not implemented. |
+| `GMZ-REQ-UX-008` | Responsive rules in `src/app/globals.css`; desktop/mobile Playwright runs and width assertion in `tests/e2e/foundation.spec.ts`. | **PARTIAL** — shell responsiveness is verified; owner, staff, and storefront experiences are not present. |
+| `GMZ-REQ-OBS-001` | Correlation ID implementation and tests in `src/lib/observability/correlation.ts` and `.test.ts`, plus health/readiness route and E2E assertions. | **PASS for foundation endpoints** — business operations do not exist in this increment. |
+| `GMZ-REQ-QA-003` | Desktop/mobile foundation E2E in `tests/e2e/foundation.spec.ts`; the app CI workflow runs this suite. | **PARTIAL** — runtime/theme shell is covered; critical owner/staff/customer journeys are future work. |
+| `GMZ-REQ-QA-004` | Four committed browser screenshots under `screenshots/` and automated theme/responsive checks. | **BLOCKED** — required human visual review has not been recorded; visual regression is not configured. |
+| `GMZ-REQ-QA-005` | Axe Playwright checks use WCAG 2.2 AA tags; dynamic runtime state is exposed as a polite atomic status announcement. | **PARTIAL** — automated coverage is present; manual keyboard, zoom/reflow, and screen-reader review remains outstanding. |
+| `GMZ-REQ-QA-006` | `docs/source-pack/TEST-BENCHMARK-PLAN.md` contains approved POS/storefront budgets; no POS or storefront exists in this foundation. | **NOT APPLICABLE TO THIS SHELL** — no product performance result is claimed; measure the defined surfaces before their acceptance. |
+| `GMZ-REQ-SEC-005` | `pnpm security:secrets` scans the 36 scoped source/config files; runtime tests reject a synthetic service-role-shaped key without printing it. | **PASS for scanned candidate scope** — the full preserved Git history was not scanned in this increment. |
+| `GMZ-REQ-GOV-001` | Admitted Work Order `.engineering/work-orders/GMZ-REBOOT-001.md`, pinned base and revalidated source fingerprints in `RESULTS.md`; implementation remains on its dedicated reboot branch. | **PASS for this admitted Work Order** — the reboot uses its own pinned snapshot, not the completed legacy `GMZ-IMPL-001` Context Lock. |
+| `GMZ-REQ-GOV-002` | Candidate code SHA and exact base-to-head evidence in `RESULTS.md`; independent standards/spec reviews bind to the candidate commit. | **PARTIAL** — final PR-head review and CI must be rechecked after publishing the reviewed candidate. |
+| `GMZ-REQ-GOV-003` | Dependency audit and scoped secret scan results are recorded in `RESULTS.md`; Docker/Supabase and app CI gaps remain explicit. | **PARTIAL** — no HIGH/CRITICAL dependency findings were reported by the recorded audit; unrun runtime gates remain unresolved. |
+| `GMZ-REQ-GOV-004` | `.engineering/CHECKPOINT.json` remains unchanged; the conditional delta is proposed in `CHECKPOINT-DELTA-PROPOSED.md`. | **PASS for current stage** — no checkpoint promotion is claimed or performed. |
+
+## Remaining acceptance gates
+
+1. Run the new app foundation workflow on the published PR head and retain its check result.
+2. Capture Docker and Supabase local lifecycle evidence when a local engine is available.
+3. Record human visual and manual accessibility review for the shell.
+4. Re-run independent review against the final PR head; keep the objective-audit status blocked until all required gates pass.
