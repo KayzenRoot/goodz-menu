@@ -1,5 +1,19 @@
 # Local validation receipt — GMZ-REBOOT-001
 
+## Accessibility correction — 2026-10-26
+
+The following commands ran on the exact source tree later committed as `6a5b095fd84a6eb90f1944c38682c0487f886b79` (the commit adds no source changes beyond the tested tree). The checks passed locally; this does not replace CI on the published PR head.
+
+| Command | Exit | Observed result |
+| --- | ---: | --- |
+| `pnpm lint` | 0 | ESLint completed without diagnostics. |
+| `pnpm typecheck` | 0 | `tsc --noEmit` completed without diagnostics. |
+| `pnpm test` | 0 | 5 test files and 50 tests passed. |
+| `pnpm build` | 0 | Next.js 16.4.3 production build passed. |
+| `pnpm test:e2e` | 0 | 8 desktop/mobile Chromium checks passed, including skip-link focus transfer, visible 3px focus on the theme selector, 320 CSS-pixel reflow, and Axe WCAG tags. |
+
+At the resource check on this date, Windows reported 22.90 GiB total and 5.76 GiB free physical memory, below the local guide's 8 GiB prerequisite. The earlier `pnpm supabase:start` attempt had failed with `runtime: cannot allocate memory`; Supabase and Docker lifecycle commands were not retried, and no database reset ran. Local manual zoom, screen-reader, and human visual review remain unverified.
+
 This receipt records the latest local path-check, lint, typecheck, and unit-test output for code head `2d65738c9a79e0315171bb7798aee1de5b1a431c`, based on `main@3139534697743494626f4940b78ac3f9d468ceb6`. Full build, E2E, dependency, and secret-scan results below are carried forward from code head `7eb87ceaa55949395456b0ae93d507927ae13a80`; they were not rerun locally for `2d65738`. The app workflow for code head `2d65738` passed as run `40396937840`. At the recorded documentation-only PR head `78b013b95afc8a3e9de66a2e6f83ab51b94120fd`, app workflow run `40398881229` also passed, including browser acceptance, dependency audit, and secret scan. This receipt does not claim those full checks were rerun locally.
 
 ## Environment

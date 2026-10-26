@@ -6,6 +6,7 @@ This matrix binds the rebuilt foundation to the IDs listed in the historical `GM
 - Source status: `APPROVED_V0.1`
 - Source SHA-1 at this review: `2e179c00446980a481e56dd02fe71865a7237f59`
 - Test target: `docs/source-pack/TEST-BENCHMARK-PLAN.md` — WCAG 2.2 AA, automated tests plus required manual review.
+- Latest local code correction: `6a5b095fd84a6eb90f1944c38682c0487f886b79`; local lint, typecheck, 50 unit tests, production build, and 8 desktop/mobile E2E checks passed on the same source tree. New automated coverage includes keyboard focus visibility, skip-link focus transfer, and 320 CSS-pixel reflow. Publication, exact-head CI, and independent review remain pending at this receipt refresh.
 - Review snapshot: implementation commit `7eb87ceaa55949395456b0ae93d507927ae13a80`; app-foundation CI emitted an exact-head manifest for published PR head `4ca68ba72ae45df6aaade7ca5ccab5bdd824c67a`, whose app checks passed and SonarCloud fails only Security `B` (Reliability `C` cleared). The local correction wraps the annotated `.find` predicate; it retains the conditional P2 from Spec/Security review because inherited `SystemDrive` can be forged and no OS-level volume check is implemented. Standards review passed. Manifest: base `3139534697743494626f4940b78ac3f9d468ceb6`, 99 changed paths, binary diff SHA-256 `fc40ebff11c823023453d2d47a8363174c3c826dc14264097a9eb9e94fbf33d1`. Local command output excerpts are recorded in `LOCAL-VALIDATION.md`.
 
 ## Historical module mapping
@@ -32,7 +33,7 @@ The old `GMZ-IMPL-001` allocated historical credits to these modules. The mappin
 | `GMZ-REQ-OBS-001` | Correlation ID implementation and tests in `src/lib/observability/correlation.ts` and `.test.ts`, plus health/readiness route and E2E assertions. | **PASS for foundation endpoints** — business operations do not exist in this increment. |
 | `GMZ-REQ-QA-003` | Desktop/mobile foundation E2E in `tests/e2e/foundation.spec.ts`; the app CI workflow runs this suite. | **PARTIAL** — runtime/theme shell is covered; critical owner/staff/customer journeys are future work. |
 | `GMZ-REQ-QA-004` | Four committed browser screenshots under `screenshots/` and automated theme/responsive checks. | **BLOCKED** — required human visual review has not been recorded; visual regression is not configured. |
-| `GMZ-REQ-QA-005` | Axe Playwright checks use WCAG 2.2 AA tags; dynamic runtime state is exposed as a polite atomic status announcement. | **PARTIAL** — automated coverage is present; manual keyboard, zoom/reflow, and screen-reader review remains outstanding. |
+| `GMZ-REQ-QA-005` | Axe Playwright checks use WCAG 2.2 AA tags; dynamic runtime state is exposed as a polite atomic status announcement. E2E also checks the skip-link focus transfer, 3px `:focus-visible` outline on the theme selector, and reflow at a 320 CSS-pixel viewport. | **PARTIAL** — automated keyboard and narrow-viewport coverage improved; actual browser zoom, screen-reader, and human keyboard review remains outstanding. |
 | `GMZ-REQ-QA-006` | `docs/source-pack/TEST-BENCHMARK-PLAN.md` contains approved POS/storefront budgets; no POS or storefront exists in this foundation. | **NOT APPLICABLE TO THIS SHELL** — no product performance result is claimed; measure the defined surfaces before their acceptance. |
 | `GMZ-REQ-SEC-005` | `pnpm security:secrets` scans the 37 scoped source/config files; runtime tests reject a synthetic service-role-shaped key without printing it. | **PASS for scanned candidate scope** — the scanner does not inspect the full preserved Git history, docs, or screenshots; no screenshot CI artifact is uploaded. |
 | `GMZ-REQ-GOV-001` | Admitted Work Order `.engineering/work-orders/GMZ-REBOOT-001.md`, pinned base and revalidated source fingerprints in `RESULTS.md`; implementation remains on its dedicated reboot branch. | **PASS for this admitted Work Order** — the reboot uses its own pinned snapshot, not the completed legacy `GMZ-IMPL-001` Context Lock. |
@@ -42,7 +43,8 @@ The old `GMZ-IMPL-001` allocated historical credits to these modules. The mappin
 
 ## Remaining acceptance gates
 
-1. Run the new app foundation workflow on the published PR head and retain its check result.
-2. Capture Docker and Supabase local lifecycle evidence when a local engine is available.
-3. Record human visual and manual accessibility review for the shell.
-4. Re-run independent review against the final PR head; keep the objective-audit status blocked until all required gates pass.
+1. Publish the local code correction and run app-foundation CI plus independent review on the final PR head.
+2. Obtain a documented SonarCloud Security `A` result or formal maintainer disposition for the two local-only HTTP findings.
+3. Capture Docker and Supabase local lifecycle evidence when at least 8 GiB of host memory is available.
+4. Record human visual review plus manual keyboard, actual zoom, and screen-reader review; the 320 CSS-pixel E2E check is not a substitute for browser zoom.
+5. Keep objective-audit status blocked until all required gates pass.
