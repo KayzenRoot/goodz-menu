@@ -1,9 +1,9 @@
 # GMZ-REBOOT-001 — Reinício limpo da implementação (Módulo 1)
 
-Status: `AUTHORIZED_FOR_REBUILD_PLANNING / EXECUTION_NOT_YET_VALIDATED`  
-Issue: #73  
-Branch: `rebuild/gmz-reboot-001-module-01`  
-Base: `main@3139534697743494626f4940b78ac3f9d468ceb6`  
+Status: `AUTHORIZED_FOR_REBUILD_PLANNING / EXECUTION_NOT_YET_VALIDATED`<br>
+Issue: #73<br>
+Branch: `rebuild/gmz-reboot-001-module-01`<br>
+Base: `main@3139534697743494626f4940b78ac3f9d468ceb6`<br>
 Risk: `ELEVATED` (alterações de Auth, RLS ou migração são HIGH_ASSURANCE quando aplicável)
 
 ## OBJECTIVE
