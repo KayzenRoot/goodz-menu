@@ -1,5 +1,14 @@
 # Local validation receipt — GMZ-REBOOT-001
 
+## Published evidence-head follow-up — 2026-10-26 23:42 UTC
+
+- Before this evidence update, PR #74 was OPEN/Draft at exact HEAD `a811c7d389125bcda934fcfec59159dd5f9c2177`, based on `main@3139534697743494626f4940b78ac3f9d468ceb6`. Its latest code candidate is ancestor `3e90030573031acd8764eb45fd40cf063d1dcbd3`; the commits above it contain evidence only.
+- Exact-head app check `121911612089` (workflow run [40419952689](https://github.com/KayzenRoot/goodz-menu/actions/runs/40419952689)) passed. Socket checks `121911617340` and `121911600080` passed. Sonar check `121911765032` failed `B Security Rating on New Code` (required `A`).
+- Read-only Sonar API query `GET https://sonarcloud.io/api/issues/search?componentKeys=KayzenRoot_goodz-menu&pullRequest=74&statuses=OPEN%2CCONFIRMED&sinceLeakPeriod=true&ps=100` on that exact HEAD returned 18 issues: two `VULNERABILITY` / `MINOR` / `LOW` `S5332` issues, plus 16 code smells. The two security issue keys are `AaF5USd7m7ISM68fKi-0` (`scripts/compose-local.mjs:39`) and `AaF5USeFm7ISM68fKi-4` (`src/lib/env/runtime-env.ts:52`); together they explain the reported Security `B`.
+- The HTTP paths are constrained to local/test runtime: host loopback or `kong` on the dedicated Docker network. The readiness request is GET-only and carries the public anon key. The source still uses cleartext transport. Current [Supabase CLI documentation](https://supabase.com/docs/guides/local-development/cli-workflows) says the local stack has no TLS and must not be exposed externally. The repository does not suppress or mark these findings safe; a transport redesign needs runtime validation.
+- At the latest host reading, C: had approximately 7.98 GiB free, D: approximately 161.32 GiB free, and 6.28 GiB RAM was available (below the 8 GiB prerequisite). The active checkout is on D:, so no disk cleanup was needed. No Docker/Supabase lifecycle was run.
+- No source code changed in this follow-up. The code-tree checks recorded below remain the checks for code candidate `3e90030`; hosted checks must be queried again after this documentation-only commit creates a new PR HEAD.
+
 ## Exact code-candidate snapshot — 2026-10-26 23:22 UTC
 
 - PR #74 is OPEN/Draft at exact HEAD `3e90030573031acd8764eb45fd40cf063d1dcbd3`, based on `main@3139534697743494626f4940b78ac3f9d468ceb6`. The increment changes only `src/components/foundation-shell.tsx`, `src/app/globals.css`, `tests/e2e/foundation.spec.ts`, and four regenerated desktop/mobile light/dark screenshots.
@@ -16,7 +25,7 @@
 | `pnpm security:deps` | PASS — no known vulnerabilities |
 | `git diff --check` | PASS — no whitespace errors |
 
-- App-foundation run [40419116186](https://github.com/KayzenRoot/goodz-menu/actions/runs/40419116186), check `121908787769`, passed on exact HEAD `3e90030`. Socket Pull Request Alerts `121908809271` and Project Report `121908783936` passed. SonarCloud `121908985988` failed the reported Quality Gate condition `B Security Rating on New Code` (required `A`); 18 annotations remain, including HTTP-protocol warnings at `scripts/compose-local.mjs:39` and `src/lib/env/runtime-env.ts:52`. Do not infer that those two annotations alone caused the rating.
+- App-foundation run [40419116186](https://github.com/KayzenRoot/goodz-menu/actions/runs/40419116186), check `121908787769`, passed on exact HEAD `3e90030`. Socket Pull Request Alerts `121908809271` and Project Report `121908783936` passed. SonarCloud `121908985988` failed `B Security Rating on New Code` (required `A`); its root cause was confirmed later at evidence HEAD `a811c7d` and is recorded in the published evidence-head follow-up above.
 - Independent standards and spec reviews of the code increment found no findings. No formal GitHub review submission is present. The regenerated screenshots were visually inspected in this turn; that does not replace the required human sign-off.
 - The host reported 4.77 GiB free RAM, below the 8 GiB prerequisite. Docker/Supabase lifecycle and reset were not attempted. C: had 7.99 GiB free; D: had 161.32 GiB free. No disk cleanup was needed.
 - `supabase/config.toml` has `[db.seed].enabled = false`, `sql_paths = []`, and there is no `seed.sql`; this foundation admits no schema or business data. The local reset/seed path remains unexecuted and the Test Plan's seed/dev-data acceptance is not claimed as passed.
