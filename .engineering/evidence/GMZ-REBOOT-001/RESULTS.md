@@ -1,6 +1,6 @@
 # Evidence Bundle — GMZ-REBOOT-001
 
-**Review status: `BLOCKED`** — local code checks pass on source commit `1c40884730fd41922c57df93a4d96f2777f1be04`; fresh independent reviews and PR-head CI for the published head, Docker/Supabase lifecycle, and human visual/manual accessibility evidence remain pending. The objective-audit stop condition has not been met.
+**Review status: `BLOCKED`** — local code checks pass on source commit `248e95b708d0eb6080a800a38fa3f24fa6d18245`; fresh independent reviews and PR-head CI for the published head, Docker/Supabase lifecycle, and human visual/manual accessibility evidence remain pending. Local validation used Node.js 26.4.0; the workflow's pinned Node.js 24 check remains pending. The objective-audit stop condition has not been met.
 
 ## Identity and scope
 
@@ -10,11 +10,12 @@
 - Draft PR: [#74](https://github.com/KayzenRoot/goodz-menu/pull/74)
 - Branch: `rebuild/gmz-reboot-001-module-01`
 - Base: `main@3139534697743494626f4940b78ac3f9d468ceb6`
-- Foundation code candidate: `1c40884730fd41922c57df93a4d96f2777f1be04`
-- After publication, app-foundation CI will record the exact PR-head SHA, complete changed-path list, commit compare URL, and binary diff SHA-256 in the JSON artifact `goodz-foundation-head-manifest-<run_id>`. The complete content diff remains available in PR #74 for those base/head SHAs; no raw diff or screenshot artifact is uploaded.
+- Foundation code candidate: `248e95b708d0eb6080a800a38fa3f24fa6d18245`
+- Local command output excerpts and environment versions: [`LOCAL-VALIDATION.md`](LOCAL-VALIDATION.md).
+- After publication, app-foundation CI will record the exact PR-head SHA, complete changed-path list, commit compare URL, and binary diff SHA-256 in the JSON artifact `goodz-foundation-head-manifest-<run_id>`. At this pre-push snapshot, remote PR #74 still points to `b42fbc516800ac3c78d232af622d4e4400a61ae0`, so its compare does not yet represent the local candidate. No raw diff or screenshot artifact is uploaded.
 - Scope: new foundation shell, isolated local runtime, liveness/readiness, correlation IDs, local Docker/Supabase wrappers, and test harness. No business module, product login, tenant model, or business data was carried forward.
 
-Legacy product routes, auth/MFA/admin-guard/tenant/audit source and tests, business migrations, and seed were removed from this reboot branch after inventory. The checkpoint, Source Pack, ADRs, source hierarchy, issue history, and legacy PRs remain untouched. The CI manifest binds the exact base/head, all changed paths, and the binary diff hash; the full diff is the immutable compare shown in PR #74 for those commits.
+Legacy product routes, auth/MFA/admin-guard/tenant/audit source and tests, business migrations, and seed were removed from this reboot branch after inventory. The checkpoint, Source Pack, ADRs, source hierarchy, issue history, and legacy PRs remain untouched. After publication, the CI manifest will bind the exact base/head, all changed paths, and the binary diff hash; the PR compare will expose the complete diff for those commits. At this pre-push snapshot, the remote PR still points to the previous candidate.
 
 ## Canonical source fingerprints
 
@@ -36,18 +37,19 @@ All six Work Order fingerprints match the approved values:
 | `pnpm install --frozen-lockfile` | PASS — frozen lockfile and supply-chain policy verification |
 | `pnpm lint` | PASS — no warnings or errors |
 | `pnpm typecheck` | PASS |
-| `pnpm test` | PASS — 37 tests across 4 files, including Docker gateway routing, endpoint allowlist and Docker-context pinning cases |
+| `pnpm test` | PASS — 39 tests across 5 files, including the HTTP 503 readiness route, Docker gateway routing, endpoint allowlist and Docker-context pinning cases |
 | `pnpm build` | PASS — Next.js 16.4.3 production build |
 | `pnpm test:e2e` | PASS — desktop Chromium and mobile Chromium; light/dark themes, Axe WCAG tags, dynamic status announcements, reduced motion, tablet navigation names at 700 px, health/readiness and responsive width |
 | `pnpm security:deps` | PASS — no known vulnerabilities at the audit snapshot; Vite is pinned to patched `8.3.3` through `pnpm-workspace.yaml` |
-| `pnpm security:secrets` | PASS — 36 scoped source/config files |
+| `pnpm security:secrets` | PASS — 37 scoped source/config files |
 | Standalone start with a synthetic service-role-shaped key | PASS — entrypoint refused to start and did not print the value |
 | `node scripts/dev.mjs --port 3200`, then GET `/api/health` and `/api/ready` | PASS — liveness `200`; readiness `503` with sanitized `supabase_anon_key_required` while Supabase is unavailable |
 | Workflow YAML and action pins | PASS — YAML parsed; all 4 referenced actions use full 40-character commit SHAs |
+| Supabase reset network flag | PASS — pinned CLI accepts `--network-id` as a global flag; reset itself was not run |
 | `docker info` | BLOCKED — `desktop-linux` selected, but the Docker Desktop Linux engine named pipe is absent |
 | `git diff --check` | PASS |
 
-The E2E server uses a synthetic health fixture on loopback, not a Supabase stack. Unit tests cover readiness success, missing configuration, upstream failure, timeout, URL restrictions, key validation, isolated local project configuration, endpoint allowlists, Docker readiness through `http://kong:8000`, and pinning operations to the inspected Docker endpoint after a simulated context switch. The current Compose setup attaches the web container to the loopback-restricted Supabase bridge and uses its internal gateway; because Docker is unavailable here, that container-to-container route remains unverified at runtime.
+The E2E server uses a synthetic health fixture on loopback, not a Supabase stack. Unit tests cover readiness success, the route's HTTP 503 for missing configuration, upstream failure, timeout, URL restrictions, key validation, isolated local project configuration, endpoint allowlists, Docker readiness through `http://kong:8000`, and pinning operations to the inspected Docker endpoint after a simulated context switch. The current Compose setup attaches the web container to the loopback-restricted Supabase bridge and uses its internal gateway; because Docker is unavailable here, that container-to-container route and reset behavior remain unverified at runtime.
 
 ## Visual artifacts
 
@@ -58,11 +60,12 @@ The E2E server uses a synthetic health fixture on loopback, not a Supabase stack
 
 ## Initial independent review corrections
 
-The initial Standards and Spec reviews examined `87145b01940c42bab515f45bad1e41d029b07260` and requested canonical requirement traceability, app-foundation CI, and live announcements for dynamic runtime states. Preliminary Security reviews of `99514c86a22e3ad179328b7dd25594391fbba2c9` and `ff6331c5286148631036904e345b9261350d0c40` requested immutable action pins and identified TCP loopback Docker endpoints as a possible tunnel to a remote daemon. Standards review of `6fbc64331103b2db44d11e053fb2dd9a8127b1b7` found Docker context time-of-check/time-of-use risk. Review of `584155fb39d32d13430e3bd7a7cddbbfaf3c3c26` found a tablet-width navigation naming gap and an artifact upload path that did not require a passing secret scan. A later Spec review inferred that the web container might not reach a host-loopback-published Supabase API; the current code removes that host route, attaches web and Supabase to the same loopback-restricted bridge, and uses `http://kong:8000`. That fix is supported by the Supabase internal-gateway contract but still needs runtime confirmation. The candidate includes module/requirement traceability, `.github/workflows/goodz-app-foundation.yml`, an atomic polite status region with E2E assertions, accessible names at tablet widths, full action commit SHAs, a Docker Desktop named-pipe-only guard, pinned Docker/Supabase subprocess endpoints, context-switch unit coverage, and a JSON exact-head manifest with changed paths and a binary diff hash. It does not upload the raw diff or screenshots as CI artifacts. The scoped secret scanner covers runtime/config paths; it does not inspect the full history, documentation, or committed screenshots. Fresh independent reviews are required on the final PR head.
+The initial Standards and Spec reviews examined `87145b01940c42bab515f45bad1e41d029b07260` and requested canonical requirement traceability, app-foundation CI, and live announcements for dynamic runtime states. Preliminary Security reviews of `99514c86a22e3ad179328b7dd25594391fbba2c9` and `ff6331c5286148631036904e345b9261350d0c40` requested immutable action pins and identified TCP loopback Docker endpoints as a possible tunnel to a remote daemon. Standards review of `6fbc64331103b2db44d11e053fb2dd9a8127b1b7` found Docker context time-of-check/time-of-use risk. Review of `584155fb39d32d13430e3bd7a7cddbbfaf3c3c26` found a tablet-width navigation naming gap and an artifact upload path that did not require a passing secret scan. A later Spec review inferred that the web container might not reach a host-loopback-published Supabase API; the current code removes that host route, attaches web and Supabase to the same loopback-restricted bridge, and uses `http://kong:8000`. That fix is supported by the Supabase internal-gateway contract but still needs runtime confirmation. The same review found that database reset did not pass the custom network ID; `supabase:reset` now passes `goodz-menu-reboot-001-loopback`, and the pinned Supabase CLI help confirms the global flag is supported. A direct HTTP test now asserts that the readiness route returns 503 with a sanitized dependency state when Supabase is unconfigured. The reset and container network remain unverified because the local Docker engine is absent. The candidate includes module/requirement traceability, `.github/workflows/goodz-app-foundation.yml`, an atomic polite status region with E2E assertions, accessible names at tablet widths, full action commit SHAs, a Docker Desktop named-pipe-only guard, pinned Docker/Supabase subprocess endpoints, context-switch unit coverage, and a JSON exact-head manifest with changed paths and a binary diff hash. It does not upload the raw diff or screenshots as CI artifacts. The scoped secret scanner covers runtime/config paths; it does not inspect the full history, documentation, or committed screenshots. Fresh independent reviews are required on the final PR head.
 
 ## Blockers and limits
 
 - `docker context show` selected `desktop-linux`, whose endpoint is the local Docker Desktop named pipe. `docker info` failed because that pipe does not exist; candidate Docker Desktop executable paths were absent. No engine or volume inventory was available.
+- Local checks ran with Node.js `26.4.0`; the app CI pins Node.js `24`, so the exact supported runtime is still awaiting PR CI.
 - `pnpm supabase:start` and `pnpm docker:up` stopped at the local-engine preflight before invoking Supabase or Compose. Docker build/up/health/down and Supabase start/status/stop therefore remain unverified. No reset was run.
 - `.github/workflows/goodz-app-foundation.yml` now runs frozen install, lint, typecheck, unit tests, build, desktop/mobile E2E, dependency audit, and scoped secret scan on PRs and `main`; the PR-head CI result remains pending verification after publication.
 - No remote Supabase, remote database, production environment, or production data was accessed. The reboot branch has not been merged; the approved checkpoint has not been changed.
