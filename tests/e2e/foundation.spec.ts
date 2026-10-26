@@ -55,6 +55,14 @@ test("foundation shell, runtime health, themes, responsive layout and reduced mo
 
   const viewport = await page.evaluate(() => ({ width: window.innerWidth, bodyWidth: document.body.scrollWidth }));
   expect(viewport.bodyWidth).toBeLessThanOrEqual(viewport.width);
+
+  await page.setViewportSize({ width: 700, height: 900 });
+  await expect(page.getByRole("link", { name: "Goodz Menu, início" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Visão geral" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Cardápio (em breve)" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Pedidos (em breve)" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Equipe (em breve)" })).toBeDisabled();
+  await expectA11y(page);
 });
 
 async function expectA11y(page: import("@playwright/test").Page) {

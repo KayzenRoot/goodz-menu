@@ -73,7 +73,7 @@ export function FoundationShell() {
       <a className="skip-link" href="#main-content">Pular para o conteúdo</a>
 
       <aside className="sidebar" aria-label="Barra lateral">
-          <Link className="brand" href="/">
+          <Link className="brand" href="/" aria-label="Goodz Menu, início">
           <span className="brand-mark" aria-hidden="true">g</span>
           <span className="brand-copy">
             <strong>goodz</strong>
@@ -92,21 +92,21 @@ export function FoundationShell() {
 
         <nav className="primary-nav" aria-label="Navegação principal">
           <p className="nav-label">PLATAFORMA</p>
-          <Link className="nav-link nav-link-active" href="/" aria-current="page">
+          <Link className="nav-link nav-link-active" href="/" aria-label="Visão geral" aria-current="page">
             <LayoutDashboard aria-hidden="true" size={18} />
             <span>Visão geral</span>
           </Link>
-          <button className="nav-link nav-link-disabled" type="button" disabled>
+          <button className="nav-link nav-link-disabled" type="button" aria-label="Cardápio (em breve)" disabled>
             <Menu aria-hidden="true" size={18} />
             <span>Cardápio</span>
             <span className="nav-badge">Em breve</span>
           </button>
-          <button className="nav-link nav-link-disabled" type="button" disabled>
+          <button className="nav-link nav-link-disabled" type="button" aria-label="Pedidos (em breve)" disabled>
             <PackageCheck aria-hidden="true" size={18} />
             <span>Pedidos</span>
             <span className="nav-badge">Em breve</span>
           </button>
-          <button className="nav-link nav-link-disabled" type="button" disabled>
+          <button className="nav-link nav-link-disabled" type="button" aria-label="Equipe (em breve)" disabled>
             <BookOpen aria-hidden="true" size={18} />
             <span>Equipe</span>
             <span className="nav-badge">Em breve</span>

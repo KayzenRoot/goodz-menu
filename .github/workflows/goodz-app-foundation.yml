@@ -60,8 +60,14 @@ jobs:
       - name: Dependency audit
         run: pnpm security:deps
 
-      - name: Runtime secret scan
-        run: pnpm security:secrets
+      - name: Runtime and candidate diff secret scans
+        id: candidate_secrets
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          pnpm security:secrets
+          pnpm security:diff
 
       - name: Capture exact candidate head and diff
         if: always()
@@ -76,21 +82,21 @@ jobs:
           fi
           git cat-file -e "${BASE_SHA}^{commit}"
           git cat-file -e "${CANDIDATE_SHA}^{commit}"
-          mkdir -p .evidence-output
+          mkdir -p evidence-output
           {
             printf '# Exact candidate evidence\n\n- Base SHA: `%s`\n- Head SHA: `%s`\n' "$BASE_SHA" "$CANDIDATE_SHA"
             printf '\n## Changed paths\n\n'
             git diff --name-status "${BASE_SHA}...${CANDIDATE_SHA}"
-          } > .evidence-output/HEAD-EVIDENCE.md
-          git diff --binary "${BASE_SHA}...${CANDIDATE_SHA}" > .evidence-output/HEAD.diff
-          cat .evidence-output/HEAD-EVIDENCE.md >> "$GITHUB_STEP_SUMMARY"
+          } > evidence-output/HEAD-EVIDENCE.md
+          git diff --binary "${BASE_SHA}...${CANDIDATE_SHA}" > evidence-output/HEAD.diff
+          cat evidence-output/HEAD-EVIDENCE.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Save exact-head diff evidence
-        if: always()
+        if: always() && steps.candidate_secrets.outcome == 'success'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: goodz-foundation-exact-head-${{ github.run_id }}
-          path: .evidence-output/
+          path: evidence-output/
           if-no-files-found: error
           retention-days: 14
 
@@ -100,5 +106,6 @@ jobs:
         with:
           name: goodz-foundation-screenshots-${{ github.run_id }}
           path: .engineering/evidence/GMZ-REBOOT-001/screenshots/
+          include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 14
