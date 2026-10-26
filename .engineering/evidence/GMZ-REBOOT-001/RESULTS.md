@@ -53,7 +53,7 @@ All six Work Order fingerprints match the approved values:
 | `pnpm supabase:start` | BLOCKED — local images pulled; starting `supabase_db_goodz-menu-reboot-001` failed with `runtime: cannot allocate memory`; the wrapper stopped containers it had started. No reset was run |
 | `git diff --check` | PASS |
 
-The E2E server uses a synthetic health fixture on loopback, not a Supabase stack. Unit tests cover readiness success, the route's HTTP 503 for missing configuration, upstream failure, timeout, URL restrictions, key validation, isolated local project configuration, endpoint allowlists, Docker readiness through `http://kong:8000`, and pinning operations to the inspected Docker endpoint after a simulated context switch. The current Compose setup attaches the web container to the loopback-restricted Supabase bridge and uses its internal gateway; because Docker is unavailable here, that container-to-container route and reset behavior remain unverified at runtime.
+The E2E server uses a synthetic health fixture on loopback, not a Supabase stack. Unit tests cover readiness success, the route's HTTP 503 for missing configuration, upstream failure, timeout, URL restrictions, key validation, isolated local project configuration, endpoint allowlists, Docker readiness through `http://kong:8000`, and pinning operations to the inspected Docker endpoint after a simulated context switch. The current Compose setup attaches the web container to the loopback-restricted Supabase bridge and uses its internal gateway; Supabase startup failed with `runtime: cannot allocate memory`, so that container-to-container route and reset behavior remain unverified at runtime.
 
 ## Visual artifacts
 
