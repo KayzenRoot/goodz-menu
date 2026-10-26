@@ -1,4 +1,5 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -8,12 +9,41 @@ import {
   ensureLocalDocker,
   ensureLoopbackDockerNetwork,
   isLocalDockerEndpoint,
+  readWindowsPathAttributes,
   readWindowsFixedDriveLetters,
   resolveDockerCliPath,
 } from "../../scripts/local-supabase-status.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const read = (relativePath: string) => readFileSync(path.join(repositoryRoot, relativePath), "utf8");
+
+function mockWindowsPathAttributes(
+  filePath: string,
+  reparsePaths: string[] = [],
+  missingPaths: string[] = [],
+  inspectedPaths?: string[][],
+) {
+  const target = filePath.toLowerCase();
+  const reparseTargets = new Set(reparsePaths.map((value) => value.toLowerCase()));
+  const missingTargets = new Set(missingPaths.map((value) => value.toLowerCase()));
+  return (components: string[]) => {
+    inspectedPaths?.push(components);
+    const attributes: Array<number | null> = [];
+    for (const component of components) {
+      const normalized = component.toLowerCase();
+      if (missingTargets.has(normalized)) {
+        attributes.push(null);
+        break;
+      }
+      if (reparseTargets.has(normalized)) {
+        attributes.push(0x410);
+        break;
+      }
+      attributes.push(normalized === target ? 0x80 : 0x10);
+    }
+    return attributes;
+  };
+}
 
 describe("isolated local Supabase configuration", () => {
   it("connects the Docker web app through the Supabase-only local bridge", () => {
@@ -125,9 +155,9 @@ describe("local Docker endpoint policy", () => {
     expect(resolveDockerCliPath(
       environment,
       "win32",
-      (candidate) => candidate === userInstall,
       () => new Set(["C:"]),
       (candidate) => candidate,
+      mockWindowsPathAttributes(userInstall) as never,
     )).toBe(userInstall);
   });
 
@@ -139,7 +169,7 @@ describe("local Docker endpoint policy", () => {
       LOCALAPPDATA: "\\\\example\\users\\developer\\AppData\\Local",
     };
 
-    expect(() => resolveDockerCliPath(environment, "win32", () => true)).toThrow("caminho local padrão");
+    expect(() => resolveDockerCliPath(environment, "win32")).toThrow("caminho local padrão");
   });
 
   it("accepts a standard Docker Desktop installation on a fixed drive outside SystemDrive", () => {
@@ -154,9 +184,9 @@ describe("local Docker endpoint policy", () => {
     expect(resolveDockerCliPath(
       environment,
       "win32",
-      (candidate) => candidate === systemInstall,
       () => new Set(["D:"]),
       (candidate) => candidate,
+      mockWindowsPathAttributes(systemInstall) as never,
     )).toBe(systemInstall);
   });
 
@@ -167,14 +197,19 @@ describe("local Docker endpoint policy", () => {
       ProgramFiles: "Z:\\mapped-root\\Program Files",
       LOCALAPPDATA: "Z:\\mapped-root\\Users\\developer\\AppData\\Local",
     };
+    const inspectedPaths: string[][] = [];
 
     expect(() => resolveDockerCliPath(
       environment,
       "win32",
-      () => true,
       () => new Set(["C:"]),
       (candidate) => candidate,
+      ((components: string[]) => {
+        inspectedPaths.push(components);
+        return components.map(() => 0x80);
+      }) as never,
     )).toThrow("volume local fixo");
+    expect(inspectedPaths).toEqual([]);
   });
 
   it("rejects a Docker executable whose final path resolves to a UNC share", () => {
@@ -184,14 +219,80 @@ describe("local Docker endpoint policy", () => {
       ProgramFiles: "C:\\Program Files",
       LOCALAPPDATA: "C:\\Users\\developer\\AppData\\Local",
     };
+    const systemInstall = "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe";
 
     expect(() => resolveDockerCliPath(
       environment,
       "win32",
-      () => true,
       () => new Set(["C:"]),
       () => "\\\\?\\UNC\\example\\share\\docker.exe",
+      mockWindowsPathAttributes(systemInstall) as never,
     )).toThrow("volume local fixo");
+  });
+
+  it("refuses any reparse-point attribute before resolving the final path", () => {
+    const environment = {
+      ...process.env,
+      ProgramFiles: "C:\\missing",
+      LOCALAPPDATA: "C:\\Users\\developer\\AppData\\Local",
+    };
+    const reparseComponent = "C:\\Users\\developer\\AppData";
+    const userInstall = "C:\\Users\\developer\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe";
+    const inspectedPaths: string[][] = [];
+    const resolvedPaths: string[] = [];
+    expect(() => resolveDockerCliPath(
+      environment,
+      "win32",
+      () => new Set(["C:"]),
+      (candidate) => {
+        resolvedPaths.push(candidate);
+        return candidate;
+      },
+      mockWindowsPathAttributes(userInstall, [reparseComponent], ["C:\\missing"], inspectedPaths) as never,
+    )).toThrow("volume local fixo");
+    expect(inspectedPaths[1]).toContain(reparseComponent);
+    expect(resolvedPaths).toEqual([]);
+  });
+
+  it.skipIf(process.platform !== "win32")("reads a real Windows junction's raw reparse attribute", () => {
+    const temporaryParent = path.resolve(tmpdir());
+    const temporaryRoot = mkdtempSync(path.join(temporaryParent, "goodz-reparse-"));
+    const resolvedRoot = path.resolve(temporaryRoot);
+    const isInsideTemporaryParent = resolvedRoot.toLowerCase().startsWith(`${temporaryParent.toLowerCase()}\\`);
+    const target = path.join(resolvedRoot, "target");
+    const junction = path.join(resolvedRoot, "docker-install");
+    const finalPaths: string[] = [];
+
+    try {
+      expect(isInsideTemporaryParent).toBe(true);
+      mkdirSync(target);
+      symlinkSync(target, junction, "junction");
+      const driveRoot = path.win32.parse(resolvedRoot).root;
+      const drive = driveRoot.slice(0, 2).toUpperCase();
+      const components = [driveRoot];
+      let currentPath = driveRoot;
+      for (const segment of path.win32.relative(driveRoot, junction).split(path.win32.sep).filter(Boolean)) {
+        currentPath = path.win32.join(currentPath, segment);
+        components.push(currentPath);
+      }
+      const attributes = readWindowsPathAttributes(components);
+      const junctionIndex = components.findIndex((component) => component.toLowerCase() === junction.toLowerCase());
+      expect(attributes).toHaveLength(junctionIndex + 1);
+      expect((attributes[junctionIndex] ?? 0) & 0x400).not.toBe(0);
+
+      expect(() => resolveDockerCliPath(
+        { ...process.env, ProgramFiles: junction, LOCALAPPDATA: undefined },
+        "win32",
+        () => new Set([drive]),
+        (candidate) => {
+          finalPaths.push(candidate);
+          return candidate;
+        },
+      )).toThrow("volume local fixo");
+      expect(finalPaths).toEqual([]);
+    } finally {
+      if (isInsideTemporaryParent) rmSync(resolvedRoot, { recursive: true, force: true });
+    }
   });
 
   it("classifies only fixed logical drives from the Windows volume inventory", () => {

@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, realpathSync } from "node:fs";
+import { realpathSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { isPublicSupabaseAnonKey } from "../src/lib/env/supabase-public-key.mjs";
@@ -106,9 +106,9 @@ export function dockerCommandArgs(endpoint, args) {
 export function resolveDockerCliPath(
   environment = process.env,
   platform = process.platform,
-  exists = existsSync,
   getFixedDriveLetters = readWindowsFixedDriveLetters,
   resolveFinalPath = resolveWindowsFinalPath,
+  inspectPaths = readWindowsPathAttributes,
 ) {
   if (platform !== "win32") return "docker";
 
@@ -116,11 +116,14 @@ export function resolveDockerCliPath(
     windowsInstallPath(environment.ProgramFiles, "Docker", "Docker", "resources", "bin", "docker.exe"),
     windowsInstallPath(environment.LOCALAPPDATA, "Programs", "DockerDesktop", "resources", "bin", "docker.exe"),
   ].filter((candidate) => typeof candidate === "string");
-  const existingCandidates = candidates.filter((candidate) => exists(candidate));
-  if (existingCandidates.length === 0) throw new Error("Docker Desktop CLI não foi encontrado em um caminho local padrão.");
+  if (candidates.length === 0) throw new Error("Docker Desktop CLI não foi encontrado em um caminho local padrão.");
 
   const fixedDriveLetters = getFixedDriveLetters();
-  for (const candidate of existingCandidates) {
+  for (const candidate of candidates) {
+    const candidateDrive = windowsDriveLetter(candidate);
+    if (!candidateDrive || !fixedDriveLetters.has(candidateDrive)) continue;
+    if (!isSafeWindowsLocalFile(candidate, inspectPaths)) continue;
+
     let finalPath;
     try {
       finalPath = normalizeWindowsFinalPath(resolveFinalPath(candidate));
@@ -132,6 +135,67 @@ export function resolveDockerCliPath(
     if (finalDrive && fixedDriveLetters.has(finalDrive)) return finalPath;
   }
   throw new Error("Docker Desktop CLI precisa resolver para um arquivo em um volume local fixo.");
+}
+
+function isSafeWindowsLocalFile(candidate, inspectPaths) {
+  const root = path.win32.parse(candidate).root;
+  if (!windowsDriveLetter(root)) return false;
+
+  const segments = path.win32.relative(root, candidate).split(path.win32.sep).filter(Boolean);
+  if (segments.length === 0) return false;
+
+  const components = [root];
+  let currentPath = root;
+  for (const segment of segments) {
+    currentPath = path.win32.join(currentPath, segment);
+    components.push(currentPath);
+  }
+
+  let attributes;
+  try {
+    attributes = inspectPaths(components);
+  } catch {
+    return false;
+  }
+
+  if (!Array.isArray(attributes) || attributes.length !== components.length) return false;
+  return attributes.every((value, index) => {
+    if (!Number.isInteger(value) || (value & 0x400) !== 0) return false;
+    const isDirectory = (value & 0x10) !== 0;
+    return index < attributes.length - 1 ? isDirectory : !isDirectory;
+  });
+}
+
+export function readWindowsPathAttributes(paths) {
+  const { windowsRoot, powershellPath } = windowsPowerShellContext();
+  const encodedPaths = paths.map((targetPath) => `'${Buffer.from(targetPath, "utf16le").toString("base64")}'`);
+  const query = [
+    "$ErrorActionPreference='Stop';",
+    `$encodedPaths=@(${encodedPaths.join(",")});`,
+    "foreach ($encodedPath in $encodedPaths) {",
+    "$targetPath=[System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String($encodedPath));",
+    "try {",
+    "$attributes=[System.IO.File]::GetAttributes($targetPath);",
+    "[Console]::Out.WriteLine(([int]$attributes).ToString([System.Globalization.CultureInfo]::InvariantCulture));",
+    "if (($attributes -band 1024) -ne 0) { break; }",
+    "} catch { [Console]::Out.WriteLine('E'); break; }",
+    "}",
+  ].join(" ");
+  const result = spawnSync(powershellPath, [
+    "-NoLogo", "-NoProfile", "-NonInteractive", "-EncodedCommand", Buffer.from(query, "utf16le").toString("base64"),
+  ], {
+    encoding: "utf8",
+    timeout: 5000,
+    windowsHide: true,
+    env: { SystemRoot: windowsRoot, WINDIR: windowsRoot, PSModulePath: "" },
+  });
+  if (result.error || result.status !== 0) throw new Error("Windows file attributes query failed.");
+
+  const lines = result.stdout.toString().split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  if (lines.length === 0 || lines.length > paths.length || lines.some((line) => line !== "E" && !/^\d+$/.test(line))) {
+    throw new Error("Windows file attributes could not be read.");
+  }
+  return lines.map((line) => line === "E" ? null : Number(line));
 }
 
 export function readWindowsFixedDriveLetters(runQuery = runWindowsDriveQuery) {
@@ -170,10 +234,7 @@ function resolveWindowsFinalPath(candidate) {
 }
 
 function runWindowsDriveQuery() {
-  const windowsRoot = process.env.SystemRoot ?? process.env.WINDIR;
-  if (!windowsRoot) throw new Error("Windows system directory is unavailable.");
-
-  const powershellPath = path.win32.join(windowsRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
+  const { windowsRoot, powershellPath } = windowsPowerShellContext();
   const query = [
     "$ErrorActionPreference='Stop';",
     "foreach ($drive in [System.IO.DriveInfo]::GetDrives()) {",
@@ -192,6 +253,17 @@ function runWindowsDriveQuery() {
   });
   if (result.error || result.status !== 0) throw new Error("Windows volume query failed.");
   return result.stdout.toString();
+}
+
+function windowsPowerShellContext() {
+  const windowsRoot = process.env.SystemRoot ?? process.env.WINDIR;
+  if (!windowsRoot || !/^[A-Za-z]:[\\/]/.test(windowsRoot)) {
+    throw new Error("Windows system directory is unavailable.");
+  }
+  return {
+    windowsRoot,
+    powershellPath: path.win32.join(windowsRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe"),
+  };
 }
 
 function windowsInstallPath(root, ...segments) {
