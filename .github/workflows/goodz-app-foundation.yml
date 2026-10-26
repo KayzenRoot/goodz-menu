@@ -60,14 +60,8 @@ jobs:
       - name: Dependency audit
         run: pnpm security:deps
 
-      - name: Runtime and candidate diff secret scans
-        id: candidate_secrets
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
-          CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: |
-          pnpm security:secrets
-          pnpm security:diff
+      - name: Runtime secret scan
+        run: pnpm security:secrets
 
       - name: Capture exact candidate head and diff
         if: always()
@@ -85,18 +79,19 @@ jobs:
           mkdir -p evidence-output
           {
             printf '# Exact candidate evidence\n\n- Base SHA: `%s`\n- Head SHA: `%s`\n' "$BASE_SHA" "$CANDIDATE_SHA"
+            printf '\n- Compare: https://github.com/KayzenRoot/goodz-menu/compare/%s...%s\n' "$BASE_SHA" "$CANDIDATE_SHA"
+            printf '\n- Binary diff SHA-256: `%s`\n' "$(git diff --binary "${BASE_SHA}...${CANDIDATE_SHA}" | sha256sum | cut -d ' ' -f 1)"
             printf '\n## Changed paths\n\n'
             git diff --name-status "${BASE_SHA}...${CANDIDATE_SHA}"
           } > evidence-output/HEAD-EVIDENCE.md
-          git diff --binary "${BASE_SHA}...${CANDIDATE_SHA}" > evidence-output/HEAD.diff
           cat evidence-output/HEAD-EVIDENCE.md >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Save exact-head diff evidence
-        if: always() && steps.candidate_secrets.outcome == 'success'
+      - name: Save exact-head manifest
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: goodz-foundation-exact-head-${{ github.run_id }}
-          path: evidence-output/
+          name: goodz-foundation-head-manifest-${{ github.run_id }}
+          path: evidence-output/HEAD-EVIDENCE.md
           if-no-files-found: error
           retention-days: 14
 

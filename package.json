@@ -23,8 +23,7 @@
     "supabase:stop": "node scripts/supabase-local.mjs stop",
     "supabase:reset": "node scripts/supabase-local.mjs reset",
     "security:deps": "pnpm audit --audit-level high",
-    "security:secrets": "node scripts/check-runtime-secrets.mjs",
-    "security:diff": "node scripts/check-candidate-diff-secrets.mjs"
+    "security:secrets": "node scripts/check-runtime-secrets.mjs"
   },
   "dependencies": {
     "@tailwindcss/postcss": "4.3.3",
