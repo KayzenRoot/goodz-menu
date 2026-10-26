@@ -273,6 +273,7 @@ button:disabled { cursor: not-allowed; }
   .primary-nav::-webkit-scrollbar { display: none; }
   .nav-link { display: inline-flex; width: auto; min-width: max-content; min-height: 35px; justify-content: flex-start; gap: 7px; padding: 0 10px; font-size: 10px; }
   .nav-link > span:not(.nav-badge) { position: static; display: inline; width: auto; height: auto; margin: 0; overflow: visible; clip: auto; clip-path: none; white-space: normal; }
+  .nav-link > .nav-badge { position: static; width: auto; height: auto; margin: 0 0 0 3px; overflow: visible; clip: auto; clip-path: none; }
   .nav-link-disabled { opacity: 0.52; }
   .sidebar-spacer, .profile-row { display: none; }
   .topbar { position: static; min-height: 54px; gap: 8px; padding-inline: 17px; }

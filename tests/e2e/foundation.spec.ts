@@ -139,6 +139,7 @@ test("foundation reflows at a 320 CSS pixel viewport without page-level overflow
   ).toBeLessThanOrEqual(dimensions.viewportWidth);
   await expect(page.getByRole("heading", { name: "Uma base clara para o que vem a seguir." })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Navegação principal" })).toBeVisible();
+  await expect(page.locator(".primary-nav .nav-badge").first()).toHaveCSS("position", "static");
   await expect(page.getByRole("navigation", { name: "Localização atual" })).toBeVisible();
   await expect(page.getByRole("combobox", { name: "Tema da interface" })).toBeVisible();
   await expectA11y(page);
