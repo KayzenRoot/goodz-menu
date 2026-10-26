@@ -1,5 +1,13 @@
 # Local validation receipt — GMZ-REBOOT-001
 
+## Exact current PR snapshot — 2026-10-26 22:44 UTC
+
+- PR #74 is OPEN/Draft at `720281ef1f27693a435e030dd8ed4c5b2af750af`, based on `main@3139534697743494626f4940b78ac3f9d468ceb6`. The product-code candidate is unchanged from `662421095942a9e3b6d9e122a27147a1fc95fe0d`; the commit to `720281e` changed only `RESULTS.md`, `TRACEABILITY.md`, and this receipt.
+- App-foundation run [40413233569](https://github.com/KayzenRoot/goodz-menu/actions/runs/40413233569) passed on exact HEAD `720281e`, including frozen install, lint, typecheck, unit tests, production build, desktop/mobile browser acceptance, dependency audit, scoped secret scan, and exact-candidate manifest.
+- Socket Pull Request Alerts check `121888975268` and Project Report check `121888953934` passed. SonarCloud check `121889156967` failed the reported Quality Gate condition `B Security Rating on New Code` (required `A`). Its annotations include HTTP-protocol warnings at `scripts/compose-local.mjs:39` and `src/lib/env/runtime-env.ts:52`; do not infer that these two annotations alone caused the rating.
+- Independent technical/accessibility reviews of the product code at `200e2b4` found no CRITICAL/HIGH defect; HEAD `720281e` has no product-code changes after that reviewed code. The connected GitHub review list is empty, so no formal PR review was submitted.
+- The host reported 7.11 GiB free RAM in this turn, below the 8 GiB prerequisite. No Docker/Supabase lifecycle was attempted; the previous Supabase start had failed with `runtime: cannot allocate memory`. Actual browser zoom, screen-reader use, and human visual/accessibility sign-off remain outstanding.
+
 ## Narrow navigation accessibility and badge restoration — 2026-10-26
 
 Independent review of published HEAD `597c64650c567c5271170bc36ae7bbc47f8d472b` found that the mobile horizontal scroller hid disabled, informational menu labels from keyboard traversal and that the tablet breakpoint removed badge padding/border. Commit `662421095942a9e3b6d9e122a27147a1fc95fe0d` wraps mobile navigation items into visible rows, restores the badge pill styling, checks every navigation item's horizontal bounds, and checks that the focused skip link remains inside the viewport.
@@ -16,7 +24,7 @@ The following checks ran on the exact source tree later committed as `6624210`; 
 
 The mobile screenshots were regenerated and visually inspected; they show all navigation items in two rows and retain the badge pills in both themes. This agent inspection is not the required human visual/accessibility sign-off. Manual keyboard review, actual browser zoom, and screen-reader review remain outstanding.
 
-Code candidate `6624210` was published in PR HEAD `200e2b4d4433513d2a8f1766442efe4b92abd09b`. At the 2026-10-26 22:28 UTC receipt snapshot, exact-head app run [40412179185](https://github.com/KayzenRoot/goodz-menu/actions/runs/40412179185) passed, both Socket checks passed, and SonarCloud failed the required Security `A` gate with Rating `B`. Follow-up technical, accessibility, and standards reviews of `200e2b4` found no CRITICAL/HIGH defect or further mobile-navigation correction. The same host snapshot showed 5.26 GiB free of 22.90 GiB, below the 8 GiB Docker/Supabase prerequisite; no retry was made. This documentation refresh changes only evidence files and creates a new PR HEAD; its hosted checks and review status must be checked separately before stating the latest remote status.
+Code candidate `6624210` was first published in PR HEAD `200e2b4d4433513d2a8f1766442efe4b92abd09b`. At the 2026-10-26 22:28 UTC receipt snapshot, exact-head app run [40412179185](https://github.com/KayzenRoot/goodz-menu/actions/runs/40412179185) passed, both Socket checks passed, and SonarCloud failed the required Security `A` gate with Rating `B`. Follow-up technical, accessibility, and standards reviews of `200e2b4` found no CRITICAL/HIGH defect or further mobile-navigation correction. The same host snapshot showed 5.26 GiB free of 22.90 GiB, below the 8 GiB Docker/Supabase prerequisite; no retry was made. The later evidence-only HEAD and its exact hosted checks are recorded above.
 
 ## Earlier mobile overflow fix and keyboard-test snapshot — 2026-10-26
 
