@@ -16,7 +16,7 @@ The following checks ran on the exact source tree later committed as `6624210`; 
 
 The mobile screenshots were regenerated and visually inspected; they show all navigation items in two rows and retain the badge pills in both themes. This agent inspection is not the required human visual/accessibility sign-off. Manual keyboard review, actual browser zoom, and screen-reader review remain outstanding.
 
-Published parent HEAD `597c64650c567c5271170bc36ae7bbc47f8d472b` passed app-foundation run [40411063801](https://github.com/KayzenRoot/goodz-menu/actions/runs/40411063801), including browser acceptance, dependency audit, secret scan, and exact-head manifest. Both Socket checks passed. SonarCloud failed the required Security `A` gate with Rating `B`. The local candidate `6624210` is not yet published, so its hosted exact-head CI and fresh independent review remain pending.
+Code candidate `6624210` was published in PR HEAD `200e2b4d4433513d2a8f1766442efe4b92abd09b`. At the 2026-10-26 22:28 UTC receipt snapshot, exact-head app run [40412179185](https://github.com/KayzenRoot/goodz-menu/actions/runs/40412179185) passed, both Socket checks passed, and SonarCloud failed the required Security `A` gate with Rating `B`. Follow-up technical, accessibility, and standards reviews of `200e2b4` found no CRITICAL/HIGH defect or further mobile-navigation correction. The same host snapshot showed 5.26 GiB free of 22.90 GiB, below the 8 GiB Docker/Supabase prerequisite; no retry was made. This documentation refresh changes only evidence files and creates a new PR HEAD; its hosted checks and review status must be checked separately before stating the latest remote status.
 
 ## Earlier mobile overflow fix and keyboard-test snapshot — 2026-10-26
 
