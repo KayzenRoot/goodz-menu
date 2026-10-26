@@ -105,16 +105,18 @@ export function resolveDockerCliPath(environment = process.env, platform = proce
   if (platform !== "win32") return "docker";
 
   const candidates = [
-    windowsInstallPath(environment.ProgramFiles, "Docker", "Docker", "resources", "bin", "docker.exe"),
-    windowsInstallPath(environment.LOCALAPPDATA, "Programs", "DockerDesktop", "resources", "bin", "docker.exe"),
+    windowsInstallPath(environment.ProgramFiles, environment.SystemDrive, "Docker", "Docker", "resources", "bin", "docker.exe"),
+    windowsInstallPath(environment.LOCALAPPDATA, environment.SystemDrive, "Programs", "DockerDesktop", "resources", "bin", "docker.exe"),
   ].filter((candidate) => typeof candidate === "string");
   const installedCli = candidates.find(exists);
-  if (!installedCli) throw new Error("Docker Desktop CLI não foi encontrado em um caminho local padrão do Windows.");
+  if (!installedCli) throw new Error("Docker Desktop CLI não foi encontrado em um caminho local padrão do disco do sistema.");
   return installedCli;
 }
 
-function windowsInstallPath(root, ...segments) {
-  if (typeof root !== "string" || !/^[A-Za-z]:[\\/]/.test(root)) return undefined;
+function windowsInstallPath(root, systemDrive, ...segments) {
+  const rootDrive = typeof root === "string" ? /^([A-Za-z]):[\\/]/.exec(root)?.[1] : undefined;
+  const systemDriveLetter = typeof systemDrive === "string" ? /^([A-Za-z]):?$/.exec(systemDrive)?.[1] : undefined;
+  if (!rootDrive || !systemDriveLetter || rootDrive.toLowerCase() !== systemDriveLetter.toLowerCase()) return undefined;
   return path.win32.join(root, ...segments);
 }
 

@@ -112,6 +112,7 @@ describe("local Docker endpoint policy", () => {
   it("resolves Docker Desktop from known install locations instead of ambient PATH", () => {
     const environment = {
       ...process.env,
+      SystemDrive: "C:",
       ProgramFiles: "C:\\Program Files",
       LOCALAPPDATA: "C:\\Users\\developer\\AppData\\Local",
       PATH: "C:\\untrusted\\bin",
@@ -124,11 +125,23 @@ describe("local Docker endpoint policy", () => {
   it("refuses Docker Desktop install roots on UNC network shares", () => {
     const environment = {
       ...process.env,
+      SystemDrive: "C:",
       ProgramFiles: "\\\\example\\share",
       LOCALAPPDATA: "\\\\example\\users\\developer\\AppData\\Local",
     };
 
     expect(() => resolveDockerCliPath(environment, "win32", () => true)).toThrow("caminho local padrão");
+  });
+
+  it("refuses Docker Desktop install roots outside the local system drive", () => {
+    const environment = {
+      ...process.env,
+      SystemDrive: "C:",
+      ProgramFiles: "Z:\\mapped-root\\Program Files",
+      LOCALAPPDATA: "Z:\\mapped-root\\Users\\developer\\AppData\\Local",
+    };
+
+    expect(() => resolveDockerCliPath(environment, "win32", () => true)).toThrow("disco do sistema");
   });
 
   it.each([
