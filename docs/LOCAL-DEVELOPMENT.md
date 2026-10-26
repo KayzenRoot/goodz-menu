@@ -1,87 +1,73 @@
 # Desenvolvimento local do Goodz Menu
 
-Este repositório contém a fundação visual/runtime e a entrada local de sessão do Goodz Menu. O shell ainda não inclui módulos de negócio, dados operacionais ou cadastro self-service.
+Esta branch contém a fundação executável do reboot. O preview valida somente o runtime, a experiência visual e os estados de interface; não há login, dados de negócio ou módulos operacionais.
 
 ## Pré-requisitos
 
-- Windows 11 com Docker Desktop iniciado e engine Linux/WSL 2 disponível;
-- Node.js 24 LTS e Corepack; o campo `packageManager` fixa pnpm 12.8.1;
-- pelo menos 8 GB de memória disponível para a stack local Supabase.
+- Windows 11 com Docker Desktop e engine Linux/WSL 2 iniciados;
+- Node.js 24 LTS e pnpm 12.8.1;
+- 8 GB de memória disponível para a stack Supabase local.
 
-Confirme o runtime Docker com `docker info`. Se a engine estiver parada, abra Docker Desktop, aguarde o estado “Engine running” e repita o comando. O repositório não apaga volumes nem redefine dados automaticamente.
+Confirme a engine com `docker info`. Os comandos abaixo recusam contextos Docker remotos. O Goodz Menu usa o project ID `goodz-menu-reboot-001`, portas Supabase `56320–56329` e uma rede exclusiva com publicação limitada a `127.0.0.1`. O runtime não liga um projeto Supabase remoto.
 
-## Primeira inicialização
+## Primeira inicialização e modo nativo
 
 Na raiz do repositório, em PowerShell:
 
 ```powershell
-corepack pnpm install --frozen-lockfile
-corepack pnpm supabase:start
-corepack pnpm build
-$statusOutput = corepack pnpm exec supabase status --output json 2>$null
-if ($LASTEXITCODE -ne 0) { throw 'Não foi possível consultar o status do Supabase local.' }
-$statusText = $statusOutput -join "`n"
-$jsonStart = $statusText.IndexOf('{')
-if ($jsonStart -lt 0) { throw 'Não foi possível ler o status do Supabase local.' }
-$localSupabase = $statusText.Substring($jsonStart) | ConvertFrom-Json
-if ($localSupabase.API_URL -notmatch '^http://(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$' -or -not $localSupabase.ANON_KEY) {
-  throw 'O login requer o endpoint e a chave pública do Supabase local.'
-}
-$env:SUPABASE_ANON_KEY = $localSupabase.ANON_KEY
-try { docker compose up --build -d } finally { Remove-Item Env:\SUPABASE_ANON_KEY -ErrorAction SilentlyContinue }
-docker compose ps
+pnpm install --frozen-lockfile
+pnpm supabase:start
+pnpm supabase:status
+pnpm dev
+```
+
+Abra <http://127.0.0.1:3000>. O comando de desenvolvimento carrega apenas o endpoint local e a chave pública anônima do Supabase para o processo do servidor. Ele não imprime nem persiste a chave. Se o Supabase local estiver parado, o app inicia e `/api/ready` responde `503` até a dependência ficar disponível.
+
+## Modo Docker
+
+Com a stack local Supabase iniciada:
+
+```powershell
+pnpm docker:up
+pnpm docker:ps
 Invoke-RestMethod http://127.0.0.1:3001/api/health
 Invoke-RestMethod http://127.0.0.1:3001/api/ready
 ```
 
-Abra <http://127.0.0.1:3001> e use a entrada **Entrar** com uma conta sintética/local já criada no Supabase Auth. O Compose publica somente a aplicação em loopback. A porta padrão externa é 3001 para coexistir com serviços de desenvolvimento comuns em 3000. A API Supabase local permanece no host e não é publicada pelo Compose; o container web a alcança por `host.docker.internal`. O script mantém a chave anon pública apenas no ambiente do processo `docker compose up`, sem gravá-la no repositório ou em `.env`.
+Abra <http://127.0.0.1:3001>. O Compose publica somente a aplicação no loopback. O container web alcança o Supabase local por `host.docker.internal`; a chave pública fica no ambiente do container e não aparece na interface nem nos logs. Encerre o web runtime com `pnpm docker:down`; esse comando não remove volumes.
 
-## Fluxo nativo rápido
+## Health e readiness
 
-Em PowerShell, carregue a configuração pública do Supabase local no processo do servidor. O comando valida loopback e não imprime nem grava a chave:
-
-```powershell
-$statusOutput = corepack pnpm exec supabase status --output json 2>$null
-if ($LASTEXITCODE -ne 0) { throw 'Não foi possível consultar o status do Supabase local.' }
-$statusText = $statusOutput -join "`n"
-$jsonStart = $statusText.IndexOf('{')
-if ($jsonStart -lt 0) { throw 'Não foi possível ler o status do Supabase local.' }
-$localSupabase = $statusText.Substring($jsonStart) | ConvertFrom-Json
-if ($localSupabase.API_URL -notmatch '^http://(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$' -or -not $localSupabase.ANON_KEY) {
-  throw 'O login nativo requer o endpoint e a chave pública do Supabase local.'
-}
-$env:GOODZ_ENVIRONMENT = 'local'
-$env:SUPABASE_API_URL = $localSupabase.API_URL
-$env:SUPABASE_ANON_KEY = $localSupabase.ANON_KEY
-try { corepack pnpm dev } finally {
-  Remove-Item Env:\GOODZ_ENVIRONMENT -ErrorAction SilentlyContinue
-  Remove-Item Env:\SUPABASE_API_URL -ErrorAction SilentlyContinue
-  Remove-Item Env:\SUPABASE_ANON_KEY -ErrorAction SilentlyContinue
-}
-```
-
-O modo nativo escuta apenas `127.0.0.1:3000`. Use os mesmos endpoints `/api/health` e `/api/ready`. A chave anon pública permanece apenas no ambiente do processo nativo; nenhuma chave service-role é usada.
+- `GET /api/health` é liveness e responde `200` sem depender do Supabase.
+- `GET /api/ready` verifica `GET /auth/v1/health` no endpoint local, usando a chave pública no cabeçalho `apikey` e timeout limitado. Sem configuração ou serviço disponível, responde `503`.
+- As respostas incluem ambiente permitido, revisão segura, correlation ID e `Cache-Control: no-store`. URL, chave, credenciais e erro bruto do upstream não são retornados.
 
 ## Validação
 
 ```powershell
-corepack pnpm lint
-corepack pnpm typecheck
-corepack pnpm test
-corepack pnpm build
-corepack pnpm exec playwright install chromium
-corepack pnpm test:e2e
-corepack pnpm audit --audit-level high
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
+pnpm exec playwright install chromium
+pnpm test:e2e
+pnpm security:deps
+pnpm security:secrets
 ```
 
-O teste E2E grava capturas de tela da prévia clara e escura para desktop e mobile em `.engineering/evidence/GMZ-IMPL-001/screenshots/`.
+O E2E usa um servidor de saúde sintético isolado em loopback; ele não precisa iniciar Supabase nem receber credenciais. As capturas light/dark desktop/mobile são gravadas em `.engineering/evidence/GMZ-REBOOT-001/screenshots/`.
 
-## Parada, estado e reset
+## Parada e reset
 
-`docker compose stop` pausa o web runtime e mantém seu estado. `docker compose down` remove somente o container/rede Compose; a stack Supabase tem ciclo próprio. `corepack pnpm supabase:stop` para a stack Supabase sem apagar o banco. `corepack pnpm supabase:reset` é destrutivo para o banco local e deve ser executado intencionalmente; não use em ambientes remotos.
+`pnpm supabase:stop` para a stack e preserva os volumes. Nenhum comando executa reset implicitamente. O reset local é destrutivo e exige confirmação na sessão:
 
-Não use `docker compose down -v` nem comandos de prune para a rotina normal. Nenhum comando deste guia conecta a um projeto Supabase remoto.
+```powershell
+$env:GOODZ_ALLOW_LOCAL_DB_RESET = "1"
+try { pnpm supabase:reset } finally { Remove-Item Env:\GOODZ_ALLOW_LOCAL_DB_RESET -ErrorAction SilentlyContinue }
+```
 
-## Configuração
+O reset usa somente a configuração isolada desta branch e falha se detectar uma ligação Supabase remota. Não use `docker compose down -v` nem comandos de prune para a rotina normal.
 
-`.env.example` documenta somente nomes e valores locais sem segredo. `GOODZ_ENVIRONMENT=local` aceita apenas o endpoint local padrão ou um endpoint loopback explícito. Ambientes `staging` e `production` exigem `SUPABASE_API_URL` explícita via HTTPS. Nenhuma service-role key é usada nesta fatia.
+## Variáveis permitidas
+
+`.env.example` lista somente valores locais sem segredos: `GOODZ_ENVIRONMENT`, `GOODZ_RUNTIME`, `BUILD_REVISION`, `SUPABASE_API_URL`, `SUPABASE_ANON_KEY` e a porta web. A readiness aceita somente loopback ou `host.docker.internal`; HTTPS, hostname remoto, path adicional, usuário e senha são rejeitados. Não configure chave service-role.

@@ -1,4 +1,4 @@
-name: goodz-menu
+name: goodz-menu-reboot-001
 
 services:
   web:
@@ -11,11 +11,14 @@ services:
       GOODZ_ENVIRONMENT: local
       GOODZ_RUNTIME: docker
       BUILD_REVISION: ${BUILD_REVISION:-local}
-      SUPABASE_API_URL: http://host.docker.internal:54321
+      SUPABASE_API_URL: ${SUPABASE_API_URL:-http://host.docker.internal:56321}
       SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:-}
-      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
       HOSTNAME: 0.0.0.0
       PORT: 3000
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
