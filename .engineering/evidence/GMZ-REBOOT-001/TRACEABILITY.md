@@ -6,7 +6,7 @@ This matrix binds the rebuilt foundation to the IDs listed in the historical `GM
 - Source status: `APPROVED_V0.1`
 - Source SHA-1 at this review: `2e179c00446980a481e56dd02fe71865a7237f59`
 - Test target: `docs/source-pack/TEST-BENCHMARK-PLAN.md` — WCAG 2.2 AA, automated tests plus required manual review.
-- Review snapshot: local candidate before publication; the exact remote PR head and its CI result must be checked after push.
+- Review snapshot: local candidate before publication; app-foundation CI emits the exact PR head, base SHA, changed paths, and binary diff as a run artifact.
 
 ## Historical module mapping
 
