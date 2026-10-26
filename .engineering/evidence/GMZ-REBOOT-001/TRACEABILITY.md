@@ -6,7 +6,7 @@ This matrix binds the rebuilt foundation to the IDs listed in the historical `GM
 - Source status: `APPROVED_V0.1`
 - Source SHA-1 at this review: `2e179c00446980a481e56dd02fe71865a7237f59`
 - Test target: `docs/source-pack/TEST-BENCHMARK-PLAN.md` — WCAG 2.2 AA, automated tests plus required manual review.
-- Latest local candidate: `4d78d5d444bfe8f01a87f587f51e52c8cbb0cee5`, with mobile overflow fix `882bf7fac38d375b558b2630fbefd0591a3af18b` and keyboard-test hardening. On `882bf7f`, local lint, typecheck, 50 unit tests, production build, and 8 desktop/mobile E2E checks passed; on `4d78d5d`, lint and all 8 E2E checks passed again. CI diagnostic run `40409015904` found `.nav-badge` extending a 320 CSS-pixel page to 338 px; the fix restores the badge to normal flow at the mobile breakpoint and the E2E test asserts that style. Publication, exact-head CI, and fresh independent review remain pending.
+- Latest local candidate: `662421095942a9e3b6d9e122a27147a1fc95fe0d`. The 320 CSS-pixel overflow measured by run `40409015904` was fixed in `882bf7f`; keyboard focus assertions were hardened in `4d78d5d`. Independent review of published `597c646` then requested mobile navigation wrapping and restoration of badge pill styling. `6624210` applies both and checks that the skip link and all navigation items remain within the viewport. Local lint, typecheck, 50 unit tests, production build, and 8 desktop/mobile E2E checks passed. Exact app run `40411063801` passed on the preceding published `597c646`; Socket passed and SonarCloud failed Security `B` (required `A`). Publication, exact-head CI, and fresh independent review for `6624210` remain pending.
 - Historical review snapshot: implementation commit `7eb87ceaa55949395456b0ae93d507927ae13a80`; app-foundation CI emitted an exact-head manifest for published PR head `4ca68ba72ae45df6aaade7ca5ccab5bdd824c67a`, whose app checks passed and SonarCloud failed Security `B` (Reliability `C` cleared). The annotated `.find` predicate was wrapped in a later correction. The then-open mapped-drive/reparse review concern was subsequently addressed in `2d65738`; it is not a current unresolved finding. Standards review passed for that historical snapshot. Manifest: base `3139534697743494626f4940b78ac3f9d468ceb6`, 99 changed paths, binary diff SHA-256 `fc40ebff11c823023453d2d47a8363174c3c826dc14264097a9eb9e94fbf33d1`. Local command output excerpts are recorded in `LOCAL-VALIDATION.md`.
 
 ## Historical module mapping
@@ -43,7 +43,7 @@ The old `GMZ-IMPL-001` allocated historical credits to these modules. The mappin
 
 ## Remaining acceptance gates
 
-1. Publish local candidate `4d78d5d` and run app-foundation CI plus fresh independent review on the final PR head.
+1. Publish local candidate `6624210` and run app-foundation CI plus fresh independent review on the final PR head.
 2. Obtain a documented SonarCloud Security `A` result or formal maintainer disposition for the two local-only HTTP findings.
 3. Capture Docker and Supabase local lifecycle evidence when at least 8 GiB of host memory is available.
 4. Record human visual review plus manual keyboard, actual zoom, and screen-reader review; the 320 CSS-pixel E2E check is not a substitute for browser zoom.

@@ -1,12 +1,30 @@
 # Local validation receipt — GMZ-REBOOT-001
 
-## Mobile overflow fix and keyboard-test hardening — 2026-10-26
+## Narrow navigation accessibility and badge restoration — 2026-10-26
+
+Independent review of published HEAD `597c64650c567c5271170bc36ae7bbc47f8d472b` found that the mobile horizontal scroller hid disabled, informational menu labels from keyboard traversal and that the tablet breakpoint removed badge padding/border. Commit `662421095942a9e3b6d9e122a27147a1fc95fe0d` wraps mobile navigation items into visible rows, restores the badge pill styling, checks every navigation item's horizontal bounds, and checks that the focused skip link remains inside the viewport.
+
+The following checks ran on the exact source tree later committed as `6624210`; the commit adds no source changes beyond that tested tree:
+
+| Command | Exit | Observed result |
+| --- | ---: | --- |
+| `pnpm test:e2e` | 0 | 8 desktop/mobile Chromium checks passed, including the 320 CSS-pixel viewport bounds, wrapped navigation, badge styling, skip-link viewport bounds/focus transfer, and Axe WCAG tags. |
+| `pnpm lint` | 0 | ESLint completed without diagnostics. |
+| `pnpm typecheck` | 0 | `tsc --noEmit` completed without diagnostics. |
+| `pnpm test` | 0 | 5 test files and 50 tests passed. |
+| `pnpm build` | 0 | Next.js 16.4.3 production build passed. |
+
+The mobile screenshots were regenerated and visually inspected; they show all navigation items in two rows and retain the badge pills in both themes. This agent inspection is not the required human visual/accessibility sign-off. Manual keyboard review, actual browser zoom, and screen-reader review remain outstanding.
+
+Published parent HEAD `597c64650c567c5271170bc36ae7bbc47f8d472b` passed app-foundation run [40411063801](https://github.com/KayzenRoot/goodz-menu/actions/runs/40411063801), including browser acceptance, dependency audit, secret scan, and exact-head manifest. Both Socket checks passed. SonarCloud failed the required Security `A` gate with Rating `B`. The local candidate `6624210` is not yet published, so its hosted exact-head CI and fresh independent review remain pending.
+
+## Earlier mobile overflow fix and keyboard-test snapshot — 2026-10-26
 
 App-foundation run `40409015904` on published PR head `3d51c6c995ba4664d9fab4cd8a5b3a1a688c32a2` failed the 320 CSS-pixel reflow test. Its diagnostic output identified `.nav-badge` as an absolutely positioned 1 px element with its right edge at x=338; the document scroll width was 338 px.
 
-Commit `882bf7fac38d375b558b2630fbefd0591a3af18b` resets `.nav-link > .nav-badge` to normal-flow sizing inside the mobile breakpoint, asserts `position: static`, and regenerates the mobile light/dark screenshots. On the exact `882bf7f` source tree, `pnpm lint`, `pnpm typecheck`, `pnpm test` (50/50), `pnpm build`, and `pnpm test:e2e` (8 desktop/mobile Chromium checks) all exited 0. The E2E run confirmed no document-level overflow at 320 CSS pixels and passed Axe checks.
+Commit `882bf7fac38d375b558b2630fbefd0591a3af18b` resets `.nav-link > .nav-badge` to normal-flow sizing inside the mobile breakpoint, asserts `position: static`, and regenerates the mobile light/dark screenshots. On the exact `882bf7f` source tree, `pnpm lint`, `pnpm typecheck`, `pnpm test` (50/50), `pnpm build`, and `pnpm test:e2e` (8 desktop/mobile Chromium checks) all exited 0. The E2E run confirmed no document-level overflow at 320 CSS pixels and passed Axe checks. At that intermediate revision, the badges were still styled as plain text and the mobile navigation still scrolled horizontally; both were corrected later in `6624210`.
 
-Commit `4d78d5d444bfe8f01a87f587f51e52c8cbb0cee5` changes only E2E assertions: it waits for the theme selector to be enabled before tab traversal and asserts that the focused skip link is visible. On this exact tree, `pnpm lint` exited 0 and `pnpm test:e2e` exited 0 with 8/8 checks passing. Exact-head hosted CI and fresh independent review are pending publication; the current remote PR head remains `3d51c6c`.
+Commit `4d78d5d444bfe8f01a87f587f51e52c8cbb0cee5` changes only E2E assertions: it waits for the theme selector to be enabled before tab traversal and asserts that the focused skip link is visible. On this exact tree, `pnpm lint` exited 0 and `pnpm test:e2e` exited 0 with 8/8 checks passing. At that earlier receipt refresh, hosted CI and fresh independent review were pending publication and the remote PR head was `3d51c6c`.
 
 The updated screenshots were inspected for layout and badge legibility. A local Chromium spot check also confirmed the skip-link focus transfer. These agent checks do not substitute for the required human visual/accessibility sign-off. Actual browser zoom and screen-reader behavior remain unverified.
 
