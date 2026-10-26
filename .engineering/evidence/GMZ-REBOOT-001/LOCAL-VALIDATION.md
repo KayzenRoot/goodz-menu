@@ -29,7 +29,7 @@ This receipt records the latest local path-check, lint, typecheck, and unit-test
 | Windows Docker CLI path resolver | 0 | For `2d65738`: resolved `C:\Users\csn19\AppData\Local\Programs\DockerDesktop\resources\bin\docker.exe`; the raw `FILE_ATTRIBUTE_REPARSE_POINT` query found the real junction in the Windows regression test and rejected it before `realpath`. The earlier Compose CLI version check reported `v5.6.0`. |
 | `docker info` | 0 | Docker Engine `29.8.2` responded on `desktop-linux`. |
 | `docker network inspect goodz-menu-reboot-001-loopback` | 0 | `host_binding_ipv4=127.0.0.1`, IPv4 enabled, IPv6 disabled. |
-| `pnpm supabase:start` | 1 | Pulled local Supabase images and attempted to create `supabase_db_goodz-menu-reboot-001`; Docker failed with `runtime: cannot allocate memory`, and the wrapper stopped containers it had started. No database reset ran. |
+| `pnpm supabase:start` | 1 | Pulled local Supabase images and attempted to create `supabase_db_goodz-menu-reboot-001`; Docker failed with `runtime: cannot allocate memory`. The CLI then printed `Stopping containers...`; a subsequent `docker ps -a` showed no Goodz containers. No database reset ran. |
 | `pnpm docker:up` | not run | Supabase did not reach healthy status and free host memory was below the documented prerequisite, so the dependent web container was not started. |
 
 ## Previously published PR-head checks
