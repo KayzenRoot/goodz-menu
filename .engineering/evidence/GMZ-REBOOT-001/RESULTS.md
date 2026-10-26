@@ -65,6 +65,8 @@ The initial Standards and Spec reviews examined `87145b01940c42bab515f45bad1e41d
 
 The latest Security review found that `--network-id` alone did not ensure the named network was already loopback-bound. After explicit reset confirmation, the wrapper now creates or validates `goodz-menu-reboot-001-loopback` before invoking Supabase; it refuses an existing network with any other host binding. Unit tests cover both safe creation and fail-closed refusal. The reset itself remains unverified because Docker is unavailable.
 
+The final Security review also identified that direct `pnpm exec supabase ...` invocations bypass the wrappers. `docs/LOCAL-DEVELOPMENT.md` now defines the supported local lifecycle as the `pnpm supabase:*` wrappers only. Direct CLI invocation is outside that documented contract and is not technically blocked by this repository.
+
 ## Blockers and limits
 
 - `docker context show` selected `desktop-linux`, whose endpoint is the local Docker Desktop named pipe. `docker info` failed because that pipe does not exist; candidate Docker Desktop executable paths were absent. No engine or volume inventory was available.

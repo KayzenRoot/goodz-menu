@@ -10,6 +10,8 @@ Esta branch contém a fundação executável do reboot. O preview valida somente
 
 Confirme a engine com `docker info`. Neste setup Windows, os comandos só aceitam as named pipes locais do Docker Desktop para o engine Linux; endpoints TCP e sockets Unix são recusados, inclusive `localhost` e `127.0.0.1`, para evitar que um túnel local direcione comandos a um daemon remoto. O Goodz Menu usa o project ID `goodz-menu-reboot-001`, portas Supabase `56320–56329` e a rede `goodz-menu-reboot-001-loopback`, cuja publicação de portas fica limitada a `127.0.0.1`. O runtime não liga um projeto Supabase remoto.
 
+Use somente os wrappers `pnpm supabase:start`, `pnpm supabase:status`, `pnpm supabase:stop` e `pnpm supabase:reset`. Não invoque a CLI diretamente com `pnpm exec supabase ...`: esse caminho contorna a verificação do endpoint Docker e o preparo da rede com bind limitado ao loopback.
+
 ## Primeira inicialização e modo nativo
 
 Na raiz do repositório, em PowerShell:
