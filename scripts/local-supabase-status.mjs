@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { isPublicSupabaseAnonKey } from "../src/lib/env/supabase-public-key.mjs";
@@ -108,20 +108,30 @@ export function resolveDockerCliPath(
   platform = process.platform,
   exists = existsSync,
   getFixedDriveLetters = readWindowsFixedDriveLetters,
+  resolveFinalPath = resolveWindowsFinalPath,
 ) {
   if (platform !== "win32") return "docker";
 
   const candidates = [
-    windowsInstallPath(environment.ProgramFiles, environment.SystemDrive, "Docker", "Docker", "resources", "bin", "docker.exe"),
-    windowsInstallPath(environment.LOCALAPPDATA, environment.SystemDrive, "Programs", "DockerDesktop", "resources", "bin", "docker.exe"),
+    windowsInstallPath(environment.ProgramFiles, "Docker", "Docker", "resources", "bin", "docker.exe"),
+    windowsInstallPath(environment.LOCALAPPDATA, "Programs", "DockerDesktop", "resources", "bin", "docker.exe"),
   ].filter((candidate) => typeof candidate === "string");
-  const installedCli = candidates.find((candidate) => exists(candidate));
-  if (!installedCli) throw new Error("Docker Desktop CLI não foi encontrado em um caminho local padrão do disco do sistema.");
-  const installedDrive = path.win32.parse(installedCli).root.slice(0, 2).toUpperCase();
-  if (!getFixedDriveLetters().has(installedDrive)) {
-    throw new Error("Docker Desktop CLI precisa estar em um volume local fixo.");
+  const existingCandidates = candidates.filter((candidate) => exists(candidate));
+  if (existingCandidates.length === 0) throw new Error("Docker Desktop CLI não foi encontrado em um caminho local padrão.");
+
+  const fixedDriveLetters = getFixedDriveLetters();
+  for (const candidate of existingCandidates) {
+    let finalPath;
+    try {
+      finalPath = normalizeWindowsFinalPath(resolveFinalPath(candidate));
+    } catch {
+      continue;
+    }
+
+    const finalDrive = windowsDriveLetter(finalPath);
+    if (finalDrive && fixedDriveLetters.has(finalDrive)) return finalPath;
   }
-  return installedCli;
+  throw new Error("Docker Desktop CLI precisa resolver para um arquivo em um volume local fixo.");
 }
 
 export function readWindowsFixedDriveLetters(runQuery = runWindowsDriveQuery) {
@@ -136,21 +146,27 @@ export function readWindowsFixedDriveLetters(runQuery = runWindowsDriveQuery) {
     throw new Error("O tipo dos volumes locais não pôde ser verificado.");
   }
 
-  let volumes;
+  let driveRecords;
   try {
-    const parsed = JSON.parse(output.trim());
-    volumes = Array.isArray(parsed) ? parsed : [parsed];
+    const lines = output.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    driveRecords = lines.map((line) => /^([A-Za-z]):\|([1-6])$/.exec(line));
+    if (driveRecords.length === 0 || driveRecords.some((record) => record === null)) throw new Error("invalid drive inventory");
   } catch {
     throw new Error("O inventário de volumes locais não pôde ser lido.");
   }
 
   const fixedDrives = new Set(
-    volumes
-      .filter((volume) => volume && Number(volume.DriveType) === 3 && /^[A-Za-z]:$/.test(volume.DeviceID))
-      .map((volume) => volume.DeviceID.toUpperCase()),
+    driveRecords
+      .filter((record) => record[2] === "3")
+      .map((record) => `${record[1].toUpperCase()}:`),
   );
   if (runQuery === runWindowsDriveQuery) cachedWindowsFixedDriveLetters = new Set(fixedDrives);
   return fixedDrives;
+}
+
+/** @param {string} candidate */
+function resolveWindowsFinalPath(candidate) {
+  return realpathSync.native(candidate).toString();
 }
 
 function runWindowsDriveQuery() {
@@ -158,21 +174,39 @@ function runWindowsDriveQuery() {
   if (!windowsRoot) throw new Error("Windows system directory is unavailable.");
 
   const powershellPath = path.win32.join(windowsRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
-  const query = "$ErrorActionPreference='Stop'; Get-CimInstance -ClassName Win32_LogicalDisk | Select-Object DeviceID, DriveType | ConvertTo-Json -Compress";
+  const query = [
+    "$ErrorActionPreference='Stop';",
+    "foreach ($drive in [System.IO.DriveInfo]::GetDrives()) {",
+    "[Console]::WriteLine(('{0}|{1}' -f $drive.Name.Substring(0, 2), [int]$drive.DriveType))",
+    "}",
+  ].join(" ");
   const result = spawnSync(powershellPath, ["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", query], {
     encoding: "utf8",
     timeout: 5000,
     windowsHide: true,
+    env: {
+      SystemRoot: windowsRoot,
+      WINDIR: windowsRoot,
+      PSModulePath: "",
+    },
   });
   if (result.error || result.status !== 0) throw new Error("Windows volume query failed.");
-  return result.stdout;
+  return result.stdout.toString();
 }
 
-function windowsInstallPath(root, systemDrive, ...segments) {
-  const rootDrive = typeof root === "string" ? /^([A-Za-z]):[\\/]/.exec(root)?.[1] : undefined;
-  const systemDriveLetter = typeof systemDrive === "string" ? /^([A-Za-z]):?$/.exec(systemDrive)?.[1] : undefined;
-  if (!rootDrive || !systemDriveLetter || rootDrive.toLowerCase() !== systemDriveLetter.toLowerCase()) return undefined;
+function windowsInstallPath(root, ...segments) {
+  if (typeof root !== "string" || !/^[A-Za-z]:[\\/]/.test(root)) return undefined;
   return path.win32.join(root, ...segments);
+}
+
+function normalizeWindowsFinalPath(value) {
+  if (typeof value !== "string") return undefined;
+  return value.replace(/^\\\\\?\\/, "");
+}
+
+function windowsDriveLetter(value) {
+  const match = typeof value === "string" ? /^([A-Za-z]):[\\/]/.exec(value) : undefined;
+  return match ? `${match[1].toUpperCase()}:` : undefined;
 }
 
 export function dockerRuntimeEnvironment(endpoint, extra = {}, dockerCliPath) {

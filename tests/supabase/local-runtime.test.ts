@@ -127,6 +127,7 @@ describe("local Docker endpoint policy", () => {
       "win32",
       (candidate) => candidate === userInstall,
       () => new Set(["C:"]),
+      (candidate) => candidate,
     )).toBe(userInstall);
   });
 
@@ -141,15 +142,22 @@ describe("local Docker endpoint policy", () => {
     expect(() => resolveDockerCliPath(environment, "win32", () => true)).toThrow("caminho local padrão");
   });
 
-  it("refuses Docker Desktop install roots outside the local system drive", () => {
+  it("accepts a standard Docker Desktop installation on a fixed drive outside SystemDrive", () => {
     const environment = {
       ...process.env,
       SystemDrive: "C:",
-      ProgramFiles: "Z:\\mapped-root\\Program Files",
-      LOCALAPPDATA: "Z:\\mapped-root\\Users\\developer\\AppData\\Local",
+      ProgramFiles: "D:\\Program Files",
+      LOCALAPPDATA: "D:\\Users\\developer\\AppData\\Local",
     };
+    const systemInstall = "D:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe";
 
-    expect(() => resolveDockerCliPath(environment, "win32", () => true)).toThrow("disco do sistema");
+    expect(resolveDockerCliPath(
+      environment,
+      "win32",
+      (candidate) => candidate === systemInstall,
+      () => new Set(["D:"]),
+      (candidate) => candidate,
+    )).toBe(systemInstall);
   });
 
   it("refuses a mapped drive even when SystemDrive is spoofed to match it", () => {
@@ -165,16 +173,29 @@ describe("local Docker endpoint policy", () => {
       "win32",
       () => true,
       () => new Set(["C:"]),
+      (candidate) => candidate,
+    )).toThrow("volume local fixo");
+  });
+
+  it("rejects a Docker executable whose final path resolves to a UNC share", () => {
+    const environment = {
+      ...process.env,
+      SystemDrive: "C:",
+      ProgramFiles: "C:\\Program Files",
+      LOCALAPPDATA: "C:\\Users\\developer\\AppData\\Local",
+    };
+
+    expect(() => resolveDockerCliPath(
+      environment,
+      "win32",
+      () => true,
+      () => new Set(["C:"]),
+      () => "\\\\?\\UNC\\example\\share\\docker.exe",
     )).toThrow("volume local fixo");
   });
 
   it("classifies only fixed logical drives from the Windows volume inventory", () => {
-    const inventory = JSON.stringify([
-      { DeviceID: "C:", DriveType: 3 },
-      { DeviceID: "Z:", DriveType: 4 },
-      { DeviceID: "E:", DriveType: 2 },
-      { DeviceID: "bad", DriveType: 3 },
-    ]);
+    const inventory = "C:|3\r\nZ:|4\r\nE:|2";
 
     expect(readWindowsFixedDriveLetters(() => inventory)).toEqual(new Set(["C:"]));
   });
