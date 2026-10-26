@@ -52,7 +52,7 @@ try {
     console.error("Reset é destrutivo. Confirme o escopo isolado definindo GOODZ_ALLOW_LOCAL_DB_RESET=1 nesta sessão e execute novamente.");
     process.exit(2);
   }
-  await runSupabase(["db", "reset"], dockerEndpoint);
+  await runSupabase(["db", "reset", "--network-id", "goodz-menu-reboot-001-loopback"], dockerEndpoint);
 } catch (error) {
   console.error(error instanceof Error ? error.message : "Falha no runtime local do Supabase.");
   process.exitCode = 1;

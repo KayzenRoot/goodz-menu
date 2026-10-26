@@ -21,6 +21,12 @@ describe("isolated local Supabase configuration", () => {
     expect(compose).not.toContain("host.docker.internal");
   });
 
+  it("keeps database reset on the isolated Supabase network", () => {
+    expect(read("scripts/supabase-local.mjs")).toContain(
+      'runSupabase(["db", "reset", "--network-id", "goodz-menu-reboot-001-loopback"]',
+    );
+  });
+
   it("uses a dedicated project id and non-default ports", () => {
     const config = read("supabase/config.toml");
     expect(config).toContain('project_id = "goodz-menu-reboot-001"');
