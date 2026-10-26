@@ -10,11 +10,11 @@
 - Draft PR: [#74](https://github.com/KayzenRoot/goodz-menu/pull/74)
 - Branch: `rebuild/gmz-reboot-001-module-01`
 - Base: `main@3139534697743494626f4940b78ac3f9d468ceb6`
-- Foundation code candidate: `b37c447db9d059fe1651d689816ff101a6da361e`
-- Exact final PR-head SHA, changed-path list, and binary base-to-head diff: generated and attached by app-foundation CI as `goodz-foundation-exact-head-<run_id>` after publication.
+- Foundation code candidate: `65d727bb9baaaa4ab1d7b79fab330ed1eb9a697e`
+- After publication, app-foundation CI will record the exact PR-head SHA, complete changed-path list, commit compare URL, and binary diff SHA-256 in `goodz-foundation-head-manifest-<run_id>`. The complete content diff remains available in PR #74 for those base/head SHAs.
 - Scope: new foundation shell, isolated local runtime, liveness/readiness, correlation IDs, local Docker/Supabase wrappers, and test harness. No business module, product login, tenant model, or business data was carried forward.
 
-Legacy product routes, auth/MFA/admin-guard/tenant/audit source and tests, business migrations, and seed were removed from this reboot branch after inventory. The checkpoint, Source Pack, ADRs, source hierarchy, issue history, and legacy PRs remain untouched. The complete changed-path list and binary diff are produced from the exact PR base/head by the app-foundation CI artifact after publication.
+Legacy product routes, auth/MFA/admin-guard/tenant/audit source and tests, business migrations, and seed were removed from this reboot branch after inventory. The checkpoint, Source Pack, ADRs, source hierarchy, issue history, and legacy PRs remain untouched. The CI manifest binds the exact base/head, all changed paths, and the binary diff hash; the full diff is the immutable compare shown in PR #74 for those commits.
 
 ## Canonical source fingerprints
 
@@ -40,8 +40,7 @@ All six Work Order fingerprints match the approved values:
 | `pnpm build` | PASS — Next.js 16.4.3 production build |
 | `pnpm test:e2e` | PASS — desktop Chromium and mobile Chromium; light/dark themes, Axe WCAG tags, dynamic status announcements, reduced motion, tablet navigation names at 700 px, health/readiness and responsive width |
 | `pnpm security:deps` | PASS — no known vulnerabilities at the audit snapshot; Vite is pinned to patched `8.3.3` through `pnpm-workspace.yaml` |
-| `pnpm security:secrets` | PASS — 37 scoped source/config files |
-| `pnpm security:diff` | PASS — 2,450 added text lines scanned from the exact base to code candidate SHA |
+| `pnpm security:secrets` | PASS — 36 scoped source/config files |
 | Standalone start with a synthetic service-role-shaped key | PASS — entrypoint refused to start and did not print the value |
 | `node scripts/dev.mjs --port 3200`, then GET `/api/health` and `/api/ready` | PASS — liveness `200`; readiness `503` with sanitized `supabase_anon_key_required` while Supabase is unavailable |
 | `git diff --check` | PASS |
@@ -57,7 +56,7 @@ The E2E server uses a synthetic health fixture on loopback, not a Supabase stack
 
 ## Initial independent review corrections
 
-The initial Standards and Spec reviews examined `87145b01940c42bab515f45bad1e41d029b07260` and requested canonical requirement traceability, app-foundation CI, and live announcements for dynamic runtime states. Preliminary Security reviews of `99514c86a22e3ad179328b7dd25594391fbba2c9` and `ff6331c5286148631036904e345b9261350d0c40` requested immutable action pins and identified TCP loopback Docker endpoints as a possible tunnel to a remote daemon. Standards review of `6fbc64331103b2db44d11e053fb2dd9a8127b1b7` found Docker context time-of-check/time-of-use risk. Review of `584155fb39d32d13430e3bd7a7cddbbfaf3c3c26` found a tablet-width navigation naming gap and an artifact upload path that did not require a passing secret scan. This candidate adds module/requirement traceability, `.github/workflows/goodz-app-foundation.yml`, an atomic polite status region with E2E assertions, accessible names at tablet widths, full action commit SHAs, a Docker Desktop named-pipe-only guard, pinned Docker/Supabase subprocess endpoints, context-switch unit coverage, a candidate-diff secret scan that gates the exact-head diff artifact, and exact-head manifest/diff artifacts from CI. The local Docker/Supabase lifecycle remains unavailable. Fresh independent reviews are required on the final PR head.
+The initial Standards and Spec reviews examined `87145b01940c42bab515f45bad1e41d029b07260` and requested canonical requirement traceability, app-foundation CI, and live announcements for dynamic runtime states. Preliminary Security reviews of `99514c86a22e3ad179328b7dd25594391fbba2c9` and `ff6331c5286148631036904e345b9261350d0c40` requested immutable action pins and identified TCP loopback Docker endpoints as a possible tunnel to a remote daemon. Standards review of `6fbc64331103b2db44d11e053fb2dd9a8127b1b7` found Docker context time-of-check/time-of-use risk. Review of `584155fb39d32d13430e3bd7a7cddbbfaf3c3c26` found a tablet-width navigation naming gap and an artifact upload path that did not require a passing secret scan. This candidate adds module/requirement traceability, `.github/workflows/goodz-app-foundation.yml`, an atomic polite status region with E2E assertions, accessible names at tablet widths, full action commit SHAs, a Docker Desktop named-pipe-only guard, pinned Docker/Supabase subprocess endpoints, context-switch unit coverage, and an exact-head manifest with changed paths and a binary diff hash. The complete diff remains in the PR comparison, avoiding a duplicate raw-content artifact. The local Docker/Supabase lifecycle remains unavailable. Fresh independent reviews are required on the final PR head.
 
 ## Blockers and limits
 
