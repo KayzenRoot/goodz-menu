@@ -6,7 +6,7 @@ This matrix binds the rebuilt foundation to the IDs listed in the historical `GM
 - Source status: `APPROVED_V0.1`
 - Source SHA-1 at this review: `2e179c00446980a481e56dd02fe71865a7237f59`
 - Test target: `docs/source-pack/TEST-BENCHMARK-PLAN.md` — WCAG 2.2 AA, automated tests plus required manual review.
-- Review snapshot: local candidate before publication; app-foundation CI emits the exact PR head, base SHA, complete changed-path list, and binary diff SHA-256 as a run artifact. PR #74 provides the complete diff view for those commit SHAs.
+- Review snapshot: local code commit `1c40884730fd41922c57df93a4d96f2777f1be04` before publication; app-foundation CI will emit the exact PR head, base SHA, complete changed-path list, and binary diff SHA-256 in a JSON run artifact. PR #74 provides the complete diff view for those commit SHAs.
 
 ## Historical module mapping
 
@@ -21,7 +21,7 @@ The old `GMZ-IMPL-001` allocated historical credits to these modules. The mappin
 
 | Requirement ID | Foundation mapping and evidence | Candidate status |
 | --- | --- | --- |
-| `GMZ-REQ-RUN-001` | `Dockerfile`, `compose.yaml`, `supabase/config.toml`, `scripts/compose-local.mjs`, `scripts/supabase-local.mjs`, and `scripts/local-supabase-status.mjs`. The guard accepts only the Docker Desktop local named pipes and tests reject TCP, Unix, SSH, and unknown endpoints. Local engine preflight was attempted; Docker Desktop's pipe was unavailable, so no stack lifecycle ran. | **BLOCKED** — implementation exists; local Docker/Supabase acceptance is unverified. |
+| `GMZ-REQ-RUN-001` | `Dockerfile`, `compose.yaml`, `supabase/config.toml`, `scripts/compose-local.mjs`, `scripts/supabase-local.mjs`, and `scripts/local-supabase-status.mjs`. The guard accepts only the Docker Desktop local named pipes and tests reject TCP, Unix, SSH, and unknown endpoints. The web container shares the loopback-restricted Supabase bridge and uses the internal `http://kong:8000` gateway. Local engine preflight was attempted; Docker Desktop's pipe was unavailable, so no stack lifecycle ran. | **BLOCKED** — implementation exists; local Docker/Supabase acceptance is unverified. |
 | `GMZ-REQ-RUN-002` | `src/lib/env/runtime-env.ts`, `src/lib/env/runtime-env.test.ts`, `scripts/start.mjs`, and `scripts/check-runtime-secrets.mjs`; runtime only accepts the isolated local endpoint and publishable key shape. | **PASS for foundation boundary** — production deployment separation remains out of scope. |
 | `GMZ-REQ-UX-001` | `src/components/theme-provider.tsx`, `src/components/theme-control.tsx`, `src/app/globals.css`, `tests/e2e/foundation.spec.ts`; desktop and mobile light/dark screenshots are committed. | **PASS for foundation shell** — no later product journeys exist yet. |
 | `GMZ-REQ-UX-002` | Design tokens in `src/app/globals.css` and shell in `src/components/foundation-shell.tsx`, guided by `docs/source-pack/UI-UX-DESIGN-SYSTEM.md`. | **PARTIAL** — foundation tokens are used; reusable product component coverage is not complete. |
@@ -34,9 +34,9 @@ The old `GMZ-IMPL-001` allocated historical credits to these modules. The mappin
 | `GMZ-REQ-QA-004` | Four committed browser screenshots under `screenshots/` and automated theme/responsive checks. | **BLOCKED** — required human visual review has not been recorded; visual regression is not configured. |
 | `GMZ-REQ-QA-005` | Axe Playwright checks use WCAG 2.2 AA tags; dynamic runtime state is exposed as a polite atomic status announcement. | **PARTIAL** — automated coverage is present; manual keyboard, zoom/reflow, and screen-reader review remains outstanding. |
 | `GMZ-REQ-QA-006` | `docs/source-pack/TEST-BENCHMARK-PLAN.md` contains approved POS/storefront budgets; no POS or storefront exists in this foundation. | **NOT APPLICABLE TO THIS SHELL** — no product performance result is claimed; measure the defined surfaces before their acceptance. |
-| `GMZ-REQ-SEC-005` | `pnpm security:secrets` scans the 36 scoped source/config files; runtime tests reject a synthetic service-role-shaped key without printing it. | **PASS for scanned candidate scope** — the full preserved Git history was not scanned in this increment. |
+| `GMZ-REQ-SEC-005` | `pnpm security:secrets` scans the 36 scoped source/config files; runtime tests reject a synthetic service-role-shaped key without printing it. | **PASS for scanned candidate scope** — the scanner does not inspect the full preserved Git history, docs, or screenshots; no screenshot CI artifact is uploaded. |
 | `GMZ-REQ-GOV-001` | Admitted Work Order `.engineering/work-orders/GMZ-REBOOT-001.md`, pinned base and revalidated source fingerprints in `RESULTS.md`; implementation remains on its dedicated reboot branch. | **PASS for this admitted Work Order** — the reboot uses its own pinned snapshot, not the completed legacy `GMZ-IMPL-001` Context Lock. |
-| `GMZ-REQ-GOV-002` | Candidate code SHA and exact base-to-head evidence in `RESULTS.md`; independent standards/spec reviews bind to the candidate commit. | **PARTIAL** — final PR-head review and CI must be rechecked after publishing the reviewed candidate. |
+| `GMZ-REQ-GOV-002` | Candidate code SHA and exact base-to-head evidence in `RESULTS.md`; earlier standards/spec/security reviews bind to older commits. | **PARTIAL** — request fresh independent review and CI on the published PR head. |
 | `GMZ-REQ-GOV-003` | Dependency audit and scoped secret scan results are recorded in `RESULTS.md`; Docker/Supabase and app CI gaps remain explicit. | **PARTIAL** — no HIGH/CRITICAL dependency findings were reported by the recorded audit; unrun runtime gates remain unresolved. |
 | `GMZ-REQ-GOV-004` | `.engineering/CHECKPOINT.json` remains unchanged; the conditional delta is proposed in `CHECKPOINT-DELTA-PROPOSED.md`. | **PASS for current stage** — no checkpoint promotion is claimed or performed. |
 
