@@ -109,8 +109,34 @@ test("foundation reflows at a 320 CSS pixel viewport without page-level overflow
     viewportWidth: document.documentElement.clientWidth,
     pageScrollWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
   }));
+  const overflowSources = await page.evaluate(() => {
+    const viewportWidth = document.documentElement.clientWidth;
+    return Array.from(document.querySelectorAll<HTMLElement>("body *"))
+      .map((element) => {
+        const bounds = element.getBoundingClientRect();
+        const style = window.getComputedStyle(element);
+        return {
+          tag: element.tagName.toLowerCase(),
+          id: element.id,
+          className: String(element.getAttribute("class") ?? ""),
+          left: Math.round(bounds.left),
+          right: Math.round(bounds.right),
+          width: Math.round(bounds.width),
+          clientWidth: element.clientWidth,
+          scrollWidth: element.scrollWidth,
+          overflowX: style.overflowX,
+          position: style.position,
+        };
+      })
+      .filter((element) => element.right > viewportWidth + 1)
+      .sort((left, right) => right.right - left.right)
+      .slice(0, 12);
+  });
 
-  expect(dimensions.pageScrollWidth).toBeLessThanOrEqual(dimensions.viewportWidth);
+  expect(
+    dimensions.pageScrollWidth,
+    `Horizontal overflow sources: ${JSON.stringify(overflowSources)}`,
+  ).toBeLessThanOrEqual(dimensions.viewportWidth);
   await expect(page.getByRole("heading", { name: "Uma base clara para o que vem a seguir." })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Navegação principal" })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Localização atual" })).toBeVisible();
