@@ -1,6 +1,6 @@
 # Evidence Bundle — GMZ-REBOOT-001
 
-**Review status: `BLOCKED`** — the code gates pass, but the Work Order's local Docker/Supabase and app CI evidence is incomplete. The objective-audit stop condition has not been met.
+**Review status: `BLOCKED`** — local code checks pass; final PR-head CI, Docker/Supabase lifecycle, and human visual/manual accessibility evidence remain pending. The objective-audit stop condition has not been met.
 
 ## Identity and scope
 
@@ -10,7 +10,7 @@
 - Draft PR: [#74](https://github.com/KayzenRoot/goodz-menu/pull/74)
 - Branch: `rebuild/gmz-reboot-001-module-01`
 - Base: `main@3139534697743494626f4940b78ac3f9d468ceb6`
-- Foundation code candidate: `540609c49db34303113708e3284672ef396f8c48`
+- Foundation code candidate: `83d2d955a2ac4deb593a39a937047aa7b549d99f`
 - Scope: new foundation shell, isolated local runtime, liveness/readiness, correlation IDs, local Docker/Supabase wrappers, and test harness. No business module, product login, tenant model, or business data was carried forward.
 
 Legacy product routes, auth/MFA/admin-guard/tenant/audit source and tests, business migrations, and seed were removed from this reboot branch after inventory. The checkpoint, Source Pack, ADRs, source hierarchy, issue history, and legacy PRs remain untouched. The deleted paths are visible in `git diff --name-status 3139534697743494626f4940b78ac3f9d468ceb6...6ba8495107dec2b89acd99f7900c1fb17410cc95`.
@@ -35,7 +35,7 @@ All six Work Order fingerprints match the approved values:
 | `pnpm install --frozen-lockfile` | PASS — frozen lockfile and supply-chain policy verification |
 | `pnpm lint` | PASS — no warnings or errors |
 | `pnpm typecheck` | PASS |
-| `pnpm test` | PASS — 20 tests across 4 files |
+| `pnpm test` | PASS — 29 tests across 4 files, including local Docker endpoint allowlist cases |
 | `pnpm build` | PASS — Next.js 16.4.3 production build |
 | `pnpm test:e2e` | PASS — desktop Chromium and mobile Chromium; light/dark themes, Axe WCAG tags, dynamic status announcements, reduced motion, health/readiness and responsive width |
 | `pnpm security:deps` | PASS — no known vulnerabilities at the audit snapshot; Vite is pinned to patched `8.3.3` through `pnpm-workspace.yaml` |
@@ -55,7 +55,7 @@ The E2E server uses a synthetic health fixture on loopback, not a Supabase stack
 
 ## Initial independent review corrections
 
-The initial Standards and Spec reviews examined `87145b01940c42bab515f45bad1e41d029b07260` and requested three corrections: canonical requirement traceability, an app-foundation CI workflow, and live announcements for dynamic runtime states. A preliminary Security review of `99514c86a22e3ad179328b7dd25594391fbba2c9` also requested immutable action pins. This candidate adds `TRACEABILITY.md`, `.github/workflows/goodz-app-foundation.yml`, an atomic polite status region with an E2E assertion, and full action commit SHAs resolved from official release tags. The local Docker/Supabase limitation remains. Fresh independent reviews are required on the final PR head.
+The initial Standards and Spec reviews examined `87145b01940c42bab515f45bad1e41d029b07260` and requested three corrections: canonical requirement traceability, an app-foundation CI workflow, and live announcements for dynamic runtime states. Preliminary Security reviews of `99514c86a22e3ad179328b7dd25594391fbba2c9` and `ff6331c5286148631036904e345b9261350d0c40` requested immutable action pins and identified TCP loopback Docker endpoints as a possible tunnel to a remote daemon. This candidate adds module/requirement traceability, `.github/workflows/goodz-app-foundation.yml`, an atomic polite status region with an E2E assertion, full action commit SHAs, and a Docker Desktop named-pipe-only guard with tests rejecting TCP, Unix sockets, SSH, and unknown pipes. The local Docker/Supabase lifecycle remains unavailable in this environment. Fresh independent reviews are required on the final PR head.
 
 ## Blockers and limits
 
