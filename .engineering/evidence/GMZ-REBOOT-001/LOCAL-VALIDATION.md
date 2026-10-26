@@ -1,12 +1,26 @@
 # Local validation receipt — GMZ-REBOOT-001
 
-## Exact current PR snapshot — 2026-10-26 22:51 UTC
+## Exact code-candidate snapshot — 2026-10-26 23:22 UTC
 
-- PR #74 is OPEN/Draft at `3fbfacbeb12268439d2d200b4839374f2aadd52b`, based on `main@3139534697743494626f4940b78ac3f9d468ceb6`. The product-code candidate is unchanged from `662421095942a9e3b6d9e122a27147a1fc95fe0d`; commit `3fbfacb` changed only `RESULTS.md`, `TRACEABILITY.md`, and this receipt.
-- App-foundation run [40415341914](https://github.com/KayzenRoot/goodz-menu/actions/runs/40415341914) passed on exact HEAD `3fbfacb`, including frozen install, lint, typecheck, unit tests, production build, desktop/mobile browser acceptance, dependency audit, scoped secret scan, and exact-candidate manifest.
-- Socket Pull Request Alerts check `121896177367` and Project Report check `121896157153` passed. SonarCloud check `121896416577` failed the reported Quality Gate condition `B Security Rating on New Code` (required `A`). Its annotations include HTTP-protocol warnings at `scripts/compose-local.mjs:39` and `src/lib/env/runtime-env.ts:52`; do not infer that these two annotations alone caused the rating. The app check emitted non-blocking notices for Node.js 20 action deprecation and the `ubuntu-latest` migration.
-- Independent technical/accessibility reviews of the product code at `200e2b4` found no CRITICAL/HIGH defect; HEAD `3fbfacb` has no product-code changes after that reviewed code. The connected GitHub review list is empty, so no formal PR review was submitted.
-- The host reported 7.11 GiB free RAM in this turn, below the 8 GiB prerequisite. No Docker/Supabase lifecycle was attempted; the previous Supabase start had failed with `runtime: cannot allocate memory`. Actual browser zoom, screen-reader use, and human visual/accessibility sign-off remain outstanding.
+- PR #74 is OPEN/Draft at exact HEAD `3e90030573031acd8764eb45fd40cf063d1dcbd3`, based on `main@3139534697743494626f4940b78ac3f9d468ceb6`. The increment changes only `src/components/foundation-shell.tsx`, `src/app/globals.css`, `tests/e2e/foundation.spec.ts`, and four regenerated desktop/mobile light/dark screenshots.
+- Local environment: Node `v26.4.0`, pnpm `12.8.1`, Docker Desktop Engine `29.8.2`; D: is a fixed local drive. Checks on the exact source tree:
+
+| Command | Result |
+| --- | --- |
+| `pnpm lint` | PASS |
+| `pnpm typecheck` | PASS |
+| `pnpm test` | PASS — 5 files, 50 tests |
+| `pnpm build` | PASS — Next.js `16.4.3` production build |
+| `pnpm test:e2e -- --workers=1` | PASS — 8 desktop/mobile Chromium tests; 51.3 seconds |
+| `pnpm security:secrets` | PASS — 37 scoped files |
+| `pnpm security:deps` | PASS — no known vulnerabilities |
+| `git diff --check` | PASS — no whitespace errors |
+
+- App-foundation run [40419116186](https://github.com/KayzenRoot/goodz-menu/actions/runs/40419116186), check `121908787769`, passed on exact HEAD `3e90030`. Socket Pull Request Alerts `121908809271` and Project Report `121908783936` passed. SonarCloud `121908985988` failed the reported Quality Gate condition `B Security Rating on New Code` (required `A`); 18 annotations remain, including HTTP-protocol warnings at `scripts/compose-local.mjs:39` and `src/lib/env/runtime-env.ts:52`. Do not infer that those two annotations alone caused the rating.
+- Independent standards and spec reviews of the code increment found no findings. No formal GitHub review submission is present. The regenerated screenshots were visually inspected in this turn; that does not replace the required human sign-off.
+- The host reported 4.77 GiB free RAM, below the 8 GiB prerequisite. Docker/Supabase lifecycle and reset were not attempted. C: had 7.99 GiB free; D: had 161.32 GiB free. No disk cleanup was needed.
+- `supabase/config.toml` has `[db.seed].enabled = false`, `sql_paths = []`, and there is no `seed.sql`; this foundation admits no schema or business data. The local reset/seed path remains unexecuted and the Test Plan's seed/dev-data acceptance is not claimed as passed.
+- Actual browser zoom, human keyboard review, screen-reader use, and signed human visual/accessibility review remain outstanding. This evidence-only update will create a new PR HEAD; verify hosted checks for that HEAD after it is pushed.
 
 ## Narrow navigation accessibility and badge restoration — 2026-10-26
 
