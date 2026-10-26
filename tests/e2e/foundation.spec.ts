@@ -77,6 +77,11 @@ test("keyboard users can skip navigation and move focus to the main content", as
   await expect(skipLink).toBeVisible();
   await expect(skipLink).toHaveCSS("outline-style", "solid");
   await expect(skipLink).toHaveCSS("outline-width", "3px");
+  const skipLinkIsInViewport = await skipLink.evaluate((element) => {
+    const bounds = element.getBoundingClientRect();
+    return bounds.left >= 0 && bounds.top >= 0 && bounds.right <= window.innerWidth && bounds.bottom <= window.innerHeight;
+  });
+  expect(skipLinkIsInViewport).toBe(true);
 
   await page.keyboard.press("Enter");
   await expect(page.getByRole("main")).toBeFocused();
@@ -140,8 +145,24 @@ test("foundation reflows at a 320 CSS pixel viewport without page-level overflow
     `Horizontal overflow sources: ${JSON.stringify(overflowSources)}`,
   ).toBeLessThanOrEqual(dimensions.viewportWidth);
   await expect(page.getByRole("heading", { name: "Uma base clara para o que vem a seguir." })).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "Navegação principal" })).toBeVisible();
-  await expect(page.locator(".primary-nav .nav-badge").first()).toHaveCSS("position", "static");
+  const primaryNavigation = page.getByRole("navigation", { name: "Navegação principal" });
+  await expect(primaryNavigation).toBeVisible();
+  await expect(primaryNavigation).toHaveCSS("flex-wrap", "wrap");
+  await expect(primaryNavigation).toHaveCSS("overflow-x", "visible");
+  const navigationItemBounds = await page.locator(".primary-nav .nav-link").evaluateAll((elements) =>
+    elements.map((element) => {
+      const bounds = element.getBoundingClientRect();
+      return { left: bounds.left, right: bounds.right };
+    }),
+  );
+  for (const bounds of navigationItemBounds) {
+    expect(bounds.left).toBeGreaterThanOrEqual(0);
+    expect(bounds.right).toBeLessThanOrEqual(dimensions.viewportWidth + 1);
+  }
+  const mobileBadge = page.locator(".primary-nav .nav-badge").first();
+  await expect(mobileBadge).toHaveCSS("position", "static");
+  await expect(mobileBadge).toHaveCSS("padding", "3px 6px");
+  await expect(mobileBadge).toHaveCSS("border-top-width", "1px");
   await expect(page.getByRole("navigation", { name: "Localização atual" })).toBeVisible();
   await expect(page.getByRole("combobox", { name: "Tema da interface" })).toBeVisible();
   await expectA11y(page);

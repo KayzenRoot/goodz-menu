@@ -269,11 +269,10 @@ button:disabled { cursor: not-allowed; }
   .brand { justify-content: flex-start; }
   .brand-copy { position: static; display: flex; width: auto; height: auto; margin: 0; overflow: visible; clip: auto; clip-path: none; white-space: normal; }
   .brand-mark { width: 34px; height: 34px; border-radius: 11px; font-size: 24px; }
-  .primary-nav { display: flex; width: 100%; flex-direction: row; align-items: center; gap: 6px; overflow-x: auto; margin-top: 11px; padding: 2px 0 1px; scrollbar-width: none; }
-  .primary-nav::-webkit-scrollbar { display: none; }
+  .primary-nav { display: flex; width: 100%; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px; overflow-x: visible; margin-top: 11px; padding: 2px 0 1px; }
   .nav-link { display: inline-flex; width: auto; min-width: max-content; min-height: 35px; justify-content: flex-start; gap: 7px; padding: 0 10px; font-size: 10px; }
   .nav-link > span:not(.nav-badge) { position: static; display: inline; width: auto; height: auto; margin: 0; overflow: visible; clip: auto; clip-path: none; white-space: normal; }
-  .nav-link > .nav-badge { position: static; width: auto; height: auto; margin: 0 0 0 3px; overflow: visible; clip: auto; clip-path: none; }
+  .nav-link > .nav-badge { position: static; width: auto; height: auto; margin: 0 0 0 3px; padding: 3px 6px; border: 1px solid var(--border-subtle); overflow: visible; clip: auto; clip-path: none; }
   .nav-link-disabled { opacity: 0.52; }
   .sidebar-spacer, .profile-row { display: none; }
   .topbar { position: static; min-height: 54px; gap: 8px; padding-inline: 17px; }
