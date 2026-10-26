@@ -57,11 +57,11 @@ test("foundation shell, runtime health, themes, responsive layout and reduced mo
   expect(viewport.bodyWidth).toBeLessThanOrEqual(viewport.width);
 
   await page.setViewportSize({ width: 700, height: 900 });
-  await expect(page.getByRole("link", { name: "Goodz Menu, início" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "goodz MENU PLATFORM" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Visão geral" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Cardápio (em breve)" })).toBeDisabled();
-  await expect(page.getByRole("button", { name: "Pedidos (em breve)" })).toBeDisabled();
-  await expect(page.getByRole("button", { name: "Equipe (em breve)" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /Cardápio.*Em breve/ })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /Pedidos.*Em breve/ })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /Equipe.*Em breve/ })).toBeDisabled();
   await expectA11y(page);
 });
 
