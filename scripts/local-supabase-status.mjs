@@ -108,7 +108,7 @@ export function resolveDockerCliPath(environment = process.env, platform = proce
     windowsInstallPath(environment.ProgramFiles, environment.SystemDrive, "Docker", "Docker", "resources", "bin", "docker.exe"),
     windowsInstallPath(environment.LOCALAPPDATA, environment.SystemDrive, "Programs", "DockerDesktop", "resources", "bin", "docker.exe"),
   ].filter((candidate) => typeof candidate === "string");
-  const installedCli = candidates.find(exists);
+  const installedCli = candidates.find((candidate) => exists(candidate));
   if (!installedCli) throw new Error("Docker Desktop CLI não foi encontrado em um caminho local padrão do disco do sistema.");
   return installedCli;
 }
