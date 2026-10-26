@@ -8,7 +8,7 @@ Esta branch contém a fundação executável do reboot. O preview valida somente
 - Node.js 24 LTS e pnpm 12.8.1;
 - 8 GB de memória disponível para a stack Supabase local.
 
-Confirme a engine com `docker info`. Neste setup Windows, os comandos só aceitam as named pipes locais do Docker Desktop para o engine Linux; endpoints TCP e sockets Unix são recusados, inclusive `localhost` e `127.0.0.1`, para evitar que um túnel local direcione comandos a um daemon remoto. O Goodz Menu usa o project ID `goodz-menu-reboot-001`, portas Supabase `56320–56329` e uma rede exclusiva com publicação limitada a `127.0.0.1`. O runtime não liga um projeto Supabase remoto.
+Confirme a engine com `docker info`. Neste setup Windows, os comandos só aceitam as named pipes locais do Docker Desktop para o engine Linux; endpoints TCP e sockets Unix são recusados, inclusive `localhost` e `127.0.0.1`, para evitar que um túnel local direcione comandos a um daemon remoto. O Goodz Menu usa o project ID `goodz-menu-reboot-001`, portas Supabase `56320–56329` e a rede `goodz-menu-reboot-001-loopback`, cuja publicação de portas fica limitada a `127.0.0.1`. O runtime não liga um projeto Supabase remoto.
 
 ## Primeira inicialização e modo nativo
 
@@ -34,7 +34,7 @@ Invoke-RestMethod http://127.0.0.1:3001/api/health
 Invoke-RestMethod http://127.0.0.1:3001/api/ready
 ```
 
-Abra <http://127.0.0.1:3001>. O Compose publica somente a aplicação no loopback. O container web alcança o Supabase local por `host.docker.internal`; a chave pública fica no ambiente do container e não aparece na interface nem nos logs. Encerre o web runtime com `pnpm docker:down`; esse comando não remove volumes.
+Abra <http://127.0.0.1:3001>. O Compose publica somente a aplicação no loopback. O container web e a stack Supabase usam a mesma rede Docker local; o web acessa o gateway interno em `http://kong:8000`, sem atravessar uma porta publicada no host. A chave pública fica no ambiente do container e não aparece na interface nem nos logs. Encerre o web runtime com `pnpm docker:down`; esse comando não remove volumes.
 
 ## Health e readiness
 
@@ -70,4 +70,4 @@ O reset usa somente a configuração isolada desta branch e falha se detectar um
 
 ## Variáveis permitidas
 
-`.env.example` lista somente valores locais sem segredos: `GOODZ_ENVIRONMENT`, `GOODZ_RUNTIME`, `BUILD_REVISION`, `SUPABASE_API_URL`, `SUPABASE_ANON_KEY` e a porta web. A readiness aceita somente loopback ou `host.docker.internal`; HTTPS, hostname remoto, path adicional, usuário e senha são rejeitados. Não configure chave service-role.
+`.env.example` lista somente valores locais sem segredos: `GOODZ_ENVIRONMENT`, `GOODZ_RUNTIME`, `BUILD_REVISION`, `SUPABASE_API_URL`, `SUPABASE_ANON_KEY` e a porta web. A readiness aceita loopback na execução nativa e somente `kong:8000` na execução Docker; HTTPS, hostname remoto, path adicional, usuário e senha são rejeitados. Não configure chave service-role.

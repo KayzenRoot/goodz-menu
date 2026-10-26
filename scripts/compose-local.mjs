@@ -34,7 +34,7 @@ try {
       GOODZ_RUNTIME: "docker",
       GOODZ_WEB_PORT: webPort,
       BUILD_REVISION: revision,
-      SUPABASE_API_URL: "http://host.docker.internal:56321",
+      SUPABASE_API_URL: "http://kong:8000",
       SUPABASE_ANON_KEY: local.anonKey,
     });
     console.log("Iniciando a aplicação Docker com a chave pública local em memória.");

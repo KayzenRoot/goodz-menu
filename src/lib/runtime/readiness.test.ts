@@ -2,6 +2,24 @@ import { describe, expect, it, vi } from "vitest";
 import { checkReadiness, probeSupabaseHealth } from "@/lib/runtime/readiness";
 
 describe("local readiness probe", () => {
+  it("uses the internal Supabase gateway for the Docker runtime", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 200 }));
+    const result = await checkReadiness(
+      {
+        GOODZ_RUNTIME: "docker",
+        SUPABASE_API_URL: "http://kong:8000",
+        SUPABASE_ANON_KEY: "sb_publishable_synthetic-key",
+      },
+      fetchMock,
+    );
+
+    expect(result.ready).toBe(true);
+    expect(fetchMock).toHaveBeenCalledWith(
+      new URL("http://kong:8000/auth/v1/health"),
+      expect.objectContaining({ headers: { apikey: "sb_publishable_synthetic-key", accept: "application/json" } }),
+    );
+  });
+
   it("reports an available local Supabase health endpoint", async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 200 }));
     const result = await checkReadiness(

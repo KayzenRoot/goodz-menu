@@ -49,8 +49,8 @@ export function parseRuntimeEnvironment(input: EnvironmentInput): RuntimeEnviron
     return { ok: false, environment, runtime, revision, reason: "invalid_runtime" };
   }
 
-  const defaultHost = runtimeResult.data === "docker" ? "host.docker.internal" : "127.0.0.1";
-  const endpoint = input.SUPABASE_API_URL ?? `http://${defaultHost}:56321`;
+  const defaultEndpoint = runtimeResult.data === "docker" ? "http://kong:8000" : "http://127.0.0.1:56321";
+  const endpoint = input.SUPABASE_API_URL ?? defaultEndpoint;
   let supabaseApiUrl: URL;
 
   try {
@@ -60,10 +60,11 @@ export function parseRuntimeEnvironment(input: EnvironmentInput): RuntimeEnviron
   }
 
   const host = supabaseApiUrl.hostname.toLowerCase();
-  const isLocalHost = ["localhost", "127.0.0.1", "[::1]"].includes(host);
-  const isDockerHostGateway = host === "host.docker.internal";
-  const safeLocalEndpoint = isLocalHost || (runtimeResult.data === "docker" && isDockerHostGateway);
-  const dedicatedLocalPort = supabaseApiUrl.port === "56321" ||
+  const isNativeLoopback = runtimeResult.data === "native" && ["localhost", "127.0.0.1", "[::1]"].includes(host);
+  const isDockerNetworkGateway = runtimeResult.data === "docker" && host === "kong";
+  const safeLocalEndpoint = isNativeLoopback || isDockerNetworkGateway;
+  const expectedPort = runtimeResult.data === "docker" ? "8000" : "56321";
+  const dedicatedLocalPort = supabaseApiUrl.port === expectedPort ||
     (environmentResult.data === "test" && supabaseApiUrl.port !== "");
   const hasOnlyBasePath = supabaseApiUrl.pathname === "/";
 

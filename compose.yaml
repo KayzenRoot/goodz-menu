@@ -11,7 +11,7 @@ services:
       GOODZ_ENVIRONMENT: local
       GOODZ_RUNTIME: docker
       BUILD_REVISION: ${BUILD_REVISION:-local}
-      SUPABASE_API_URL: ${SUPABASE_API_URL:-http://host.docker.internal:56321}
+      SUPABASE_API_URL: http://kong:8000
       SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:-}
       HOSTNAME: 0.0.0.0
       PORT: 3000
@@ -19,8 +19,8 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    networks:
+      - goodz-local-supabase
     ports:
       - "127.0.0.1:${GOODZ_WEB_PORT:-3001}:3000"
     healthcheck:
@@ -33,3 +33,8 @@ services:
       timeout: 4s
       retries: 5
       start_period: 20s
+
+networks:
+  goodz-local-supabase:
+    name: goodz-menu-reboot-001-loopback
+    external: true

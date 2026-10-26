@@ -13,6 +13,14 @@ const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const read = (relativePath: string) => readFileSync(path.join(repositoryRoot, relativePath), "utf8");
 
 describe("isolated local Supabase configuration", () => {
+  it("connects the Docker web app through the Supabase-only local bridge", () => {
+    const compose = read("compose.yaml");
+    expect(compose).toContain("SUPABASE_API_URL: http://kong:8000");
+    expect(compose).toContain("name: goodz-menu-reboot-001-loopback");
+    expect(compose).toContain("external: true");
+    expect(compose).not.toContain("host.docker.internal");
+  });
+
   it("uses a dedicated project id and non-default ports", () => {
     const config = read("supabase/config.toml");
     expect(config).toContain('project_id = "goodz-menu-reboot-001"');
