@@ -8,6 +8,7 @@ import {
   ensureLocalDocker,
   ensureLoopbackDockerNetwork,
   isLocalDockerEndpoint,
+  readWindowsFixedDriveLetters,
   resolveDockerCliPath,
 } from "../../scripts/local-supabase-status.mjs";
 
@@ -50,7 +51,8 @@ describe("isolated local Supabase configuration", () => {
       return { code: 1, stdout: "", stderr: "unexpected command" };
     };
 
-    await expect(ensureLoopbackDockerNetwork(run)).resolves.toBe(endpoint);
+    const dockerCliPath = "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe";
+    await expect(ensureLoopbackDockerNetwork(run, dockerCliPath)).resolves.toBe(endpoint);
     expect(calls.at(-1)).toEqual([
       "--host", endpoint, "network", "create", "--driver", "bridge", "--opt",
       "com.docker.network.bridge.host_binding_ipv4=127.0.0.1", "goodz-menu-reboot-001-loopback",
@@ -71,7 +73,8 @@ describe("isolated local Supabase configuration", () => {
       return { code: 1, stdout: "", stderr: "unexpected command" };
     };
 
-    await expect(ensureLoopbackDockerNetwork(run)).rejects.toThrow("não está limitada ao loopback");
+    const dockerCliPath = "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe";
+    await expect(ensureLoopbackDockerNetwork(run, dockerCliPath)).rejects.toThrow("não está limitada ao loopback");
     expect(calls.some((args) => args[2] === "network" && args[3] === "create")).toBe(false);
   });
 
@@ -119,7 +122,12 @@ describe("local Docker endpoint policy", () => {
     };
     const userInstall = "C:\\Users\\developer\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe";
 
-    expect(resolveDockerCliPath(environment, "win32", (candidate) => candidate === userInstall)).toBe(userInstall);
+    expect(resolveDockerCliPath(
+      environment,
+      "win32",
+      (candidate) => candidate === userInstall,
+      () => new Set(["C:"]),
+    )).toBe(userInstall);
   });
 
   it("refuses Docker Desktop install roots on UNC network shares", () => {
@@ -144,6 +152,40 @@ describe("local Docker endpoint policy", () => {
     expect(() => resolveDockerCliPath(environment, "win32", () => true)).toThrow("disco do sistema");
   });
 
+  it("refuses a mapped drive even when SystemDrive is spoofed to match it", () => {
+    const environment = {
+      ...process.env,
+      SystemDrive: "Z:",
+      ProgramFiles: "Z:\\mapped-root\\Program Files",
+      LOCALAPPDATA: "Z:\\mapped-root\\Users\\developer\\AppData\\Local",
+    };
+
+    expect(() => resolveDockerCliPath(
+      environment,
+      "win32",
+      () => true,
+      () => new Set(["C:"]),
+    )).toThrow("volume local fixo");
+  });
+
+  it("classifies only fixed logical drives from the Windows volume inventory", () => {
+    const inventory = JSON.stringify([
+      { DeviceID: "C:", DriveType: 3 },
+      { DeviceID: "Z:", DriveType: 4 },
+      { DeviceID: "E:", DriveType: 2 },
+      { DeviceID: "bad", DriveType: 3 },
+    ]);
+
+    expect(readWindowsFixedDriveLetters(() => inventory)).toEqual(new Set(["C:"]));
+  });
+
+  it("fails closed when the Windows volume inventory cannot be read", () => {
+    expect(() => readWindowsFixedDriveLetters(() => { throw new Error("query failed"); }))
+      .toThrow("tipo dos volumes locais não pôde ser verificado");
+    expect(() => readWindowsFixedDriveLetters(() => "not-json"))
+      .toThrow("inventário de volumes locais não pôde ser lido");
+  });
+
   it.each([
     ["npipe:////./pipe/dockerDesktopLinuxEngine", true],
     ["npipe:////./pipe/docker_engine", true],
@@ -164,14 +206,16 @@ describe("local Docker endpoint policy", () => {
       "--host", endpoint, "compose", "down",
     ]);
 
+    const dockerCliPath = process.platform === "win32"
+      ? "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe"
+      : "docker";
     const environment = dockerRuntimeEnvironment(endpoint, {
       DOCKER_CONTEXT: "remote",
       DOCKER_HOST: "tcp://127.0.0.1:2375",
       GOODZ_ENVIRONMENT: "local",
-    }) as Record<string, string | undefined>;
+    }, dockerCliPath) as Record<string, string | undefined>;
     expect(environment).toMatchObject({ DOCKER_HOST: endpoint, GOODZ_ENVIRONMENT: "local" });
     expect(environment).not.toHaveProperty("DOCKER_CONTEXT");
-    const dockerCliPath = resolveDockerCliPath();
     if (path.win32.isAbsolute(dockerCliPath)) {
       expect(environment.PATH).toBe(path.win32.dirname(dockerCliPath));
     } else {
@@ -199,7 +243,8 @@ describe("local Docker endpoint policy", () => {
       return { code: 1, stdout: "", stderr: "un-pinned endpoint" };
     };
 
-    await expect(ensureLocalDocker(run)).resolves.toEqual({ endpoint, serverVersion: "28.0.0" });
+    const dockerCliPath = "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe";
+    await expect(ensureLocalDocker(run, dockerCliPath)).resolves.toEqual({ endpoint, serverVersion: "28.0.0" });
     expect(calls[2]).toEqual(["--host", endpoint, "info", "--format", "{{.ServerVersion}}"]);
   });
 });
