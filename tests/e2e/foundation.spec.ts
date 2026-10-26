@@ -9,6 +9,10 @@ test("foundation shell, runtime health, themes, responsive layout and reduced mo
   await expect(page.getByRole("heading", { name: "Uma base clara para o que vem a seguir." })).toBeVisible();
   await expect(page.getByText("Operacional").first()).toBeVisible();
   await expect(page.locator(".status-card").filter({ hasText: "Supabase local" })).toContainText("Operacional");
+  const appStatus = page.locator(".status-card").filter({ hasText: "Aplicação web" }).locator('[role="status"]');
+  await expect(appStatus).toHaveAttribute("aria-live", "polite");
+  await expect(appStatus).toHaveAttribute("aria-atomic", "true");
+  await expect(appStatus).toContainText("Aplicação web: Operacional");
   await expect(page.getByText("Sem conexão remota")).toBeVisible();
   await expect(page.getByText("Ainda não iniciado")).toBeVisible();
 

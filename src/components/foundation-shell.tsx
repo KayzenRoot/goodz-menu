@@ -276,12 +276,16 @@ function StatusCard({ title, detail, icon, state }: StatusCardProps) {
     <article className="status-card">
       <div className="status-card-top">
         <span className="status-icon">{icon}</span>
-        <span className={`status-chip ${state.className}`}><span /> {state.label}</span>
+        <span className={`status-chip ${state.className}`} role="status" aria-live="polite" aria-atomic="true">
+          <span className="sr-only">{title}: </span>
+          <span aria-hidden="true" />
+          {state.label}
+        </span>
       </div>
       <h3>{title}</h3>
       <p className="status-detail">{detail}</p>
       <div className="status-card-bottom">
-        <span><span className={`status-dot ${state.className}`} /> {state.label}</span>
+        <span aria-hidden="true"><span className={`status-dot ${state.className}`} /> {state.label}</span>
         <span className="status-card-mark" aria-hidden="true"><Check size={14} /></span>
       </div>
     </article>
