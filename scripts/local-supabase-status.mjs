@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { isPublicSupabaseAnonKey } from "../src/lib/env/supabase-public-key.mjs";
@@ -62,17 +63,17 @@ export async function readLocalSupabaseStatus(expectedEndpoint) {
   return { apiUrl: localApiUrl, anonKey, dockerEndpoint: docker.endpoint };
 }
 
-export async function ensureLocalDocker(run = runCaptured) {
+export async function ensureLocalDocker(run = runCaptured, dockerCliPath = resolveDockerCliPath()) {
   let contextResult;
   try {
-    contextResult = await run("docker", ["context", "show"]);
+    contextResult = await run(dockerCliPath, ["context", "show"]);
   } catch {
     throw new Error("Docker Desktop não está disponível.");
   }
   if (contextResult.code !== 0) throw new Error("O contexto Docker local não pôde ser consultado.");
 
   const contextName = contextResult.stdout.trim();
-  const endpointResult = await run("docker", ["context", "inspect", contextName, "--format", "{{json .Endpoints.docker.Host}}"]);
+  const endpointResult = await run(dockerCliPath, ["context", "inspect", contextName, "--format", "{{json .Endpoints.docker.Host}}"]);
   if (endpointResult.code !== 0) throw new Error("O endpoint do contexto Docker não pôde ser verificado.");
 
   let endpoint;
@@ -85,7 +86,7 @@ export async function ensureLocalDocker(run = runCaptured) {
     throw new Error("A stack Goodz só pode usar uma engine Docker local.");
   }
 
-  const info = await run("docker", dockerCommandArgs(endpoint, ["info", "--format", "{{.ServerVersion}}"]));
+  const info = await run(dockerCliPath, dockerCommandArgs(endpoint, ["info", "--format", "{{.ServerVersion}}"]));
   if (info.code !== 0) throw new Error("Docker Engine está parado ou indisponível.");
   return { endpoint, serverVersion: info.stdout.trim() };
 }
@@ -100,9 +101,25 @@ export function dockerCommandArgs(endpoint, args) {
   return ["--host", endpoint, ...args];
 }
 
+export function resolveDockerCliPath(environment = process.env, platform = process.platform, exists = existsSync) {
+  if (platform !== "win32") return "docker";
+
+  const candidates = [
+    environment.ProgramFiles && path.win32.join(environment.ProgramFiles, "Docker", "Docker", "resources", "bin", "docker.exe"),
+    environment.LOCALAPPDATA && path.win32.join(environment.LOCALAPPDATA, "Programs", "DockerDesktop", "resources", "bin", "docker.exe"),
+  ].filter((candidate) => typeof candidate === "string");
+  const installedCli = candidates.find(exists);
+  if (!installedCli) throw new Error("Docker Desktop CLI não foi encontrado nos caminhos padrão do Windows.");
+  return installedCli;
+}
+
 export function dockerRuntimeEnvironment(endpoint, extra = {}) {
   if (!isLocalDockerEndpoint(endpoint)) throw new Error("A stack Goodz só pode usar uma engine Docker local.");
   const environment = safeProcessEnvironment(extra);
+  delete environment.PATH;
+  delete environment.Path;
+  const dockerCliPath = resolveDockerCliPath();
+  if (path.isAbsolute(dockerCliPath)) environment.PATH = path.dirname(dockerCliPath);
   delete environment.DOCKER_CONTEXT;
   delete environment.DOCKER_TLS_VERIFY;
   delete environment.DOCKER_CERT_PATH;
@@ -110,9 +127,9 @@ export function dockerRuntimeEnvironment(endpoint, extra = {}) {
   return environment;
 }
 
-export async function ensureLoopbackDockerNetwork(run = runCaptured) {
-  const { endpoint } = await ensureLocalDocker(run);
-  const inspect = await run("docker", dockerCommandArgs(endpoint, ["network", "inspect", localNetworkName, "--format", "{{json .Options}}"]));
+export async function ensureLoopbackDockerNetwork(run = runCaptured, dockerCliPath = resolveDockerCliPath()) {
+  const { endpoint } = await ensureLocalDocker(run, dockerCliPath);
+  const inspect = await run(dockerCliPath, dockerCommandArgs(endpoint, ["network", "inspect", localNetworkName, "--format", "{{json .Options}}"]));
   if (inspect.code === 0) {
     let options;
     try { options = JSON.parse(inspect.stdout.trim()); } catch { options = null; }
@@ -122,7 +139,7 @@ export async function ensureLoopbackDockerNetwork(run = runCaptured) {
     return endpoint;
   }
 
-  const created = await run("docker", dockerCommandArgs(endpoint, [
+  const created = await run(dockerCliPath, dockerCommandArgs(endpoint, [
     "network", "create", "--driver", "bridge", "--opt",
     "com.docker.network.bridge.host_binding_ipv4=127.0.0.1", localNetworkName,
   ]));

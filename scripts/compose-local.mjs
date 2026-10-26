@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import {
   dockerCommandArgs,
+  resolveDockerCliPath,
   dockerRuntimeEnvironment,
   ensureLocalDocker,
   readLocalSupabaseStatus,
@@ -14,7 +15,8 @@ if (!["up", "down", "ps", "logs"].includes(action)) {
 }
 
 try {
-  const docker = await ensureLocalDocker();
+  const dockerCliPath = resolveDockerCliPath();
+  const docker = await ensureLocalDocker(undefined, dockerCliPath);
   let dockerEndpoint = docker.endpoint;
   const extra = {};
 
@@ -34,7 +36,7 @@ try {
       GOODZ_RUNTIME: "docker",
       GOODZ_WEB_PORT: webPort,
       BUILD_REVISION: revision,
-      SUPABASE_API_URL: "http://kong:8000",
+      SUPABASE_API_URL: "http://kong:8000", //NOSONAR: kong is reachable only on the project-local Docker bridge.
       SUPABASE_ANON_KEY: local.anonKey,
     });
     console.log("Iniciando a aplicação Docker com a chave pública local em memória.");
@@ -48,15 +50,15 @@ try {
         ? ["compose", "ps"]
         : ["compose", "logs", "--no-color", "--tail=100"];
 
-  await runDocker(dockerEndpoint, dockerArgs, extra);
+  await runDocker(dockerEndpoint, dockerArgs, extra, dockerCliPath);
 } catch (error) {
   console.error(error instanceof Error ? error.message : "Runtime Docker local indisponível.");
   process.exitCode = 1;
 }
 
-function runDocker(endpoint, args, extra) {
+function runDocker(endpoint, args, extra, dockerCliPath) {
   return new Promise((resolve, reject) => {
-    const child = spawn("docker", dockerCommandArgs(endpoint, args), {
+    const child = spawn(dockerCliPath, dockerCommandArgs(endpoint, args), {
       cwd: repositoryRoot,
       env: dockerRuntimeEnvironment(endpoint, extra),
       stdio: "inherit",

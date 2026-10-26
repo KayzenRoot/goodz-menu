@@ -8,6 +8,7 @@ import {
   ensureLocalDocker,
   ensureLoopbackDockerNetwork,
   isLocalDockerEndpoint,
+  resolveDockerCliPath,
 } from "../../scripts/local-supabase-status.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
@@ -108,6 +109,18 @@ describe("isolated local Supabase configuration", () => {
 });
 
 describe("local Docker endpoint policy", () => {
+  it("resolves Docker Desktop from known install locations instead of ambient PATH", () => {
+    const environment = {
+      ...process.env,
+      ProgramFiles: "C:\\Program Files",
+      LOCALAPPDATA: "C:\\Users\\developer\\AppData\\Local",
+      PATH: "C:\\untrusted\\bin",
+    };
+    const userInstall = "C:\\Users\\developer\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe";
+
+    expect(resolveDockerCliPath(environment, "win32", (candidate) => candidate === userInstall)).toBe(userInstall);
+  });
+
   it.each([
     ["npipe:////./pipe/dockerDesktopLinuxEngine", true],
     ["npipe:////./pipe/docker_engine", true],
@@ -132,9 +145,16 @@ describe("local Docker endpoint policy", () => {
       DOCKER_CONTEXT: "remote",
       DOCKER_HOST: "tcp://127.0.0.1:2375",
       GOODZ_ENVIRONMENT: "local",
-    });
+    }) as Record<string, string | undefined>;
     expect(environment).toMatchObject({ DOCKER_HOST: endpoint, GOODZ_ENVIRONMENT: "local" });
     expect(environment).not.toHaveProperty("DOCKER_CONTEXT");
+    const dockerCliPath = resolveDockerCliPath();
+    if (path.win32.isAbsolute(dockerCliPath)) {
+      expect(environment.PATH).toBe(path.win32.dirname(dockerCliPath));
+    } else {
+      expect(environment).not.toHaveProperty("PATH");
+    }
+    expect(environment).not.toHaveProperty("Path");
   });
 
   it("keeps the inspected endpoint if the selected context changes before the daemon probe", async () => {

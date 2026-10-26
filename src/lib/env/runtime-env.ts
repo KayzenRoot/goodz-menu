@@ -62,6 +62,7 @@ export function parseRuntimeEnvironment(input: EnvironmentInput): RuntimeEnviron
   const host = supabaseApiUrl.hostname.toLowerCase();
   const isNativeLoopback = runtimeResult.data === "native" && ["localhost", "127.0.0.1", "[::1]"].includes(host);
   const isDockerNetworkGateway = runtimeResult.data === "docker" && host === "kong";
+  const usesLocalHttp = supabaseApiUrl.protocol === "http:"; //NOSONAR: endpoint validation below limits this to loopback or the project Docker bridge.
   const safeLocalEndpoint = isNativeLoopback || isDockerNetworkGateway;
   const expectedPort = runtimeResult.data === "docker" ? "8000" : "56321";
   const dedicatedLocalPort = supabaseApiUrl.port === expectedPort ||
@@ -69,7 +70,7 @@ export function parseRuntimeEnvironment(input: EnvironmentInput): RuntimeEnviron
   const hasOnlyBasePath = supabaseApiUrl.pathname === "/";
 
   if (
-    supabaseApiUrl.protocol !== "http:" ||
+    !usesLocalHttp ||
     supabaseApiUrl.username !== "" ||
     supabaseApiUrl.password !== "" ||
     supabaseApiUrl.search !== "" ||
