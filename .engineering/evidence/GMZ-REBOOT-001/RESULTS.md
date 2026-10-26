@@ -55,7 +55,7 @@ The E2E server uses a synthetic health fixture on loopback, not a Supabase stack
 
 ## Initial independent review corrections
 
-The initial Standards and Spec reviews examined `87145b01940c42bab515f45bad1e41d029b07260` and requested three corrections: canonical requirement traceability, an app-foundation CI workflow, and live announcements for dynamic runtime states. This candidate adds `TRACEABILITY.md`, `.github/workflows/goodz-app-foundation.yml`, and an atomic polite status region with an E2E assertion. The local Docker/Supabase limitation remains. Fresh independent reviews are required on the final PR head.
+The initial Standards and Spec reviews examined `87145b01940c42bab515f45bad1e41d029b07260` and requested three corrections: canonical requirement traceability, an app-foundation CI workflow, and live announcements for dynamic runtime states. A preliminary Security review of `99514c86a22e3ad179328b7dd25594391fbba2c9` also requested immutable action pins. This candidate adds `TRACEABILITY.md`, `.github/workflows/goodz-app-foundation.yml`, an atomic polite status region with an E2E assertion, and full action commit SHAs resolved from official release tags. The local Docker/Supabase limitation remains. Fresh independent reviews are required on the final PR head.
 
 ## Blockers and limits
 
