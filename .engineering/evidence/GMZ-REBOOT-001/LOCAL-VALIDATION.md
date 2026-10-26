@@ -1,11 +1,11 @@
 # Local validation receipt — GMZ-REBOOT-001
 
-## Exact current PR snapshot — 2026-10-26 22:44 UTC
+## Exact current PR snapshot — 2026-10-26 22:51 UTC
 
-- PR #74 is OPEN/Draft at `720281ef1f27693a435e030dd8ed4c5b2af750af`, based on `main@3139534697743494626f4940b78ac3f9d468ceb6`. The product-code candidate is unchanged from `662421095942a9e3b6d9e122a27147a1fc95fe0d`; the commit to `720281e` changed only `RESULTS.md`, `TRACEABILITY.md`, and this receipt.
-- App-foundation run [40413233569](https://github.com/KayzenRoot/goodz-menu/actions/runs/40413233569) passed on exact HEAD `720281e`, including frozen install, lint, typecheck, unit tests, production build, desktop/mobile browser acceptance, dependency audit, scoped secret scan, and exact-candidate manifest.
-- Socket Pull Request Alerts check `121888975268` and Project Report check `121888953934` passed. SonarCloud check `121889156967` failed the reported Quality Gate condition `B Security Rating on New Code` (required `A`). Its annotations include HTTP-protocol warnings at `scripts/compose-local.mjs:39` and `src/lib/env/runtime-env.ts:52`; do not infer that these two annotations alone caused the rating.
-- Independent technical/accessibility reviews of the product code at `200e2b4` found no CRITICAL/HIGH defect; HEAD `720281e` has no product-code changes after that reviewed code. The connected GitHub review list is empty, so no formal PR review was submitted.
+- PR #74 is OPEN/Draft at `3fbfacbeb12268439d2d200b4839374f2aadd52b`, based on `main@3139534697743494626f4940b78ac3f9d468ceb6`. The product-code candidate is unchanged from `662421095942a9e3b6d9e122a27147a1fc95fe0d`; commit `3fbfacb` changed only `RESULTS.md`, `TRACEABILITY.md`, and this receipt.
+- App-foundation run [40415341914](https://github.com/KayzenRoot/goodz-menu/actions/runs/40415341914) passed on exact HEAD `3fbfacb`, including frozen install, lint, typecheck, unit tests, production build, desktop/mobile browser acceptance, dependency audit, scoped secret scan, and exact-candidate manifest.
+- Socket Pull Request Alerts check `121896177367` and Project Report check `121896157153` passed. SonarCloud check `121896416577` failed the reported Quality Gate condition `B Security Rating on New Code` (required `A`). Its annotations include HTTP-protocol warnings at `scripts/compose-local.mjs:39` and `src/lib/env/runtime-env.ts:52`; do not infer that these two annotations alone caused the rating. The app check emitted non-blocking notices for Node.js 20 action deprecation and the `ubuntu-latest` migration.
+- Independent technical/accessibility reviews of the product code at `200e2b4` found no CRITICAL/HIGH defect; HEAD `3fbfacb` has no product-code changes after that reviewed code. The connected GitHub review list is empty, so no formal PR review was submitted.
 - The host reported 7.11 GiB free RAM in this turn, below the 8 GiB prerequisite. No Docker/Supabase lifecycle was attempted; the previous Supabase start had failed with `runtime: cannot allocate memory`. Actual browser zoom, screen-reader use, and human visual/accessibility sign-off remain outstanding.
 
 ## Narrow navigation accessibility and badge restoration — 2026-10-26
