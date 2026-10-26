@@ -33,9 +33,15 @@ export function runCaptured(command, args, { cwd = repositoryRoot, env = safePro
   });
 }
 
-export async function readLocalSupabaseStatus() {
-  await ensureLocalDocker();
-  const result = await runCaptured(process.execPath, [supabaseCliPath, "status", "--output", "json"]);
+export async function readLocalSupabaseStatus(expectedEndpoint) {
+  const docker = await ensureLocalDocker();
+  if (expectedEndpoint && docker.endpoint !== expectedEndpoint) {
+    throw new Error("O contexto Docker mudou durante a operação local.");
+  }
+
+  const result = await runCaptured(process.execPath, [supabaseCliPath, "status", "--output", "json"], {
+    env: dockerRuntimeEnvironment(docker.endpoint),
+  });
   if (result.code !== 0) throw new Error("Supabase local não está disponível.");
 
   let status;
@@ -53,20 +59,20 @@ export async function readLocalSupabaseStatus() {
     throw new Error("O Supabase local não corresponde à configuração isolada do reboot.");
   }
 
-  return { apiUrl: localApiUrl, anonKey };
+  return { apiUrl: localApiUrl, anonKey, dockerEndpoint: docker.endpoint };
 }
 
-export async function ensureLocalDocker() {
+export async function ensureLocalDocker(run = runCaptured) {
   let contextResult;
   try {
-    contextResult = await runCaptured("docker", ["context", "show"]);
+    contextResult = await run("docker", ["context", "show"]);
   } catch {
     throw new Error("Docker Desktop não está disponível.");
   }
   if (contextResult.code !== 0) throw new Error("O contexto Docker local não pôde ser consultado.");
 
   const contextName = contextResult.stdout.trim();
-  const endpointResult = await runCaptured("docker", ["context", "inspect", contextName, "--format", "{{json .Endpoints.docker.Host}}"]);
+  const endpointResult = await run("docker", ["context", "inspect", contextName, "--format", "{{json .Endpoints.docker.Host}}"]);
   if (endpointResult.code !== 0) throw new Error("O endpoint do contexto Docker não pôde ser verificado.");
 
   let endpoint;
@@ -79,9 +85,9 @@ export async function ensureLocalDocker() {
     throw new Error("A stack Goodz só pode usar uma engine Docker local.");
   }
 
-  const info = await runCaptured("docker", ["info", "--format", "{{.ServerVersion}}"]);
+  const info = await run("docker", dockerCommandArgs(endpoint, ["info", "--format", "{{.ServerVersion}}"]));
   if (info.code !== 0) throw new Error("Docker Engine está parado ou indisponível.");
-  return info.stdout.trim();
+  return { endpoint, serverVersion: info.stdout.trim() };
 }
 
 export function isLocalDockerEndpoint(endpoint) {
@@ -89,23 +95,39 @@ export function isLocalDockerEndpoint(endpoint) {
     /^npipe:\/{4}\.\/pipe\/(?:dockerDesktopLinuxEngine|docker_engine)$/i.test(endpoint);
 }
 
+export function dockerCommandArgs(endpoint, args) {
+  if (!isLocalDockerEndpoint(endpoint)) throw new Error("A stack Goodz só pode usar uma engine Docker local.");
+  return ["--host", endpoint, ...args];
+}
+
+export function dockerRuntimeEnvironment(endpoint, extra = {}) {
+  if (!isLocalDockerEndpoint(endpoint)) throw new Error("A stack Goodz só pode usar uma engine Docker local.");
+  const environment = safeProcessEnvironment(extra);
+  delete environment.DOCKER_CONTEXT;
+  delete environment.DOCKER_TLS_VERIFY;
+  delete environment.DOCKER_CERT_PATH;
+  environment.DOCKER_HOST = endpoint;
+  return environment;
+}
+
 export async function ensureLoopbackDockerNetwork() {
-  await ensureLocalDocker();
-  const inspect = await runCaptured("docker", ["network", "inspect", localNetworkName, "--format", "{{json .Options}}"]);
+  const { endpoint } = await ensureLocalDocker();
+  const inspect = await runCaptured("docker", dockerCommandArgs(endpoint, ["network", "inspect", localNetworkName, "--format", "{{json .Options}}"]));
   if (inspect.code === 0) {
     let options;
     try { options = JSON.parse(inspect.stdout.trim()); } catch { options = null; }
     if (options?.["com.docker.network.bridge.host_binding_ipv4"] !== "127.0.0.1") {
       throw new Error("A rede Docker existente não está limitada ao loopback; ela foi preservada.");
     }
-    return;
+    return endpoint;
   }
 
-  const created = await runCaptured("docker", [
+  const created = await runCaptured("docker", dockerCommandArgs(endpoint, [
     "network", "create", "--driver", "bridge", "--opt",
     "com.docker.network.bridge.host_binding_ipv4=127.0.0.1", localNetworkName,
-  ]);
+  ]));
   if (created.code !== 0) throw new Error("A rede Docker local isolada não pôde ser criada.");
+  return endpoint;
 }
 
 export function sanitizeSupabaseOutput(value) {

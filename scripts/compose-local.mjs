@@ -1,9 +1,10 @@
 import { spawn } from "node:child_process";
 import {
+  dockerCommandArgs,
+  dockerRuntimeEnvironment,
   ensureLocalDocker,
   readLocalSupabaseStatus,
   repositoryRoot,
-  safeProcessEnvironment,
 } from "./local-supabase-status.mjs";
 
 const [action] = process.argv.slice(2);
@@ -13,11 +14,13 @@ if (!["up", "down", "ps", "logs"].includes(action)) {
 }
 
 try {
-  await ensureLocalDocker();
+  const docker = await ensureLocalDocker();
+  let dockerEndpoint = docker.endpoint;
   const extra = {};
 
   if (action === "up") {
-    const local = await readLocalSupabaseStatus();
+    const local = await readLocalSupabaseStatus(dockerEndpoint);
+    dockerEndpoint = local.dockerEndpoint;
     const webPort = process.env.GOODZ_WEB_PORT ?? "3001";
     if (!/^\d{1,5}$/.test(webPort) || Number(webPort) < 1024 || Number(webPort) > 65535) {
       throw new Error("GOODZ_WEB_PORT precisa estar entre 1024 e 65535.");
@@ -45,17 +48,17 @@ try {
         ? ["compose", "ps"]
         : ["compose", "logs", "--no-color", "--tail=100"];
 
-  await runDocker(dockerArgs, extra);
+  await runDocker(dockerEndpoint, dockerArgs, extra);
 } catch (error) {
   console.error(error instanceof Error ? error.message : "Runtime Docker local indisponível.");
   process.exitCode = 1;
 }
 
-function runDocker(args, extra) {
+function runDocker(endpoint, args, extra) {
   return new Promise((resolve, reject) => {
-    const child = spawn("docker", args, {
+    const child = spawn("docker", dockerCommandArgs(endpoint, args), {
       cwd: repositoryRoot,
-      env: safeProcessEnvironment(extra),
+      env: dockerRuntimeEnvironment(endpoint, extra),
       stdio: "inherit",
       windowsHide: true,
     });

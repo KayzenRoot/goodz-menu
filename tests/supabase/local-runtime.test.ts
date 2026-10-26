@@ -2,7 +2,12 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { isLocalDockerEndpoint } from "../../scripts/local-supabase-status.mjs";
+import {
+  dockerCommandArgs,
+  dockerRuntimeEnvironment,
+  ensureLocalDocker,
+  isLocalDockerEndpoint,
+} from "../../scripts/local-supabase-status.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const read = (relativePath: string) => readFileSync(path.join(repositoryRoot, relativePath), "utf8");
@@ -54,5 +59,43 @@ describe("local Docker endpoint policy", () => {
     ["npipe:////remote/pipe/dockerDesktopLinuxEngine", false],
   ])("checks endpoint locality for %s", (endpoint, isLocal) => {
     expect(isLocalDockerEndpoint(endpoint)).toBe(isLocal);
+  });
+
+  it("pins Docker CLI and Supabase processes to the inspected local pipe", () => {
+    const endpoint = "npipe:////./pipe/dockerDesktopLinuxEngine";
+    expect(dockerCommandArgs(endpoint, ["compose", "down"])).toEqual([
+      "--host", endpoint, "compose", "down",
+    ]);
+
+    const environment = dockerRuntimeEnvironment(endpoint, {
+      DOCKER_CONTEXT: "remote",
+      DOCKER_HOST: "tcp://127.0.0.1:2375",
+      GOODZ_ENVIRONMENT: "local",
+    });
+    expect(environment).toMatchObject({ DOCKER_HOST: endpoint, GOODZ_ENVIRONMENT: "local" });
+    expect(environment).not.toHaveProperty("DOCKER_CONTEXT");
+  });
+
+  it("keeps the inspected endpoint if the selected context changes before the daemon probe", async () => {
+    const endpoint = "npipe:////./pipe/dockerDesktopLinuxEngine";
+    let activeContext = "desktop-linux";
+    const calls: string[][] = [];
+    const run = async (_command: string, args: string[]) => {
+      calls.push(args);
+      if (args[0] === "context" && args[1] === "show") {
+        return { code: 0, stdout: `${activeContext}\n`, stderr: "" };
+      }
+      if (args[0] === "context" && args[1] === "inspect") {
+        activeContext = "remote";
+        return { code: 0, stdout: `${JSON.stringify(endpoint)}\n`, stderr: "" };
+      }
+      if (args[0] === "--host" && args[1] === endpoint) {
+        return { code: 0, stdout: "28.0.0\n", stderr: "" };
+      }
+      return { code: 1, stdout: "", stderr: "un-pinned endpoint" };
+    };
+
+    await expect(ensureLocalDocker(run)).resolves.toEqual({ endpoint, serverVersion: "28.0.0" });
+    expect(calls[2]).toEqual(["--host", endpoint, "info", "--format", "{{.ServerVersion}}"]);
   });
 });

@@ -3,11 +3,11 @@ import path from "node:path";
 import {
   ensureLoopbackDockerNetwork,
   ensureLocalDocker,
+  dockerRuntimeEnvironment,
   readLocalSupabaseStatus,
   repositoryRoot,
   runCaptured,
   sanitizeSupabaseOutput,
-  safeProcessEnvironment,
   supabaseCliPath,
 } from "./local-supabase-status.mjs";
 
@@ -24,7 +24,8 @@ if (existsSync(path.join(repositoryRoot, "supabase", ".temp", "project-ref"))) {
 }
 
 try {
-  if (action === "stop" || action === "reset") await ensureLocalDocker();
+  let dockerEndpoint;
+  if (action === "stop" || action === "reset") dockerEndpoint = (await ensureLocalDocker()).endpoint;
 
   if (action === "status") {
     await readLocalSupabaseStatus();
@@ -33,16 +34,16 @@ try {
   }
 
   if (action === "start") {
-    await ensureLoopbackDockerNetwork();
+    dockerEndpoint = await ensureLoopbackDockerNetwork();
     console.log("Iniciando Supabase local na rede de loopback do Goodz Menu...");
-    await runSupabase(["start", "--network-id", "goodz-menu-reboot-001-loopback"]);
-    const status = await readLocalSupabaseStatus();
+    await runSupabase(["start", "--network-id", "goodz-menu-reboot-001-loopback"], dockerEndpoint);
+    const status = await readLocalSupabaseStatus(dockerEndpoint);
     console.log(`Supabase local disponível em ${status.apiUrl}. A chave pública não foi impressa.`);
     process.exit(0);
   }
 
   if (action === "stop") {
-    await runSupabase(["stop"]);
+    await runSupabase(["stop"], dockerEndpoint);
     console.log("Supabase local parado; os volumes foram preservados.");
     process.exit(0);
   }
@@ -51,15 +52,15 @@ try {
     console.error("Reset é destrutivo. Confirme o escopo isolado definindo GOODZ_ALLOW_LOCAL_DB_RESET=1 nesta sessão e execute novamente.");
     process.exit(2);
   }
-  await runSupabase(["db", "reset"]);
+  await runSupabase(["db", "reset"], dockerEndpoint);
 } catch (error) {
   console.error(error instanceof Error ? error.message : "Falha no runtime local do Supabase.");
   process.exitCode = 1;
 }
 
-async function runSupabase(args) {
+async function runSupabase(args, dockerEndpoint) {
   const result = await runCaptured(process.execPath, [supabaseCliPath, ...args], {
-    env: safeProcessEnvironment({ GOODZ_ENVIRONMENT: "local" }),
+    env: dockerRuntimeEnvironment(dockerEndpoint, { GOODZ_ENVIRONMENT: "local" }),
   });
   const safeOutput = sanitizeSupabaseOutput(`${result.stdout}${result.stderr}`).trim();
   if (safeOutput) console.log(safeOutput);
