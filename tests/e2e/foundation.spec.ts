@@ -74,6 +74,7 @@ test("keyboard users can skip navigation and move focus to the main content", as
   const skipLink = page.getByRole("link", { name: "Pular para o conteúdo" });
   await page.keyboard.press("Tab");
   await expect(skipLink).toBeFocused();
+  await expect(skipLink).toBeVisible();
   await expect(skipLink).toHaveCSS("outline-style", "solid");
   await expect(skipLink).toHaveCSS("outline-width", "3px");
 
@@ -85,6 +86,7 @@ test("theme control keeps a visible focus indicator in keyboard navigation", asy
   await page.goto("/");
 
   const theme = page.getByRole("combobox", { name: "Tema da interface" });
+  await expect(theme).toBeEnabled();
   let themeFocused = false;
 
   for (let attempt = 0; attempt < 12; attempt += 1) {
