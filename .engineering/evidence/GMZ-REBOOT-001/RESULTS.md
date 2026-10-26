@@ -1,6 +1,6 @@
 # Evidence Bundle — GMZ-REBOOT-001
 
-**Review status: `BLOCKED`** — local code checks pass on source commit `c26fac282010e71f029168a4dff960f4adae4064`; fresh independent reviews and PR-head CI for the published head, Docker/Supabase lifecycle, and human visual/manual accessibility evidence remain pending. Local validation used Node.js 26.4.0; the workflow's pinned Node.js 24 check remains pending. The objective-audit stop condition has not been met.
+**Review status: `BLOCKED`** — local code checks pass on implementation commit `fda0ea4283446b0c5d0718d5a00581e56d93db80`. The previous published head failed mobile Axe contrast and SonarCloud Security Rating; this correction passed local desktop/mobile E2E and rejects UNC and non-`SystemDrive` Docker CLI roots when the inherited `SystemDrive` is accurate. Delta reviews: Standards `PASS`; Spec confirms the ordinary mapped-drive case is rejected; Security and Spec retain a conditional P2 because a forged `SystemDrive` can bypass the check, so the code does not prove the executable is on a local volume. No HIGH/CRITICAL issues were reported. Fresh PR-head CI remains pending. Docker/Supabase lifecycle, formal SonarCloud disposition for two local-only HTTP findings, and manual keyboard/focus/zoom/screen-reader review also remain outstanding. The objective-audit stop condition has not been met.
 
 ## Identity and scope
 
@@ -10,12 +10,12 @@
 - Draft PR: [#74](https://github.com/KayzenRoot/goodz-menu/pull/74)
 - Branch: `rebuild/gmz-reboot-001-module-01`
 - Base: `main@3139534697743494626f4940b78ac3f9d468ceb6`
-- Foundation code candidate: `c26fac282010e71f029168a4dff960f4adae4064`
+- Foundation code candidate: `fda0ea4283446b0c5d0718d5a00581e56d93db80`
 - Local command output excerpts and environment versions: [`LOCAL-VALIDATION.md`](LOCAL-VALIDATION.md).
-- After publication, app-foundation CI will record the exact PR-head SHA, complete changed-path list, commit compare URL, and binary diff SHA-256 in the JSON artifact `goodz-foundation-head-manifest-<run_id>`. At this pre-push snapshot, remote PR #74 still points to `b42fbc516800ac3c78d232af622d4e4400a61ae0`, so its compare does not yet represent the local candidate. No raw diff or screenshot artifact is uploaded.
+- The previous published PR head was `9d8a7e4a7f62a10a29ab5ed679d81c4504579390`. Its app-foundation workflow saved an exact-head JSON manifest, but the run failed before dependency/secret scans. The correction commit is local and awaits push; the next workflow run must record and validate its exact PR-head SHA, changed paths, compare URL, and binary diff SHA-256. No raw diff or screenshot is uploaded as a workflow artifact.
 - Scope: new foundation shell, isolated local runtime, liveness/readiness, correlation IDs, local Docker/Supabase wrappers, and test harness. No business module, product login, tenant model, or business data was carried forward.
 
-Legacy product routes, auth/MFA/admin-guard/tenant/audit source and tests, business migrations, and seed were removed from this reboot branch after inventory. The checkpoint, Source Pack, ADRs, source hierarchy, issue history, and legacy PRs remain untouched. After publication, the CI manifest will bind the exact base/head, all changed paths, and the binary diff hash; the PR compare will expose the complete diff for those commits. At this pre-push snapshot, the remote PR still points to the previous candidate.
+Legacy product routes, auth/MFA/admin-guard/tenant/audit source and tests, business migrations, and seed were removed from this reboot branch after inventory. The checkpoint, Source Pack, ADRs, source hierarchy, issue history, and legacy PRs remain untouched. The previous published head `9d8a7e4a7f62a10a29ab5ed679d81c4504579390` has an exact-head CI manifest; implementation commit `fda0ea4283446b0c5d0718d5a00581e56d93db80` has passed Standards review and received a conditional P2 in Spec/Security review. The next workflow run must bind the corrected PR head, all changed paths, and binary diff hash.
 
 ## Canonical source fingerprints
 
@@ -37,7 +37,7 @@ All six Work Order fingerprints match the approved values:
 | `pnpm install --frozen-lockfile` | PASS — frozen lockfile and supply-chain policy verification |
 | `pnpm lint` | PASS — no warnings or errors |
 | `pnpm typecheck` | PASS |
-| `pnpm test` | PASS — 41 tests across 5 files, including HTTP 503 readiness, loopback-only network creation/refusal, reset preflight, endpoint allowlist and Docker-context pinning cases |
+| `pnpm test` | PASS — 44 tests across 5 files, including HTTP 503 readiness, loopback-only network creation/refusal, Docker CLI local path resolution and UNC/SystemDrive mismatch rejection, reset preflight, endpoint allowlist and Docker-context pinning cases |
 | `pnpm build` | PASS — Next.js 16.4.3 production build |
 | `pnpm test:e2e` | PASS — desktop Chromium and mobile Chromium; light/dark themes, Axe WCAG tags, dynamic status announcements, reduced motion, tablet navigation names at 700 px, health/readiness and responsive width |
 | `pnpm security:deps` | PASS — no known vulnerabilities at the audit snapshot; Vite is pinned to patched `8.3.3` through `pnpm-workspace.yaml` |
@@ -47,6 +47,7 @@ All six Work Order fingerprints match the approved values:
 | Workflow YAML and action pins | PASS — YAML parsed; all 4 referenced actions use full 40-character commit SHAs |
 | Supabase reset network preflight | PASS — tests verify creation with `host_binding_ipv4=127.0.0.1` and refusal of a network bound to `0.0.0.0`; the pinned CLI accepts `--network-id`. Reset itself was not run |
 | Reset confirmation guard | PASS — with `GOODZ_ALLOW_LOCAL_DB_RESET=0`, reset exited 2 before engine access |
+| Docker Desktop CLI path | PASS — resolved from standard install location; `docker compose version` reports `v5.6.0` with child `PATH` restricted to that CLI directory |
 | `docker info` | BLOCKED — `desktop-linux` selected, but the Docker Desktop Linux engine named pipe is absent |
 | `git diff --check` | PASS |
 
@@ -65,14 +66,16 @@ The initial Standards and Spec reviews examined `87145b01940c42bab515f45bad1e41d
 
 The latest Security review found that `--network-id` alone did not ensure the named network was already loopback-bound. After explicit reset confirmation, the wrapper now creates or validates `goodz-menu-reboot-001-loopback` before invoking Supabase; it refuses an existing network with any other host binding. Unit tests cover both safe creation and fail-closed refusal. The reset itself remains unverified because Docker is unavailable.
 
+The published head's automated review found transitional low-contrast colors on mobile and three minor Sonar security findings: two local HTTP protocol/endpoints (rule S5332) and ambient `PATH` resolution for Docker (rule S4036). The correction removes opacity and color interpolation from the relevant text/link states, resolves Docker Desktop from standard local install locations on the inherited `SystemDrive`, rejects UNC and differing-drive roots when that variable reflects the actual system drive, and restricts child `PATH`. Custom Docker Desktop installs on another drive are unsupported. Follow-up security review found no HIGH/CRITICAL issues, but retains a P2 because a forged `SystemDrive` can make a mapped drive pass; actual Windows volume type is not checked. Treat this as an accidental-configuration guard, not a strict local-volume boundary. The two S5332 findings remain visible in Sonar because the endpoints are HTTP by local Supabase design; source suppressions were removed. Their false-positive status and the corrected Sonar gate require maintainer review. The current code passes local tests; full PR-head CI is pending.
+
 The final Security review also identified that direct `pnpm exec supabase ...` invocations bypass the wrappers. `docs/LOCAL-DEVELOPMENT.md` now defines the supported local lifecycle as the `pnpm supabase:*` wrappers only. Direct CLI invocation is outside that documented contract and is not technically blocked by this repository.
 
 ## Blockers and limits
 
-- `docker context show` selected `desktop-linux`, whose endpoint is the local Docker Desktop named pipe. `docker info` failed because that pipe does not exist; candidate Docker Desktop executable paths were absent. No engine or volume inventory was available.
+- `docker context show` selected `desktop-linux`. The Docker Desktop CLI exists in the standard per-user install directory, but `docker info` failed because the local engine named pipe does not exist. No engine or volume inventory was available.
 - Local checks ran with Node.js `26.4.0`; the app CI pins Node.js `24`, so the exact supported runtime is still awaiting PR CI.
 - `pnpm supabase:start` and `pnpm docker:up` stopped at the local-engine preflight before invoking Supabase or Compose. Docker build/up/health/down and Supabase start/status/stop therefore remain unverified. No reset was run.
-- `.github/workflows/goodz-app-foundation.yml` now runs frozen install, lint, typecheck, unit tests, build, desktop/mobile E2E, dependency audit, and scoped secret scan on PRs and `main`; the PR-head CI result remains pending verification after publication.
+- `.github/workflows/goodz-app-foundation.yml` runs frozen install, lint, typecheck, unit tests, build, desktop/mobile E2E, dependency audit, and scoped secret scan on PRs and `main`. The previous PR-head run failed on mobile Axe contrast and SonarCloud Security Rating `B`; the corrected head's CI is pending.
 - No remote Supabase, remote database, production environment, or production data was accessed. The reboot branch has not been merged; the approved checkpoint has not been changed.
 - The current checkpoint remains `GMZ_IMPL_007_ADMISSION_CANDIDATE_READY_FOR_REVIEW` at `52/515`; this reboot does not claim that historical credit as new work.
 

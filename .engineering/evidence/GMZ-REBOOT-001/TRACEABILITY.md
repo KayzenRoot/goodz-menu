@@ -6,7 +6,7 @@ This matrix binds the rebuilt foundation to the IDs listed in the historical `GM
 - Source status: `APPROVED_V0.1`
 - Source SHA-1 at this review: `2e179c00446980a481e56dd02fe71865a7237f59`
 - Test target: `docs/source-pack/TEST-BENCHMARK-PLAN.md` — WCAG 2.2 AA, automated tests plus required manual review.
-- Review snapshot: local code commit `c26fac282010e71f029168a4dff960f4adae4064` before publication; app-foundation CI will emit the exact PR head, base SHA, complete changed-path list, and binary diff SHA-256 in a JSON run artifact. At this pre-push snapshot, remote PR #74 still points to `b42fbc516800ac3c78d232af622d4e4400a61ae0`; its compare will represent the local candidate after publication. Local command output excerpts are recorded in `LOCAL-VALIDATION.md`.
+- Review snapshot: implementation commit `fda0ea4283446b0c5d0718d5a00581e56d93db80`; app-foundation CI previously emitted an exact-head manifest for PR head `9d8a7e4a7f62a10a29ab5ed679d81c4504579390`, whose mobile Axe and SonarCloud checks failed. The correction rejects UNC and differing-drive Docker install roots when inherited `SystemDrive` reflects the actual system drive, and removes source-level Sonar suppressions. Standards review passed; Spec and Security reviews retain a conditional P2 because the environment variable can be forged; no OS-level volume check is implemented. The next run must record its exact PR head, base SHA, full changed-path list, and binary diff SHA-256. Local command output excerpts are recorded in `LOCAL-VALIDATION.md`.
 
 ## Historical module mapping
 
