@@ -1,5 +1,15 @@
 # Local validation receipt — GMZ-REBOOT-001
 
+## Mobile overflow fix and keyboard-test hardening — 2026-10-26
+
+App-foundation run `40409015904` on published PR head `3d51c6c995ba4664d9fab4cd8a5b3a1a688c32a2` failed the 320 CSS-pixel reflow test. Its diagnostic output identified `.nav-badge` as an absolutely positioned 1 px element with its right edge at x=338; the document scroll width was 338 px.
+
+Commit `882bf7fac38d375b558b2630fbefd0591a3af18b` resets `.nav-link > .nav-badge` to normal-flow sizing inside the mobile breakpoint, asserts `position: static`, and regenerates the mobile light/dark screenshots. On the exact `882bf7f` source tree, `pnpm lint`, `pnpm typecheck`, `pnpm test` (50/50), `pnpm build`, and `pnpm test:e2e` (8 desktop/mobile Chromium checks) all exited 0. The E2E run confirmed no document-level overflow at 320 CSS pixels and passed Axe checks.
+
+Commit `4d78d5d444bfe8f01a87f587f51e52c8cbb0cee5` changes only E2E assertions: it waits for the theme selector to be enabled before tab traversal and asserts that the focused skip link is visible. On this exact tree, `pnpm lint` exited 0 and `pnpm test:e2e` exited 0 with 8/8 checks passing. Exact-head hosted CI and fresh independent review are pending publication; the current remote PR head remains `3d51c6c`.
+
+The updated screenshots were inspected for layout and badge legibility. A local Chromium spot check also confirmed the skip-link focus transfer. These agent checks do not substitute for the required human visual/accessibility sign-off. Actual browser zoom and screen-reader behavior remain unverified.
+
 ## Accessibility correction — 2026-10-26
 
 The following commands ran on the exact source tree later committed as `6a5b095fd84a6eb90f1944c38682c0487f886b79` (the commit adds no source changes beyond the tested tree). The checks passed locally; this does not replace CI on the published PR head.
@@ -20,7 +30,7 @@ This receipt records the latest local path-check, lint, typecheck, and unit-test
 
 - Node.js: `v26.4.0`
 - pnpm: `12.8.1`
-- Docker context: `desktop-linux`; the Docker Desktop CLI is installed under `%LOCALAPPDATA%\Programs\DockerDesktop\resources\bin`. Docker Desktop is running, WSL reports `docker-desktop` running, and Docker Engine `29.8.2` responds. The Goodz loopback network has `host_binding_ipv4=127.0.0.1`, IPv4 enabled, IPv6 disabled. Windows reported 22.90 GiB total and 2.76 GiB free; Supabase startup hit `runtime: cannot allocate memory`, below the guide's 8 GB available-memory prerequisite.
+- Docker context: `desktop-linux`; the Docker Desktop CLI is installed under `%LOCALAPPDATA%\Programs\DockerDesktop\resources\bin`. Docker Desktop is running, WSL reports `docker-desktop` running, and Docker Engine `29.8.2` responds. The Goodz loopback network has `host_binding_ipv4=127.0.0.1`, IPv4 enabled, IPv6 disabled. An earlier resource reading at Supabase startup showed 2.76 GiB free; a later reading showed 5.76 GiB free of 22.90 GiB total. Both are below the guide's 8 GiB prerequisite. The startup attempt hit `runtime: cannot allocate memory`; it was not retried.
 - CI pins Node.js `24`; local validation uses Node.js `26.4.0`. App-foundation run `40396937840` passed for code head `2d65738`; run `40398881229` passed for the recorded evidence-only PR head `78b013b`.
 
 ## Commands and observed results
