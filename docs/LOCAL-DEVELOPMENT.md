@@ -66,7 +66,7 @@ $env:GOODZ_ALLOW_LOCAL_DB_RESET = "1"
 try { pnpm supabase:reset } finally { Remove-Item Env:\GOODZ_ALLOW_LOCAL_DB_RESET -ErrorAction SilentlyContinue }
 ```
 
-O reset usa somente a configuração isolada desta branch, passa explicitamente a rede `goodz-menu-reboot-001-loopback` e falha se detectar uma ligação Supabase remota. Não use `docker compose down -v` nem comandos de prune para a rotina normal.
+O reset usa somente a configuração isolada desta branch. Após a confirmação, ele cria ou valida que a rede `goodz-menu-reboot-001-loopback` limite publicações a `127.0.0.1` e passa essa rede explicitamente à CLI; se a rede existente não tiver essa opção, o reset falha sem alterá-la. O comando também falha se detectar uma ligação Supabase remota. Não use `docker compose down -v` nem comandos de prune para a rotina normal.
 
 ## Variáveis permitidas
 

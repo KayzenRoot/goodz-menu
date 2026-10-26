@@ -6,6 +6,7 @@ import {
   dockerCommandArgs,
   dockerRuntimeEnvironment,
   ensureLocalDocker,
+  ensureLoopbackDockerNetwork,
   isLocalDockerEndpoint,
 } from "../../scripts/local-supabase-status.mjs";
 
@@ -22,9 +23,55 @@ describe("isolated local Supabase configuration", () => {
   });
 
   it("keeps database reset on the isolated Supabase network", () => {
-    expect(read("scripts/supabase-local.mjs")).toContain(
-      'runSupabase(["db", "reset", "--network-id", "goodz-menu-reboot-001-loopback"]',
-    );
+    const script = read("scripts/supabase-local.mjs");
+    const confirmation = script.indexOf('if (process.env.GOODZ_ALLOW_LOCAL_DB_RESET !== "1")');
+    const ensureNetwork = script.indexOf("dockerEndpoint = await ensureLoopbackDockerNetwork();", confirmation);
+    const reset = script.indexOf('runSupabase(["db", "reset", "--network-id", "goodz-menu-reboot-001-loopback"]', confirmation);
+    expect(confirmation).toBeGreaterThanOrEqual(0);
+    expect(ensureNetwork).toBeGreaterThan(confirmation);
+    expect(reset).toBeGreaterThan(ensureNetwork);
+  });
+
+  it("creates the local bridge with loopback-only port binding", async () => {
+    const endpoint = "npipe:////./pipe/dockerDesktopLinuxEngine";
+    const calls: string[][] = [];
+    const run = async (_command: string, args: string[]) => {
+      calls.push(args);
+      if (args[0] === "context" && args[1] === "show") return { code: 0, stdout: "desktop-linux\n", stderr: "" };
+      if (args[0] === "context" && args[1] === "inspect") return { code: 0, stdout: `${JSON.stringify(endpoint)}\n`, stderr: "" };
+      if (args[0] === "--host" && args[1] === endpoint && args[2] === "info") return { code: 0, stdout: "29.0.0\n", stderr: "" };
+      if (args[0] === "--host" && args[1] === endpoint && args[2] === "network" && args[3] === "inspect") {
+        return { code: 1, stdout: "", stderr: "network not found" };
+      }
+      if (args[0] === "--host" && args[1] === endpoint && args[2] === "network" && args[3] === "create") {
+        return { code: 0, stdout: "network-id\n", stderr: "" };
+      }
+      return { code: 1, stdout: "", stderr: "unexpected command" };
+    };
+
+    await expect(ensureLoopbackDockerNetwork(run)).resolves.toBe(endpoint);
+    expect(calls.at(-1)).toEqual([
+      "--host", endpoint, "network", "create", "--driver", "bridge", "--opt",
+      "com.docker.network.bridge.host_binding_ipv4=127.0.0.1", "goodz-menu-reboot-001-loopback",
+    ]);
+  });
+
+  it("refuses an existing local bridge without loopback-only port binding", async () => {
+    const endpoint = "npipe:////./pipe/dockerDesktopLinuxEngine";
+    const calls: string[][] = [];
+    const run = async (_command: string, args: string[]) => {
+      calls.push(args);
+      if (args[0] === "context" && args[1] === "show") return { code: 0, stdout: "desktop-linux\n", stderr: "" };
+      if (args[0] === "context" && args[1] === "inspect") return { code: 0, stdout: `${JSON.stringify(endpoint)}\n`, stderr: "" };
+      if (args[0] === "--host" && args[1] === endpoint && args[2] === "info") return { code: 0, stdout: "29.0.0\n", stderr: "" };
+      if (args[0] === "--host" && args[1] === endpoint && args[2] === "network" && args[3] === "inspect") {
+        return { code: 0, stdout: '{"com.docker.network.bridge.host_binding_ipv4":"0.0.0.0"}', stderr: "" };
+      }
+      return { code: 1, stdout: "", stderr: "unexpected command" };
+    };
+
+    await expect(ensureLoopbackDockerNetwork(run)).rejects.toThrow("não está limitada ao loopback");
+    expect(calls.some((args) => args[2] === "network" && args[3] === "create")).toBe(false);
   });
 
   it("uses a dedicated project id and non-default ports", () => {

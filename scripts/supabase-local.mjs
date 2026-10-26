@@ -25,7 +25,7 @@ if (existsSync(path.join(repositoryRoot, "supabase", ".temp", "project-ref"))) {
 
 try {
   let dockerEndpoint;
-  if (action === "stop" || action === "reset") dockerEndpoint = (await ensureLocalDocker()).endpoint;
+  if (action === "stop") dockerEndpoint = (await ensureLocalDocker()).endpoint;
 
   if (action === "status") {
     await readLocalSupabaseStatus();
@@ -52,6 +52,7 @@ try {
     console.error("Reset é destrutivo. Confirme o escopo isolado definindo GOODZ_ALLOW_LOCAL_DB_RESET=1 nesta sessão e execute novamente.");
     process.exit(2);
   }
+  dockerEndpoint = await ensureLoopbackDockerNetwork();
   await runSupabase(["db", "reset", "--network-id", "goodz-menu-reboot-001-loopback"], dockerEndpoint);
 } catch (error) {
   console.error(error instanceof Error ? error.message : "Falha no runtime local do Supabase.");

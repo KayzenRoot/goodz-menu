@@ -110,9 +110,9 @@ export function dockerRuntimeEnvironment(endpoint, extra = {}) {
   return environment;
 }
 
-export async function ensureLoopbackDockerNetwork() {
-  const { endpoint } = await ensureLocalDocker();
-  const inspect = await runCaptured("docker", dockerCommandArgs(endpoint, ["network", "inspect", localNetworkName, "--format", "{{json .Options}}"]));
+export async function ensureLoopbackDockerNetwork(run = runCaptured) {
+  const { endpoint } = await ensureLocalDocker(run);
+  const inspect = await run("docker", dockerCommandArgs(endpoint, ["network", "inspect", localNetworkName, "--format", "{{json .Options}}"]));
   if (inspect.code === 0) {
     let options;
     try { options = JSON.parse(inspect.stdout.trim()); } catch { options = null; }
@@ -122,7 +122,7 @@ export async function ensureLoopbackDockerNetwork() {
     return endpoint;
   }
 
-  const created = await runCaptured("docker", dockerCommandArgs(endpoint, [
+  const created = await run("docker", dockerCommandArgs(endpoint, [
     "network", "create", "--driver", "bridge", "--opt",
     "com.docker.network.bridge.host_binding_ipv4=127.0.0.1", localNetworkName,
   ]));
