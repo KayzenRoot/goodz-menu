@@ -4,9 +4,9 @@
 
 ## Findings in scope
 
-This disposition covers the two SonarCloud S5332 issues seen on PR #74 at exact check head `a811c7d389125bcda934fcfec59159dd5f9c2177` (code candidate `3e90030573031acd8764eb45fd40cf063d1dcbd3`):
+This disposition covers the two SonarCloud S5332 issues first seen on PR #74 at check head `a811c7d389125bcda934fcfec59159dd5f9c2177` (code candidate `3e90030573031acd8764eb45fd40cf063d1dcbd3`) and reconfirmed on the current exact PR head `95689e03daee224c8998a6bf646b4f234df91a8c` by SonarCloud check `121982262316`:
 
-- `AaF5USd7m7ISM68fKi-0` — `scripts/compose-local.mjs:39`, `http://kong:8000`.
+- `AaF5USd7m7ISM68fKi-0` — `scripts/compose-local.mjs:39` at the original check and `scripts/compose-local.mjs:40` on the current head, `http://kong:8000`.
 - `AaF5USeFm7ISM68fKi-4` — `src/lib/env/runtime-env.ts:52`, `http://127.0.0.1:56321`.
 
 ## Rationale and boundary
@@ -19,7 +19,7 @@ Acceptance applies only while runtime remains local/test, Supabase remains local
 
 - The authenticated maintainer account was verified as `KayzenRoot`, with repository permission `admin`.
 - The decision was recorded in [PR #74 comment #6431020903](https://github.com/KayzenRoot/goodz-menu/pull/74#issuecomment-6431020903) and read back successfully.
-- The SonarCloud check on the analyzed PR head remains `B Security Rating on New Code` (required `A`). No Sonar issue state was changed; this record does not override or claim a passing Quality Gate.
+- The current exact-head SonarCloud check remains `B Security Rating on New Code` (required `A`). The same two S5332 issue IDs remain open. No Sonar issue state was changed; this record does not override or claim a passing Quality Gate.
 - The live Windows Docker/Supabase lifecycle was not verified because available physical memory was 4.73 GiB, below the documented 8 GiB prerequisite. This disposition relies on repository configuration and automated evidence, not live-stack proof.
 - The user explicitly asked to keep the required human accessibility review pending. Seed/reset applicability, the PR/head reconciliation, and the final objective audit also remain pending.
 
