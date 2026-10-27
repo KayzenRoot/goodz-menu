@@ -43,8 +43,8 @@ The old `GMZ-IMPL-001` allocated historical credits to these modules. The mappin
 
 ## Remaining acceptance gates
 
-1. App-foundation and both Socket checks pass on code candidate `3e90030`; obtain a documented SonarCloud Security `A` result or formal maintainer disposition for the local HTTP findings. Verify CI again after this evidence-only update changes PR HEAD.
-2. Capture Docker and Supabase local lifecycle and reset evidence when at least 8 GiB of host memory is available; the latest reading was 6.28 GiB. Seed/dev-data applicability remains unproven because the foundation has no schema/data and seed is disabled.
+1. On the published `3e9b9c9` snapshot, app-foundation and both Socket checks pass; Sonar remains `B`. The maintainer's scoped risk disposition is recorded at PR comment `#6431020903`; it does not change the Sonar result. Recheck hosted statuses on the correction's published exact HEAD.
+2. Capture Docker and Supabase local lifecycle evidence when at least 8 GiB of host memory is available; the latest reading at 2026-10-27 01:18 UTC was 4.55 GiB. Reset and seed/dev-data applicability remain unverified because the local lifecycle has not run; seed is disabled and no migrations are tracked in this foundation.
 3. Record human visual review plus manual keyboard, actual browser zoom, and screen-reader review; automated checks and agent spot checks do not replace this sign-off.
 4. Complete and record the final objective audit on the exact candidate; until then, keep objective-audit status `BLOCKED` and do not start `GMZ-M01`.
 
