@@ -17,6 +17,7 @@ import {
   readWindowsFixedDriveLetters,
   resolveDockerCliPath,
   sanitizeSupabaseOutput,
+  verifySupabasePortBindingsLoopback,
 } from "../../scripts/local-supabase-status.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
@@ -142,6 +143,21 @@ describe("Docker Desktop port binding configuration", () => {
     rmSync(appData, { recursive: true, force: true });
   });
 
+  it("reads Docker Desktop's serialized PascalCase setting name", () => {
+    const appData = mkdtempSync(path.join(tmpdir(), "goodz-docker-settings-"));
+    const dockerSettingsDirectory = path.join(appData, "Docker");
+    mkdirSync(dockerSettingsDirectory, { recursive: true });
+    writeFileSync(
+      path.join(dockerSettingsDirectory, "settings-store.json"),
+      JSON.stringify({ PortBindingBehavior: "default-local-port-binding" }),
+      "utf8",
+    );
+
+    expect(readDockerDesktopPortBindingBehavior(appData)).toBe("default-local-port-binding");
+
+    rmSync(appData, { recursive: true, force: true });
+  });
+
   it("requires loopback-only port binding on Windows and permits non-Windows engines", () => {
     expect(() => assertDockerDesktopLoopbackPortBinding("default-local-port-binding", "win32")).not.toThrow();
     expect(() => assertDockerDesktopLoopbackPortBinding("local-only-port-binding", "win32")).not.toThrow();
@@ -255,6 +271,23 @@ describe("isolated local Supabase configuration", () => {
     });
     await expect(readLocalSupabaseStatus(harness.endpoint, harness.run, harness.dockerCliPath))
       .rejects.toThrow("publicada fora do loopback");
+  });
+
+  it("accepts unspecified published host IP only with Docker Desktop localhost binding", async () => {
+    const harness = createDockerHarness({
+      networkId: "1".repeat(64),
+      supabaseStatus: true,
+      supabasePortHostIp: "",
+    });
+    await expect(readLocalSupabaseStatus(
+      harness.endpoint, harness.run, harness.dockerCliPath, () => "default-local-port-binding", "win32",
+    )).resolves.toMatchObject({ dockerNetworkId: "1".repeat(64) });
+    await expect(readLocalSupabaseStatus(
+      harness.endpoint, harness.run, harness.dockerCliPath, () => "default-port-binding", "win32",
+    )).rejects.toThrow("publicada fora do loopback");
+    await expect(verifySupabasePortBindingsLoopback(
+      harness.endpoint, harness.run, harness.dockerCliPath, () => "default-local-port-binding", "linux",
+    )).rejects.toThrow("publicada fora do loopback");
   });
 
   it("blocks Windows stack creation when Docker Desktop keeps the global port binding", async () => {
