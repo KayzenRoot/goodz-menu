@@ -36,14 +36,19 @@ export function runCaptured(command, args, { cwd = repositoryRoot, env = safePro
   });
 }
 
-export async function readLocalSupabaseStatus(expectedEndpoint) {
-  const docker = await ensureLocalDocker();
+export async function readLocalSupabaseStatus(
+  expectedEndpoint,
+  run = runCaptured,
+  dockerCliPath = resolveDockerCliPath(),
+) {
+  const docker = await ensureLocalDocker(run, dockerCliPath);
   if (expectedEndpoint && docker.endpoint !== expectedEndpoint) {
     throw new Error("O contexto Docker mudou durante a operação local.");
   }
+  const network = await inspectLoopbackDockerNetwork(docker.endpoint, run, dockerCliPath);
 
-  const result = await runCaptured(process.execPath, [supabaseCliPath, "status", "--output", "json"], {
-    env: dockerRuntimeEnvironment(docker.endpoint),
+  const result = await run(process.execPath, [supabaseCliPath, "status", "--output", "json"], {
+    env: dockerRuntimeEnvironment(docker.endpoint, {}, dockerCliPath),
   });
   if (result.code !== 0) throw new Error("Supabase local não está disponível.");
 
@@ -62,7 +67,12 @@ export async function readLocalSupabaseStatus(expectedEndpoint) {
     throw new Error("O Supabase local não corresponde à configuração isolada do reboot.");
   }
 
-  return { apiUrl: localApiUrl, anonKey, dockerEndpoint: docker.endpoint };
+  return {
+    apiUrl: localApiUrl,
+    anonKey,
+    dockerEndpoint: docker.endpoint,
+    dockerNetworkId: network.networkId,
+  };
 }
 
 export async function ensureLocalDocker(run = runCaptured, dockerCliPath = resolveDockerCliPath()) {
@@ -297,22 +307,57 @@ export function dockerRuntimeEnvironment(endpoint, extra = {}, dockerCliPath) {
 
 export async function ensureLoopbackDockerNetwork(run = runCaptured, dockerCliPath = resolveDockerCliPath()) {
   const { endpoint } = await ensureLocalDocker(run, dockerCliPath);
-  const inspect = await run(dockerCliPath, dockerCommandArgs(endpoint, ["network", "inspect", localNetworkName, "--format", "{{json .Options}}"]));
-  if (inspect.code === 0) {
-    let options;
-    try { options = JSON.parse(inspect.stdout.trim()); } catch { options = null; }
-    if (options?.["com.docker.network.bridge.host_binding_ipv4"] !== "127.0.0.1") {
-      throw new Error("A rede Docker existente não está limitada ao loopback; ela foi preservada.");
-    }
-    return endpoint;
-  }
+  const existing = await inspectDockerNetworkAt(endpoint, localNetworkName, run, dockerCliPath);
+  if (existing) return existing;
 
   const created = await run(dockerCliPath, dockerCommandArgs(endpoint, [
     "network", "create", "--driver", "bridge", "--opt",
     "com.docker.network.bridge.host_binding_ipv4=127.0.0.1", localNetworkName,
   ]));
   if (created.code !== 0) throw new Error("A rede Docker local isolada não pôde ser criada.");
-  return endpoint;
+
+  const createdId = created.stdout.trim();
+  if (!/^[a-f0-9]{64}$/i.test(createdId)) {
+    throw new Error("A identidade da rede Docker local não pôde ser verificada.");
+  }
+
+  const createdNetwork = await inspectDockerNetworkAt(endpoint, createdId, run, dockerCliPath);
+  if (!createdNetwork) throw new Error("A rede Docker local criada não pôde ser verificada.");
+  if (createdNetwork.networkId !== createdId) throw new Error("A identidade da rede Docker local mudou durante a verificação.");
+  return createdNetwork;
+}
+
+export async function inspectLoopbackDockerNetwork(endpoint, run = runCaptured, dockerCliPath = resolveDockerCliPath()) {
+  const network = await inspectDockerNetworkAt(endpoint, localNetworkName, run, dockerCliPath);
+  if (!network) throw new Error("A rede Docker local isolada não está disponível.");
+  return network;
+}
+
+async function inspectDockerNetworkAt(endpoint, networkReference, run, dockerCliPath) {
+  const inspect = await run(dockerCliPath, dockerCommandArgs(endpoint, [
+    "network", "inspect", networkReference, "--format", "{{json .}}",
+  ]));
+  if (inspect.code !== 0) return null;
+  return { endpoint, networkId: validateLoopbackDockerNetwork(inspect.stdout) };
+}
+
+function validateLoopbackDockerNetwork(output) {
+  let network;
+  try {
+    network = JSON.parse(output.trim());
+  } catch {
+    throw new Error("A rede Docker existente não pôde ser verificada.");
+  }
+  if (network?.Driver !== "bridge") {
+    throw new Error("A rede Docker existente não usa o driver bridge; ela foi preservada.");
+  }
+  if (network.Options?.["com.docker.network.bridge.host_binding_ipv4"] !== "127.0.0.1") {
+    throw new Error("A rede Docker existente não está limitada ao loopback; ela foi preservada.");
+  }
+  if (typeof network.Id !== "string" || !/^[a-f0-9]{64}$/i.test(network.Id)) {
+    throw new Error("A identidade da rede Docker local não pôde ser verificada.");
+  }
+  return network.Id;
 }
 
 export function sanitizeSupabaseOutput(value) {

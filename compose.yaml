@@ -36,5 +36,5 @@ services:
 
 networks:
   goodz-local-supabase:
-    name: goodz-menu-reboot-001-loopback
+    name: "${GOODZ_SUPABASE_NETWORK_ID:?Run pnpm docker:up to verify the local Supabase network}"
     external: true

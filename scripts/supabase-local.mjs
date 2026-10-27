@@ -34,9 +34,10 @@ try {
   }
 
   if (action === "start") {
-    dockerEndpoint = await ensureLoopbackDockerNetwork();
+    const network = await ensureLoopbackDockerNetwork();
+    dockerEndpoint = network.endpoint;
     console.log("Iniciando Supabase local na rede de loopback do Goodz Menu...");
-    await runSupabase(["start", "--network-id", "goodz-menu-reboot-001-loopback"], dockerEndpoint);
+    await runSupabase(["start", "--network-id", network.networkId], dockerEndpoint);
     const status = await readLocalSupabaseStatus(dockerEndpoint);
     console.log(`Supabase local disponível em ${status.apiUrl}. A chave pública não foi impressa.`);
     process.exit(0);
@@ -52,8 +53,9 @@ try {
     console.error("Reset é destrutivo. Confirme o escopo isolado definindo GOODZ_ALLOW_LOCAL_DB_RESET=1 nesta sessão e execute novamente.");
     process.exit(2);
   }
-  dockerEndpoint = await ensureLoopbackDockerNetwork();
-  await runSupabase(["db", "reset", "--network-id", "goodz-menu-reboot-001-loopback"], dockerEndpoint);
+  const network = await ensureLoopbackDockerNetwork();
+  dockerEndpoint = network.endpoint;
+  await runSupabase(["db", "reset", "--network-id", network.networkId], dockerEndpoint);
 } catch (error) {
   console.error(error instanceof Error ? error.message : "Falha no runtime local do Supabase.");
   process.exitCode = 1;

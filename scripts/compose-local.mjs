@@ -4,6 +4,7 @@ import {
   resolveDockerCliPath,
   dockerRuntimeEnvironment,
   ensureLocalDocker,
+  localNetworkName,
   readLocalSupabaseStatus,
   repositoryRoot,
 } from "./local-supabase-status.mjs";
@@ -18,7 +19,7 @@ try {
   const dockerCliPath = resolveDockerCliPath();
   const docker = await ensureLocalDocker(undefined, dockerCliPath);
   let dockerEndpoint = docker.endpoint;
-  const extra = {};
+  const extra = { GOODZ_SUPABASE_NETWORK_ID: localNetworkName };
 
   if (action === "up") {
     const local = await readLocalSupabaseStatus(dockerEndpoint);
@@ -38,6 +39,7 @@ try {
       BUILD_REVISION: revision,
       SUPABASE_API_URL: "http://kong:8000",
       SUPABASE_ANON_KEY: local.anonKey,
+      GOODZ_SUPABASE_NETWORK_ID: local.dockerNetworkId,
     });
     console.log("Iniciando a aplicação Docker com a chave pública local em memória.");
   }
