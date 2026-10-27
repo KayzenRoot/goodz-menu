@@ -46,6 +46,7 @@ export async function readLocalSupabaseStatus(
   dockerCliPath = resolveDockerCliPath(),
   getPortBindingBehavior = readDockerDesktopPortBindingBehavior,
   platform = process.platform,
+  getHostListeners = readWindowsHostListeners,
 ) {
   const docker = await ensureLocalDocker(run, dockerCliPath);
   if (expectedEndpoint && docker.endpoint !== expectedEndpoint) {
@@ -73,7 +74,9 @@ export async function readLocalSupabaseStatus(
     throw new Error("O Supabase local não corresponde à configuração isolada do reboot.");
   }
 
-  await verifySupabasePortBindingsLoopback(docker.endpoint, run, dockerCliPath, getPortBindingBehavior, platform);
+  await verifySupabasePortBindingsLoopback(
+    docker.endpoint, run, dockerCliPath, getPortBindingBehavior, platform, getHostListeners,
+  );
 
   return {
     apiUrl: localApiUrl,
@@ -367,8 +370,9 @@ export async function verifySupabasePortBindingsLoopback(
   dockerCliPath = resolveDockerCliPath(),
   getPortBindingBehavior = readDockerDesktopPortBindingBehavior,
   platform = process.platform,
+  getHostListeners = readWindowsHostListeners,
 ) {
-  // Docker Desktop records implicit host bindings with an empty HostIp; the configured localhost policy supplies the effective interface.
+  // Docker Desktop settings apply to new containers; verify existing implicit bindings against actual host listeners.
   const allowUnspecifiedHostIp = platform === "win32" &&
     loopbackPortBindingBehaviors.has(getPortBindingBehavior());
   const containers = await run(dockerCliPath, dockerCommandArgs(endpoint, [
@@ -393,6 +397,7 @@ export async function verifySupabasePortBindingsLoopback(
     throw new Error("As portas publicadas do Supabase local não puderam ser verificadas.");
   }
 
+  const unspecifiedHostPorts = new Set();
   for (const line of bindingLines) {
     let portBindings;
     try {
@@ -405,14 +410,87 @@ export async function verifySupabasePortBindingsLoopback(
       throw new Error("As portas publicadas do Supabase local não puderam ser verificadas.");
     }
     for (const bindings of Object.values(portBindings)) {
-      if (!Array.isArray(bindings) || bindings.some((binding) => {
+      if (!Array.isArray(bindings)) {
+        throw new Error("As portas publicadas do Supabase local não puderam ser verificadas.");
+      }
+      for (const binding of bindings) {
         const hostIp = binding?.HostIp;
-        return !loopbackHostAddresses.has(hostIp) && !(allowUnspecifiedHostIp && hostIp === "");
-      })) {
+        if (loopbackHostAddresses.has(hostIp)) continue;
+        if (allowUnspecifiedHostIp && hostIp === "") {
+          const hostPort = dockerHostPort(binding?.HostPort);
+          if (hostPort === undefined) {
+            throw new Error("As portas publicadas do Supabase local não puderam ser verificadas.");
+          }
+          unspecifiedHostPorts.add(hostPort);
+          continue;
+        }
         throw new Error("Uma porta do Supabase local está publicada fora do loopback.");
       }
     }
   }
+
+  if (unspecifiedHostPorts.size > 0) {
+    let listeners;
+    try {
+      listeners = await getHostListeners([...unspecifiedHostPorts].sort((left, right) => left - right));
+    } catch {
+      throw new Error("Os listeners locais das portas Supabase não puderam ser verificados.");
+    }
+    assertWindowsLoopbackHostListeners(unspecifiedHostPorts, listeners);
+  }
+}
+
+function dockerHostPort(value) {
+  if (typeof value !== "string" || !/^[1-9]\d{0,4}$/.test(value)) return undefined;
+  const port = Number(value);
+  return port <= 65535 ? port : undefined;
+}
+
+function assertWindowsLoopbackHostListeners(expectedPorts, listeners) {
+  if (!Array.isArray(listeners)) {
+    throw new Error("Os listeners locais das portas Supabase não puderam ser verificados.");
+  }
+
+  const observedPorts = new Set();
+  for (const listener of listeners) {
+    if (!listener || !Number.isInteger(listener.LocalPort) || !expectedPorts.has(listener.LocalPort) ||
+      !loopbackHostAddresses.has(listener.LocalAddress)) {
+      throw new Error("Uma porta do Supabase local está publicada fora do loopback.");
+    }
+    observedPorts.add(listener.LocalPort);
+  }
+
+  if ([...expectedPorts].some((port) => !observedPorts.has(port))) {
+    throw new Error("Os listeners locais das portas Supabase não puderam ser verificados.");
+  }
+}
+
+function readWindowsHostListeners(hostPorts) {
+  const { windowsRoot, powershellPath } = windowsPowerShellContext();
+  const query = [
+    "$ErrorActionPreference='Stop';",
+    `$ports=@(${hostPorts.join(",")});`,
+    "$ipProperties=[System.Net.NetworkInformation.IPGlobalProperties]::GetIPGlobalProperties();",
+    "$listeners=@($ipProperties.GetActiveTcpListeners() | Where-Object { $ports -contains [int]$_.Port } | ForEach-Object { [PSCustomObject]@{ LocalAddress=$_.Address.ToString(); LocalPort=[int]$_.Port } });",
+    "[Console]::Out.Write(($listeners | ConvertTo-Json -Compress))",
+  ].join(" ");
+  const result = spawnSync(powershellPath, [
+    "-NoLogo", "-NoProfile", "-NonInteractive", "-EncodedCommand", Buffer.from(query, "utf16le").toString("base64"),
+  ], {
+    encoding: "utf8",
+    timeout: 5000,
+    windowsHide: true,
+    env: { SystemRoot: windowsRoot, WINDIR: windowsRoot, PSModulePath: "" },
+  });
+  if (result.error || result.status !== 0) throw new Error("Windows listener query failed.");
+
+  let listeners;
+  try {
+    listeners = JSON.parse(result.stdout.toString().trim());
+  } catch {
+    throw new Error("Windows listeners could not be read.");
+  }
+  return Array.isArray(listeners) ? listeners : [listeners];
 }
 
 export async function inspectLoopbackDockerNetwork(endpoint, run = runCaptured, dockerCliPath = resolveDockerCliPath()) {

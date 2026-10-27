@@ -32,6 +32,7 @@ function createDockerHarness({
   networkNameMissing = false,
   supabaseStatus = false,
   supabasePortHostIp = "127.0.0.1",
+  supabasePortHostPort = "56322",
   portBindingBehavior = "local-only-port-binding",
 }: {
   networkId: string;
@@ -40,6 +41,7 @@ function createDockerHarness({
   networkNameMissing?: boolean;
   supabaseStatus?: boolean;
   supabasePortHostIp?: string;
+  supabasePortHostPort?: string;
   portBindingBehavior?: string;
 }) {
   const calls: string[][] = [];
@@ -75,7 +77,7 @@ function createDockerHarness({
       return {
         code: 0,
         stdout: inspectedIds.map(() => JSON.stringify({
-          "5432/tcp": [{ HostIp: supabasePortHostIp, HostPort: "56322" }],
+          "5432/tcp": [{ HostIp: supabasePortHostIp, HostPort: supabasePortHostPort }],
         })).join("\n"),
         stderr: "",
       };
@@ -281,6 +283,7 @@ describe("isolated local Supabase configuration", () => {
     });
     await expect(readLocalSupabaseStatus(
       harness.endpoint, harness.run, harness.dockerCliPath, () => "default-local-port-binding", "win32",
+      () => [{ LocalAddress: "127.0.0.1", LocalPort: 56322 }],
     )).resolves.toMatchObject({ dockerNetworkId: "1".repeat(64) });
     await expect(readLocalSupabaseStatus(
       harness.endpoint, harness.run, harness.dockerCliPath, () => "default-port-binding", "win32",
@@ -288,6 +291,63 @@ describe("isolated local Supabase configuration", () => {
     await expect(verifySupabasePortBindingsLoopback(
       harness.endpoint, harness.run, harness.dockerCliPath, () => "default-local-port-binding", "linux",
     )).rejects.toThrow("publicada fora do loopback");
+  });
+
+  it("rejects a stale implicit binding when its actual Windows listener is wildcard", async () => {
+    const harness = createDockerHarness({
+      networkId: "2".repeat(64),
+      supabaseStatus: true,
+      supabasePortHostIp: "",
+    });
+    await expect(readLocalSupabaseStatus(
+      harness.endpoint, harness.run, harness.dockerCliPath, () => "default-local-port-binding", "win32",
+      () => [{ LocalAddress: "0.0.0.0", LocalPort: 56322 }],
+    )).rejects.toThrow("publicada fora do loopback");
+  });
+
+  it("fails closed when an implicit binding has no verifiable host listener", async () => {
+    const harness = createDockerHarness({
+      networkId: "3".repeat(64),
+      supabaseStatus: true,
+      supabasePortHostIp: "",
+    });
+    await expect(readLocalSupabaseStatus(
+      harness.endpoint, harness.run, harness.dockerCliPath, () => "local-only-port-binding", "win32",
+      () => [],
+    )).rejects.toThrow("listeners locais");
+    await expect(readLocalSupabaseStatus(
+      harness.endpoint, harness.run, harness.dockerCliPath, () => "local-only-port-binding", "win32",
+      () => { throw new Error("query failed"); },
+    )).rejects.toThrow("listeners locais");
+  });
+
+  it("rejects malformed or unrelated listener records for implicit bindings", async () => {
+    const harness = createDockerHarness({
+      networkId: "4".repeat(64),
+      supabaseStatus: true,
+      supabasePortHostIp: "",
+    });
+    await expect(readLocalSupabaseStatus(
+      harness.endpoint, harness.run, harness.dockerCliPath, () => "default-local-port-binding", "win32",
+      () => [{ LocalAddress: "127.0.0.1", LocalPort: "56322" }],
+    )).rejects.toThrow("publicada fora do loopback");
+    await expect(readLocalSupabaseStatus(
+      harness.endpoint, harness.run, harness.dockerCliPath, () => "default-local-port-binding", "win32",
+      () => [{ LocalAddress: "127.0.0.1", LocalPort: 56323 }],
+    )).rejects.toThrow("publicada fora do loopback");
+  });
+
+  it("refuses an implicit binding whose Docker host port is invalid", async () => {
+    const harness = createDockerHarness({
+      networkId: "5".repeat(64),
+      supabaseStatus: true,
+      supabasePortHostIp: "",
+      supabasePortHostPort: "65536",
+    });
+    await expect(readLocalSupabaseStatus(
+      harness.endpoint, harness.run, harness.dockerCliPath, () => "default-local-port-binding", "win32",
+      () => [{ LocalAddress: "127.0.0.1", LocalPort: 56322 }],
+    )).rejects.toThrow("não puderam ser verificadas");
   });
 
   it("blocks Windows stack creation when Docker Desktop keeps the global port binding", async () => {
