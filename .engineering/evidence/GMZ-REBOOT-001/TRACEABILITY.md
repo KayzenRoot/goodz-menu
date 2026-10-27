@@ -47,3 +47,7 @@ The old `GMZ-IMPL-001` allocated historical credits to these modules. The mappin
 2. Capture Docker and Supabase local lifecycle and reset evidence when at least 8 GiB of host memory is available; the latest reading was 6.28 GiB. Seed/dev-data applicability remains unproven because the foundation has no schema/data and seed is disabled.
 3. Record human visual review plus manual keyboard, actual browser zoom, and screen-reader review; automated checks and agent spot checks do not replace this sign-off.
 4. Complete and record the final objective audit on the exact candidate; until then, keep objective-audit status `BLOCKED` and do not start `GMZ-M01`.
+
+## Current maintainer disposition addendum — 2026-10-27
+
+`GMZ-REQ-GOV-002` now has a documented, scoped maintainer acceptance for the two local/test S5332 findings: [`SONAR-RISK-DISPOSITION.md`](SONAR-RISK-DISPOSITION.md), verified at [PR #74 comment #6431020903](https://github.com/KayzenRoot/goodz-menu/pull/74#issuecomment-6431020903). The Sonar Security rating remains `B`; the disposition does not change scanner state. Objective acceptance is still partial/blocked by the local lifecycle, seed/reset applicability, exact PR-head checks, required human accessibility review, and final audit.

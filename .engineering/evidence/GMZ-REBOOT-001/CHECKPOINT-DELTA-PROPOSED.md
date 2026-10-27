@@ -13,3 +13,7 @@ If a later exact-HEAD objective audit approves the foundation and the governed m
 3. Start `GMZ-M01 — Platform Core & Multi-Tenancy` only under its own Work Order after the foundation audit and checkpoint transition are accepted.
 
 No canonical checkpoint file was edited to create this proposal.
+
+## Maintainer risk disposition addendum — 2026-10-27
+
+The two local S5332 findings have a scoped maintainer risk acceptance recorded in [`SONAR-RISK-DISPOSITION.md`](SONAR-RISK-DISPOSITION.md) and [PR #74 comment #6431020903](https://github.com/KayzenRoot/goodz-menu/pull/74#issuecomment-6431020903). Sonar still reports Security `B`; this decision does not override the Quality Gate. The proposed checkpoint transition remains `NOT ELIGIBLE` while the runtime, human review, exact-head, and objective-audit gates remain open.
