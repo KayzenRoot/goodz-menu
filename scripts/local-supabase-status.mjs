@@ -409,14 +409,21 @@ export async function verifySupabasePortBindingsLoopback(
     if (typeof portBindings !== "object" || Array.isArray(portBindings)) {
       throw new Error("As portas publicadas do Supabase local não puderam ser verificadas.");
     }
-    for (const bindings of Object.values(portBindings)) {
+    for (const [portKey, bindings] of Object.entries(portBindings)) {
       if (!Array.isArray(bindings)) {
+        throw new Error("As portas publicadas do Supabase local não puderam ser verificadas.");
+      }
+      const portKeyMatch = /^(?:[1-9]\d{0,4})\/(tcp|udp|sctp)$/.exec(portKey);
+      if (!portKeyMatch || Number(portKey.split("/")[0]) > 65535) {
         throw new Error("As portas publicadas do Supabase local não puderam ser verificadas.");
       }
       for (const binding of bindings) {
         const hostIp = binding?.HostIp;
         if (loopbackHostAddresses.has(hostIp)) continue;
         if (allowUnspecifiedHostIp && hostIp === "") {
+          if (portKeyMatch[1] !== "tcp") {
+            throw new Error("As portas publicadas do Supabase local não puderam ser verificadas.");
+          }
           const hostPort = dockerHostPort(binding?.HostPort);
           if (hostPort === undefined) {
             throw new Error("As portas publicadas do Supabase local não puderam ser verificadas.");

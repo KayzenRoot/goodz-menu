@@ -33,6 +33,7 @@ function createDockerHarness({
   supabaseStatus = false,
   supabasePortHostIp = "127.0.0.1",
   supabasePortHostPort = "56322",
+  supabasePortProtocol = "tcp",
   portBindingBehavior = "local-only-port-binding",
 }: {
   networkId: string;
@@ -42,6 +43,7 @@ function createDockerHarness({
   supabaseStatus?: boolean;
   supabasePortHostIp?: string;
   supabasePortHostPort?: string;
+  supabasePortProtocol?: string;
   portBindingBehavior?: string;
 }) {
   const calls: string[][] = [];
@@ -77,7 +79,7 @@ function createDockerHarness({
       return {
         code: 0,
         stdout: inspectedIds.map(() => JSON.stringify({
-          "5432/tcp": [{ HostIp: supabasePortHostIp, HostPort: supabasePortHostPort }],
+          [`5432/${supabasePortProtocol}`]: [{ HostIp: supabasePortHostIp, HostPort: supabasePortHostPort }],
         })).join("\n"),
         stderr: "",
       };
@@ -343,6 +345,19 @@ describe("isolated local Supabase configuration", () => {
       supabaseStatus: true,
       supabasePortHostIp: "",
       supabasePortHostPort: "65536",
+    });
+    await expect(readLocalSupabaseStatus(
+      harness.endpoint, harness.run, harness.dockerCliPath, () => "default-local-port-binding", "win32",
+      () => [{ LocalAddress: "127.0.0.1", LocalPort: 56322 }],
+    )).rejects.toThrow("não puderam ser verificadas");
+  });
+
+  it("refuses implicit non-TCP bindings that the listener check cannot verify", async () => {
+    const harness = createDockerHarness({
+      networkId: "6".repeat(64),
+      supabaseStatus: true,
+      supabasePortHostIp: "",
+      supabasePortProtocol: "udp",
     });
     await expect(readLocalSupabaseStatus(
       harness.endpoint, harness.run, harness.dockerCliPath, () => "default-local-port-binding", "win32",
