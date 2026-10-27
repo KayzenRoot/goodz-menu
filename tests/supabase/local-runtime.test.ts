@@ -8,6 +8,7 @@ import {
   dockerRuntimeEnvironment,
   ensureLocalDocker,
   ensureLoopbackDockerNetwork,
+  localNetworkName,
   readLocalSupabaseStatus,
   isLocalDockerEndpoint,
   readWindowsPathAttributes,
@@ -17,6 +18,55 @@ import {
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const read = (relativePath: string) => readFileSync(path.join(repositoryRoot, relativePath), "utf8");
+const localDockerEndpoint = "npipe:////./pipe/dockerDesktopLinuxEngine";
+const dockerCliPath = "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe";
+
+function createDockerHarness({
+  networkId,
+  driver = "bridge",
+  hostBinding = "127.0.0.1",
+  networkNameMissing = false,
+  supabaseStatus = false,
+}: {
+  networkId: string;
+  driver?: string;
+  hostBinding?: string;
+  networkNameMissing?: boolean;
+  supabaseStatus?: boolean;
+}) {
+  const calls: string[][] = [];
+  const run = async (_command: string, args: string[]) => {
+    calls.push(args);
+    if (args[0] === "context" && args[1] === "show") return { code: 0, stdout: "desktop-linux\n", stderr: "" };
+    if (args[0] === "context" && args[1] === "inspect") return { code: 0, stdout: `${JSON.stringify(localDockerEndpoint)}\n`, stderr: "" };
+    if (args[0] === "--host" && args[1] === localDockerEndpoint && args[2] === "info") return { code: 0, stdout: "29.0.0\n", stderr: "" };
+    if (args[0] === "--host" && args[1] === localDockerEndpoint && args[2] === "network" && args[3] === "inspect") {
+      if (networkNameMissing && args[4] === localNetworkName) return { code: 1, stdout: "", stderr: "network not found" };
+      return {
+        code: 0,
+        stdout: `${JSON.stringify({
+          Id: networkId,
+          Driver: driver,
+          Options: { "com.docker.network.bridge.host_binding_ipv4": hostBinding },
+        })}\n`,
+        stderr: "",
+      };
+    }
+    if (args[0] === "--host" && args[1] === localDockerEndpoint && args[2] === "network" && args[3] === "create") {
+      return { code: 0, stdout: `${networkId}\n`, stderr: "" };
+    }
+    if (supabaseStatus && args[0]?.endsWith("supabase.js") && args[1] === "status") {
+      return {
+        code: 0,
+        stdout: JSON.stringify({ API_URL: "http://127.0.0.1:56321", ANON_KEY: "sb_publishable_synthetic" }),
+        stderr: "",
+      };
+    }
+    return { code: 1, stdout: "", stderr: "unexpected command" };
+  };
+
+  return { calls, run, endpoint: localDockerEndpoint, dockerCliPath };
+}
 
 function mockWindowsPathAttributes(
   filePath: string,
@@ -76,131 +126,41 @@ describe("isolated local Supabase configuration", () => {
   });
 
   it("creates the local bridge with loopback-only port binding", async () => {
-    const endpoint = "npipe:////./pipe/dockerDesktopLinuxEngine";
     const networkId = "a".repeat(64);
-    const calls: string[][] = [];
-    const run = async (_command: string, args: string[]) => {
-      calls.push(args);
-      if (args[0] === "context" && args[1] === "show") return { code: 0, stdout: "desktop-linux\n", stderr: "" };
-      if (args[0] === "context" && args[1] === "inspect") return { code: 0, stdout: `${JSON.stringify(endpoint)}\n`, stderr: "" };
-      if (args[0] === "--host" && args[1] === endpoint && args[2] === "info") return { code: 0, stdout: "29.0.0\n", stderr: "" };
-      if (args[0] === "--host" && args[1] === endpoint && args[2] === "network" && args[3] === "inspect") {
-        if (args[4] === "goodz-menu-reboot-001-loopback") return { code: 1, stdout: "", stderr: "network not found" };
-        return {
-          code: 0,
-          stdout: `${JSON.stringify({
-            Id: networkId,
-            Driver: "bridge",
-            Options: { "com.docker.network.bridge.host_binding_ipv4": "127.0.0.1" },
-          })}\n`,
-          stderr: "",
-        };
-      }
-      if (args[0] === "--host" && args[1] === endpoint && args[2] === "network" && args[3] === "create") {
-        return { code: 0, stdout: `${networkId}\n`, stderr: "" };
-      }
-      return { code: 1, stdout: "", stderr: "unexpected command" };
-    };
-
-    const dockerCliPath = "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe";
-    await expect(ensureLoopbackDockerNetwork(run, dockerCliPath)).resolves.toEqual({ endpoint, networkId });
-    expect(calls.find((args) => args[2] === "network" && args[3] === "create")).toEqual([
-      "--host", endpoint, "network", "create", "--driver", "bridge", "--opt",
+    const harness = createDockerHarness({ networkId, networkNameMissing: true });
+    await expect(ensureLoopbackDockerNetwork(harness.run, harness.dockerCliPath)).resolves.toEqual({
+      endpoint: harness.endpoint,
+      networkId,
+    });
+    expect(harness.calls.find((args) => args[2] === "network" && args[3] === "create")).toEqual([
+      "--host", harness.endpoint, "network", "create", "--driver", "bridge", "--opt",
       "com.docker.network.bridge.host_binding_ipv4=127.0.0.1", "goodz-menu-reboot-001-loopback",
     ]);
-    expect(calls.at(-1)).toEqual([
-      "--host", endpoint, "network", "inspect", networkId, "--format", "{{json .}}",
+    expect(harness.calls.at(-1)).toEqual([
+      "--host", harness.endpoint, "network", "inspect", networkId, "--format", "{{json .}}",
     ]);
   });
 
   it("refuses an existing local bridge without loopback-only port binding", async () => {
-    const endpoint = "npipe:////./pipe/dockerDesktopLinuxEngine";
-    const networkId = "b".repeat(64);
-    const calls: string[][] = [];
-    const run = async (_command: string, args: string[]) => {
-      calls.push(args);
-      if (args[0] === "context" && args[1] === "show") return { code: 0, stdout: "desktop-linux\n", stderr: "" };
-      if (args[0] === "context" && args[1] === "inspect") return { code: 0, stdout: `${JSON.stringify(endpoint)}\n`, stderr: "" };
-      if (args[0] === "--host" && args[1] === endpoint && args[2] === "info") return { code: 0, stdout: "29.0.0\n", stderr: "" };
-      if (args[0] === "--host" && args[1] === endpoint && args[2] === "network" && args[3] === "inspect") {
-        return {
-          code: 0,
-          stdout: `${JSON.stringify({
-            Id: networkId,
-            Driver: "bridge",
-            Options: { "com.docker.network.bridge.host_binding_ipv4": "0.0.0.0" },
-          })}\n`,
-          stderr: "",
-        };
-      }
-      return { code: 1, stdout: "", stderr: "unexpected command" };
-    };
-
-    const dockerCliPath = "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe";
-    await expect(ensureLoopbackDockerNetwork(run, dockerCliPath)).rejects.toThrow("não está limitada ao loopback");
-    expect(calls.some((args) => args[2] === "network" && args[3] === "create")).toBe(false);
+    const harness = createDockerHarness({ networkId: "b".repeat(64), hostBinding: "0.0.0.0" });
+    await expect(ensureLoopbackDockerNetwork(harness.run, harness.dockerCliPath)).rejects.toThrow("não está limitada ao loopback");
+    expect(harness.calls.some((args) => args[2] === "network" && args[3] === "create")).toBe(false);
   });
 
   it("refuses a same-named network whose driver cannot enforce bridge host binding", async () => {
-    const endpoint = "npipe:////./pipe/dockerDesktopLinuxEngine";
-    const networkId = "c".repeat(64);
-    const calls: string[][] = [];
-    const run = async (_command: string, args: string[]) => {
-      calls.push(args);
-      if (args[0] === "context" && args[1] === "show") return { code: 0, stdout: "desktop-linux\n", stderr: "" };
-      if (args[0] === "context" && args[1] === "inspect") return { code: 0, stdout: `${JSON.stringify(endpoint)}\n`, stderr: "" };
-      if (args[0] === "--host" && args[1] === endpoint && args[2] === "info") return { code: 0, stdout: "29.0.0\n", stderr: "" };
-      if (args[0] === "--host" && args[1] === endpoint && args[2] === "network" && args[3] === "inspect") {
-        return {
-          code: 0,
-          stdout: `${JSON.stringify({
-            Id: networkId,
-            Driver: "macvlan",
-            Options: { "com.docker.network.bridge.host_binding_ipv4": "127.0.0.1" },
-          })}\n`,
-          stderr: "",
-        };
-      }
-      return { code: 1, stdout: "", stderr: "unexpected command" };
-    };
-
-    const dockerCliPath = "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe";
-    await expect(ensureLoopbackDockerNetwork(run, dockerCliPath)).rejects.toThrow("driver bridge");
-    expect(calls.some((args) => args[2] === "network" && args[3] === "create")).toBe(false);
+    const harness = createDockerHarness({ networkId: "c".repeat(64), driver: "macvlan" });
+    await expect(ensureLoopbackDockerNetwork(harness.run, harness.dockerCliPath)).rejects.toThrow("driver bridge");
+    expect(harness.calls.some((args) => args[2] === "network" && args[3] === "create")).toBe(false);
   });
 
   it("reports Supabase as isolated only after verifying the bridge network identity", async () => {
-    const endpoint = "npipe:////./pipe/dockerDesktopLinuxEngine";
     const networkId = "d".repeat(64);
-    const calls: string[][] = [];
-    const run = async (_command: string, args: string[]) => {
-      calls.push(args);
-      if (args[0] === "context" && args[1] === "show") return { code: 0, stdout: "desktop-linux\n", stderr: "" };
-      if (args[0] === "context" && args[1] === "inspect") return { code: 0, stdout: `${JSON.stringify(endpoint)}\n`, stderr: "" };
-      if (args[0] === "--host" && args[1] === endpoint && args[2] === "info") return { code: 0, stdout: "29.0.0\n", stderr: "" };
-      if (args[0] === "--host" && args[1] === endpoint && args[2] === "network" && args[3] === "inspect") {
-        return {
-          code: 0,
-          stdout: `${JSON.stringify({
-            Id: networkId,
-            Driver: "bridge",
-            Options: { "com.docker.network.bridge.host_binding_ipv4": "127.0.0.1" },
-          })}\n`,
-          stderr: "",
-        };
-      }
-      if (args[0]?.endsWith("supabase.js") && args[1] === "status") {
-        return { code: 0, stdout: JSON.stringify({ API_URL: "http://127.0.0.1:56321", ANON_KEY: "sb_publishable_synthetic" }), stderr: "" };
-      }
-      return { code: 1, stdout: "", stderr: "unexpected command" };
-    };
-
-    const dockerCliPath = "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe";
-    await expect(readLocalSupabaseStatus(endpoint, run, dockerCliPath)).resolves.toMatchObject({
-      dockerEndpoint: endpoint,
+    const harness = createDockerHarness({ networkId, supabaseStatus: true });
+    await expect(readLocalSupabaseStatus(harness.endpoint, harness.run, harness.dockerCliPath)).resolves.toMatchObject({
+      dockerEndpoint: harness.endpoint,
       dockerNetworkId: networkId,
     });
-    expect(calls.some((args) => args[2] === "network" && args[3] === "inspect")).toBe(true);
+    expect(harness.calls.some((args) => args[2] === "network" && args[3] === "inspect")).toBe(true);
   });
 
   it("uses a dedicated project id and non-default ports", () => {
