@@ -1,5 +1,13 @@
 # Local validation receipt — GMZ-REBOOT-001
 
+## Published receipt-head snapshot — 2026-10-27 02:02 UTC
+
+- PR #74 is OPEN/Draft at `6c6e074f5774ccf354c9e32331339da117c31b58`, based on `main@3139534697743494626f4940b78ac3f9d468ceb6`. This is an evidence-only receipt commit; the latest source-code candidate remains `747ab7c`.
+- Exact-head app workflow [40435393491](https://github.com/KayzenRoot/goodz-menu/actions/runs/40435393491), job/check `121962724530`, passed all steps, including Node 24, frozen install, lint, typecheck, unit tests, build, desktop/mobile E2E, dependency audit, secret scan, manifest generation, and artifact upload. Socket checks `121962763708` and `121962747559` passed. Sonar `121962859455` failed Security `B` (required `A`), with 18 annotations; the scoped S5332 acceptance does not change the check.
+- Manifest artifact `goodz-foundation-head-manifest-40435393491` (ID `12704251288`) was downloaded and parsed. It records the pinned base, exact HEAD `6c6e074f5774ccf354c9e32331339da117c31b58`, 103 paths, and binary diff SHA-256 `7c069769b7967349a381caa34c15681527082deb415a7adaec290493ff037d57`.
+- At 02:02 UTC, free RAM was 5.57 GiB, below the documented 8 GiB local Supabase prerequisite. Docker/Supabase runtime and reset remain unverified; seed/reset acceptance and final objective audit are open. Human visual, keyboard, actual zoom, and screen-reader sign-off stays pending at the user's request.
+- For the commit containing this receipt, its own exact-head app run, check conclusions, and manifest artifact are the evidence for that same SHA. Verify them directly and do not make another documentation-only commit just to repeat those results.
+
 ## Published workflow/evidence-head snapshot — 2026-10-27 01:50 UTC
 
 - PR #74 is OPEN/Draft at `d4df03b2409571c3c5623c03f52a3483154c709e`, based on `main@3139534697743494626f4940b78ac3f9d468ceb6`. This commit changes only receipts and workflow pins; source-code validation after the SQL-suite removal is recorded for its ancestor `747ab7c` above.
