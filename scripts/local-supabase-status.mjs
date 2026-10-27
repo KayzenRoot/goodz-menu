@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
-import { realpathSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { isPublicSupabaseAnonKey } from "../src/lib/env/supabase-public-key.mjs";
@@ -8,6 +8,10 @@ export const repositoryRoot = fileURLToPath(new URL("../", import.meta.url));
 export const supabaseCliPath = path.join(repositoryRoot, "node_modules", "supabase", "dist", "supabase.js");
 export const localApiUrl = "http://127.0.0.1:56321";
 export const localNetworkName = "goodz-menu-reboot-001-loopback";
+export const localProjectId = "goodz-menu-reboot-001";
+
+const loopbackPortBindingBehaviors = new Set(["default-local-port-binding", "local-only-port-binding"]);
+const loopbackHostAddresses = new Set(["127.0.0.1", "::1"]);
 
 let cachedWindowsFixedDriveLetters;
 
@@ -67,6 +71,8 @@ export async function readLocalSupabaseStatus(
     throw new Error("O Supabase local não corresponde à configuração isolada do reboot.");
   }
 
+  await verifySupabasePortBindingsLoopback(docker.endpoint, run, dockerCliPath);
+
   return {
     apiUrl: localApiUrl,
     anonKey,
@@ -106,6 +112,25 @@ export async function ensureLocalDocker(run = runCaptured, dockerCliPath = resol
 export function isLocalDockerEndpoint(endpoint) {
   return typeof endpoint === "string" &&
     /^npipe:\/{4}\.\/pipe\/(?:dockerDesktopLinuxEngine|docker_engine)$/i.test(endpoint);
+}
+
+export function readDockerDesktopPortBindingBehavior(appData = process.env.APPDATA) {
+  if (typeof appData !== "string" || !appData.trim()) return undefined;
+  try {
+    const settingsPath = path.join(appData, "Docker", "settings-store.json");
+    const settings = JSON.parse(readFileSync(settingsPath, "utf8"));
+    return typeof settings?.portBindingBehavior === "string" ? settings.portBindingBehavior : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function assertDockerDesktopLoopbackPortBinding(behavior, platform = process.platform) {
+  if (platform !== "win32") return;
+  if (loopbackPortBindingBehaviors.has(behavior)) return;
+  throw new Error(
+    "Configure Docker Desktop em Settings > Resources > Network > Port binding behavior como Localhost by default ou Localhost only.",
+  );
 }
 
 export function dockerCommandArgs(endpoint, args) {
@@ -305,8 +330,14 @@ export function dockerRuntimeEnvironment(endpoint, extra = {}, dockerCliPath) {
   return environment;
 }
 
-export async function ensureLoopbackDockerNetwork(run = runCaptured, dockerCliPath = resolveDockerCliPath()) {
+export async function ensureLoopbackDockerNetwork(
+  run = runCaptured,
+  dockerCliPath = resolveDockerCliPath(),
+  getPortBindingBehavior = readDockerDesktopPortBindingBehavior,
+  platform = process.platform,
+) {
   const { endpoint } = await ensureLocalDocker(run, dockerCliPath);
+  assertDockerDesktopLoopbackPortBinding(getPortBindingBehavior(), platform);
   const existing = await inspectDockerNetworkAt(endpoint, localNetworkName, run, dockerCliPath);
   if (existing) return existing;
 
@@ -325,6 +356,48 @@ export async function ensureLoopbackDockerNetwork(run = runCaptured, dockerCliPa
   if (!createdNetwork) throw new Error("A rede Docker local criada não pôde ser verificada.");
   if (createdNetwork.networkId !== createdId) throw new Error("A identidade da rede Docker local mudou durante a verificação.");
   return createdNetwork;
+}
+
+export async function verifySupabasePortBindingsLoopback(endpoint, run = runCaptured, dockerCliPath = resolveDockerCliPath()) {
+  const containers = await run(dockerCliPath, dockerCommandArgs(endpoint, [
+    "ps", "--filter", "name=supabase_", "--format", "{{.ID}} {{.Names}}",
+  ]));
+  if (containers.code !== 0) throw new Error("As portas publicadas do Supabase local não puderam ser verificadas.");
+
+  const containerIds = containers.stdout.split(/\r?\n/)
+    .map((line) => line.trim().split(/\s+/, 2))
+    .filter(([, name]) => name?.startsWith("supabase_") && name.endsWith(`_${localProjectId}`))
+    .map(([id]) => id)
+    .filter(Boolean);
+  if (containerIds.length === 0) throw new Error("Os containers locais do Supabase não puderam ser identificados.");
+
+  const inspected = await run(dockerCliPath, dockerCommandArgs(endpoint, [
+    "inspect", ...containerIds, "--format", "{{json .HostConfig.PortBindings}}",
+  ]));
+  if (inspected.code !== 0) throw new Error("As portas publicadas do Supabase local não puderam ser verificadas.");
+
+  const bindingLines = inspected.stdout.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  if (bindingLines.length !== containerIds.length) {
+    throw new Error("As portas publicadas do Supabase local não puderam ser verificadas.");
+  }
+
+  for (const line of bindingLines) {
+    let portBindings;
+    try {
+      portBindings = JSON.parse(line);
+    } catch {
+      throw new Error("As portas publicadas do Supabase local não puderam ser verificadas.");
+    }
+    if (portBindings === null) continue;
+    if (typeof portBindings !== "object" || Array.isArray(portBindings)) {
+      throw new Error("As portas publicadas do Supabase local não puderam ser verificadas.");
+    }
+    for (const bindings of Object.values(portBindings)) {
+      if (!Array.isArray(bindings) || bindings.some((binding) => !loopbackHostAddresses.has(binding?.HostIp))) {
+        throw new Error("Uma porta do Supabase local está publicada fora do loopback.");
+      }
+    }
+  }
 }
 
 export async function inspectLoopbackDockerNetwork(endpoint, run = runCaptured, dockerCliPath = resolveDockerCliPath()) {

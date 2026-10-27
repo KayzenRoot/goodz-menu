@@ -1,14 +1,16 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
+  assertDockerDesktopLoopbackPortBinding,
   dockerCommandArgs,
   dockerRuntimeEnvironment,
   ensureLocalDocker,
   ensureLoopbackDockerNetwork,
   localNetworkName,
+  readDockerDesktopPortBindingBehavior,
   readLocalSupabaseStatus,
   isLocalDockerEndpoint,
   readWindowsPathAttributes,
@@ -28,12 +30,16 @@ function createDockerHarness({
   hostBinding = "127.0.0.1",
   networkNameMissing = false,
   supabaseStatus = false,
+  supabasePortHostIp = "127.0.0.1",
+  portBindingBehavior = "local-only-port-binding",
 }: {
   networkId: string;
   driver?: string;
   hostBinding?: string;
   networkNameMissing?: boolean;
   supabaseStatus?: boolean;
+  supabasePortHostIp?: string;
+  portBindingBehavior?: string;
 }) {
   const calls: string[][] = [];
   const run = async (_command: string, args: string[]) => {
@@ -56,6 +62,23 @@ function createDockerHarness({
     if (args[0] === "--host" && args[1] === localDockerEndpoint && args[2] === "network" && args[3] === "create") {
       return { code: 0, stdout: `${networkId}\n`, stderr: "" };
     }
+    if (supabaseStatus && args[0] === "--host" && args[1] === localDockerEndpoint && args[2] === "ps") {
+      return {
+        code: 0,
+        stdout: "container-db supabase_db_goodz-menu-reboot-001\ncontainer-kong supabase_kong_goodz-menu-reboot-001\n",
+        stderr: "",
+      };
+    }
+    if (supabaseStatus && args[0] === "--host" && args[1] === localDockerEndpoint && args[2] === "inspect") {
+      const inspectedIds = args.slice(3, args.indexOf("--format"));
+      return {
+        code: 0,
+        stdout: inspectedIds.map(() => JSON.stringify({
+          "5432/tcp": [{ HostIp: supabasePortHostIp, HostPort: "56322" }],
+        })).join("\n"),
+        stderr: "",
+      };
+    }
     if (supabaseStatus && args[0]?.endsWith("supabase.js") && args[1] === "status") {
       return {
         code: 0,
@@ -66,7 +89,13 @@ function createDockerHarness({
     return { code: 1, stdout: "", stderr: "unexpected command" };
   };
 
-  return { calls, run, endpoint: localDockerEndpoint, dockerCliPath };
+  return {
+    calls,
+    run,
+    endpoint: localDockerEndpoint,
+    dockerCliPath,
+    getPortBindingBehavior: () => portBindingBehavior,
+  };
 }
 
 function mockWindowsPathAttributes(
@@ -96,6 +125,31 @@ function mockWindowsPathAttributes(
     return attributes;
   };
 }
+
+describe("Docker Desktop port binding configuration", () => {
+  it("reads the port binding mode from the user settings file", () => {
+    const appData = mkdtempSync(path.join(tmpdir(), "goodz-docker-settings-"));
+    const dockerSettingsDirectory = path.join(appData, "Docker");
+    mkdirSync(dockerSettingsDirectory, { recursive: true });
+    writeFileSync(
+      path.join(dockerSettingsDirectory, "settings-store.json"),
+      JSON.stringify({ portBindingBehavior: "local-only-port-binding" }),
+      "utf8",
+    );
+
+    expect(readDockerDesktopPortBindingBehavior(appData)).toBe("local-only-port-binding");
+
+    rmSync(appData, { recursive: true, force: true });
+  });
+
+  it("requires loopback-only port binding on Windows and permits non-Windows engines", () => {
+    expect(() => assertDockerDesktopLoopbackPortBinding("default-local-port-binding", "win32")).not.toThrow();
+    expect(() => assertDockerDesktopLoopbackPortBinding("local-only-port-binding", "win32")).not.toThrow();
+    expect(() => assertDockerDesktopLoopbackPortBinding("default-port-binding", "win32")).toThrow("Localhost only");
+    expect(() => assertDockerDesktopLoopbackPortBinding(undefined, "win32")).toThrow("Localhost only");
+    expect(() => assertDockerDesktopLoopbackPortBinding(undefined, "linux")).not.toThrow();
+  });
+});
 
 describe("Supabase CLI output sanitization", () => {
   it("redacts publishable and secret keys printed as whitespace-separated labels", () => {
@@ -134,10 +188,12 @@ describe("isolated local Supabase configuration", () => {
     const script = read("scripts/supabase-local.mjs");
     const confirmation = script.indexOf('if (process.env.GOODZ_ALLOW_LOCAL_DB_RESET !== "1")');
     const ensureNetwork = script.indexOf("const network = await ensureLoopbackDockerNetwork();", confirmation);
+    const verifyRuntime = script.indexOf("await readLocalSupabaseStatus(dockerEndpoint);", ensureNetwork);
     const reset = script.indexOf('runSupabase(["db", "reset", "--network-id", network.networkId]', confirmation);
     expect(confirmation).toBeGreaterThanOrEqual(0);
     expect(ensureNetwork).toBeGreaterThan(confirmation);
-    expect(reset).toBeGreaterThan(ensureNetwork);
+    expect(verifyRuntime).toBeGreaterThan(ensureNetwork);
+    expect(reset).toBeGreaterThan(verifyRuntime);
   });
 
   it("pins Supabase start and reset to the validated Docker network identity", () => {
@@ -150,7 +206,9 @@ describe("isolated local Supabase configuration", () => {
   it("creates the local bridge with loopback-only port binding", async () => {
     const networkId = "a".repeat(64);
     const harness = createDockerHarness({ networkId, networkNameMissing: true });
-    await expect(ensureLoopbackDockerNetwork(harness.run, harness.dockerCliPath)).resolves.toEqual({
+    await expect(ensureLoopbackDockerNetwork(
+      harness.run, harness.dockerCliPath, harness.getPortBindingBehavior, "win32",
+    )).resolves.toEqual({
       endpoint: harness.endpoint,
       networkId,
     });
@@ -165,13 +223,17 @@ describe("isolated local Supabase configuration", () => {
 
   it("refuses an existing local bridge without loopback-only port binding", async () => {
     const harness = createDockerHarness({ networkId: "b".repeat(64), hostBinding: "0.0.0.0" });
-    await expect(ensureLoopbackDockerNetwork(harness.run, harness.dockerCliPath)).rejects.toThrow("não está limitada ao loopback");
+    await expect(ensureLoopbackDockerNetwork(
+      harness.run, harness.dockerCliPath, harness.getPortBindingBehavior, "win32",
+    )).rejects.toThrow("não está limitada ao loopback");
     expect(harness.calls.some((args) => args[2] === "network" && args[3] === "create")).toBe(false);
   });
 
   it("refuses a same-named network whose driver cannot enforce bridge host binding", async () => {
     const harness = createDockerHarness({ networkId: "c".repeat(64), driver: "macvlan" });
-    await expect(ensureLoopbackDockerNetwork(harness.run, harness.dockerCliPath)).rejects.toThrow("driver bridge");
+    await expect(ensureLoopbackDockerNetwork(
+      harness.run, harness.dockerCliPath, harness.getPortBindingBehavior, "win32",
+    )).rejects.toThrow("driver bridge");
     expect(harness.calls.some((args) => args[2] === "network" && args[3] === "create")).toBe(false);
   });
 
@@ -183,6 +245,27 @@ describe("isolated local Supabase configuration", () => {
       dockerNetworkId: networkId,
     });
     expect(harness.calls.some((args) => args[2] === "network" && args[3] === "inspect")).toBe(true);
+  });
+
+  it("refuses to report Supabase available when a published port is bound to all interfaces", async () => {
+    const harness = createDockerHarness({
+      networkId: "e".repeat(64),
+      supabaseStatus: true,
+      supabasePortHostIp: "0.0.0.0",
+    });
+    await expect(readLocalSupabaseStatus(harness.endpoint, harness.run, harness.dockerCliPath))
+      .rejects.toThrow("publicada fora do loopback");
+  });
+
+  it("blocks Windows stack creation when Docker Desktop keeps the global port binding", async () => {
+    const harness = createDockerHarness({
+      networkId: "f".repeat(64),
+      portBindingBehavior: "default-port-binding",
+    });
+    await expect(ensureLoopbackDockerNetwork(
+      harness.run, harness.dockerCliPath, harness.getPortBindingBehavior, "win32",
+    )).rejects.toThrow("Localhost by default ou Localhost only");
+    expect(harness.calls.some((args) => args[2] === "network")).toBe(false);
   });
 
   it("uses a dedicated project id and non-default ports", () => {

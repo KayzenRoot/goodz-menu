@@ -23,8 +23,9 @@ if (existsSync(path.join(repositoryRoot, "supabase", ".temp", "project-ref"))) {
   process.exit(2);
 }
 
+let dockerEndpoint;
+let stopAfterVerificationFailure = false;
 try {
-  let dockerEndpoint;
   if (action === "stop") dockerEndpoint = (await ensureLocalDocker()).endpoint;
 
   if (action === "status") {
@@ -34,11 +35,14 @@ try {
   }
 
   if (action === "start") {
+    dockerEndpoint = (await ensureLocalDocker()).endpoint;
+    stopAfterVerificationFailure = true;
     const network = await ensureLoopbackDockerNetwork();
-    dockerEndpoint = network.endpoint;
+    if (network.endpoint !== dockerEndpoint) throw new Error("O contexto Docker mudou durante a operação local.");
     console.log("Iniciando Supabase local na rede de loopback do Goodz Menu...");
     await runSupabase(["start", "--network-id", network.networkId], dockerEndpoint);
     const status = await readLocalSupabaseStatus(dockerEndpoint);
+    stopAfterVerificationFailure = false;
     console.log(`Supabase local disponível em ${status.apiUrl}. A chave pública não foi impressa.`);
     process.exit(0);
   }
@@ -53,10 +57,23 @@ try {
     console.error("Reset é destrutivo. Confirme o escopo isolado definindo GOODZ_ALLOW_LOCAL_DB_RESET=1 nesta sessão e execute novamente.");
     process.exit(2);
   }
+  dockerEndpoint = (await ensureLocalDocker()).endpoint;
+  stopAfterVerificationFailure = true;
   const network = await ensureLoopbackDockerNetwork();
-  dockerEndpoint = network.endpoint;
+  if (network.endpoint !== dockerEndpoint) throw new Error("O contexto Docker mudou durante a operação local.");
+  await readLocalSupabaseStatus(dockerEndpoint);
   await runSupabase(["db", "reset", "--network-id", network.networkId], dockerEndpoint);
+  await readLocalSupabaseStatus(dockerEndpoint);
+  stopAfterVerificationFailure = false;
 } catch (error) {
+  if (stopAfterVerificationFailure && dockerEndpoint) {
+    try {
+      await runSupabase(["stop"], dockerEndpoint);
+      console.error("Supabase local foi parado após falha de validação; os volumes foram preservados.");
+    } catch {
+      console.error("Supabase local não pôde ser parado após falha de validação.");
+    }
+  }
   console.error(error instanceof Error ? error.message : "Falha no runtime local do Supabase.");
   process.exitCode = 1;
 }
