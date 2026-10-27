@@ -4,7 +4,7 @@
 
 Source checkpoint: `.engineering/CHECKPOINT.json` at `77b8b2a7dc88d1d97f01e5889f8bf5d2d40a95e8`.
 
-The approved checkpoint remains unchanged. On published HEAD `747ab7c`, app-foundation CI and both Socket checks passed. Sonar still fails at Security Rating `B`; the two local/test S5332 risks have scoped maintainer acceptance, but this does not change Sonar's status or pass the Quality Gate. The candidate remains not eligible for checkpoint promotion while Docker/Supabase and seed/reset acceptance, the user-requested human accessibility review, a fresh exact-head review, and the final objective audit remain incomplete. This proposal does not authorize checkpoint promotion, merge, or a new implementation increment.
+The approved checkpoint remains unchanged. On published evidence/workflow HEAD `d4df03b`, app-foundation CI and both Socket checks passed. Sonar still fails at Security Rating `B`; the two local/test S5332 risks have scoped maintainer acceptance, but this does not change Sonar's status or pass the Quality Gate. The candidate remains not eligible for checkpoint promotion while Docker/Supabase and seed/reset acceptance, the user-requested human accessibility review, a fresh exact-head review, and the final objective audit remain incomplete. This proposal does not authorize checkpoint promotion, merge, or a new implementation increment.
 
 If a later exact-HEAD objective audit approves the foundation and the governed merge/promotion gates are separately satisfied, propose this transition:
 

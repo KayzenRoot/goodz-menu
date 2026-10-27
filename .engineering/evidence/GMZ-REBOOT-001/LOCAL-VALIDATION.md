@@ -1,5 +1,14 @@
 # Local validation receipt — GMZ-REBOOT-001
 
+## Published workflow/evidence-head snapshot — 2026-10-27 01:50 UTC
+
+- PR #74 is OPEN/Draft at `d4df03b2409571c3c5623c03f52a3483154c709e`, based on `main@3139534697743494626f4940b78ac3f9d468ceb6`. This commit changes only receipts and workflow pins; source-code validation after the SQL-suite removal is recorded for its ancestor `747ab7c` above.
+- The exact-head app workflow [40434185977](https://github.com/KayzenRoot/goodz-menu/actions/runs/40434185977), job/check `121958813727`, passed all workflow steps: Node 24 setup, frozen install, lint, typecheck, unit tests, production build, desktop/mobile browser checks, dependency audit, runtime secret scan, manifest generation, and artifact upload.
+- Socket PR Alerts `121958828498` and Project Report `121958814216` passed. Sonar `121958954668` failed Security `B` (required `A`), with 18 annotations. The narrow S5332 acceptance at PR comment [#6431020903](https://github.com/KayzenRoot/goodz-menu/pull/74#issuecomment-6431020903) did not alter Sonar issue state or result.
+- Downloaded and parsed `goodz-foundation-head-manifest-40434185977` (artifact ID `12703367292`): base `3139534697743494626f4940b78ac3f9d468ceb6`, head `d4df03b2409571c3c5623c03f52a3483154c709e`, 103 paths, binary diff SHA-256 `ae92de9e3c404648279f9ddf093cf0f15d157fe79fa5226f053de9d1216876f4`.
+- The 01:50 UTC resource reading was 5.06 GiB free RAM, below the 8 GiB local stack prerequisite; C: had 8.40 GiB free and D: had 161.30 GiB free. No Docker/Supabase lifecycle or database reset ran; no disk cleanup was needed.
+- The human visual, keyboard, actual zoom, and screen-reader review remains pending at the user's request. Seed/reset acceptance and objective audit remain open. At the time of this snapshot, the receipt closeout was still local; its publication triggers a fresh exact-head CI run.
+
 ## Latest published exact-head snapshot — 2026-10-27 01:37 UTC
 
 - PR #74 is OPEN/Draft at `747ab7cfcdb7dfa7a5e57836528dd804ef1eb8ec`, based on `main@3139534697743494626f4940b78ac3f9d468ceb6`. The deletion increment removes three historical SQL suites; the application source in this candidate includes the earlier UI correction at `3e90030`.
@@ -18,7 +27,7 @@
 - The scoped maintainer acceptance for the two `S5332` local/test findings is recorded at PR comment [#6431020903](https://github.com/KayzenRoot/goodz-menu/pull/74#issuecomment-6431020903). It does not change Sonar issue state or check outcome.
 - Current resource check at 01:37 UTC: 5.20 GiB free physical RAM, below the 8 GiB local Docker/Supabase prerequisite; C: 8.42 GiB free; D: 161.30 GiB free. No Docker/Supabase lifecycle or database reset was attempted, and no disk cleanup was needed.
 - Human visual, keyboard, actual zoom, and screen-reader review remains pending at the user's request. Seed/reset applicability and final objective audit remain unresolved.
-- The local workflow maintenance delta has not yet been exercised by hosted CI; all check results above apply only to `747ab7c`.
+- At the time of this 01:37 UTC snapshot, the local workflow maintenance delta had not yet been exercised; run `40434185977` later validated it on exact HEAD `d4df03b` as recorded above.
 
 ## Published evidence-head follow-up — 2026-10-26 23:42 UTC
 
