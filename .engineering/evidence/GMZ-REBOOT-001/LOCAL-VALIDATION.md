@@ -1,5 +1,25 @@
 # Local validation receipt — GMZ-REBOOT-001
 
+## Latest published exact-head snapshot — 2026-10-27 01:37 UTC
+
+- PR #74 is OPEN/Draft at `747ab7cfcdb7dfa7a5e57836528dd804ef1eb8ec`, based on `main@3139534697743494626f4940b78ac3f9d468ceb6`. The deletion increment removes three historical SQL suites; the application source in this candidate includes the earlier UI correction at `3e90030`.
+- The following checks passed after the SQL-suite removal, on the application source tree committed at this HEAD:
+
+| Command | Result |
+| --- | --- |
+| `pnpm lint` | PASS |
+| `pnpm typecheck` | PASS |
+| `pnpm test` | PASS — 5 files, 50 tests |
+| `pnpm build` | PASS — Next.js 16.4.3 production build |
+| `pnpm test:e2e -- --workers=1` | PASS — 8 desktop/mobile Chromium checks |
+| `git diff --check` | PASS |
+
+- Hosted exact-HEAD checks: app workflow [40431916608](https://github.com/KayzenRoot/goodz-menu/actions/runs/40431916608), check `121951394256`, PASS; Socket PR Alerts `121951407295` and Project Report `121951391468`, PASS; Sonar `121951545010`, FAIL, Security `B` (required `A`), 18 annotations.
+- The scoped maintainer acceptance for the two `S5332` local/test findings is recorded at PR comment [#6431020903](https://github.com/KayzenRoot/goodz-menu/pull/74#issuecomment-6431020903). It does not change Sonar issue state or check outcome.
+- Current resource check at 01:37 UTC: 5.20 GiB free physical RAM, below the 8 GiB local Docker/Supabase prerequisite; C: 8.42 GiB free; D: 161.30 GiB free. No Docker/Supabase lifecycle or database reset was attempted, and no disk cleanup was needed.
+- Human visual, keyboard, actual zoom, and screen-reader review remains pending at the user's request. Seed/reset applicability and final objective audit remain unresolved.
+- The local workflow maintenance delta has not yet been exercised by hosted CI; all check results above apply only to `747ab7c`.
+
 ## Published evidence-head follow-up — 2026-10-26 23:42 UTC
 
 - Before this evidence update, PR #74 was OPEN/Draft at exact HEAD `a811c7d389125bcda934fcfec59159dd5f9c2177`, based on `main@3139534697743494626f4940b78ac3f9d468ceb6`. Its latest code candidate is ancestor `3e90030573031acd8764eb45fd40cf063d1dcbd3`; the commits above it contain evidence only.
