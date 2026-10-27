@@ -220,13 +220,12 @@ Code tree: `5f3dd43dac86d115339696b039a89329a5335ab2`; base `3139534697743494626
 | `pnpm lint` | PASS |
 | `pnpm typecheck` | PASS |
 | `git diff --check` | PASS |
-| `pnpm supabase:start` | PASS — local project started with 3.22 GiB free RAM |
+| `pnpm supabase:start` | PASS — repeated at 5f3dd43 with 2.66 GiB free RAM |
 | `pnpm supabase:status` | PASS — code path queried actual Windows TCP listeners; only `127.0.0.1` and `::1` were found on 56321 and 56322 |
 | `GET http://127.0.0.1:56321/auth/v1/health` | PASS — HTTP 200 |
+| `GOODZ_ALLOW_LOCAL_DB_RESET=1 pnpm supabase:reset` | PASS — confirmation variable scoped to one PowerShell process; reset applied no project seed or migration |
 | `pnpm supabase:stop` | PASS — local containers stopped; volume `supabase_db_goodz-menu-reboot-001` preserved |
 | Post-stop Docker/listener inspection | PASS — no project containers or listeners on 56320–56329; database volume remained present |
-| Reset acceptance | PASS on preceding correction commit `1d9c9f1` with `GOODZ_ALLOW_LOCAL_DB_RESET=1` scoped to one PowerShell process; not repeated for the protocol-only change at `5f3dd43` |
-
-The standard five-second test timeout expired once on the real Windows junction test while the host had low free memory; the full suite then passed with `--testTimeout=15000`. No application or browser process was intentionally closed. After teardown, host RAM was 3.07 GiB free of 22.90 GiB; C: had 3.37 GiB free and D: 161.18 GiB. No disk cleanup or move was needed.
+The standard five-second test timeout expired once on the real Windows junction test while the host had low free memory; the full suite then passed with `--testTimeout=15000`. No application or browser process was intentionally closed. During the final reset cycle, host RAM was 2.66 GiB free before startup and 5.37 GiB after teardown; C: had 3.28 GiB free and D: 160.66 GiB. No disk cleanup or move was needed.
 
 Exact-code-head workflow `40578086527` / check `122449796837` passed. Socket Project Report and PR Alerts passed. Sonar check failed `B Security Rating on New Code` (required `A`). Manifest metadata and digest are recorded in `RESULTS.md`; Sonar's scoped S5332 disposition remains unchanged. Independent standards/security and scope reviews of `5f3dd43` found no further findings. The user's human keyboard, real zoom, screen-reader, and visual sign-off remains pending.

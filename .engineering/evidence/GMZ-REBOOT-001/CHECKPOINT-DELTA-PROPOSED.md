@@ -4,7 +4,7 @@
 
 Source checkpoint: `.engineering/CHECKPOINT.json` at `77b8b2a7dc88d1d97f01e5889f8bf5d2d40a95e8`.
 
-The approved checkpoint remains unchanged. Local Docker/Supabase lifecycle, isolated reset, and integrated web health/readiness now pass on code candidate 28184f9; the seed is disabled and no project migrations are tracked. Exact code-head app and Socket checks passed, while Sonar failed Security Rating B (required A), despite the scoped local/test S5332 disposition. A fresh independent review, the user's human accessibility review, and final objective audit remain pending. The evidence closeout is still local and its own exact-head hosted run/manifest must be verified after publication. The candidate remains not eligible for checkpoint promotion. This proposal does not authorize checkpoint promotion, merge, or a new implementation increment.
+The approved checkpoint remains unchanged. Local Docker/Supabase start/status/isolated reset/health/stop passed on implementation candidate `5f3dd43`; integrated web build/health/readiness passed on the earlier implementation commit `28184f9`. Seed loading is disabled and no project migrations are tracked. App and Socket checks passed on code candidate run `40578086527` and evidence-head snapshot `9c051b9` run `40579690892`; Sonar failed Security Rating B (required A), despite the scoped local/test S5332 disposition. Independent security and scope reviews of `5f3dd43` found no remaining code findings. The user's human accessibility review and final objective audit remain open. The candidate remains not eligible for checkpoint promotion. This proposal does not authorize checkpoint promotion, merge, or a new implementation increment.
 
 If a later exact-HEAD objective audit approves the foundation and the governed merge/promotion gates are separately satisfied, propose this transition:
 
@@ -16,7 +16,7 @@ No canonical checkpoint file was edited to create this proposal.
 
 ## Maintainer risk disposition addendum — 2026-10-27
 
-The two local S5332 findings have a scoped maintainer risk acceptance recorded in [`SONAR-RISK-DISPOSITION.md`](SONAR-RISK-DISPOSITION.md) and [PR #74 comment #6431020903](https://github.com/KayzenRoot/goodz-menu/pull/74#issuecomment-6431020903). Sonar still reports Security `B`; this decision does not override the Quality Gate. The proposed checkpoint transition remains NOT ELIGIBLE: Sonar Security is B (required A), a fresh independent review, the user's human accessibility review, and the final objective audit remain open.
+The two local S5332 findings have a scoped maintainer risk acceptance recorded in [`SONAR-RISK-DISPOSITION.md`](SONAR-RISK-DISPOSITION.md) and [PR #74 comment #6431020903](https://github.com/KayzenRoot/goodz-menu/pull/74#issuecomment-6431020903). Sonar still reports Security `B`; this decision does not override the Quality Gate. Independent security and scope reviews of code candidate `5f3dd43` found no remaining code findings. The proposed checkpoint transition remains NOT ELIGIBLE because Sonar Security is B (required A), the user's human accessibility sign-off is pending, and the objective audit is blocked.
 
 ## Previous gate snapshot — 2026-10-27 18:39 UTC
 
