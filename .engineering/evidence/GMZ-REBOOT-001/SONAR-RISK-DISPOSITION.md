@@ -2,12 +2,20 @@
 
 **Decision:** `ACCEPTED_LOCAL_DEV_TEST_ONLY`, not a false-positive claim.
 
+## Reconciled evidence snapshot — PR HEAD `d0aeae62fe5f38132448ea831a1dbe4e6c13f9e3`
+
+- The decision is recorded and read back in [PR #74 comment #6431020903](https://github.com/KayzenRoot/goodz-menu/pull/74#issuecomment-6431020903). The authenticated maintainer account was verified as `KayzenRoot` with repository permission `admin`.
+- At this snapshot, PR #74 is OPEN/Draft against `main@3139534697743494626f4940b78ac3f9d468ceb6`. The exact-head SonarCloud check `122463445900` failed `B Security Rating on New Code` (required `A`; 23 annotations). App workflow `40581883518` and both Socket checks passed. The disposition does not change Sonar issue state or override the failed Quality Gate.
+- Local Docker/Supabase start, status, health, isolated reset, and stop passed on code candidate `5f3dd43` with reset confirmation scoped to one PowerShell process and 2.66 GiB free RAM. Health returned HTTP 200; published listeners were only `127.0.0.1` and `::1` on ports 56321/56322. Reset applied no project migrations or seed because seed loading is disabled and no migrations are tracked. Stop preserved the local project volume and left no project containers or listeners. Detailed receipts are in `LOCAL-VALIDATION.md` and `RESULTS.md`.
+- The user-authorized global Docker Desktop preference `default-local-port-binding` was active for that local runtime and affects every Docker project on this machine. Chrome remained open during low-memory validation; no disk cleanup or move was needed.
+- The user's human keyboard, actual zoom, screen-reader, and visual sign-off remains pending. The objective audit remains blocked by the failed Sonar gate and pending human sign-off. No TLS changes, merge, deploy, checkpoint promotion, or GMZ-M01 work is authorized by this disposition.
+
 ## Findings in scope
 
-This disposition covers the two SonarCloud S5332 issues first seen on PR #74 at check head `a811c7d389125bcda934fcfec59159dd5f9c2177` (code candidate `3e90030573031acd8764eb45fd40cf063d1dcbd3`) and reconfirmed on the current exact PR head `95689e03daee224c8998a6bf646b4f234df91a8c` by SonarCloud check `121982262316`:
+This disposition covers two SonarCloud S5332 findings first observed on PR #74 at check head `a811c7d389125bcda934fcfec59159dd5f9c2177` (code candidate `3e90030573031acd8764eb45fd40cf063d1dcbd3`) and reconfirmed in the historical snapshot at `95689e03daee224c8998a6bf646b4f234df91a8c` (check `121982262316`):
 
-- `AaF5USd7m7ISM68fKi-0` — `scripts/compose-local.mjs:39` at the original check and `scripts/compose-local.mjs:40` on the current head, `http://kong:8000`.
-- `AaF5USeFm7ISM68fKi-4` — `src/lib/env/runtime-env.ts:52`, `http://127.0.0.1:56321`.
+- `AaF5USd7m7ISM68fKi-0` — `scripts/compose-local.mjs` (`http://kong:8000`); reported at line 39 in the first snapshot and line 40 in the later historical snapshot.
+- `AaF5USeFm7ISM68fKi-4` — `src/lib/env/runtime-env.ts:52` in the historical snapshot (`http://127.0.0.1:56321`).
 
 ## Rationale and boundary
 
@@ -15,20 +23,8 @@ The active Work Order limits this runtime to local/test development and excludes
 
 Acceptance applies only while runtime remains local/test, Supabase remains local, host exposure remains loopback-only, and the dedicated bridge controls remain enforced. Remote Supabase, non-loopback binding, shared/public networks, privileged secrets over these requests, or production use reopen the findings and require a separate security decision.
 
-## Evidence and limits
+## Historical Windows binding observation — 2026-10-27 18:39 UTC
 
-- The authenticated maintainer account was verified as `KayzenRoot`, with repository permission `admin`.
-- The decision was recorded in [PR #74 comment #6431020903](https://github.com/KayzenRoot/goodz-menu/pull/74#issuecomment-6431020903) and read back successfully.
-- The current exact-head SonarCloud check remains `B Security Rating on New Code` (required `A`). The same two S5332 issue IDs remain open. No Sonar issue state was changed; this record does not override or claim a passing Quality Gate.
-- The live Windows Docker/Supabase lifecycle was not verified because available physical memory was 4.73 GiB, below the documented 8 GiB prerequisite. This disposition relies on repository configuration and automated evidence, not live-stack proof.
-- The user explicitly asked to keep the required human accessibility review pending. Seed/reset applicability, the PR/head reconciliation, and the final objective audit also remain pending.
+At that snapshot, the previous local Supabase run published DB and Kong ports on `0.0.0.0` and `::`; no external access was observed. The stack was stopped, Docker Desktop and WSL were shut down, and the global Docker settings file had no port-binding preference. The local runtime was not ready then. This was superseded by the user-authorized localhost-by-default preference and the loopback-only start/status/reset/stop receipt above.
 
-This is a scoped risk acceptance for the Work Order audit only. It does not authorize TLS changes, objective-audit approval, merge, deployment, or checkpoint promotion.
-
-## Current Windows binding observation — 2026-10-27 18:39 UTC
-
-The previous live local Supabase run published the DB and Kong ports on 0.0.0.0 and ::. No external access was observed. The stack was stopped, Docker Desktop and WSL were shut down, and the current recheck found no listeners on ports 56321/56322. The current %APPDATA%/Docker/settings-store.json has no portBindingBehavior value; pnpm supabase:status reports the Docker Engine stopped/unavailable. Docker Desktop had automatically restarted the prior stack on startup, so it remains stopped until localhost-only port binding is configured.
-
-This observation means the current Windows host does not satisfy the disposition's loopback-only boundary. The disposition above remains a local/test-only maintainer acceptance for the two S5332 findings, not a false-positive claim; it does not apply to non-loopback exposure. SonarCloud on exact code head 7b9cc0f2e8b1c3f41b783dea47b190f80dc9c96a remains failed at Security B (required A), check 122388140664; the GitHub app and Socket checks do not change that result. No Sonar issue state was modified and no Quality Gate pass is claimed.
-
-The code-head guard in 7b9cc0f blocks Windows start/reset unless the configured host binding is localhost-only and verifies actual published bindings. Current hosted app CI and Socket checks pass as recorded in LOCAL-VALIDATION.md. Runtime start/reset, human visual review, keyboard, actual zoom, screen-reader sign-off, and objective audit remain pending. No TLS scope was added.
+The Sonar check on code head `7b9cc0f2e8b1c3f41b783dea47b190f80dc9c96a` failed Security B (required A), check `122388140664`. No Sonar issue state was modified and no Quality Gate pass was claimed. At that historical snapshot, runtime start/reset and the user's human visual, keyboard, actual zoom, and screen-reader review were still pending. No TLS scope was added.
