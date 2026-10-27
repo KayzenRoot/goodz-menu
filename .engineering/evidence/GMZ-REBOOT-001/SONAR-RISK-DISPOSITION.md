@@ -24,3 +24,11 @@ Acceptance applies only while runtime remains local/test, Supabase remains local
 - The user explicitly asked to keep the required human accessibility review pending. Seed/reset applicability, the PR/head reconciliation, and the final objective audit also remain pending.
 
 This is a scoped risk acceptance for the Work Order audit only. It does not authorize TLS changes, objective-audit approval, merge, deployment, or checkpoint promotion.
+
+## Current Windows binding observation — 2026-10-27 18:39 UTC
+
+The previous live local Supabase run published the DB and Kong ports on 0.0.0.0 and ::. No external access was observed. The stack was stopped, Docker Desktop and WSL were shut down, and the current recheck found no listeners on ports 56321/56322. The current %APPDATA%/Docker/settings-store.json has no portBindingBehavior value; pnpm supabase:status reports the Docker Engine stopped/unavailable. Docker Desktop had automatically restarted the prior stack on startup, so it remains stopped until localhost-only port binding is configured.
+
+This observation means the current Windows host does not satisfy the disposition's loopback-only boundary. The disposition above remains a local/test-only maintainer acceptance for the two S5332 findings, not a false-positive claim; it does not apply to non-loopback exposure. SonarCloud on exact code head 7b9cc0f2e8b1c3f41b783dea47b190f80dc9c96a remains failed at Security B (required A), check 122388140664; the GitHub app and Socket checks do not change that result. No Sonar issue state was modified and no Quality Gate pass is claimed.
+
+The code-head guard in 7b9cc0f blocks Windows start/reset unless the configured host binding is localhost-only and verifies actual published bindings. Current hosted app CI and Socket checks pass as recorded in LOCAL-VALIDATION.md. Runtime start/reset, human visual review, keyboard, actual zoom, screen-reader sign-off, and objective audit remain pending. No TLS scope was added.

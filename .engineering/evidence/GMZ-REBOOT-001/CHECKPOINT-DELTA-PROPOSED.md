@@ -17,3 +17,9 @@ No canonical checkpoint file was edited to create this proposal.
 ## Maintainer risk disposition addendum — 2026-10-27
 
 The two local S5332 findings have a scoped maintainer risk acceptance recorded in [`SONAR-RISK-DISPOSITION.md`](SONAR-RISK-DISPOSITION.md) and [PR #74 comment #6431020903](https://github.com/KayzenRoot/goodz-menu/pull/74#issuecomment-6431020903). Sonar still reports Security `B`; this decision does not override the Quality Gate. The proposed checkpoint transition remains `NOT ELIGIBLE` while the runtime, human review, exact-head, and objective-audit gates remain open.
+
+## Current gate snapshot — 2026-10-27 18:39 UTC
+
+The current code candidate is 7b9cc0f2e8b1c3f41b783dea47b190f80dc9c96a. App-foundation workflow 40560458468 and both Socket checks pass; Sonar remains failed at Security Rating B (required A). Its exact-head manifest artifact is recorded by ID/digest in LOCAL-VALIDATION.md; the ZIP's internal manifest was not parsed in this receipt.
+
+The local Docker/Supabase lifecycle and reset remain NOT ACCEPTED. The current Docker Desktop settings file has no portBindingBehavior, and the earlier live stack used wildcard host bindings. The code candidate contains a fail-closed guard, but Docker Desktop remains stopped until localhost-only binding is configured. The current free RAM is 7.48 GiB with Chrome left open; this does not remove the configuration/security gate. Human visual/accessibility sign-off and final objective audit remain pending. The checkpoint stays PROPOSED / NOT APPLIED / NOT ELIGIBLE; no merge, deploy, promotion, or GMZ-M01 work is claimed.

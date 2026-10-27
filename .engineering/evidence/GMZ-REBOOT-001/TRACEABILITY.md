@@ -51,3 +51,12 @@ The old `GMZ-IMPL-001` allocated historical credits to these modules. The mappin
 ## Current maintainer disposition addendum — 2026-10-27
 
 `GMZ-REQ-GOV-002` has a documented, scoped maintainer acceptance for the two local/test S5332 findings: [`SONAR-RISK-DISPOSITION.md`](SONAR-RISK-DISPOSITION.md), verified at [PR #74 comment #6431020903](https://github.com/KayzenRoot/goodz-menu/pull/74#issuecomment-6431020903). The Sonar Security rating remains `B`; the disposition does not change scanner state. Objective acceptance is still partial/blocked by the local lifecycle, seed/reset applicability, fresh exact-HEAD checks and independent review, the user-requested pending human accessibility review, and final audit.
+
+## Current evidence binding — 2026-10-27 18:39 UTC
+
+- GMZ-REQ-GOV-002: exact code candidate 7b9cc0f; app workflow 40560458468 and both Socket checks pass, while Sonar 122388140664 remains failed at Security B (required A). The two local/test S5332 findings have scoped maintainer acceptance only; see SONAR-RISK-DISPOSITION.md and PR comment #6431020903.
+- GMZ-REQ-RUN-001: BLOCKED — pnpm supabase:status reports the Docker Engine stopped; current Docker Desktop settings lack portBindingBehavior. A previous live start published Supabase DB/Kong on all interfaces. The code guard is present in 7b9cc0f, but local start/reset was not repeated before correcting the global Docker setting.
+- GMZ-REQ-QA-004/005: human visual review and keyboard, actual zoom, and screen-reader sign-off remain pending at the user's request.
+- Seed/reset applicability is not accepted: seed is disabled and no migrations/seed file are tracked for this foundation; runtime reset acceptance was not performed.
+- Exact-head manifest artifact metadata is recorded in LOCAL-VALIDATION.md and RESULTS.md; its ZIP contents were not parsed in this receipt.
+- The objective remains BLOCKED / NOT READY FOR OBJECTIVE AUDIT. The proposed checkpoint delta remains unapplied; no merge, deployment, promotion, or GMZ-M01 work occurred.
