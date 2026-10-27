@@ -362,7 +362,8 @@ function validateLoopbackDockerNetwork(output) {
 
 export function sanitizeSupabaseOutput(value) {
   return value
-    .replace(/((?:anon|publishable|service[\s_-]*role|secret|jwt(?:[\s_-]*secret)?|db[\s_-]*url|database[\s_-]*url)(?:[\s_-]*key)?\s*[:=]\s*)(?:"[^"]*"|'[^']*'|\S+)/gi, "$1[redacted]")
+    .replace(/((?:anon|publishable|service[\s_-]*role|secret|jwt(?:[\s_-]*secret)?|db[\s_-]*url|database[\s_-]*url)(?:[\s_-]*key)?(?:\s*[:=]\s*|\s+))(?:"[^"]*"|'[^']*'|\S+)/gi, "$1[redacted]")
+    .replace(/\bsb_(?:publishable|secret)_[A-Za-z0-9_-]+/gi, "[redacted-token]")
     .replace(/\bpostgres(?:ql)?:\/\/[^\s@]+@[^\s]+/gi, "postgres://[redacted]")
     .replace(/\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g, "[redacted-token]");
 }

@@ -14,6 +14,7 @@ import {
   readWindowsPathAttributes,
   readWindowsFixedDriveLetters,
   resolveDockerCliPath,
+  sanitizeSupabaseOutput,
 } from "../../scripts/local-supabase-status.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
@@ -95,6 +96,27 @@ function mockWindowsPathAttributes(
     return attributes;
   };
 }
+
+describe("Supabase CLI output sanitization", () => {
+  it("redacts publishable and secret keys printed as whitespace-separated labels", () => {
+    const publishable = `${["sb", "publishable"].join("_")}_localPublicTestKey`;
+    const secret = `${["sb", "secret"].join("_")}_localSecretTestKey`;
+    const standaloneSecret = `${["sb", "secret"].join("_")}_standaloneTestToken`;
+    const output = [
+      `Publishable ${publishable}`,
+      `Secret ${secret}`,
+      `Unlabeled ${standaloneSecret}`,
+    ].join("\n");
+
+    const sanitized = sanitizeSupabaseOutput(output);
+
+    expect(sanitized).toContain("Publishable [redacted]");
+    expect(sanitized).toContain("Secret [redacted]");
+    expect(sanitized).not.toContain(publishable);
+    expect(sanitized).not.toContain(secret);
+    expect(sanitized).not.toContain(standaloneSecret);
+  });
+});
 
 describe("isolated local Supabase configuration", () => {
   it("connects the Docker web app through the Supabase-only local bridge", () => {
