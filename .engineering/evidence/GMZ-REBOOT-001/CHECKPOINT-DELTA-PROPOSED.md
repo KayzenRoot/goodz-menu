@@ -4,7 +4,7 @@
 
 Source checkpoint: `.engineering/CHECKPOINT.json` at `77b8b2a7dc88d1d97f01e5889f8bf5d2d40a95e8`.
 
-The approved checkpoint remains unchanged. On published evidence/workflow HEAD `6c6e074`, app-foundation CI and both Socket checks passed. Sonar still fails at Security Rating `B`; the two local/test S5332 risks have scoped maintainer acceptance, but this does not change Sonar's status or pass the Quality Gate. The candidate remains not eligible for checkpoint promotion while Docker/Supabase and seed/reset acceptance, the user-requested human accessibility review, and the final objective audit remain incomplete. This proposal does not authorize checkpoint promotion, merge, or a new implementation increment.
+The approved checkpoint remains unchanged. Local Docker/Supabase lifecycle, isolated reset, and integrated web health/readiness now pass on code candidate 28184f9; the seed is disabled and no project migrations are tracked. Exact code-head app and Socket checks passed, while Sonar failed Security Rating B (required A), despite the scoped local/test S5332 disposition. A fresh independent review, the user's human accessibility review, and final objective audit remain pending. The evidence closeout is still local and its own exact-head hosted run/manifest must be verified after publication. The candidate remains not eligible for checkpoint promotion. This proposal does not authorize checkpoint promotion, merge, or a new implementation increment.
 
 If a later exact-HEAD objective audit approves the foundation and the governed merge/promotion gates are separately satisfied, propose this transition:
 
@@ -16,10 +16,17 @@ No canonical checkpoint file was edited to create this proposal.
 
 ## Maintainer risk disposition addendum — 2026-10-27
 
-The two local S5332 findings have a scoped maintainer risk acceptance recorded in [`SONAR-RISK-DISPOSITION.md`](SONAR-RISK-DISPOSITION.md) and [PR #74 comment #6431020903](https://github.com/KayzenRoot/goodz-menu/pull/74#issuecomment-6431020903). Sonar still reports Security `B`; this decision does not override the Quality Gate. The proposed checkpoint transition remains `NOT ELIGIBLE` while the runtime, human review, exact-head, and objective-audit gates remain open.
+The two local S5332 findings have a scoped maintainer risk acceptance recorded in [`SONAR-RISK-DISPOSITION.md`](SONAR-RISK-DISPOSITION.md) and [PR #74 comment #6431020903](https://github.com/KayzenRoot/goodz-menu/pull/74#issuecomment-6431020903). Sonar still reports Security `B`; this decision does not override the Quality Gate. The proposed checkpoint transition remains NOT ELIGIBLE: Sonar Security is B (required A), a fresh independent review, the user's human accessibility review, and the final objective audit remain open.
 
-## Current gate snapshot — 2026-10-27 18:39 UTC
+## Previous gate snapshot — 2026-10-27 18:39 UTC
 
 The current code candidate is 7b9cc0f2e8b1c3f41b783dea47b190f80dc9c96a. App-foundation workflow 40560458468 and both Socket checks pass; Sonar remains failed at Security Rating B (required A). Its exact-head manifest artifact is recorded by ID/digest in LOCAL-VALIDATION.md; the ZIP's internal manifest was not parsed in this receipt.
 
-The local Docker/Supabase lifecycle and reset remain NOT ACCEPTED. The current Docker Desktop settings file has no portBindingBehavior, and the earlier live stack used wildcard host bindings. The code candidate contains a fail-closed guard, but Docker Desktop remains stopped until localhost-only binding is configured. The current free RAM is 7.48 GiB with Chrome left open; this does not remove the configuration/security gate. Human visual/accessibility sign-off and final objective audit remain pending. The checkpoint stays PROPOSED / NOT APPLIED / NOT ELIGIBLE; no merge, deploy, promotion, or GMZ-M01 work is claimed.
+
+## Previous gate snapshot — 2026-10-27 19:33 UTC
+
+Code candidate `28184f9bea8b4edfa6982311a6331ee8aceafc32` is published to PR #74, which remains OPEN/Draft. Local test/lint/typecheck and Supabase start/status/health/reset/stop acceptance passed; actual published listeners were loopback-only and the DB volume was preserved. App workflow `40570145844` remains in progress; fresh review and the human accessibility review are pending. Sonar Security `B` remains the previous known state, not a pass. The checkpoint stays PROPOSED / NOT APPLIED / NOT ELIGIBLE; no merge, deploy, promotion, or GMZ-M01 work is claimed.
+
+## Current gate snapshot — 2026-10-27 19:44 UTC
+
+Code candidate 28184f9bea8b4edfa6982311a6331ee8aceafc32 remains the implementation head of PR #74 (OPEN/Draft). Integrated Supabase and web-container acceptance, both health/readiness endpoints, loopback bindings, teardown, and volume preservation passed. Exact code-head app and Socket checks passed; Sonar failed Security B (required A). Its parsed 103-path manifest is recorded in RESULTS.md and LOCAL-VALIDATION.md. Independent review, human accessibility review, final objective audit, and the evidence closeout's own exact-head run remain pending. Checkpoint stays PROPOSED / NOT APPLIED / NOT ELIGIBLE; no merge, deploy, promotion, or GMZ-M01 work is claimed.

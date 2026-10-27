@@ -150,7 +150,7 @@ The `2d65738c9a79e0315171bb7798aee1de5b1a431c` correction queries fixed-drive ty
 
 The E2E suite uses a synthetic loopback health fixture, not a Supabase stack. Supabase success through Docker and the reset lifecycle still require enough available memory to start the full local stack; the engine responds, but the current Supabase start failed before health checks.
 
-## Current exact code-head snapshot — 2026-10-27 18:39 UTC
+## Previous exact code-head snapshot — 2026-10-27 18:39 UTC
 
 - Local branch, origin/rebuild/gmz-reboot-001-module-01, and PR #74 all point to exact code candidate 7b9cc0f2e8b1c3f41b783dea47b190f80dc9c96a; base remains main@3139534697743494626f4940b78ac3f9d468ceb6. PR #74 is OPEN/Draft and unmerged.
 - The code commit adds a Windows Docker Desktop port-binding preflight and validates actual published bindings before local Supabase start/reset. It fails closed when the configured default is not localhost-only.
@@ -161,4 +161,51 @@ The E2E suite uses a synthetic loopback health fixture, not a Supabase stack. Su
 - Current Windows host reading: 7.48 GiB free RAM; C: 6.05 GiB and D: 161.18 GiB free. Chrome remained open. No disk cleanup was needed.
 - %APPDATA%/Docker/settings-store.json has no portBindingBehavior value. pnpm supabase:status exited 1 because Docker Engine is stopped/unavailable; no listeners were present on ports 56321/56322. No start/reset or remote Supabase access occurred in this snapshot.
 - In the earlier live run, Supabase DB/Kong ports were published on 0.0.0.0 and ::; no evidence of external access was observed. Docker Desktop startup had restarted that stack automatically. Docker remains stopped because restarting it before localhost-only binding is configured could repeat the unsafe publication. The user asked to keep Chrome open and continue with lower RAM; RAM is not the current blocker.
-- Seed loading is disabled and this foundation has no tracked migrations or seed file. Seed/reset acceptance, the local runtime lifecycle, manual keyboard/actual zoom/screen-reader review, human visual sign-off, and final objective audit remain open.
+- Seed loading is disabled and this foundation has no tracked migrations or seed file. Seed/reset acceptance, the local runtime lifecycle, manual keyboard/actual zoom/screen-reader review, human visual sign-off, and final objective audit were open at this snapshot.
+
+## Supabase start/reset/stop acceptance — 2026-10-27 19:33 UTC
+
+Source code commit: `28184f9bea8b4edfa6982311a6331ee8aceafc32` (parent `55a3043091261e95bdde7f2090cfaa3d4d7437a7`). Exact-head app workflow `40570145844` was in progress when this receipt was drafted; refresh its conclusion and manifest after completion.
+
+The approved global Docker Desktop preference is `default-local-port-binding`. Docker Desktop writes it as PascalCase `PortBindingBehavior`; the runtime reader now accepts both that serialization and the earlier camelCase key. Docker inspect reported implicit port bindings as an empty `HostIp`. On Windows the verifier accepts that value only when the global Docker Desktop setting is one of the loopback modes, and continues to reject explicit wildcard bindings. A regression test covers both cases and non-Windows behavior.
+
+| Command or observation | Result |
+| --- | --- |
+| `pnpm test` | PASS — 5 files, 60 tests |
+| `pnpm lint` | PASS |
+| `pnpm typecheck` | PASS |
+| `git diff --check` | PASS |
+| `pnpm supabase:start` | PASS — four project containers reached ready status |
+| `pnpm supabase:status` | PASS — isolated endpoint `http://127.0.0.1:56321` |
+| `GET http://127.0.0.1:56321/auth/v1/health` | PASS — HTTP 200 |
+| Actual published listeners | PASS — only `127.0.0.1` and `::1` on project ports 56321 and 56322; no listener on the remaining configured range 56320–56329 |
+| `GOODZ_ALLOW_LOCAL_DB_RESET=1 pnpm supabase:reset` | PASS — confirmation variable was process-session scoped; the wrapper checked status before and after reset |
+| `pnpm supabase:stop` | PASS — Supabase containers stopped and local volume preserved |
+| Post-stop inspection | PASS — no Supabase containers/listeners; `goodz-menu-reboot-001-web-1` remained healthy on `127.0.0.1:3001`; DB volume preserved |
+
+The Supabase CLI printed its generic warning that services bind to `0.0.0.0`; Docker's published-port view and Windows `Get-NetTCPConnection` instead showed loopback-only listeners for the configured project ports. The observed evidence is limited to this local Docker Desktop host and this runtime.
+
+`supabase/config.toml` keeps seed loading disabled (`sql_paths=[]`); no migrations are tracked, so the accepted reset did not apply project seeds/migrations. Docker Desktop `4.95.0` / Engine `29.8.2` remained running after Supabase stop. Host resources after stop were 5.84 GiB free RAM of 22.90 GiB, C: 5.96 GiB free, D: 160.45 GiB free. No disk cleanup or move was needed; Chrome remained open. The global Docker preference affects other projects on this machine and was changed with the user's authorization.
+
+The user's human review of keyboard use, actual zoom, screen reader, and visual appearance remains pending. Sonar Security `B` (required `A`) remains a separate gate; the scoped local/test S5332 disposition does not change that result.
+
+## Integrated Docker web and final teardown — 2026-10-27 19:44 UTC
+
+Code tree: 28184f9bea8b4edfa6982311a6331ee8aceafc32. Docker Desktop 4.95.0, Engine 29.8.2; the user-authorized global port-binding preference read back as default-local-port-binding.
+
+| Command or observation | Result |
+| --- | --- |
+| pnpm docker:up | PASS — exit 0; production web image built and container started |
+| pnpm docker:ps | PASS — web container healthy; host publication 127.0.0.1:3001->3000/tcp |
+| GET http://127.0.0.1:3001/api/health | PASS — HTTP 200 |
+| GET http://127.0.0.1:3001/api/ready | PASS — HTTP 200 while local Supabase was running |
+| Windows listener inspection during integrated runtime | PASS — port 3001 on 127.0.0.1; Supabase ports 56321 and 56322 on 127.0.0.1 and ::1; no wildcard listener on project range 56320–56329 |
+| pnpm docker:down | PASS — exit 0; web container removed |
+| pnpm supabase:stop | PASS — exit 0; Supabase containers stopped; database volume preserved |
+| Final Docker/listener inspection | PASS — no project containers or listeners on port 3001 or ports 56320–56329; volume supabase_db_goodz-menu-reboot-001 remains present |
+
+After teardown, host free RAM was 6.33 GiB of 22.90 GiB, C: had 5.92 GiB free, and D: had 160.76 GiB free. Chrome remained open; no cleanup or move was needed. The global Docker setting affects other projects on this machine and was changed under the user's authorization.
+
+The exact code-head workflow 40570145844 (https://github.com/KayzenRoot/goodz-menu/actions/runs/40570145844) passed app checks and uploaded artifact goodz-foundation-head-manifest-40570145844 (ID 12763688509; GitHub SHA-256 e6d1b9efeed0291eb72ba160110d156e690e5599edab6c45a85016198215bc11). Parsed manifest: base 3139534697743494626f4940b78ac3f9d468ceb6, head 28184f9bea8b4edfa6982311a6331ee8aceafc32, 103 changed paths, binary diff SHA-256 f8f6e3edfe940383eb86cfb74f577933ebb27c4e407bbc1b4d6e5a7ef911d040. The app job and both Socket checks passed; Sonar failed Security B (required A).
+
+The user-requested human review of keyboard use, actual browser zoom, screen-reader behavior, and visual appearance remains pending. The failed Sonar gate and scoped S5332 disposition are separate: no Sonar issue status was changed and no gate pass is claimed.
