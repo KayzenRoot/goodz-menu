@@ -209,3 +209,24 @@ After teardown, host free RAM was 6.33 GiB of 22.90 GiB, C: had 5.92 GiB free, a
 The exact code-head workflow 40570145844 (https://github.com/KayzenRoot/goodz-menu/actions/runs/40570145844) passed app checks and uploaded artifact goodz-foundation-head-manifest-40570145844 (ID 12763688509; GitHub SHA-256 e6d1b9efeed0291eb72ba160110d156e690e5599edab6c45a85016198215bc11). Parsed manifest: base 3139534697743494626f4940b78ac3f9d468ceb6, head 28184f9bea8b4edfa6982311a6331ee8aceafc32, 103 changed paths, binary diff SHA-256 f8f6e3edfe940383eb86cfb74f577933ebb27c4e407bbc1b4d6e5a7ef911d040. The app job and both Socket checks passed; Sonar failed Security B (required A).
 
 The user-requested human review of keyboard use, actual browser zoom, screen-reader behavior, and visual appearance remains pending. The failed Sonar gate and scoped S5332 disposition are separate: no Sonar issue status was changed and no gate pass is claimed.
+
+## Implicit port-binding correction validation — 2026-10-27 20:32 UTC
+
+Code tree: `5f3dd43dac86d115339696b039a89329a5335ab2`; base `3139534697743494626f4940b78ac3f9d468ceb6`. This correction addresses two independent-review findings: a current Docker Desktop preference does not prove how a pre-existing container is bound, and a TCP listener alone cannot validate an implicit UDP/SCTP binding.
+
+| Command or observation | Result |
+| --- | --- |
+| `pnpm exec vitest run --testTimeout=15000` | PASS — 5 files, 65 tests; covers actual loopback listener, stale wildcard listener, missing/query-failed/malformed/unrelated listeners, invalid host port, and implicit UDP rejection |
+| `pnpm lint` | PASS |
+| `pnpm typecheck` | PASS |
+| `git diff --check` | PASS |
+| `pnpm supabase:start` | PASS — local project started with 3.22 GiB free RAM |
+| `pnpm supabase:status` | PASS — code path queried actual Windows TCP listeners; only `127.0.0.1` and `::1` were found on 56321 and 56322 |
+| `GET http://127.0.0.1:56321/auth/v1/health` | PASS — HTTP 200 |
+| `pnpm supabase:stop` | PASS — local containers stopped; volume `supabase_db_goodz-menu-reboot-001` preserved |
+| Post-stop Docker/listener inspection | PASS — no project containers or listeners on 56320–56329; database volume remained present |
+| Reset acceptance | PASS on preceding correction commit `1d9c9f1` with `GOODZ_ALLOW_LOCAL_DB_RESET=1` scoped to one PowerShell process; not repeated for the protocol-only change at `5f3dd43` |
+
+The standard five-second test timeout expired once on the real Windows junction test while the host had low free memory; the full suite then passed with `--testTimeout=15000`. No application or browser process was intentionally closed. After teardown, host RAM was 3.07 GiB free of 22.90 GiB; C: had 3.37 GiB free and D: 161.18 GiB. No disk cleanup or move was needed.
+
+Exact-code-head workflow `40578086527` / check `122449796837` passed. Socket Project Report and PR Alerts passed. Sonar check failed `B Security Rating on New Code` (required `A`). Manifest metadata and digest are recorded in `RESULTS.md`; Sonar's scoped S5332 disposition remains unchanged. Independent standards/security and scope reviews of `5f3dd43` found no further findings. The user's human keyboard, real zoom, screen-reader, and visual sign-off remains pending.
