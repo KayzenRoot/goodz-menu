@@ -23,7 +23,7 @@ pnpm supabase:status
 pnpm dev
 ```
 
-Abra <http://127.0.0.1:3000>. O comando de desenvolvimento carrega apenas o endpoint local e a chave pública anônima do Supabase para o processo do servidor. Ele não imprime nem persiste a chave. Se o Supabase local estiver parado, o app inicia e `/api/ready` responde `503` até a dependência ficar disponível.
+Abra <http://127.0.0.1:3000>. O comando de desenvolvimento carrega apenas o endpoint local e a chave pública anônima do Supabase para o processo do servidor. Ele não imprime nem persiste a chave. Se o Supabase local já estiver parado quando `pnpm dev` iniciar, o app sobe sem essa configuração e `/api/ready` responde `503`; depois de iniciar o Supabase, reinicie `pnpm dev` para carregar a chave. Se a stack parar depois que o app foi configurado, `/api/ready` responde `503` até o Supabase local voltar.
 
 ## Modo Docker
 

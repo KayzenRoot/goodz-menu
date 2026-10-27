@@ -26,7 +26,7 @@ try {
   supabase = { SUPABASE_API_URL: status.apiUrl, SUPABASE_ANON_KEY: status.anonKey };
   console.log("Readiness usará somente a chave pública do Supabase local.");
 } catch {
-  console.log("Supabase local não detectado; o app inicia e readiness responderá 503 até a dependência ficar disponível.");
+  console.log("Supabase local não detectado; o app inicia sem sua configuração. Inicie o Supabase e reinicie pnpm dev para carregar a chave pública local.");
 }
 
 const child = spawn(process.execPath, [nextCliPath, "dev", "--hostname", options.hostname, "--port", String(port)], {
