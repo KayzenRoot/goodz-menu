@@ -239,7 +239,7 @@ ELEVATED minimum:
 - authenticated Data API/application integration;
 - RLS cross-tenant/IDOR/foreign-parent matrix;
 - privileged mutation + durable-audit fail-closed tests;
-- catalog contract/UI tests prove canonical Product descriptions round-trip independently from optional channel presentation overrides;
+- catalog contract/UI tests prove canonical Product name and text-first description round-trip independently from ChannelOffer; optional channel-specific title/description overrides cannot replace the canonical values;
 - base-price/availability mutation tests prove no promotional-price, discount, promotion-schedule field, or scheduling-logic path is admitted;
 - generated DB types equivalence;
 - migration status;
