@@ -17,11 +17,12 @@ Build the first Wave 1 catalog foundation only after this admission is objective
 ## Closed decisions
 
 - Product is canonical and channel-independent.
+- Product owns its canonical name and text-first description; optional channel-specific title/description values are presentation overrides only.
 - ProductVariant is subordinate canonical identity.
 - ChannelOffer owns channel-specific price/availability/presentation.
 - Price persistence is exact, not binary floating point.
 - Price history must remain reconstructable.
-- Only base price is admitted; promotional pricing and discounts are deferred to a future Work Order.
+- Only base price is admitted; promotional pricing, discounts, and promotion schedules are deferred to a future Work Order.
 - RLS and current membership/RBAC remain the tenant authority.
 - Direct ordinary-client catalog mutation is forbidden.
 - Server-side catalog mutation uses current user authority, not service-role.
@@ -38,7 +39,7 @@ Exact execution base/branch, Context Lock, all locked fingerprints, governance s
 Inspect existing migrations/RLS/RBAC/audit writer/app shell; revalidate current Supabase RLS/database guidance for the pinned tooling.
 
 ### W2 — Catalog schema
-Implement ProductCategory/Product/ProductVariant/SalesChannel/ChannelOffer and minimal immutable/versioned price-history substrate with constraints/indexes.
+Implement ProductCategory/Product (including canonical name and text-first description)/ProductVariant/SalesChannel/ChannelOffer and minimal immutable/versioned price-history substrate with constraints/indexes.
 
 ### W3 — RLS and authorization
 Tenant-safe SELECT, no direct ordinary-client mutation, current membership/RBAC scope, negative IDOR/cross-tenant proof.
@@ -47,7 +48,7 @@ Tenant-safe SELECT, no direct ordinary-client mutation, current membership/RBAC 
 Typed catalog queries/commands using user session authority and deterministic validation/errors/correlation.
 
 ### W5 — Privileged material mutations
-Base-price/availability mutations through existing Admin Guard; durable audit required and fail-closed. No promotional-price or discount path is admitted.
+Base-price/availability mutations through existing Admin Guard; durable audit required and fail-closed. No promotional-price, discount, or promotion-schedule path is admitted.
 
 ### W6 — Minimal management UI
 Accessible responsive catalog management for admitted entities/fields only.

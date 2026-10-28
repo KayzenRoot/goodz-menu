@@ -11,7 +11,7 @@ This governance-only amendment aligns the proposed catalog slice with the accept
 
 ## OBJECTIVE
 
-Establish the first Wave 1 business-domain foundation: one canonical tenant-owned text-first catalog identity for products and size/flavor variants, with channel-specific base-price/availability offers, tenant-safe authorization, durable audit for material mutations, and a minimal accessible catalog-management surface.
+Establish the first Wave 1 business-domain foundation: one canonical tenant-owned text-first catalog identity with a canonical product name and description plus size/flavor variants, channel-specific base-price/availability offers, tenant-safe authorization, durable audit for material mutations, and a minimal accessible catalog-management surface.
 
 This Work Order is centered on GMZ-M06 and deliberately stops before recipes, inventory, POS, orders, provider synchronization or media production.
 
@@ -40,8 +40,8 @@ Canonical dependency:
 
 1. Physical tenant-aware catalog persistence for the minimum canonical entities required by this slice:
    - ProductCategory;
-   - Product;
-   - ProductVariant;
+   - Product, including its canonical name and text-first description independent of channel offers;
+   - ProductVariant, with text labels for variant, size, or flavor identity;
    - SalesChannel identity;
    - ChannelOffer;
    - minimal immutable/versioned channel price history sufficient to prevent price changes from rewriting history.
@@ -57,10 +57,10 @@ Canonical dependency:
    - currency;
    - availability;
    - visibility;
-   - optional channel title/description;
+   - optional channel-specific title/description presentation overrides; they do not replace the canonical Product name or description;
    - organization/establishment/branch scope where applicable.
 
-Promotional price, discounts, and promotion schedules are not admitted by this slice and require a future Work Order.
+Promotional price, discounts, promotion schedules, and scheduling logic are not admitted by this slice and require a future Work Order.
 
 Availability is internal catalog state only in this Work Order. Missing or uncertain availability fails closed to unavailable. No public storefront or order path is admitted here; a future M10/M11 Work Order must resolve the named availability operator and update cadence before public use.
 
@@ -105,7 +105,7 @@ Availability is internal catalog state only in this Work Order. Missing or uncer
 - advanced search/indexing;
 - public storefront consumption;
 - direct-stock consumption rules;
-- promotional prices, discounts, and automated pricing/promotion intelligence.
+- promotional prices, discounts, promotion schedules, and automated pricing/promotion intelligence.
 
 ### OUT OF SCOPE
 
@@ -156,7 +156,7 @@ Mandatory before mutation:
 Primary:
 - GMZ-REQ-CAT-001 — single canonical product identity;
 - GMZ-REQ-CAT-002 — channel-specific offer;
-- GMZ-REQ-CAT-003 — rich product model, limited here to categories/products/variants/availability/price history;
+- GMZ-REQ-CAT-003 — rich product model, limited here to categories, products with canonical descriptions, variants, availability, and price history;
 - GMZ-REQ-PLAT-001/002/003 — tenancy, authorization, branch awareness;
 - GMZ-REQ-SEC-003/004/005 — sensitive actions, auditability, secret hygiene;
 - GMZ-REQ-OBS-001 — correlation;
@@ -224,6 +224,7 @@ Primary:
 30. CRITICAL/HIGH unresolved = `0 / 0`.
 31. Final Evidence Bundle binds exact base/head/tree and actual test counts.
 32. PR remains unmerged until independent objective audit.
+33. Canonical Product name and text-first description persist independently of ChannelOffer presentation; channel-specific title/description overrides cannot erase or substitute for canonical product description.
 
 ## TESTS
 
@@ -238,7 +239,8 @@ ELEVATED minimum:
 - authenticated Data API/application integration;
 - RLS cross-tenant/IDOR/foreign-parent matrix;
 - privileged mutation + durable-audit fail-closed tests;
-- base-price/availability mutation tests prove no promotional-price or discount path is admitted;
+- catalog contract/UI tests prove canonical Product descriptions round-trip independently from optional channel presentation overrides;
+- base-price/availability mutation tests prove no promotional-price, discount, promotion-schedule field, or scheduling-logic path is admitted;
 - generated DB types equivalence;
 - migration status;
 - DB lint/security/performance advisors;

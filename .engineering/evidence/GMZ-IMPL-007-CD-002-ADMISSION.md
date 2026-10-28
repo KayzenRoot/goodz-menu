@@ -47,7 +47,7 @@ The existing Context Lock is stale and remains non-authorizing. This proposal do
 
 ## Scope alignment and retained limits
 
-- The catalog slice retains canonical Product/ProductVariant identity, categories, manual text-first descriptions, text labels for size/flavor variants, ChannelOffer base price and availability, tenant isolation, current RBAC, Admin Guard for base-price/availability changes, durable audit, and minimal accessible catalog management.
+- The catalog slice retains canonical Product/ProductVariant identity, categories, a canonical Product name and text-first description independent from ChannelOffer presentation, text labels for size/flavor variants, ChannelOffer base price and availability, tenant isolation, current RBAC, Admin Guard for base-price/availability changes, durable audit, and minimal accessible catalog management.
 - Availability remains internal catalog state for this slice; missing/uncertain state fails closed to unavailable. Public use, the named responsible operator, and update cadence remain future M10/M11 Work Order decisions.
 - Promotional price, discounts, promotion schedules, promotional history/authorization/UI/tests, add-ons, combos, custom media runtime, recipes, inventory, POS, orders, finance, provider sync, remote Supabase, and production deployment remain outside this Work Order.
 - Existing project credit remains `52 / 515`; this correction assigns and earns no credit. Any later slice credit remains subject to independent audit, accepted evidence, merge, and governed promotion.
@@ -63,6 +63,7 @@ At the proposal base, PR #69 was open and draft at head `35862001485ca2221f126ef
 - `git diff --cached --check`: `PASS` for all three staged proposal files.
 - Runtime tests, lint, typecheck, build, and Docker/Supabase checks: `NOT RUN` — this is a governance-only proposal with no executable changes.
 - Independent exact-head review: `PENDING`.
+- Review of prior head `e0ac7bfc31ae3228fbeee561b860891712b0e4aa`: `CORRECTION REQUIRED` for missing canonical Product description acceptance coverage (MEDIUM) and explicit promotion-schedule negative-test wording (LOW); this proposal addresses both, and independent review of the corrected head is pending.
 - Source comparison: read `.engineering/context-locks/GMZ-IMPL-007.json`; for each `lockedSources[].path`, compare its `gitBlobSha` with `git rev-parse HEAD:<path>`, and compare `governanceSnapshot.checkpointGitBlobSha` with `git rev-parse HEAD:.engineering/CHECKPOINT.json`.
 - Deterministic result at base `556a9dbbcb3250b640c40fefe1ade0d5c425d871`: 15/16 locked sources match; Scope is stale; the separate Checkpoint governance snapshot is stale.
 - Current status: remain draft until the proposal diff and evidence pass independent review; then stop at `GMZ_IMPL_007_CD_002_ADMISSION_READY_FOR_REVIEW`.
