@@ -41,6 +41,7 @@ export async function ensureLocalSupabaseTlsProxy(
   } = {},
 ) {
   assertDockerNetworkId(dockerNetworkId);
+  assertRetryAttempts(attempts);
   const runDocker = await createLocalDockerRunner(dockerEndpoint, dockerNetworkId, run, dockerCliPath);
 
   try {
@@ -94,6 +95,12 @@ export async function stopLocalSupabaseTlsProxy(
 function assertDockerNetworkId(dockerNetworkId) {
   if (typeof dockerNetworkId !== "string" || !/^[a-f0-9]{64}$/i.test(dockerNetworkId)) {
     throw new Error("A rede local do proxy TLS não pôde ser validada.");
+  }
+}
+
+function assertRetryAttempts(attempts) {
+  if (!Number.isSafeInteger(attempts) || attempts < 1) {
+    throw new Error("O limite de tentativas do proxy TLS local precisa ser um inteiro positivo seguro.");
   }
 }
 

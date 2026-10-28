@@ -309,6 +309,21 @@ describe("isolated local Supabase configuration", () => {
     });
   });
 
+  it("rejects a non-positive TLS retry limit before invoking Docker", async () => {
+    let calls = 0;
+    const run = async () => {
+      calls += 1;
+      return { code: 0, stdout: "", stderr: "" };
+    };
+
+    await expect(ensureLocalSupabaseTlsProxy("invalid-unused-endpoint", "7".repeat(64), {
+      run,
+      dockerCliPath,
+      attempts: 0,
+    })).rejects.toThrow("inteiro positivo seguro");
+    expect(calls).toBe(0);
+  });
+
   it("stops a proxy published beyond explicit IPv4 loopback", async () => {
     const harness = createDockerHarness({ networkId: "8".repeat(64) });
     const calls: string[][] = [];

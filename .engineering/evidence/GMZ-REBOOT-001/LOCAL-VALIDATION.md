@@ -229,3 +229,50 @@ Code tree: `5f3dd43dac86d115339696b039a89329a5335ab2`; base `3139534697743494626
 The standard five-second test timeout expired once on the real Windows junction test while the host had low free memory; the full suite then passed with `--testTimeout=15000`. No application or browser process was intentionally closed. During the final reset cycle, host RAM was 2.66 GiB free before startup and 5.37 GiB after teardown; C: had 3.28 GiB free and D: 160.66 GiB. No disk cleanup or move was needed.
 
 Exact-code-head workflow `40578086527` / check `122449796837` passed. Socket Project Report and PR Alerts passed. Sonar check failed `B Security Rating on New Code` (required `A`). Manifest metadata and digest are recorded in `RESULTS.md`; Sonar's scoped S5332 disposition remains unchanged. Independent standards/security and scope reviews of `5f3dd43` found no further findings. The user's human keyboard, real zoom, screen-reader, and visual sign-off remains pending.
+
+
+## Local TLS proxy acceptance — 2026-10-28
+
+Source tree: exact implementation commit `8a33a0653a0c25f008c5ec87d5008fb6cc5bc6a0`, parent `9bd91ea4d83c9ffcf83554eda25a0c5122a0fd5d`. Tests and runtime acceptance below ran on the same source tree before its commit. Docker lifecycle was performed only through the approved `pnpm supabase:*` and `pnpm docker:*` wrappers; no remote Supabase was used.
+
+| Command or observation | Result |
+| --- | --- |
+| `pnpm test` | PASS — 5 files, 74/74 tests |
+| `pnpm lint` | PASS |
+| `pnpm typecheck` | PASS |
+| `node --check scripts/local-supabase-tls.mjs` | PASS |
+| `git diff --check` | PASS |
+| `pnpm supabase:start` | PASS — local Supabase and the local Caddy TLS proxy started |
+| `pnpm supabase:status` | PASS — reports native endpoint `https://localhost:56443` |
+| `GOODZ_ALLOW_LOCAL_DB_RESET=1 pnpm supabase:reset` | PASS — confirmation was scoped to this PowerShell process; CLI reported reset finished |
+| Native runtime: `pnpm dev -- --port 3010`; `GET http://127.0.0.1:3010/api/ready` | PASS — HTTP 200; response reported local Supabase available; native process was stopped afterward |
+| Node TLS trust probe with exported public CA and `localhost` | PASS — chain and hostname accepted |
+| Node TLS probe with no trusted local CA | PASS — rejected with `UNABLE_TO_GET_ISSUER_CERT_LOCALLY` |
+| Node TLS probe with unrecognized SNI `wrong.local` | PASS — handshake rejected by Caddy with `ERR_SSL_TLSV1_ALERT_INTERNAL_ERROR`; no successful TLS connection |
+| `pnpm docker:up` | PASS — production image built with the local CA available to the app as a read-only public certificate |
+| Docker runtime `GET http://127.0.0.1:3001/api/ready` | PASS — HTTP 200; runtime reported Docker and local Supabase available |
+| Docker inspection during runtime | PASS — proxy running with only `127.0.0.1:56443` and `::1:56443`; web published only at `127.0.0.1:3001`; app CA mount was read-only, no private key was present in the app container, and Caddy private data was not mounted there |
+| `pnpm docker:ps` | PASS — web and TLS proxy running with the expected loopback bindings |
+| `pnpm docker:down` and `pnpm supabase:stop` | PASS — project containers stopped; local Supabase volume preserved |
+| Post-stop container/listener inspection | PASS — no Goodz project containers or listeners remained; local Supabase data volumes remained present |
+
+The app-to-proxy hop is encrypted and verifies both the local CA chain and hostname. The Caddy-to-Kong hop remains HTTP on the isolated local Docker bridge; this is not end-to-end TLS. The generated private CA key remains in the Docker-managed Caddy volume and was not found in Git, the web build context, or the app container. The user-authorized Docker Desktop `default-local-port-binding` preference remains active and affects other Docker projects on this host. The documented one-Goodz-worktree-per-Docker-engine constraint is operational and is not programmatically enforced.
+
+At the beginning of this authorized lifecycle, Windows reported 3.45 GiB free physical RAM. The user explicitly authorized continuing below the former 8 GiB threshold while keeping Chrome open. The local TLS checks used Node TLS directly; `curl.exe --cacert` did not provide an additional Windows certificate result because Schannel reported an unknown revocation status. No disk cleanup or move was needed during this lifecycle.
+
+These results cover only the local/test runtime. No production or remote Supabase claim is made. The user's manual keyboard, actual zoom, screen-reader, and visual sign-off remains pending.
+
+## Retry-limit review correction — current local source content
+
+The standards review of `8a33a0653a0c25f008c5ec87d5008fb6cc5bc6a0` identified that `attempts: 0` caused one initial retry-helper call. `ensureLocalSupabaseTlsProxy` now rejects any non-positive, fractional, or unsafe-integer `attempts` value before creating the Docker runner. A regression test injects the runner and proves the zero-attempt case makes no Docker invocation. The correction is currently local and not yet represented by a published PR head; hosted checks and the manifest must be refreshed after publication.
+
+| Command | Result on current source content |
+| --- | --- |
+| `pnpm exec vitest run tests/supabase/local-runtime.test.ts` | PASS — 1 file, 49/49 tests |
+| `pnpm test` | PASS — 5 files, 75/75 tests |
+| `pnpm lint` | PASS |
+| `pnpm typecheck` | PASS |
+| `node --check scripts/local-supabase-tls.mjs` | PASS |
+| `git diff --check` and `git diff --cached --check` | PASS |
+
+No Docker lifecycle was repeated for this input-validation-only change. The previous local native/Docker/TLS/reset evidence remains tied to the source content that became `8a33a06`; this correction does not change the valid default (`attempts: 20`) or proxy runtime behavior. Human accessibility sign-off remains pending.
