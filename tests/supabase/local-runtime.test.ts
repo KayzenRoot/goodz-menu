@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { EventEmitter } from "node:events";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -19,6 +20,12 @@ import {
   sanitizeSupabaseOutput,
   verifySupabasePortBindingsLoopback,
 } from "../../scripts/local-supabase-status.mjs";
+import {
+  ensureLocalSupabaseTlsProxy,
+  readAndValidateRootCertificate,
+  stopLocalSupabaseTlsProxy,
+  verifyNativeTls,
+} from "../../scripts/local-supabase-tls.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const read = (relativePath: string) => readFileSync(path.join(repositoryRoot, relativePath), "utf8");
@@ -196,12 +203,228 @@ describe("isolated local Supabase configuration", () => {
   it("connects the Docker web app through the Supabase-only local bridge", () => {
     const compose = read("compose.yaml");
     const script = read("scripts/compose-local.mjs");
-    expect(compose).toContain("SUPABASE_API_URL: http://kong:8000");
+    expect(compose).toContain("SUPABASE_API_URL: https://supabase-tls:8443");
+    expect(compose).toContain('"127.0.0.1:56443:8443"');
+    expect(compose).toContain('"[::1]:56443:8443"');
+    expect(compose).toContain("NODE_EXTRA_CA_CERTS: /run/goodz/supabase-root-ca.crt");
+    expect(compose).toContain("create_host_path: false");
+    expect(compose).toContain("supabase_tls_data");
+    expect(compose).toContain("caddy:2.11.7-alpine@sha256:");
+    expect(read("supabase/Caddyfile")).toContain("tls internal");
+    expect(read("supabase/Caddyfile")).toContain("reverse_proxy kong:8000");
+    expect(read(".dockerignore")).toContain(".local-tls");
+    expect(read(".gitignore")).toContain("/.local-tls/");
     expect(compose).toContain('name: "${GOODZ_SUPABASE_NETWORK_ID:?Run pnpm docker:up to verify the local Supabase network}"');
     expect(script).toContain("GOODZ_SUPABASE_NETWORK_ID: localNetworkName");
     expect(script).toContain("GOODZ_SUPABASE_NETWORK_ID: local.dockerNetworkId");
     expect(compose).toContain("external: true");
     expect(compose).not.toContain("host.docker.internal");
+  });
+
+  it("starts the TLS proxy on the validated local network and exports only its public root CA", async () => {
+    const networkId = "7".repeat(64);
+    const harness = createDockerHarness({ networkId });
+    const temporaryRoot = mkdtempSync(path.join(tmpdir(), "goodz-tls-ca-"));
+    const caPath = path.join(temporaryRoot, "supabase-root-ca.crt");
+    const calls: string[][] = [];
+    const containerId = "abcdef012345";
+    const run = async (command: string, args: string[]) => {
+      calls.push(args);
+      if (args[0] === "--host" && args[2] === "compose" && args[3] === "up") {
+        return { code: 0, stdout: "", stderr: "" };
+      }
+      if (args[0] === "--host" && args[2] === "compose" && args[3] === "ps") {
+        return { code: 0, stdout: `${containerId}\n`, stderr: "" };
+      }
+      if (args[0] === "--host" && args[2] === "inspect" && args[3] === containerId) {
+        return {
+          code: 0,
+        stdout: `${JSON.stringify({ "8443/tcp": [
+          { HostIp: "127.0.0.1", HostPort: "56443" },
+          { HostIp: "::1", HostPort: "56443" },
+        ] })}\n`,
+          stderr: "",
+        };
+      }
+      if (args[0] === "--host" && args[2] === "cp") {
+        writeFileSync(args.at(-1) as string, "mocked-public-root-ca", "utf8");
+        return { code: 0, stdout: "", stderr: "" };
+      }
+      return harness.run(command, args);
+    };
+
+    try {
+      await expect(ensureLocalSupabaseTlsProxy(harness.endpoint, networkId, {
+        run,
+        dockerCliPath: harness.dockerCliPath,
+        caPath,
+        platform: "linux",
+        readCa: () => Buffer.from("public-root-ca"),
+        verifyTls: async ({ host, port }) => {
+          expect(host).toBe("localhost");
+          expect(port).toBe(56443);
+        },
+        wait: async () => undefined,
+      })).resolves.toMatchObject({
+        nativeApiUrl: "https://localhost:56443",
+        dockerApiUrl: "https://supabase-tls:8443",
+        caPath,
+        containerId,
+      });
+      expect(calls).toContainEqual([
+        "--host", harness.endpoint, "compose", "up", "-d", "--no-deps", "supabase-tls",
+      ]);
+      expect(calls).toContainEqual([
+        "--host", harness.endpoint, "cp",
+        `${containerId}:/data/caddy/pki/authorities/local/root.crt`, path.resolve(caPath),
+      ]);
+    } finally {
+      rmSync(temporaryRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("sends the expected hostname as SNI and requires trusted certificate validation", async () => {
+    const socket = Object.assign(new EventEmitter(), {
+      authorized: true,
+      setTimeout: () => undefined,
+      destroy: () => undefined,
+      end: () => undefined,
+    });
+    let connectionOptions: Record<string, unknown> | undefined;
+    const connect = (options: Record<string, unknown>) => {
+      connectionOptions = options;
+      queueMicrotask(() => socket.emit("secureConnect"));
+      return socket;
+    };
+    const ca = Buffer.from("public-root-ca");
+    const fakeConnect = connect as unknown as typeof import("node:tls").connect;
+
+    await expect(verifyNativeTls({ host: "localhost", port: 56443, ca }, { connect: fakeConnect })).resolves.toBeUndefined();
+    expect(connectionOptions).toEqual({
+      host: "localhost",
+      port: 56443,
+      servername: "localhost",
+      ca,
+      rejectUnauthorized: true,
+    });
+  });
+
+  it("stops a proxy published beyond explicit IPv4 loopback", async () => {
+    const harness = createDockerHarness({ networkId: "8".repeat(64) });
+    const calls: string[][] = [];
+    let running = true;
+    const run = async (command: string, args: string[]) => {
+      calls.push(args);
+      if (args[0] === "--host" && args[2] === "compose" && args[3] === "up") {
+        return { code: 0, stdout: "", stderr: "" };
+      }
+      if (args[0] === "--host" && args[2] === "compose" && args[3] === "ps") {
+        return { code: 0, stdout: "abcdef012345\n", stderr: "" };
+      }
+      if (args[0] === "--host" && args[2] === "compose" && args[3] === "stop") {
+        running = false;
+        return { code: 0, stdout: "", stderr: "" };
+      }
+      if (args[0] === "--host" && args[2] === "ps" && args.includes("--filter")) {
+        return { code: 0, stdout: running ? "abcdef012345\n" : "", stderr: "" };
+      }
+      if (args[0] === "--host" && args[2] === "inspect") {
+        return {
+          code: 0,
+          stdout: `${JSON.stringify({ "8443/tcp": [{ HostIp: "0.0.0.0", HostPort: "56443" }] })}\n`,
+          stderr: "",
+        };
+      }
+      return harness.run(command, args);
+    };
+
+    await expect(ensureLocalSupabaseTlsProxy(harness.endpoint, "8".repeat(64), {
+      run,
+      dockerCliPath: harness.dockerCliPath,
+      caPath: path.join(tmpdir(), "unused-goodz-ca.crt"),
+      platform: "linux",
+    })).rejects.toThrow("fora do loopback esperado");
+    expect(calls).toContainEqual([
+      "--host", harness.endpoint, "compose", "stop", "supabase-tls",
+    ]);
+  });
+
+  it("fails closed when the proxy cannot be confirmed stopped after validation fails", async () => {
+    const harness = createDockerHarness({ networkId: "9".repeat(64) });
+    const running = true;
+    const run = async (command: string, args: string[]) => {
+      if (args[0] === "--host" && args[2] === "compose" && args[3] === "up") {
+        return { code: 0, stdout: "", stderr: "" };
+      }
+      if (args[0] === "--host" && args[2] === "compose" && args[3] === "ps") {
+        return { code: 0, stdout: "abcdef012345\n", stderr: "" };
+      }
+      if (args[0] === "--host" && args[2] === "compose" && args[3] === "stop") {
+        return { code: 0, stdout: "", stderr: "" };
+      }
+      if (args[0] === "--host" && args[2] === "ps" && args.includes("--filter")) {
+        return { code: 0, stdout: running ? "abcdef012345\n" : "", stderr: "" };
+      }
+      if (args[0] === "--host" && args[2] === "inspect") {
+        return {
+          code: 0,
+          stdout: `${JSON.stringify({ "8443/tcp": [{ HostIp: "0.0.0.0", HostPort: "56443" }] })}\n`,
+          stderr: "",
+        };
+      }
+      return harness.run(command, args);
+    };
+
+    await expect(ensureLocalSupabaseTlsProxy(harness.endpoint, "9".repeat(64), {
+      run,
+      dockerCliPath: harness.dockerCliPath,
+      caPath: path.join(tmpdir(), "unused-goodz-ca.crt"),
+      platform: "linux",
+    })).rejects.toMatchObject({ code: "LOCAL_TLS_PROXY_STOP_FAILED" });
+    expect(running).toBe(true);
+    expect(read("scripts/dev.mjs")).toContain('error.code === "LOCAL_TLS_PROXY_STOP_FAILED"');
+  });
+
+  it("stops and verifies its proxy by Compose labels when the local network cannot be inspected", async () => {
+    const harness = createDockerHarness({ networkId: "a".repeat(64) });
+    const calls: string[][] = [];
+    let running = true;
+    const run = async (command: string, args: string[]) => {
+      calls.push(args);
+      if (args[0] === "--host" && args[2] === "ps" && args.includes("--filter")) {
+        return { code: 0, stdout: running ? "abcdef012345\n" : "", stderr: "" };
+      }
+      if (args[0] === "--host" && args[2] === "stop") {
+        running = false;
+        return { code: 0, stdout: "abcdef012345\n", stderr: "" };
+      }
+      return harness.run(command, args);
+    };
+
+    await expect(stopLocalSupabaseTlsProxy(harness.endpoint, undefined, {
+      run,
+      dockerCliPath: harness.dockerCliPath,
+    })).resolves.toBeUndefined();
+    expect(running).toBe(false);
+    expect(calls).toContainEqual([
+      "--host", harness.endpoint, "stop", "abcdef012345",
+    ]);
+    expect(calls.at(-1)).toEqual([
+      "--host", harness.endpoint, "ps", "-q",
+      "--filter", "label=com.docker.compose.project=goodz-menu-reboot-001",
+      "--filter", "label=com.docker.compose.service=supabase-tls",
+    ]);
+  });
+
+  it("rejects a private key in the app's CA trust file", () => {
+    const temporaryRoot = mkdtempSync(path.join(tmpdir(), "goodz-tls-private-key-"));
+    const caPath = path.join(temporaryRoot, "root.crt");
+    writeFileSync(caPath, "-----BEGIN PRIVATE KEY-----\nsynthetic\n-----END PRIVATE KEY-----\n", "utf8");
+    try {
+      expect(() => readAndValidateRootCertificate(caPath)).toThrow("somente um certificado público");
+    } finally {
+      rmSync(temporaryRoot, { recursive: true, force: true });
+    }
   });
 
   it("keeps database reset on the isolated Supabase network", () => {
@@ -261,6 +484,7 @@ describe("isolated local Supabase configuration", () => {
     const networkId = "d".repeat(64);
     const harness = createDockerHarness({ networkId, supabaseStatus: true });
     await expect(readLocalSupabaseStatus(harness.endpoint, harness.run, harness.dockerCliPath)).resolves.toMatchObject({
+      apiUrl: "https://localhost:56443",
       dockerEndpoint: harness.endpoint,
       dockerNetworkId: networkId,
     });
@@ -398,6 +622,7 @@ describe("isolated local Supabase configuration", () => {
     const protectedRuntime = [
       read(".env.example"),
       read("compose.yaml"),
+      read("supabase/Caddyfile"),
       read("Dockerfile"),
       read("src/app/api/ready/route.ts"),
       read("src/lib/runtime/readiness.ts"),

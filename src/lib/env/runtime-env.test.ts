@@ -9,31 +9,33 @@ describe("parseRuntimeEnvironment", () => {
     if (result.ok) {
       expect(result.config.environment).toBe("local");
       expect(result.config.runtime).toBe("native");
-      expect(result.config.supabaseApiUrl.origin).toBe("http://127.0.0.1:56321");
+      expect(result.config.supabaseApiUrl.origin).toBe("https://localhost:56443");
     }
   });
 
   it("defaults the Docker runtime to the gateway on its shared local network", () => {
     const result = parseRuntimeEnvironment({ GOODZ_RUNTIME: "docker" });
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.config.supabaseApiUrl.origin).toBe("http://kong:8000");
+    if (result.ok) expect(result.config.supabaseApiUrl.origin).toBe("https://supabase-tls:8443");
   });
 
-  it("accepts the Supabase service gateway only for the Docker runtime", () => {
+  it("accepts the local TLS proxy only for the Docker runtime", () => {
     const result = parseRuntimeEnvironment({
       GOODZ_RUNTIME: "docker",
-      SUPABASE_API_URL: "http://kong:8000",
+      SUPABASE_API_URL: "https://supabase-tls:8443",
     });
     expect(result.ok).toBe(true);
   });
 
   it.each([
     "https://example.supabase.co",
-    "http://user:pass@127.0.0.1:56321",
-    "http://127.0.0.1:56321/private",
-    "http://host.docker.internal:56321",
-    "http://kong:8000",
-    "http://127.0.0.1:54321",
+    "https://user:pass@localhost:56443",
+    "https://localhost:56443/private",
+    "https://host.docker.internal:56443",
+    "https://supabase-tls:8443",
+    "https://127.0.0.1:56443",
+    "https://localhost:54321",
+    "http://127.0.0.1:56443",
   ])("rejects an endpoint outside the isolated local contract: %s", (endpoint) => {
     expect(parseRuntimeEnvironment({ SUPABASE_API_URL: endpoint })).toMatchObject({
       ok: false,
@@ -41,7 +43,7 @@ describe("parseRuntimeEnvironment", () => {
     });
   });
 
-  it.each(["http://127.0.0.1:56321", "http://host.docker.internal:56321"])(
+  it.each(["https://localhost:56443", "https://host.docker.internal:56443"])(
     "rejects host-only Supabase endpoints from the Docker runtime: %s",
     (endpoint) => {
       expect(parseRuntimeEnvironment({
@@ -50,6 +52,17 @@ describe("parseRuntimeEnvironment", () => {
       })).toMatchObject({ ok: false, reason: "invalid_supabase_url" });
     },
   );
+
+  it("allows HTTP only for an isolated native test fixture", () => {
+    expect(parseRuntimeEnvironment({
+      GOODZ_ENVIRONMENT: "test",
+      SUPABASE_API_URL: "http://127.0.0.1:56388",
+    })).toMatchObject({ ok: true });
+    expect(parseRuntimeEnvironment({
+      GOODZ_ENVIRONMENT: "local",
+      SUPABASE_API_URL: "http://127.0.0.1:56388",
+    })).toMatchObject({ ok: false, reason: "invalid_supabase_url" });
+  });
 
   it("keeps public runtime identity fields bounded and sanitized", () => {
     const result = parseRuntimeEnvironment({

@@ -1,6 +1,26 @@
 name: goodz-menu-reboot-001
 
 services:
+  supabase-tls:
+    image: caddy:2.11.7-alpine@sha256:eb4d35b7452d1ab6171fbdbe8d9275b2301dad6dad92115d91e19fb9b24d510f
+    restart: unless-stopped
+    # The pinned image's Caddy binary has this file capability; it must remain in the bounding set for exec with cap_drop: ALL.
+    cap_add:
+      - NET_BIND_SERVICE
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256m
+    ports:
+      - "127.0.0.1:56443:8443"
+      - "[::1]:56443:8443"
+    volumes:
+      - ./supabase/Caddyfile:/etc/caddy/Caddyfile:ro
+      - supabase_tls_data:/data
+    networks:
+      - goodz-local-supabase
+
   web:
     build:
       context: .
@@ -11,8 +31,9 @@ services:
       GOODZ_ENVIRONMENT: local
       GOODZ_RUNTIME: docker
       BUILD_REVISION: ${BUILD_REVISION:-local}
-      SUPABASE_API_URL: http://kong:8000
+      SUPABASE_API_URL: https://supabase-tls:8443
       SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:-}
+      NODE_EXTRA_CA_CERTS: /run/goodz/supabase-root-ca.crt
       HOSTNAME: 0.0.0.0
       PORT: 3000
     cap_drop:
@@ -21,6 +42,16 @@ services:
       - no-new-privileges:true
     networks:
       - goodz-local-supabase
+    depends_on:
+      supabase-tls:
+        condition: service_started
+    volumes:
+      - type: bind
+        source: ./.local-tls/supabase-root-ca.crt
+        target: /run/goodz/supabase-root-ca.crt
+        read_only: true
+        bind:
+          create_host_path: false
     ports:
       - "127.0.0.1:${GOODZ_WEB_PORT:-3001}:3000"
     healthcheck:
@@ -38,3 +69,7 @@ networks:
   goodz-local-supabase:
     name: "${GOODZ_SUPABASE_NETWORK_ID:?Run pnpm docker:up to verify the local Supabase network}"
     external: true
+
+volumes:
+  supabase_tls_data:
+    name: goodz-menu-reboot-001-supabase-tls-data

@@ -1,6 +1,6 @@
 # GMZ-REBOOT-001 — Reinício limpo da implementação (Módulo 1)
 
-Status: `AUTHORIZED_FOR_REBUILD_PLANNING / EXECUTION_NOT_YET_VALIDATED`<br>
+Status: `IN_PROGRESS / LOCAL_TLS_IMPLEMENTATION_AND_ACCEPTANCE_COMPLETE / HOSTED_SECURITY_AND_HUMAN_REVIEW_PENDING`<br>
 Issue: #73<br>
 Branch: `rebuild/gmz-reboot-001-module-01`<br>
 Base: `main@3139534697743494626f4940b78ac3f9d468ceb6`<br>
@@ -76,3 +76,21 @@ Resumo PT-BR: `APPROVED | CORRECTION REQUIRED | BLOCKED`, head SHA, arquivos, ch
 
 ## STOP CONDITION
 `GMZ_REBOOT_001_READY_FOR_OBJECTIVE_AUDIT` somente quando todas as provas de fundação e CI estiverem presentes no HEAD candidato. Antes: `IN_PROGRESS` ou `BLOCKED`. Não iniciar `GMZ-M01` enquanto este WO exigir correções/validação.
+
+## APPROVED SCOPE AMENDMENT — LOCAL TLS PROXY
+
+On 2026-10-27 the repository maintainer explicitly authorized implementing a local TLS proxy to remediate the two S5332 findings. This amendment is limited to the local/test development runtime on this reboot branch and supersedes the earlier instruction to preserve the TLS WIP without implementation. It does not authorize remote Supabase, production TLS, business-domain work, GMZ-M01, merge, deployment, checkpoint promotion, or changes to Sonar issue states.
+
+- Pin Caddy to an immutable upstream image digest and serve HTTPS only for the local Supabase API at `https://localhost:56443` (native app) and `https://supabase-tls:8443` (Docker app).
+- Publish the proxy host port only on `127.0.0.1` and `::1`, and keep it on the validated, dedicated Supabase bridge.
+- Keep the Caddy private CA key in a Docker-managed volume. Export only the public CA root certificate to an ignored local file; expose it read-only to the app and exclude it from Git and Docker build context.
+- Require certificate-chain and hostname validation in Node; no trust-all flags, HTTP fallback, remote endpoint, or hidden Sonar suppression.
+- The app-to-proxy hop is encrypted. The proxy-to-Supabase Envoy/Kong hop remains HTTP inside the dedicated Docker bridge and must be disclosed as a residual boundary; do not call this end-to-end TLS.
+- Acceptance requires native and Docker readiness through the trusted proxy, rejection of an untrusted CA or mismatched hostname, loopback-only proxy binding, no private key in Git/build context/app container, and fresh exact-HEAD security/CI evidence.
+- Preserve the user's keyboard, actual zoom, screen-reader, and visual sign-off as pending.
+
+Execution binding and source fingerprints for this narrow amendment are recorded in `.engineering/context-locks/GMZ-REBOOT-001.json`. The existing main checkpoint remains unchanged; this amendment binds only the open foundation PR #74.
+
+## OPERATIONAL CONCURRENCY CONSTRAINT — ONE WORKTREE PER DOCKER ENGINE
+
+The Compose project, Supabase project, isolated bridge, and Caddy CA volume names are fixed in this scope. Use only one Goodz Menu worktree at a time on a Docker engine until per-worktree namespacing is separately authorized; another checkout could reuse or stop these resources.

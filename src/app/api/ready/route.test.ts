@@ -11,7 +11,7 @@ describe("GET /api/ready", () => {
     vi.stubEnv("GOODZ_ENVIRONMENT", "local");
     vi.stubEnv("GOODZ_RUNTIME", "native");
     vi.stubEnv("BUILD_REVISION", "ready-route-test");
-    vi.stubEnv("SUPABASE_API_URL", "http://127.0.0.1:56321");
+    vi.stubEnv("SUPABASE_API_URL", "https://localhost:56443");
     vi.stubEnv("SUPABASE_ANON_KEY", "");
     vi.spyOn(console, "warn").mockImplementation(() => undefined);
 

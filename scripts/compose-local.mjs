@@ -8,6 +8,7 @@ import {
   readLocalSupabaseStatus,
   repositoryRoot,
 } from "./local-supabase-status.mjs";
+import { ensureLocalSupabaseTlsProxy } from "./local-supabase-tls.mjs";
 
 const [action] = process.argv.slice(2);
 if (!["up", "down", "ps", "logs"].includes(action)) {
@@ -24,6 +25,7 @@ try {
   if (action === "up") {
     const local = await readLocalSupabaseStatus(dockerEndpoint);
     dockerEndpoint = local.dockerEndpoint;
+    const tlsProxy = await ensureLocalSupabaseTlsProxy(dockerEndpoint, local.dockerNetworkId, { dockerCliPath });
     const webPort = process.env.GOODZ_WEB_PORT ?? "3001";
     if (!/^\d{1,5}$/.test(webPort) || Number(webPort) < 1024 || Number(webPort) > 65535) {
       throw new Error("GOODZ_WEB_PORT precisa estar entre 1024 e 65535.");
@@ -37,7 +39,7 @@ try {
       GOODZ_RUNTIME: "docker",
       GOODZ_WEB_PORT: webPort,
       BUILD_REVISION: revision,
-      SUPABASE_API_URL: "http://kong:8000",
+      SUPABASE_API_URL: tlsProxy.dockerApiUrl,
       SUPABASE_ANON_KEY: local.anonKey,
       GOODZ_SUPABASE_NETWORK_ID: local.dockerNetworkId,
     });

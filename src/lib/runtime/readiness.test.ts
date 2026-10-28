@@ -7,7 +7,7 @@ describe("local readiness probe", () => {
     const result = await checkReadiness(
       {
         GOODZ_RUNTIME: "docker",
-        SUPABASE_API_URL: "http://kong:8000",
+        SUPABASE_API_URL: "https://supabase-tls:8443",
         SUPABASE_ANON_KEY: "sb_publishable_synthetic-key",
       },
       fetchMock,
@@ -15,7 +15,7 @@ describe("local readiness probe", () => {
 
     expect(result.ready).toBe(true);
     expect(fetchMock).toHaveBeenCalledWith(
-      new URL("http://kong:8000/auth/v1/health"),
+      new URL("https://supabase-tls:8443/auth/v1/health"),
       expect.objectContaining({ headers: { apikey: "sb_publishable_synthetic-key", accept: "application/json" } }),
     );
   });

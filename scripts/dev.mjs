@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import path from "node:path";
 import { readLocalSupabaseStatus, repositoryRoot, safeProcessEnvironment } from "./local-supabase-status.mjs";
+import { ensureLocalSupabaseTlsProxy } from "./local-supabase-tls.mjs";
 
 const nextCliPath = path.join(repositoryRoot, "node_modules", "next", "dist", "bin", "next");
 const options = { hostname: "127.0.0.1", port: "3000" };
@@ -23,9 +24,18 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
 let supabase = {};
 try {
   const status = await readLocalSupabaseStatus();
-  supabase = { SUPABASE_API_URL: status.apiUrl, SUPABASE_ANON_KEY: status.anonKey };
+  const tlsProxy = await ensureLocalSupabaseTlsProxy(status.dockerEndpoint, status.dockerNetworkId);
+  supabase = {
+    SUPABASE_API_URL: tlsProxy.nativeApiUrl,
+    SUPABASE_ANON_KEY: status.anonKey,
+    NODE_EXTRA_CA_CERTS: tlsProxy.caPath,
+  };
   console.log("Readiness usará somente a chave pública do Supabase local.");
-} catch {
+} catch (error) {
+  if (error && typeof error === "object" && error.code === "LOCAL_TLS_PROXY_STOP_FAILED") {
+    console.error("O proxy TLS local não pôde ser validado e parado; o servidor de desenvolvimento foi cancelado.");
+    process.exit(1);
+  }
   console.log("Supabase local não detectado; o app inicia sem sua configuração. Inicie o Supabase e reinicie pnpm dev para carregar a chave pública local.");
 }
 

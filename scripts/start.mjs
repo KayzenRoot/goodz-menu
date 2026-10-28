@@ -53,6 +53,12 @@ if (supabaseAnonKey && !isPublicSupabaseAnonKey(supabaseAnonKey)) {
   process.exit(1);
 }
 
+const nodeExtraCaCerts = process.env.NODE_EXTRA_CA_CERTS?.trim();
+if (supabaseAnonKey && (!nodeExtraCaCerts || !existsSync(nodeExtraCaCerts))) {
+  console.error("A CA pública do proxy Supabase TLS não está disponível; o servidor não foi iniciado.");
+  process.exit(1);
+}
+
 const child = spawn(process.execPath, [serverPath], {
   cwd: standaloneDirectory,
   stdio: "inherit",
@@ -65,6 +71,7 @@ const child = spawn(process.execPath, [serverPath], {
     ...(process.env.SUPABASE_API_URL ? { SUPABASE_API_URL: process.env.SUPABASE_API_URL } : {}),
     ...(supabaseAnonKey ? { SUPABASE_ANON_KEY: supabaseAnonKey } : {}),
     ...(process.env.BUILD_REVISION ? { BUILD_REVISION: process.env.BUILD_REVISION } : {}),
+    ...(nodeExtraCaCerts ? { NODE_EXTRA_CA_CERTS: nodeExtraCaCerts } : {}),
     HOSTNAME: options.hostname,
     PORT: String(port),
   },

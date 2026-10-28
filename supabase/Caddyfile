@@ -1,0 +1,11 @@
+{
+	admin off
+	auto_https disable_redirects
+}
+
+localhost:8443, supabase-tls:8443 {
+	tls internal
+	reverse_proxy kong:8000 {
+		header_up Host kong:8000
+	}
+}

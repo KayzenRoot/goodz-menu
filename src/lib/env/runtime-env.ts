@@ -49,7 +49,9 @@ export function parseRuntimeEnvironment(input: EnvironmentInput): RuntimeEnviron
     return { ok: false, environment, runtime, revision, reason: "invalid_runtime" };
   }
 
-  const defaultEndpoint = runtimeResult.data === "docker" ? "http://kong:8000" : "http://127.0.0.1:56321";
+  const defaultEndpoint = runtimeResult.data === "docker"
+    ? "https://supabase-tls:8443"
+    : "https://localhost:56443";
   const endpoint = input.SUPABASE_API_URL ?? defaultEndpoint;
   let supabaseApiUrl: URL;
 
@@ -60,16 +62,20 @@ export function parseRuntimeEnvironment(input: EnvironmentInput): RuntimeEnviron
   }
 
   const host = supabaseApiUrl.hostname.toLowerCase();
-  const isNativeLoopback = runtimeResult.data === "native" && ["localhost", "127.0.0.1", "[::1]"].includes(host);
-  const isDockerNetworkGateway = runtimeResult.data === "docker" && host === "kong";
-  const safeLocalEndpoint = isNativeLoopback || isDockerNetworkGateway;
-  const expectedPort = runtimeResult.data === "docker" ? "8000" : "56321";
+  const isNativeLoopback = runtimeResult.data === "native" && host === "localhost";
+  const isTestLoopback = environmentResult.data === "test" && runtimeResult.data === "native" &&
+    ["localhost", "127.0.0.1", "[::1]"].includes(host);
+  const isDockerTlsProxy = runtimeResult.data === "docker" && host === "supabase-tls";
+  const safeLocalEndpoint = isNativeLoopback || isTestLoopback || isDockerTlsProxy;
+  const expectedPort = runtimeResult.data === "docker" ? "8443" : "56443";
   const dedicatedLocalPort = supabaseApiUrl.port === expectedPort ||
     (environmentResult.data === "test" && supabaseApiUrl.port !== "");
+  const allowedTransport = supabaseApiUrl.protocol === "https:" ||
+    (environmentResult.data === "test" && runtimeResult.data === "native" && supabaseApiUrl.protocol === "http:");
   const hasOnlyBasePath = supabaseApiUrl.pathname === "/";
 
   if (
-    supabaseApiUrl.protocol !== "http:" ||
+    !allowedTransport ||
     supabaseApiUrl.username !== "" ||
     supabaseApiUrl.password !== "" ||
     supabaseApiUrl.search !== "" ||

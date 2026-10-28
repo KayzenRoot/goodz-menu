@@ -6,7 +6,7 @@ import { isPublicSupabaseAnonKey } from "../src/lib/env/supabase-public-key.mjs"
 
 export const repositoryRoot = fileURLToPath(new URL("../", import.meta.url));
 export const supabaseCliPath = path.join(repositoryRoot, "node_modules", "supabase", "dist", "supabase.js");
-export const localApiUrl = "http://127.0.0.1:56321";
+export const localApiUrl = "https://localhost:56443";
 export const localNetworkName = "goodz-menu-reboot-001-loopback";
 export const localProjectId = "goodz-menu-reboot-001";
 
@@ -453,7 +453,7 @@ function dockerHostPort(value) {
   return port <= 65535 ? port : undefined;
 }
 
-function assertWindowsLoopbackHostListeners(expectedPorts, listeners) {
+export function assertWindowsLoopbackHostListeners(expectedPorts, listeners) {
   if (!Array.isArray(listeners)) {
     throw new Error("Os listeners locais das portas Supabase não puderam ser verificados.");
   }
@@ -472,7 +472,7 @@ function assertWindowsLoopbackHostListeners(expectedPorts, listeners) {
   }
 }
 
-function readWindowsHostListeners(hostPorts) {
+export function readWindowsHostListeners(hostPorts) {
   const { windowsRoot, powershellPath } = windowsPowerShellContext();
   const query = [
     "$ErrorActionPreference='Stop';",
