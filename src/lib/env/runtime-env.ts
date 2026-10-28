@@ -4,6 +4,7 @@ import { isPublicSupabaseAnonKey } from "./supabase-public-key.mjs";
 const EnvironmentSchema = z.enum(["local", "test"]);
 const RuntimeSchema = z.enum(["native", "docker"]);
 const RevisionSchema = z.string().trim().min(1).max(64).regex(/^[A-Za-z0-9][A-Za-z0-9._-]*$/);
+const TestNativeLoopbackHosts = new Set(["localhost", "127.0.0.1", "[::1]"]);
 
 export type GoodzEnvironment = z.infer<typeof EnvironmentSchema>;
 export type GoodzRuntime = z.infer<typeof RuntimeSchema>;
@@ -61,29 +62,7 @@ export function parseRuntimeEnvironment(input: EnvironmentInput): RuntimeEnviron
     return { ok: false, environment, runtime, revision, reason: "invalid_supabase_url" };
   }
 
-  const host = supabaseApiUrl.hostname.toLowerCase();
-  const isNativeLoopback = runtimeResult.data === "native" && host === "localhost";
-  const isTestLoopback = environmentResult.data === "test" && runtimeResult.data === "native" &&
-    ["localhost", "127.0.0.1", "[::1]"].includes(host);
-  const isDockerTlsProxy = runtimeResult.data === "docker" && host === "supabase-tls";
-  const safeLocalEndpoint = isNativeLoopback || isTestLoopback || isDockerTlsProxy;
-  const expectedPort = runtimeResult.data === "docker" ? "8443" : "56443";
-  const dedicatedLocalPort = supabaseApiUrl.port === expectedPort ||
-    (environmentResult.data === "test" && supabaseApiUrl.port !== "");
-  const allowedTransport = supabaseApiUrl.protocol === "https:" ||
-    (environmentResult.data === "test" && runtimeResult.data === "native" && supabaseApiUrl.protocol === "http:");
-  const hasOnlyBasePath = supabaseApiUrl.pathname === "/";
-
-  if (
-    !allowedTransport ||
-    supabaseApiUrl.username !== "" ||
-    supabaseApiUrl.password !== "" ||
-    supabaseApiUrl.search !== "" ||
-    supabaseApiUrl.hash !== "" ||
-    !hasOnlyBasePath ||
-    !safeLocalEndpoint ||
-    !dedicatedLocalPort
-  ) {
+  if (!isAllowedLocalSupabaseEndpoint(supabaseApiUrl, environmentResult.data, runtimeResult.data)) {
     return { ok: false, environment, runtime, revision, reason: "invalid_supabase_url" };
   }
 
@@ -102,4 +81,31 @@ export function parseRuntimeEnvironment(input: EnvironmentInput): RuntimeEnviron
       revision,
     },
   };
+}
+
+function isAllowedLocalSupabaseEndpoint(url: URL, environment: GoodzEnvironment, runtime: GoodzRuntime): boolean {
+  return isAllowedTransport(url, environment, runtime) &&
+    isAllowedHost(url, environment, runtime) &&
+    isAllowedPort(url, environment, runtime) &&
+    url.username === "" &&
+    url.password === "" &&
+    url.search === "" &&
+    url.hash === "" &&
+    url.pathname === "/";
+}
+
+function isAllowedTransport(url: URL, environment: GoodzEnvironment, runtime: GoodzRuntime): boolean {
+  return url.protocol === "https:" ||
+    (environment === "test" && runtime === "native" && url.protocol === "http:");
+}
+
+function isAllowedHost(url: URL, environment: GoodzEnvironment, runtime: GoodzRuntime): boolean {
+  const host = url.hostname.toLowerCase();
+  if (runtime === "docker") return host === "supabase-tls";
+  return host === "localhost" || (environment === "test" && TestNativeLoopbackHosts.has(host));
+}
+
+function isAllowedPort(url: URL, environment: GoodzEnvironment, runtime: GoodzRuntime): boolean {
+  const expectedPort = runtime === "docker" ? "8443" : "56443";
+  return url.port === expectedPort || (environment === "test" && runtime === "native" && url.port !== "");
 }

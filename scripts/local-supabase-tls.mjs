@@ -40,80 +40,23 @@ export async function ensureLocalSupabaseTlsProxy(
     retryDelayMs = 400,
   } = {},
 ) {
-  if (typeof dockerNetworkId !== "string" || !/^[a-f0-9]{64}$/i.test(dockerNetworkId)) {
-    throw new Error("A rede local do proxy TLS não pôde ser validada.");
-  }
-
-  const docker = await ensureLocalDocker(run, dockerCliPath);
-  if (docker.endpoint !== dockerEndpoint) {
-    throw new Error("O contexto Docker mudou durante a operação local.");
-  }
-
-  const environment = dockerRuntimeEnvironment(
-    dockerEndpoint,
-    { GOODZ_SUPABASE_NETWORK_ID: dockerNetworkId },
-    dockerCliPath,
-  );
-  const runDocker = async (args) => run(dockerCliPath, dockerCommandArgs(dockerEndpoint, args), {
-    cwd: repositoryRoot,
-    env: environment,
-  });
+  assertDockerNetworkId(dockerNetworkId);
+  const runDocker = await createLocalDockerRunner(dockerEndpoint, dockerNetworkId, run, dockerCliPath);
 
   try {
-    const started = await runDocker(["compose", "up", "-d", "--no-deps", caddyImageService]);
-    if (started.code !== 0) throw new Error("O proxy TLS local não pôde ser iniciado.");
-
-    const listed = await runDocker(["compose", "ps", "-q", caddyImageService]);
-    const containerIds = listed.code === 0
-      ? listed.stdout.split(/\r?\n/).map((value) => value.trim()).filter(Boolean)
-      : [];
-    if (containerIds.length !== 1 || !containerIdPattern.test(containerIds[0])) {
-      throw new Error("O container do proxy TLS local não pôde ser identificado.");
-    }
-    const containerId = containerIds[0];
-
+    const containerId = await startTlsProxyContainer(runDocker);
     await verifyLoopbackProxyBinding(containerId, runDocker);
-    mkdirSync(path.dirname(caPath), { recursive: true });
-
-    let certificate;
-    for (let attempt = 0; attempt < attempts; attempt += 1) {
-      const copied = await runDocker(["cp", `${containerId}:${caddyCaPath}`, path.resolve(caPath)]);
-      if (copied.code === 0 && existsSync(caPath)) {
-        try {
-          certificate = readCa(caPath);
-          break;
-        } catch {
-          certificate = undefined;
-        }
-      }
-      if (attempt + 1 < attempts) await wait(retryDelayMs);
-    }
+    const certificate = await exportRootCertificate(containerId, runDocker, {
+      caPath,
+      readCa,
+      wait,
+      attempts,
+      retryDelayMs,
+    });
     if (!certificate) throw new Error("A CA pública do proxy TLS local não pôde ser exportada.");
 
-    let verified = false;
-    let tlsFailureCode = "UNKNOWN";
-    for (let attempt = 0; attempt < attempts; attempt += 1) {
-      try {
-        await verifyTls({ host: "localhost", port: Number(caddyHostPort), ca: certificate });
-        verified = true;
-        break;
-      } catch (error) {
-        const code = typeof error?.code === "string" ? error.code : "UNKNOWN";
-        if (/^[A-Z0-9_]{2,64}$/i.test(code)) tlsFailureCode = code;
-        if (attempt + 1 < attempts) await wait(retryDelayMs);
-      }
-    }
-    if (!verified) throw new Error(`O certificado ou hostname do proxy TLS local não foi validado (${tlsFailureCode}).`);
-
-    if (platform === "win32") {
-      let listeners;
-      try {
-        listeners = await getHostListeners([Number(caddyHostPort)]);
-        assertWindowsLoopbackHostListeners(new Set([Number(caddyHostPort)]), listeners);
-      } catch {
-        throw new Error("O listener TLS local não pôde ser confirmado somente no loopback.");
-      }
-    }
+    await verifyTlsUntilAvailable(verifyTls, certificate, { wait, attempts, retryDelayMs });
+    verifyWindowsLoopbackPort(platform, getHostListeners, Number(caddyHostPort));
 
     return {
       nativeApiUrl: nativeSupabaseTlsApiUrl,
@@ -122,23 +65,7 @@ export async function ensureLocalSupabaseTlsProxy(
       containerId,
     };
   } catch (error) {
-    let stopped = false;
-    try {
-      const stopResult = await runDocker(["compose", "stop", caddyImageService]);
-      if (stopResult.code === 0) {
-        stopped = (await listRunningTlsProxyContainers(runDocker)).length === 0;
-      }
-    } catch {
-      stopped = false;
-    }
-    if (!stopped) {
-      const cleanupError = new Error(
-        "O proxy TLS falhou na validação e não foi possível confirmar que foi parado.",
-        { cause: error },
-      );
-      Object.assign(cleanupError, { code: "LOCAL_TLS_PROXY_STOP_FAILED" });
-      throw cleanupError;
-    }
+    if (!(await stopProxyAfterFailure(runDocker))) throw createProxyCleanupError(error);
     throw error;
   }
 }
@@ -148,26 +75,8 @@ export async function stopLocalSupabaseTlsProxy(
   dockerNetworkId,
   { run = runCaptured, dockerCliPath = resolveDockerCliPath() } = {},
 ) {
-  if (
-    dockerNetworkId !== undefined &&
-    (typeof dockerNetworkId !== "string" || !/^[a-f0-9]{64}$/i.test(dockerNetworkId))
-  ) {
-    throw new Error("A rede local do proxy TLS não pôde ser validada.");
-  }
-
-  const docker = await ensureLocalDocker(run, dockerCliPath);
-  if (docker.endpoint !== dockerEndpoint) {
-    throw new Error("O contexto Docker mudou durante a operação local.");
-  }
-  const environment = dockerRuntimeEnvironment(
-    dockerEndpoint,
-    dockerNetworkId ? { GOODZ_SUPABASE_NETWORK_ID: dockerNetworkId } : {},
-    dockerCliPath,
-  );
-  const runDocker = (args) => run(dockerCliPath, dockerCommandArgs(dockerEndpoint, args), {
-    cwd: repositoryRoot,
-    env: environment,
-  });
+  if (dockerNetworkId !== undefined) assertDockerNetworkId(dockerNetworkId);
+  const runDocker = await createLocalDockerRunner(dockerEndpoint, dockerNetworkId, run, dockerCliPath);
   if (dockerNetworkId) {
     const stopped = await runDocker(["compose", "stop", caddyImageService]);
     if (stopped.code !== 0) throw new Error("O proxy TLS local não pôde ser parado.");
@@ -180,6 +89,100 @@ export async function stopLocalSupabaseTlsProxy(
   }
   const remaining = await listRunningTlsProxyContainers(runDocker);
   if (remaining.length > 0) throw new Error("O proxy TLS local ainda está em execução.");
+}
+
+function assertDockerNetworkId(dockerNetworkId) {
+  if (typeof dockerNetworkId !== "string" || !/^[a-f0-9]{64}$/i.test(dockerNetworkId)) {
+    throw new Error("A rede local do proxy TLS não pôde ser validada.");
+  }
+}
+
+async function createLocalDockerRunner(dockerEndpoint, dockerNetworkId, run, dockerCliPath) {
+  const docker = await ensureLocalDocker(run, dockerCliPath);
+  if (docker.endpoint !== dockerEndpoint) throw new Error("O contexto Docker mudou durante a operação local.");
+  const networkEnvironment = dockerNetworkId ? { GOODZ_SUPABASE_NETWORK_ID: dockerNetworkId } : {};
+  const environment = dockerRuntimeEnvironment(dockerEndpoint, networkEnvironment, dockerCliPath);
+  return (args) => run(dockerCliPath, dockerCommandArgs(dockerEndpoint, args), {
+    cwd: repositoryRoot,
+    env: environment,
+  });
+}
+
+async function startTlsProxyContainer(runDocker) {
+  const started = await runDocker(["compose", "up", "-d", "--no-deps", caddyImageService]);
+  if (started.code !== 0) throw new Error("O proxy TLS local não pôde ser iniciado.");
+  const listed = await runDocker(["compose", "ps", "-q", caddyImageService]);
+  const containerIds = listed.code === 0
+    ? listed.stdout.split(/\r?\n/).map((value) => value.trim()).filter(Boolean)
+    : [];
+  if (containerIds.length !== 1 || !containerIdPattern.test(containerIds[0])) {
+    throw new Error("O container do proxy TLS local não pôde ser identificado.");
+  }
+  return containerIds[0];
+}
+
+async function exportRootCertificate(containerId, runDocker, { caPath, readCa, wait, attempts, retryDelayMs }) {
+  mkdirSync(path.dirname(caPath), { recursive: true });
+  const readWhenReady = async (attempt) => {
+    const copied = await runDocker(["cp", `${containerId}:${caddyCaPath}`, path.resolve(caPath)]);
+    if (copied.code === 0 && existsSync(caPath)) {
+      try {
+        return readCa(caPath);
+      } catch {
+        // Retry until Caddy has written a complete public root certificate.
+      }
+    }
+    if (attempt + 1 >= attempts) return undefined;
+    await wait(retryDelayMs);
+    return readWhenReady(attempt + 1);
+  };
+  return readWhenReady(0);
+}
+
+async function verifyTlsUntilAvailable(verifyTls, certificate, { wait, attempts, retryDelayMs }) {
+  const verifyAttempt = async (attempt, previousCode = "UNKNOWN") => {
+    try {
+      await verifyTls({ host: "localhost", port: Number(caddyHostPort), ca: certificate });
+      return;
+    } catch (error) {
+      const code = typeof error?.code === "string" ? error.code : previousCode;
+      const safeCode = /^[A-Z0-9_]{2,64}$/i.test(code) ? code : previousCode;
+      if (attempt + 1 >= attempts) {
+        throw new Error(`O certificado ou hostname do proxy TLS local não foi validado (${safeCode}).`);
+      }
+      await wait(retryDelayMs);
+      return verifyAttempt(attempt + 1, safeCode);
+    }
+  };
+  return verifyAttempt(0);
+}
+
+function verifyWindowsLoopbackPort(platform, getHostListeners, port) {
+  if (platform !== "win32") return;
+  try {
+    const listeners = getHostListeners([port]);
+    assertWindowsLoopbackHostListeners(new Set([port]), listeners);
+  } catch {
+    throw new Error("O listener TLS local não pôde ser confirmado somente no loopback.");
+  }
+}
+
+async function stopProxyAfterFailure(runDocker) {
+  try {
+    const stopResult = await runDocker(["compose", "stop", caddyImageService]);
+    return stopResult.code === 0 && (await listRunningTlsProxyContainers(runDocker)).length === 0;
+  } catch {
+    return false;
+  }
+}
+
+function createProxyCleanupError(cause) {
+  const error = new Error(
+    "O proxy TLS falhou na validação e não foi possível confirmar que foi parado.",
+    { cause },
+  );
+  Object.assign(error, { code: "LOCAL_TLS_PROXY_STOP_FAILED" });
+  return error;
 }
 
 export function readAndValidateRootCertificate(caPath = supabaseTlsCaPath) {
@@ -235,16 +238,20 @@ async function verifyLoopbackProxyBinding(containerId, runDocker) {
   } catch {
     throw new Error("O bind do proxy TLS local não pôde ser verificado.");
   }
+  if (!bindings || typeof bindings !== "object" || Array.isArray(bindings)) {
+    throw new Error("O bind do proxy TLS local não pôde ser verificado.");
+  }
   const published = bindings?.[caddyContainerPort];
   const normalizedBindings = Array.isArray(published)
-    ? published.map((binding) => `${binding?.HostIp}:${binding?.HostPort}`).sort()
+    ? published.map((binding) => `${binding?.HostIp}:${binding?.HostPort}`)
     : [];
-  const expectedBindings = ["127.0.0.1:56443", "::1:56443"].sort();
   if (
-    !Array.isArray(published) ||
-    normalizedBindings.length !== expectedBindings.length ||
-    normalizedBindings.some((binding, index) => binding !== expectedBindings[index]) ||
-    Object.keys(bindings).some((key) => key !== caddyContainerPort)
+    normalizedBindings.length !== 2 ||
+    normalizedBindings[0] === normalizedBindings[1] ||
+    !normalizedBindings.includes("127.0.0.1:56443") ||
+    !normalizedBindings.includes("::1:56443") ||
+    Object.keys(bindings).length !== 1 ||
+    !Object.hasOwn(bindings, caddyContainerPort)
   ) {
     throw new Error("O proxy TLS local está publicado fora do loopback esperado.");
   }
