@@ -1,11 +1,12 @@
 # GMZ-IMPL-007 — Execution Pack
 
-Status: `ADMISSION_CANDIDATE`
+Status: `CD-002 SCOPE-ALIGNED ADMISSION PROPOSAL / EXECUTION BLOCKED`
 
-Admission branch: `implementation/gmz-impl-007-catalog-core`  
-Admission base: `f98b54a2a933e1cf312575a571afb57566422d82`  
-Intended execution branch after admission merge: `execution/gmz-impl-007-catalog-core`  
-Exact execution base: `PENDING_ADMISSION_MERGE`  
+Amendment: `GMZ-IMPL-007-CD-002`
+Proposal branch: `codex/gmz-impl-007-cd-002-admission`
+Proposal base: `556a9dbbcb3250b640c40fefe1ade0d5c425d871`
+Execution branch after future approval: `PENDING_ADMISSION_AUDIT_AND_BIND`
+Exact execution base: `PENDING_ADMISSION_PROMOTION_AND_BIND`
 Executor: `GEF heavy executor / Codex`  
 Merge authority: `NO`
 
@@ -20,10 +21,11 @@ Build the first Wave 1 catalog foundation only after this admission is objective
 - ChannelOffer owns channel-specific price/availability/presentation.
 - Price persistence is exact, not binary floating point.
 - Price history must remain reconstructable.
+- Only base price is admitted; promotional pricing and discounts are deferred to a future Work Order.
 - RLS and current membership/RBAC remain the tenant authority.
 - Direct ordinary-client catalog mutation is forbidden.
 - Server-side catalog mutation uses current user authority, not service-role.
-- Price/promotion/availability mutation requires existing Admin Guard + durable audit.
+- Base-price/availability mutation requires existing Admin Guard + durable audit.
 - Minimal catalog management UI is admitted.
 - Modifiers/combos/media/provider sync/inventory/recipes/POS/orders/finance are deferred.
 
@@ -45,7 +47,7 @@ Tenant-safe SELECT, no direct ordinary-client mutation, current membership/RBAC 
 Typed catalog queries/commands using user session authority and deterministic validation/errors/correlation.
 
 ### W5 — Privileged material mutations
-Price/promotion/availability mutations through existing Admin Guard; durable audit required and fail-closed.
+Base-price/availability mutations through existing Admin Guard; durable audit required and fail-closed. No promotional-price or discount path is admitted.
 
 ### W6 — Minimal management UI
 Accessible responsive catalog management for admitted entities/fields only.
@@ -65,7 +67,7 @@ Publish final candidate, fresh hosted gates, Evidence Bundle, checkpoint proposa
 ## STOP CONDITION
 
 Before bind:
-`GMZ_IMPL_007_ADMISSION_READY_FOR_REVIEW`
+`GMZ_IMPL_007_CD_002_ADMISSION_READY_FOR_REVIEW`
 
 After governed execution:
 `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`
