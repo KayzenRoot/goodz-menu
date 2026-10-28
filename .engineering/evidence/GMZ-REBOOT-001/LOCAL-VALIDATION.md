@@ -264,7 +264,7 @@ These results cover only the local/test runtime. No production or remote Supabas
 
 ## Retry-limit review correction — current local source content
 
-The standards review of `8a33a0653a0c25f008c5ec87d5008fb6cc5bc6a0` identified that `attempts: 0` caused one initial retry-helper call. `ensureLocalSupabaseTlsProxy` now rejects any non-positive, fractional, or unsafe-integer `attempts` value before creating the Docker runner. A regression test injects the runner and proves the zero-attempt case makes no Docker invocation. The correction is currently local and not yet represented by a published PR head; hosted checks and the manifest must be refreshed after publication.
+The standards review of `8a33a0653a0c25f008c5ec87d5008fb6cc5bc6a0` identified that `attempts: 0` caused one initial retry-helper call. Commit `2a23b6a4895c232428847b59258b3f7534d9eec8` now rejects non-positive, fractional, or unsafe-integer `attempts` values before creating the Docker runner. Its regression test injects the runner and proves the zero-attempt case makes no Docker invocation.
 
 | Command | Result on current source content |
 | --- | --- |
@@ -276,3 +276,5 @@ The standards review of `8a33a0653a0c25f008c5ec87d5008fb6cc5bc6a0` identified th
 | `git diff --check` and `git diff --cached --check` | PASS |
 
 No Docker lifecycle was repeated for this input-validation-only change. The previous local native/Docker/TLS/reset evidence remains tied to the source content that became `8a33a06`; this correction does not change the valid default (`attempts: 20`) or proxy runtime behavior. Human accessibility sign-off remains pending.
+
+Exact-code-head publication checks for `2a23b6a` passed: GitHub workflow `40681114052` / job `122791740129` (locked install, lint, typecheck, unit tests, production build, desktop/mobile browser checks, dependency audit, runtime secret scan, and manifest capture); Socket Project Report `122791750706`; Socket PR Alerts `122791779657`; SonarCloud check `122791995349` concluded `SUCCESS`. Sonar annotations remain in the report; this evidence does not claim the user's prohibited “Quality Gate B passed” conclusion or change any issue disposition. Artifact `goodz-foundation-head-manifest-40681114052` (ID `12812593380`, digest `sha256:69cded11e7928112e3ab4f8cf6026b9cbe8a67e896ed347525ec4cf93c830f6e`, 1,629 bytes) was downloaded and parsed. Its `HEAD-EVIDENCE.json` SHA-256 is `fb4f497d65da9e37ae6bee5af3b62203f486d0c5c9b85e80f4751608195d7a02`; it binds base `3139534697743494626f4940b78ac3f9d468ceb6` to `2a23b6a4895c232428847b59258b3f7534d9eec8`, 108 changed paths, and binary diff SHA-256 `92580f87259d4ae845b88f637da10091d838787ee55b3e2d2b1fdc1a1491461d`.

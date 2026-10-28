@@ -98,6 +98,7 @@ The old `GMZ-IMPL-001` allocated historical credits to these modules. The mappin
 
 ## Current local retry-limit correction
 
-- The current local source adds a positive safe-integer guard for `attempts` before Docker runner creation and a regression proving `attempts: 0` performs no runner calls.
-- Local checks on this source content passed: focused runtime suite 49/49; full unit suite 75/75; lint; typecheck; `node --check`; working and cached diff checks.
-- The correction has no fresh PR head, hosted checks, independent exact-commit review, or manifest yet. Previous `8a33a06` CI/runtime/manifest are predecessor evidence only. Manual accessibility sign-off remains pending.
+- Code candidate `2a23b6a4895c232428847b59258b3f7534d9eec8` adds a positive safe-integer guard for `attempts` before Docker runner creation and a regression proving `attempts: 0` performs no runner calls. Local focused tests passed 49/49; full tests passed 75/75; lint, typecheck, Node syntax check and diff checks passed.
+- Exact code-head workflow `40681114052` and both Socket checks passed; SonarCloud check `122791995349` concluded `SUCCESS` with 21 new annotations, including two failure-level annotations in unchanged `scripts/local-supabase-status.mjs` lines 367 and 442. No Quality Gate B pass is claimed, and the local/test-only S5332 disposition and Sonar issue state are unchanged.
+- Parsed exact-code-head manifest: artifact `12812593380`, digest `sha256:69cded11e7928112e3ab4f8cf6026b9cbe8a67e896ed347525ec4cf93c830f6e`; HEAD-EVIDENCE hash `fb4f497d65da9e37ae6bee5af3b62203f486d0c5c9b85e80f4751608195d7a02`; 108 changed paths; binary diff hash `92580f87259d4ae845b88f637da10091d838787ee55b3e2d2b1fdc1a1491461d`.
+- Independent standards and scope/security reviews of this scoped delta passed without actionable findings or HIGH/CRITICAL issues. Manual accessibility sign-off remains pending; objective audit is not ready.
