@@ -262,7 +262,7 @@ At the beginning of this authorized lifecycle, Windows reported 3.45 GiB free ph
 
 These results cover only the local/test runtime. No production or remote Supabase claim is made. The user's manual keyboard, actual zoom, screen-reader, and visual sign-off remains pending.
 
-## Retry-limit review correction — current local source content
+## Retry-limit review correction — published code candidate `2a23b6a`
 
 The standards review of `8a33a0653a0c25f008c5ec87d5008fb6cc5bc6a0` identified that `attempts: 0` caused one initial retry-helper call. Commit `2a23b6a4895c232428847b59258b3f7534d9eec8` now rejects non-positive, fractional, or unsafe-integer `attempts` values before creating the Docker runner. Its regression test injects the runner and proves the zero-attempt case makes no Docker invocation.
 
