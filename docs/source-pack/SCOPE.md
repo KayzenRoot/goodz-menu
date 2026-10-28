@@ -107,7 +107,17 @@ The following `CORE_REQUIRED` modules remain required for the complete product b
 
 `PRODUCT_INCLUDED` modules M15, M16, M21, M24, and M28 remain outside the first release. All complete-product module classifications above remain unchanged; this overlay neither removes deferred product scope nor reclassifies a `CORE_REQUIRED` module.
 
-The complete-product denominator remains `515`. No release points or earned credit are assigned by this scope decision. Before implementation, separate admitted Work Orders must define stable slices, acceptance criteria, evidence, weights, and no-double-count rules. The pilot company/branch count, payment methods and permissions, order cancellation/late-delivery behavior, privacy schedules, and production configuration remain open until resolved or explicitly deferred in their governed Work Orders.
+The complete-product denominator remains `515`. No release points or earned credit are assigned by this scope decision. Before implementation, separate admitted Work Orders must define stable slices, acceptance criteria, evidence, weights, and no-double-count rules. The following decisions remain open until resolved or explicitly deferred in governed Work Orders:
+
+- Pilot company/establishment count and whether additional branches are visible to the pilot or only supported by the data model.
+- Exact M03 Settings Registry allowlist.
+- Handoff-payment methods and staff permissions, proof/receipt, failed or partial payment, cancellation, refund, dispute, and audit/reversal behavior. No online capture or gateway is proposed.
+- Manual-availability owner and update cadence, and whether uncertain availability pauses one offer or the entire storefront.
+- Full customer/staff order lifecycle, cancellation and late-delivery behavior, and which delivery states are required for the pilot.
+- M27 consent, retention, export, deletion/anonymization, and data-subject criteria.
+- Production provider, domain, cost, environment separation, secret configuration, migration plan, backup/restore, RPO/RTO, rollback, and release authority.
+
+GMZ-REBOOT-001's human keyboard, real-zoom, screen-reader, and visual sign-off and its objective audit remain required. Reconcile the Checkpoint and Context Lock through a separate approved action before selecting a new implementation line or beginning GMZ-M01.
 
 This accepted boundary does not replace the active Checkpoint, Work Order, or Context Lock and does not authorize code changes, checkpoint promotion, merge, or deployment. At the current base, the active GMZ-IMPL-007 Context Lock pins `docs/source-pack/SCOPE.md` to Git blob `88c516753fabf67e67bbec25df3efc70b0c6bfa8`. This proposed change alters that locked source; if promoted, the existing lock must be treated as stale and re-audited/rebound before any executor mutation. The detailed requirement mapping, risk analysis, exclusions, and candidate acceptance criteria remain in the GMZ-CSD-002 review record at PR #75.
 
