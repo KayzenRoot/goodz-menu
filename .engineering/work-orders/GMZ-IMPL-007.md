@@ -1,13 +1,17 @@
 # GMZ-IMPL-007 — Catalog Core & Channel Offers Foundation
 
-Status: `ADMISSION CANDIDATE / EXECUTION BLOCKED`
+Status: `CD-002 SCOPE-ALIGNED ADMISSION PROPOSAL / EXECUTION BLOCKED`
 Issue: `#67`
 Assurance: `ELEVATED`
-Admission branch: `implementation/gmz-impl-007-catalog-core`
+Amendment: `GMZ-IMPL-007-CD-002`
+Proposal branch: `codex/gmz-impl-007-cd-002-admission`
+Proposal base: `556a9dbbcb3250b640c40fefe1ade0d5c425d871`
+
+This governance-only amendment aligns the proposed catalog slice with the accepted first-release Scope. It supersedes only the conflicting promotional-price clauses after independent audit and merge. It does not amend the Checkpoint or Context Lock, authorize implementation, promote credit, merge the legacy implementation PR, or authorize remote Supabase or production deployment.
 
 ## OBJECTIVE
 
-Establish the first Wave 1 business-domain foundation: one canonical tenant-owned catalog identity for products and variants, with channel-specific offers/pricing/availability, tenant-safe authorization, durable audit for material mutations, and a minimal accessible catalog-management surface.
+Establish the first Wave 1 business-domain foundation: one canonical tenant-owned text-first catalog identity with a canonical product name and description plus size/flavor variants, channel-specific base-price/availability offers, tenant-safe authorization, durable audit for material mutations, and a minimal accessible catalog-management surface.
 
 This Work Order is centered on GMZ-M06 and deliberately stops before recipes, inventory, POS, orders, provider synchronization or media production.
 
@@ -22,6 +26,7 @@ Promoted baseline:
 - validation harness: promoted;
 - minimal design shell: promoted;
 - current production credit: `52 / 515 = 10.10%`.
+- GMZ-CSD-002 accepted Scope is canonical at `556a9dbbcb3250b640c40fefe1ade0d5c425d871`; M06 is text-first and excludes promotional pricing.
 
 Canonical dependency:
 - Backlog Wave 1 begins with GMZ-M06 Catalog;
@@ -31,12 +36,12 @@ Canonical dependency:
 
 ## SCOPE
 
-### NECESSARY / admitted
+### NECESSARY / proposed admission; execution remains blocked
 
 1. Physical tenant-aware catalog persistence for the minimum canonical entities required by this slice:
    - ProductCategory;
-   - Product;
-   - ProductVariant;
+   - Product, including its canonical name and text-first description independent of channel offers;
+   - ProductVariant, with text labels for variant, size, or flavor identity;
    - SalesChannel identity;
    - ChannelOffer;
    - minimal immutable/versioned channel price history sufficient to prevent price changes from rewriting history.
@@ -45,18 +50,22 @@ Canonical dependency:
    - canonical Product/ProductVariant identity is independent from channel-specific offer, price, availability and presentation.
 4. Product categories support deterministic hierarchy without cross-tenant parenting.
 5. Product lifecycle supports active/archive semantics; hard deletion of referenced canonical identity is not the default mutation path.
-6. ProductVariant belongs to exactly one canonical Product in the same tenant.
+6. ProductVariant belongs to exactly one canonical Product in the same tenant; this slice stores only text labels for variant, size, or flavor identity, not modifier or combination rules.
 7. ChannelOffer targets a canonical Product or ProductVariant and an explicit SalesChannel.
 8. ChannelOffer may carry admitted:
    - base price;
-   - promotional price;
    - currency;
    - availability;
    - visibility;
-   - optional channel title/description;
+   - optional channel-specific title/description presentation overrides; they do not replace the canonical Product name or description;
    - organization/establishment/branch scope where applicable.
-9. Monetary values use exact database representation; binary floating-point is forbidden for persisted prices.
-10. Invalid commercial states fail closed, including negative prices and invalid promotion/base-price relations.
+
+Promotional price, discounts, promotion schedules, and scheduling logic are not admitted by this slice and require a future Work Order.
+
+Availability is internal catalog state only in this Work Order. Missing or uncertain availability fails closed to unavailable. No public storefront or order path is admitted here; a future M10/M11 Work Order must resolve the named availability operator and update cadence before public use.
+
+9. Monetary values use exact database representation; binary floating-point is forbidden for persisted base prices.
+10. Invalid commercial states fail closed, including negative prices and invalid currency/precision values. No promotion/base-price relation exists in this slice.
 11. RLS is enabled on exposed catalog tables.
 12. Reads require current canonical tenant membership/resource scope.
 13. Cross-tenant and sibling-scope enumeration/mutation are denied.
@@ -64,11 +73,11 @@ Canonical dependency:
 15. Catalog mutations execute through server-side application contracts using current user identity/authorization; service-role is forbidden for catalog authorization and business mutation.
 16. Add the minimal RBAC capabilities required for catalog read/write/price/availability control without inventing a new authorization model.
 17. Material catalog mutations emit durable audit events with correlation:
-   - price/promotional-price changes;
+   - base-price changes;
    - availability/visibility changes;
    - archive/reactivation;
    - other mutation classes the executor proves material.
-18. Price/promotion/availability mutations require the existing stronger privileged-action boundary (Admin Guard / fresh stronger auth) in addition to canonical tenant authorization.
+18. Base-price/availability mutations require the existing stronger privileged-action boundary (Admin Guard / fresh stronger auth) in addition to canonical tenant authorization.
 19. Ordinary metadata edits remain permission-bound and audited as appropriate, but must not silently obtain privileged price/availability authority.
 20. Minimal owner/staff catalog management UI under the existing application shell:
    - list/search;
@@ -96,7 +105,7 @@ Canonical dependency:
 - advanced search/indexing;
 - public storefront consumption;
 - direct-stock consumption rules;
-- automated pricing/promotion intelligence.
+- promotional prices, discounts, promotion schedules, and automated pricing/promotion intelligence.
 
 ### OUT OF SCOPE
 
@@ -138,14 +147,16 @@ Mandatory before mutation:
 18. current catalog-adjacent migrations/generated types/application shell;
 19. GMZ-IMPL-003 membership/RBAC/RLS implementation/evidence;
 20. GMZ-IMPL-005 Admin Guard implementation/evidence;
-21. GMZ-IMPL-006 durable audit writer/schema/evidence.
+21. GMZ-IMPL-006 durable audit writer/schema/evidence;
+22. `.engineering/DECISIONS-LEDGER.md` (including accepted D-0022);
+23. `.engineering/evidence/GMZ-IMPL-007-CD-002-ADMISSION.md`.
 
 ## REQUIREMENTS
 
 Primary:
 - GMZ-REQ-CAT-001 — single canonical product identity;
 - GMZ-REQ-CAT-002 — channel-specific offer;
-- GMZ-REQ-CAT-003 — rich product model, limited here to categories/products/variants/availability/price history;
+- GMZ-REQ-CAT-003 — rich product model, limited here to categories, products with canonical descriptions, variants, availability, and price history;
 - GMZ-REQ-PLAT-001/002/003 — tenancy, authorization, branch awareness;
 - GMZ-REQ-SEC-003/004/005 — sensitive actions, auditability, secret hygiene;
 - GMZ-REQ-OBS-001 — correlation;
@@ -190,11 +201,11 @@ Primary:
 7. Product identity remains independent from channel offers.
 8. Channel offers cannot target foreign-tenant products/variants/scopes.
 9. Prices use exact persisted representation and reject invalid values.
-10. Price/promotional-price history remains reconstructable after mutation.
+10. Base-price history remains reconstructable after mutation.
 11. Direct ordinary-client catalog INSERT/UPDATE/DELETE is denied.
 12. Server mutation path uses current user authorization, never service-role business authority.
 13. Catalog permission checks bind to current canonical membership/RBAC/resource scope.
-14. Price/promotion/availability changes require the admitted privileged-action boundary.
+14. Base-price/availability changes require the admitted privileged-action boundary.
 15. Required material mutations produce exactly attributable durable audit events with safe metadata/correlation.
 16. Failed required audit persistence prevents would-be privileged price/availability mutation success.
 17. Ordinary users cannot enumerate another tenant's catalog through ID substitution/nested relationships.
@@ -209,10 +220,11 @@ Primary:
 26. DB lint/security advisors pass.
 27. Dependency/secret/client-bundle checks pass.
 28. Docker/health/readiness/local Supabase/Auth/Postgres/runtime-log checks pass.
-29. No out-of-scope runtime/schema/domain is introduced.
+29. No out-of-scope runtime/schema/domain is introduced; promotional-price or discount fields, logic, UI, audit events, and tests are absent from this slice.
 30. CRITICAL/HIGH unresolved = `0 / 0`.
 31. Final Evidence Bundle binds exact base/head/tree and actual test counts.
 32. PR remains unmerged until independent objective audit.
+33. Canonical Product name and text-first description persist independently of ChannelOffer presentation; channel-specific title/description overrides cannot erase or substitute for canonical product description.
 
 ## TESTS
 
@@ -227,6 +239,8 @@ ELEVATED minimum:
 - authenticated Data API/application integration;
 - RLS cross-tenant/IDOR/foreign-parent matrix;
 - privileged mutation + durable-audit fail-closed tests;
+- catalog contract/UI tests prove canonical Product name and text-first description round-trip independently from ChannelOffer; optional channel-specific title/description overrides cannot replace the canonical values;
+- base-price/availability mutation tests prove no promotional-price, discount, promotion-schedule field, or scheduling-logic path is admitted;
 - generated DB types equivalence;
 - migration status;
 - DB lint/security/performance advisors;
@@ -287,7 +301,7 @@ GMZ-M26 would become `13 / 18 — PARTIAL`.
 ## STOP CONDITION
 
 Admission:
-`GMZ_IMPL_007_ADMISSION_READY_FOR_REVIEW`
+`GMZ_IMPL_007_CD_002_ADMISSION_READY_FOR_REVIEW`
 
 Execution after governed admission promotion and exact bind:
 `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`
