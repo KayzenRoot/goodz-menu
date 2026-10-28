@@ -1,6 +1,6 @@
 # Goodz Menu — Scope
 
-Status: `FROZEN_V0.1`  
+Status: `FROZEN_V0.1 + CSD-002 ACCEPTED (Checkpoint acknowledgement pending)`
 Authority domain: `SCOPE`
 
 ## Scope model
@@ -83,18 +83,43 @@ iFood and 99Food integration contracts are part of the complete product plan bec
 - weakening security/test gates to make delivery appear complete;
 - architecture that requires a microservice split without evidence.
 
-## First implementation slice
-Not frozen by this Scope document.
+## First operational release boundary — GMZ-CSD-002
 
-The first slice will be selected only after Architecture, Data Model, Security, Test/Benchmark Plan and DoD provide enough proof obligations to admit an implementation Work Order.
+**Decision:** `ACCEPTED_FOR_CANONICAL_SCOPE_UPDATE` by the maintainer after the independent read-only review of GMZ-CSD-002 at PR #75 HEAD `e7215aee8cfacaf0e1fc7e2b7318569118c0e624`. This PR records the additive canonical Scope update; the Checkpoint has not been promoted.
 
-Likely foundation ordering is constrained by:
-1. project/runtime shell + Docker;
-2. tenant/auth/settings/security;
-3. design system/application shell;
-4. core data model and ledgers;
-5. POS/catalog/recipes/inventory/finance vertical slices;
-but this ordering is not yet an execution contract.
+**Outcome:** Goodz's own online menu and orders, with pickup or the business's own delivery and payment at handoff. POS/cash-register operations and integrated payment gateways are deferred. This is a first-release boundary, not a claim that a selected module is complete or that implementation is authorized.
+
+The accepted release contains only these partial module slices:
+
+| Module | First-release boundary |
+| --- | --- |
+| GMZ-M01–M03 | Tenant/branch identity, owner/staff authorization, and the settings hierarchy required for the pilot; retain tenant isolation, locked policies, and the plan/entitlement boundary. The exact writable settings allowlist remains to be approved in an implementation Work Order. |
+| GMZ-M04 | Accessible, responsive application shell and order-state feedback. Advanced notification center `UX-007` is deferred; staffed order-queue operations and response responsibility must be specified before implementation. Human accessibility and visual review remain mandatory. |
+| GMZ-M06 | Text-first manual catalog with canonical product identity, categories, descriptions, sizes/flavors, variants, channel-specific price/availability, and auditable price history. Add-ons/complements, combos/kits, promotions, product-level fee/cost modifiers, historical cost records, and custom media upload/storage/transformation are deferred. Preserve the media-provider abstraction; do not claim stock, cost, or margin accuracy. |
+| GMZ-M10–M11 | Canonical order domain with only Goodz's own online channel active; customer menu, cart, checkout, pickup/delivery choice, and order status using one approved layout family. Multiple layout families `WEB-002`, AI-assisted design `WEB-004`, marketplaces, messaging-provider adapters, and payment gateways are deferred. |
+| GMZ-M12 | Own-delivery zones, fee/minimum rules, and the states preparing, ready, assignment/dispatch, out for delivery, and delivered. Driver views, routing, and live tracking are deferred, while architecture must preserve `DEL-003` future extension without coupling to POS core. |
+| GMZ-M23 | Safe correlation, health/readiness, and durable audit for material catalog, authorization, order, delivery, and handoff-payment events. |
+| GMZ-M25–M27 | Production-capable runtime, migration and recovery obligations, risk-based quality validation, and privacy/data-governance obligations. Provider, domain, cost, environment configuration, retention, backup/restore, RPO/RTO, and rollback procedures require separate governed Work Orders. |
+
+The following `CORE_REQUIRED` modules remain required for the complete product but are deferred from this first release: M05, M07–M09, M13–M14, M17–M20, and M22. The existing POS/accounting process remains authoritative for counter sales, cash close, reconciliation, and financial reporting. Manual catalog availability requires a named operator and must be paused when uncertain. Handoff-payment recording, if enabled by a later Work Order, requires an authorized and audited staff action; it does not establish cash close, settlement, refund, or accounting truth. Manual onboarding may replace SaaS self-service, but never tenant isolation or least privilege.
+
+**Active Work Order conflict:** GMZ-IMPL-007 currently admits promotional-price mutations and their history, authorization, and test obligations. Promotions are deferred by the accepted GMZ-CSD-002 boundary above, so GMZ-IMPL-007 must not execute that conflicting scope. This Scope update does not amend the active Work Order or authorize execution; before any executor mutation, a separate governed amendment or replacement must align the Work Order and acceptance evidence with this Scope, then pass the required admission audit and receive a fresh Context Lock and exact execution-base bind.
+
+`PRODUCT_INCLUDED` modules M15, M16, M21, M24, and M28 remain outside the first release. All complete-product module classifications above remain unchanged; this overlay neither removes deferred product scope nor reclassifies a `CORE_REQUIRED` module.
+
+The complete-product denominator remains `515`. No release points or earned credit are assigned by this scope decision. Before implementation, separate admitted Work Orders must define stable slices, acceptance criteria, evidence, weights, and no-double-count rules. The following decisions remain open until resolved or explicitly deferred in governed Work Orders:
+
+- Pilot company/establishment count and whether additional branches are visible to the pilot or only supported by the data model.
+- Exact M03 Settings Registry allowlist.
+- Handoff-payment methods and staff permissions, proof/receipt, failed or partial payment, cancellation, refund, dispute, and audit/reversal behavior. No online capture or gateway is proposed.
+- Manual-availability owner and update cadence, and whether uncertain availability pauses one offer or the entire storefront.
+- Full customer/staff order lifecycle, cancellation and late-delivery behavior, and which delivery states are required for the pilot.
+- M27 consent, retention, export, deletion/anonymization, and data-subject criteria.
+- Production provider, domain, cost, environment separation, secret configuration, migration plan, backup/restore, RPO/RTO, rollback, and release authority.
+
+GMZ-REBOOT-001's human keyboard, real-zoom, screen-reader, and visual sign-off and its objective audit remain required. Reconcile the Checkpoint and Context Lock through a separate approved action before selecting a new implementation line or beginning GMZ-M01.
+
+This accepted boundary does not replace the active Checkpoint, Work Order, or Context Lock and does not authorize code changes, checkpoint promotion, merge, or deployment. At the current base, the active GMZ-IMPL-007 Context Lock pins `docs/source-pack/SCOPE.md` to Git blob `88c516753fabf67e67bbec25df3efc70b0c6bfa8`. This proposed change alters that locked source; if promoted, the existing lock must be treated as stale and re-audited/rebound before any executor mutation. The detailed requirement mapping, risk analysis, exclusions, and candidate acceptance criteria remain in the GMZ-CSD-002 review record at PR #75.
 
 ## Scope invariants
 - no master idea disappears because it is deferred;
@@ -103,4 +128,4 @@ but this ordering is not yet an execution contract.
 - provider-specific failure cannot corrupt canonical core state;
 - AI differentiation remains part of product identity.
 
-STOP CONDITION: `GMZ_SCOPE_FROZEN_V0_1`
+STOP CONDITION: `GMZ_SCOPE_FROZEN_V0_1`; CSD-002 Checkpoint acknowledgement remains pending.

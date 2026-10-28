@@ -91,4 +91,10 @@ Status: `ACTIVE`
 **ADR:** ADR-0005.  
 **Status:** PROPOSED; becomes APPROVED when this governance PR merges.
 
-Next decision ID: `D-0022`.
+## D-0022 — First operational release boundary
+**Decision:** Accept GMZ-CSD-002 as an additive first-release scope overlay for Goodz's own online menu and orders, pickup or own delivery, and payment at handoff. Accept the partial slices M01–M04, M06, M10–M12, M23, M25–M27 and the first-release deferrals recorded in `docs/source-pack/SCOPE.md` under GMZ-CSD-002. The full-product module classifications and `515`-point denominator remain unchanged; release credit remains unassigned.
+**Evidence:** Maintainer acceptance of the reviewed GMZ-CSD-002 proposal at PR #75 HEAD `e7215aee8cfacaf0e1fc7e2b7318569118c0e624`; independent read-only exact-HEAD audit found no CRITICAL/HIGH scope defect and recommended maintainer decision.
+**Limit:** This decision authorizes the canonical Scope update only. It does not authorize implementation, checkpoint promotion, merge, or deployment. Open operational details remain for separate governed Work Orders. The active GMZ-IMPL-007 Work Order's promotional-price scope conflicts with this release deferral and must be amended or replaced, admitted, and bound under a fresh Context Lock before executor mutation; this decision does not change that Work Order, Checkpoint, or Context Lock.
+**Status:** `APPROVED_FOR_SCOPE_UPDATE`; implementation remains unauthorized.
+
+Next decision ID: `D-0023`.
