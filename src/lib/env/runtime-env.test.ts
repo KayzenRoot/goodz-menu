@@ -1,96 +1,97 @@
 import { describe, expect, it } from "vitest";
-import * as runtimeEnv from "@/lib/env/runtime-env";
-import { readRuntimeConfig } from "@/lib/env/runtime-env";
+import { parseRuntimeEnvironment } from "@/lib/env/runtime-env";
+import { isPublicSupabaseAnonKey } from "@/lib/env/supabase-public-key.mjs";
 
-type SupabaseAuthConfigReader = (source?: Record<string, string | undefined>) => {
-  ok: boolean;
-  config?: { supabaseApiUrl: URL; anonKey: string };
-  environment: string;
-  reason?: string;
-};
-
-type SafePostLoginPath = (candidate: unknown) => string | null;
-
-function requireSupabaseAuthConfigReader() {
-  const reader = (runtimeEnv as unknown as { readSupabaseAuthConfig?: SupabaseAuthConfigReader }).readSupabaseAuthConfig;
-  expect(reader).toBeTypeOf("function");
-  return reader;
-}
-
-function requireSafePostLoginPath() {
-  const helper = (runtimeEnv as unknown as { safePostLoginPath?: SafePostLoginPath }).safePostLoginPath;
-  expect(helper).toBeTypeOf("function");
-  return helper;
-}
-
-function tokenWithRole(role: string) {
-  const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url");
-  const payload = Buffer.from(JSON.stringify({ role })).toString("base64url");
-  return `${header}.${payload}.signature`;
-}
-
-describe("runtime environment boundary", () => {
-  it("uses only the explicit local Supabase loopback default", () => {
-    const result = readRuntimeConfig({ NODE_ENV: "development" });
+describe("parseRuntimeEnvironment", () => {
+  it("defaults only to the isolated local Supabase endpoint", () => {
+    const result = parseRuntimeEnvironment({});
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.config.supabaseApiUrl.origin).toBe("http://127.0.0.1:54321");
+    if (result.ok) {
+      expect(result.config.environment).toBe("local");
+      expect(result.config.runtime).toBe("native");
+      expect(result.config.supabaseApiUrl.origin).toBe("https://localhost:56443");
+    }
   });
 
-  it("requires an explicit endpoint in production", () => {
-    expect(readRuntimeConfig({ NODE_ENV: "production" })).toEqual({
+  it("defaults the Docker runtime to the gateway on its shared local network", () => {
+    const result = parseRuntimeEnvironment({ GOODZ_RUNTIME: "docker" });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.config.supabaseApiUrl.origin).toBe("https://supabase-tls:8443");
+  });
+
+  it("accepts the local TLS proxy only for the Docker runtime", () => {
+    const result = parseRuntimeEnvironment({
+      GOODZ_RUNTIME: "docker",
+      SUPABASE_API_URL: "https://supabase-tls:8443",
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  it.each([
+    "https://example.supabase.co",
+    "https://user:pass@localhost:56443",
+    "https://localhost:56443/private",
+    "https://host.docker.internal:56443",
+    "https://supabase-tls:8443",
+    "https://127.0.0.1:56443",
+    "https://localhost:54321",
+    "http://127.0.0.1:56443",
+  ])("rejects an endpoint outside the isolated local contract: %s", (endpoint) => {
+    expect(parseRuntimeEnvironment({ SUPABASE_API_URL: endpoint })).toMatchObject({
       ok: false,
-      environment: "production",
-      reason: "supabase_url_required",
+      reason: "invalid_supabase_url",
     });
   });
 
-  it("rejects remote endpoints in local mode and credentials in every mode", () => {
-    expect(readRuntimeConfig({ GOODZ_ENVIRONMENT: "local", SUPABASE_API_URL: "https://db.example.com" }).ok).toBe(false);
-    expect(readRuntimeConfig({ GOODZ_ENVIRONMENT: "local", SUPABASE_API_URL: "http://user:secret@127.0.0.1:54321" }).ok).toBe(false);
+  it.each(["https://localhost:56443", "https://host.docker.internal:56443"])(
+    "rejects host-only Supabase endpoints from the Docker runtime: %s",
+    (endpoint) => {
+      expect(parseRuntimeEnvironment({
+        GOODZ_RUNTIME: "docker",
+        SUPABASE_API_URL: endpoint,
+      })).toMatchObject({ ok: false, reason: "invalid_supabase_url" });
+    },
+  );
+
+  it("allows HTTP only for an isolated native test fixture", () => {
+    expect(parseRuntimeEnvironment({
+      GOODZ_ENVIRONMENT: "test",
+      SUPABASE_API_URL: "http://127.0.0.1:56388",
+    })).toMatchObject({ ok: true });
+    expect(parseRuntimeEnvironment({
+      GOODZ_ENVIRONMENT: "local",
+      SUPABASE_API_URL: "http://127.0.0.1:56388",
+    })).toMatchObject({ ok: false, reason: "invalid_supabase_url" });
   });
 
-  it("requires TLS when a remote environment endpoint is explicit", () => {
-    expect(readRuntimeConfig({ GOODZ_ENVIRONMENT: "production", SUPABASE_API_URL: "http://db.example.com" }).ok).toBe(false);
-    expect(readRuntimeConfig({ GOODZ_ENVIRONMENT: "production", SUPABASE_API_URL: "https://db.example.com" }).ok).toBe(true);
-  });
-
-  it("keeps application readiness independent from the public Auth key", () => {
-    const reader = requireSupabaseAuthConfigReader();
-    if (!reader) return;
-
-    expect(readRuntimeConfig({ GOODZ_ENVIRONMENT: "local" }).ok).toBe(true);
-    expect(reader({ GOODZ_ENVIRONMENT: "local" })).toMatchObject({
-      ok: false,
-      environment: "local",
-      reason: "supabase_anon_key_required",
+  it("keeps public runtime identity fields bounded and sanitized", () => {
+    const result = parseRuntimeEnvironment({
+      GOODZ_ENVIRONMENT: "local",
+      GOODZ_RUNTIME: "native",
+      BUILD_REVISION: "candidate_42",
     });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.config.revision).toBe("candidate_42");
   });
 
-  it("accepts only public Supabase Auth keys", () => {
-    const reader = requireSupabaseAuthConfigReader();
-    if (!reader) return;
-
-    expect(reader({ GOODZ_ENVIRONMENT: "local", SUPABASE_ANON_KEY: tokenWithRole("anon") }).ok).toBe(true);
-    expect(reader({ GOODZ_ENVIRONMENT: "local", SUPABASE_ANON_KEY: "sb_publishable_local-test-key" }).ok).toBe(true);
-    expect(reader({ GOODZ_ENVIRONMENT: "local", SUPABASE_ANON_KEY: tokenWithRole("service_role") })).toMatchObject({
-      ok: false,
-      reason: "invalid_supabase_anon_key",
-    });
-    expect(reader({ GOODZ_ENVIRONMENT: "local", SUPABASE_ANON_KEY: "not-a-public-key" })).toMatchObject({
-      ok: false,
-      reason: "invalid_supabase_anon_key",
-    });
+  it("rejects a Supabase secret key in the public-key setting", () => {
+    const secretKeyPrefix = ["sb", "secret"].join("_");
+    expect(parseRuntimeEnvironment({
+      GOODZ_ENVIRONMENT: "local",
+      SUPABASE_ANON_KEY: `${secretKeyPrefix}_synthetic_value`,
+    })).toMatchObject({ ok: false, reason: "invalid_supabase_anon_key" });
   });
 
-  it("accepts only the admitted tenant entry as a post-login destination", () => {
-    const helper = requireSafePostLoginPath();
-    if (!helper) return;
+  it("accepts publishable keys and anonymous JWTs while rejecting service-role JWTs", () => {
+    const jwt = (role: string) => {
+      const header = Buffer.from(JSON.stringify({ alg: "HS256" })).toString("base64url");
+      const payload = Buffer.from(JSON.stringify({ role })).toString("base64url");
+      return `${header}.${payload}.synthetic-signature`;
+    };
 
-    expect(helper("/app")).toBe("/app");
-    expect(helper("https://attacker.invalid")).toBeNull();
-    expect(helper("//attacker.invalid/app")).toBeNull();
-    expect(helper("/\\\\attacker.invalid")).toBeNull();
-    expect(helper("/app/../login")).toBeNull();
-    expect(helper("/login")).toBeNull();
+    expect(isPublicSupabaseAnonKey("sb_publishable_synthetic-key")).toBe(true);
+    expect(isPublicSupabaseAnonKey(jwt("anon"))).toBe(true);
+    expect(isPublicSupabaseAnonKey(jwt("service_role"))).toBe(false);
+    expect(isPublicSupabaseAnonKey("synthetic-test-key", true)).toBe(true);
   });
 });

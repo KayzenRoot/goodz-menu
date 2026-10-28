@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "1.1",
+  "kind": "goodz.implementation-context-lock",
+  "workOrderId": "GMZ-REBOOT-001",
+  "issue": 73,
+  "repository": "KayzenRoot/goodz-menu",
+  "gefVersion": "1.1.1",
+  "assurance": "ELEVATED",
+  "admissionBaseRef": "main",
+  "admissionBaseSha": "3139534697743494626f4940b78ac3f9d468ceb6",
+  "workBranch": "rebuild/gmz-reboot-001-module-01",
+  "executionBaseSha": "3956230b221cc2d3eeffaafac90505469ecf1342",
+  "executionBaseState": "BOUND_FOR_MAINTAINER_AUTHORIZED_LOCAL_TLS_REMEDIATION",
+  "sourcePack": "FROZEN_V0_1",
+  "lockedSources": [
+    {
+      "path": ".engineering/CHECKPOINT.json",
+      "gitBlobSha": "77b8b2a7dc88d1d97f01e5889f8bf5d2d40a95e8"
+    },
+    {
+      "path": ".engineering/SOURCE-HIERARCHY.md",
+      "gitBlobSha": "189109435a264fe5a7306d6d10fc3ea62145dab2"
+    },
+    {
+      "path": ".engineering/DECISIONS-LEDGER.md",
+      "gitBlobSha": "3e5f06879ea1e60d6be32bb89fa2955885f7ff86"
+    },
+    {
+      "path": ".engineering/MODULE-MAP.md",
+      "gitBlobSha": "c70a041da273787eb0d6f3ce43a6bc3a7260eeb0"
+    },
+    {
+      "path": "docs/source-pack/ARCHITECTURE.md",
+      "gitBlobSha": "a82ff873264a1ba77fa37e6914f321a48e0a75f5"
+    },
+    {
+      "path": "docs/source-pack/DEFINITION-OF-DONE.md",
+      "gitBlobSha": "a3d1652a7dc9edfabafcb98151b9db8aed417888"
+    }
+  ],
+  "scopeAmendment": {
+    "approvedBy": "repository maintainer via direct user authorization in this chat",
+    "approvedOn": "2026-10-27",
+    "scope": "local/test TLS proxy for the local Supabase API in native and Docker development runtimes",
+    "priorNoTlsWipRestriction": "SUPERSEDED_FOR_THIS_NARROW_SCOPE"
+  },
+  "allowedPaths": [
+    ".engineering/work-orders/GMZ-REBOOT-001.md",
+    ".engineering/context-locks/GMZ-REBOOT-001.json",
+    ".engineering/evidence/GMZ-REBOOT-001/**",
+    ".dockerignore",
+    ".gitignore",
+    ".env.example",
+    "compose.yaml",
+    "supabase/Caddyfile",
+    "scripts/local-supabase-status.mjs",
+    "scripts/local-supabase-tls.mjs",
+    "scripts/supabase-local.mjs",
+    "scripts/compose-local.mjs",
+    "scripts/dev.mjs",
+    "scripts/start.mjs",
+    "src/lib/env/runtime-env.ts",
+    "src/lib/env/runtime-env.test.ts",
+    "src/lib/runtime/readiness.test.ts",
+    "src/app/api/ready/route.test.ts",
+    "tests/supabase/local-runtime.test.ts",
+    "docs/LOCAL-DEVELOPMENT.md"
+  ],
+  "prohibited": [
+    "main mutation",
+    "remote Supabase",
+    "production infrastructure or deployment",
+    "database schema or migration changes",
+    "GMZ-M01 or other business-domain implementation",
+    "trust-all TLS flags or HTTP fallback",
+    "private CA key in Git, Docker build context, or app container",
+    "Sonar issue-state mutation or manual Quality Gate override",
+    "merge, force push, checkpoint promotion, or history rewrite",
+    "claiming human accessibility sign-off"
+  ],
+  "tlsBoundary": {
+    "nativeAppUrl": "https://localhost:56443",
+    "dockerAppUrl": "https://supabase-tls:8443",
+    "proxyUpstream": "kong:8000 over the dedicated local Docker bridge",
+    "claim": "TLS from app to local proxy only; proxy-to-upstream remains HTTP"
+  },
+  "resourceConcurrency": "One Goodz Menu worktree per Docker engine at a time; Compose, Supabase project, network, and Caddy CA volume names are fixed in this scope.",
+  "stalePolicy": "If any locked governance source blob changes, stop and recompile this scope before mutation.",
+  "codexAllowed": true,
+  "codexAuthorizedScope": "Only the approved local TLS remediation and evidence for the existing GMZ-REBOOT-001 foundation PR.",
+  "stopCondition": "GMZ_REBOOT_001_READY_FOR_OBJECTIVE_AUDIT or an unresolved scope/source/security gate."
+}

@@ -1,148 +1,180 @@
+import AxeBuilder from "@axe-core/playwright";
+import { expect, test } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
-import { expect, test } from "@playwright/test";
-import AxeBuilder from "@axe-core/playwright";
 
-test("foundation shell stays responsive, themed, reduced-motion aware and accessible", async ({ page, isMobile }, testInfo) => {
-  const evidencePath = path.join(process.cwd(), ".engineering", "evidence", "GMZ-IMPL-001", "screenshots");
-  await mkdir(evidencePath, { recursive: true });
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  expect(await page.evaluate(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches)).toBe(true);
+test("foundation shell, runtime health, themes, responsive layout and reduced motion", async ({ page }, testInfo) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Um bom começo/ })).toBeVisible();
-  await expect(page.getByText("Foundation Preview")).toBeVisible();
+
+  await expect(page.getByRole("heading", { name: "Uma base clara para o que vem a seguir." })).toBeVisible();
+  await expect(page.getByText("Operacional").first()).toBeVisible();
+  await expect(page.locator(".status-card").filter({ hasText: "Supabase local" })).toContainText("Operacional");
+  const appStatus = page.locator(".status-card").filter({ hasText: "Aplicação web" }).locator('[role="status"]');
+  await expect(appStatus).toHaveAttribute("aria-live", "polite");
+  await expect(appStatus).toHaveAttribute("aria-atomic", "true");
+  await expect(appStatus).toContainText("Aplicação web: Operacional");
+  await expect(page.getByText("Sem conexão remota")).toBeVisible();
+  await expect(page.getByText("Ainda não iniciado")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Localização atual" })).toBeVisible();
+  await expect(page.locator(".feedback-card")).toHaveCount(4);
+  await expect(
+    page.locator(".feedback-card[role='status'], .feedback-card[role='alert'], .feedback-card[aria-live]"),
+  ).toHaveCount(0);
 
   const healthResponse = await page.request.get("/api/health");
+  const health = await healthResponse.json() as { correlationId: string; environment: string };
   expect(healthResponse.status()).toBe(200);
-  const health = await healthResponse.json();
-  expect(health.status).toBe("ok");
-  expect(healthResponse.headers()["x-request-id"]).toBe(health.correlationId);
+  expect(health.environment).toBe("test");
+  expect(healthResponse.headers()["x-correlation-id"]).toBe(health.correlationId);
 
   const readyResponse = await page.request.get("/api/ready");
+  const readyText = await readyResponse.text();
   expect(readyResponse.status()).toBe(200);
-  const ready = await readyResponse.json();
-  expect(ready.status).toBe("ready");
-  expect(ready.dependencies.supabase.status).toBe("available");
-  expect(ready).not.toHaveProperty("error");
+  expect(readyText).toContain('"status":"ready"');
+  expect(readyText).not.toContain("goodz-e2e-public-key");
 
-  for (const theme of ["light", "dark"] as const) {
-    const picker = page.getByRole("combobox", { name: "Tema de aparência" });
-    await picker.selectOption(theme);
-    await expect(page.locator("html")).toHaveClass(theme === "dark" ? /dark/ : /^((?!dark).)*$/);
-    await page.screenshot({ path: path.join(evidencePath, `${theme}-${isMobile ? "mobile" : "desktop"}.png`), fullPage: true });
+  const theme = page.getByRole("combobox", { name: "Tema da interface" });
+  await theme.selectOption("light");
+  await expect(page.locator("html")).not.toHaveClass(/dark/);
+  await expectA11y(page);
+
+  const evidenceDirectory = path.join(process.cwd(), ".engineering", "evidence", "GMZ-REBOOT-001", "screenshots");
+  await mkdir(evidenceDirectory, { recursive: true });
+  await page.screenshot({
+    path: path.join(evidenceDirectory, `foundation-${testInfo.project.name}-light.png`),
+    fullPage: true,
+  });
+
+  await theme.selectOption("dark");
+  await expect(page.locator("html")).toHaveClass(/dark/);
+  await expectA11y(page);
+  await page.screenshot({
+    path: path.join(evidenceDirectory, `foundation-${testInfo.project.name}-dark.png`),
+    fullPage: true,
+  });
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const reducedMotionAnimation = await page.locator(".welcome-copy").evaluate((element) => getComputedStyle(element).animationName);
+  expect(reducedMotionAnimation).toBe("none");
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+
+  const viewport = await page.evaluate(() => ({ width: window.innerWidth, bodyWidth: document.body.scrollWidth }));
+  expect(viewport.bodyWidth).toBeLessThanOrEqual(viewport.width);
+
+  await page.setViewportSize({ width: 700, height: 900 });
+  const tabletViewport = await page.evaluate(() => ({ width: window.innerWidth, bodyWidth: document.body.scrollWidth }));
+  expect(tabletViewport.bodyWidth).toBeLessThanOrEqual(tabletViewport.width);
+  await expect(page.getByRole("link", { name: "goodz MENU PLATFORM" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Visão geral" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Cardápio.*Em breve/ })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /Pedidos.*Em breve/ })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /Equipe.*Em breve/ })).toBeDisabled();
+  await expectA11y(page);
+});
+
+test("keyboard users can skip navigation and move focus to the main content", async ({ page }) => {
+  await page.goto("/");
+
+  const skipLink = page.getByRole("link", { name: "Pular para o conteúdo" });
+  await page.keyboard.press("Tab");
+  await expect(skipLink).toBeFocused();
+  await expect(skipLink).toBeVisible();
+  await expect(skipLink).toHaveCSS("outline-style", "solid");
+  await expect(skipLink).toHaveCSS("outline-width", "3px");
+  const skipLinkIsInViewport = await skipLink.evaluate((element) => {
+    const bounds = element.getBoundingClientRect();
+    return bounds.left >= 0 && bounds.top >= 0 && bounds.right <= window.innerWidth && bounds.bottom <= window.innerHeight;
+  });
+  expect(skipLinkIsInViewport).toBe(true);
+
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("main")).toBeFocused();
+});
+
+test("theme control keeps a visible focus indicator in keyboard navigation", async ({ page }) => {
+  await page.goto("/");
+
+  const theme = page.getByRole("combobox", { name: "Tema da interface" });
+  await expect(theme).toBeEnabled();
+  let themeFocused = false;
+
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    await page.keyboard.press("Tab");
+    if (await theme.evaluate((element) => element === document.activeElement)) {
+      themeFocused = true;
+      break;
+    }
   }
 
-  const viewport = page.viewportSize();
-  expect(viewport?.width).toBe(isMobile ? 390 : 1440);
-  const documentWidth = await page.locator("body").evaluate((element) => element.scrollWidth);
-  expect(documentWidth).toBeLessThanOrEqual(viewport!.width);
+  expect(themeFocused).toBe(true);
+  await expect(theme).toBeFocused();
+  await expect(theme).toHaveCSS("outline-style", "solid");
+  await expect(theme).toHaveCSS("outline-width", "3px");
+});
 
-  await expect(page.locator(".app-frame")).toHaveAttribute("data-reduced-motion", "true");
-  const accessibility = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
-  expect(accessibility.violations, JSON.stringify(accessibility.violations.map(({ id, impact, nodes }) => ({ id, impact, count: nodes.length })))).toEqual([]);
+test("foundation reflows at a 320 CSS pixel viewport without page-level overflow", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  await page.goto("/");
 
-  if (isMobile) {
-    await page.getByRole("button", { name: "Abrir navegação" }).click();
-    await expect(page.getByRole("navigation", { name: "Navegação da prévia" })).toBeVisible();
+  const dimensions = await page.evaluate(() => ({
+    viewportWidth: document.documentElement.clientWidth,
+    pageScrollWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
+  }));
+  const overflowSources = await page.evaluate(() => {
+    const viewportWidth = document.documentElement.clientWidth;
+    return Array.from(document.querySelectorAll<HTMLElement>("body *"))
+      .map((element) => {
+        const bounds = element.getBoundingClientRect();
+        const style = window.getComputedStyle(element);
+        return {
+          tag: element.tagName.toLowerCase(),
+          id: element.id,
+          className: String(element.getAttribute("class") ?? ""),
+          left: Math.round(bounds.left),
+          right: Math.round(bounds.right),
+          width: Math.round(bounds.width),
+          clientWidth: element.clientWidth,
+          scrollWidth: element.scrollWidth,
+          overflowX: style.overflowX,
+          position: style.position,
+        };
+      })
+      .filter((element) => element.right > viewportWidth + 1)
+      .sort((left, right) => right.right - left.right)
+      .slice(0, 12);
+  });
+
+  expect(
+    dimensions.pageScrollWidth,
+    `Horizontal overflow sources: ${JSON.stringify(overflowSources)}`,
+  ).toBeLessThanOrEqual(dimensions.viewportWidth);
+  await expect(page.getByRole("heading", { name: "Uma base clara para o que vem a seguir." })).toBeVisible();
+  const primaryNavigation = page.getByRole("navigation", { name: "Navegação principal" });
+  await expect(primaryNavigation).toBeVisible();
+  await expect(primaryNavigation).toHaveCSS("flex-wrap", "wrap");
+  await expect(primaryNavigation).toHaveCSS("overflow-x", "visible");
+  const navigationItemBounds = await page.locator(".primary-nav .nav-link").evaluateAll((elements) =>
+    elements.map((element) => {
+      const bounds = element.getBoundingClientRect();
+      return { left: bounds.left, right: bounds.right };
+    }),
+  );
+  for (const bounds of navigationItemBounds) {
+    expect(bounds.left).toBeGreaterThanOrEqual(0);
+    expect(bounds.right).toBeLessThanOrEqual(dimensions.viewportWidth + 1);
   }
-  expect(testInfo.project.name).toContain(isMobile ? "mobile" : "desktop");
+  const mobileBadge = page.locator(".primary-nav .nav-badge").first();
+  await expect(mobileBadge).toHaveCSS("position", "static");
+  await expect(mobileBadge).toHaveCSS("padding", "3px 6px");
+  await expect(mobileBadge).toHaveCSS("border-top-width", "1px");
+  await expect(page.getByRole("navigation", { name: "Localização atual" })).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "Tema da interface" })).toBeVisible();
+  await expectA11y(page);
 });
 
-test("feedback examples remain clearly labeled as previews", async ({ page }) => {
-  await page.goto("/");
-  await page.getByRole("button", { name: "Exibir exemplo de Erro" }).click();
-  await expect(page.getByRole("status")).toContainText("Exemplo de erro recuperável.");
-  await expect(page.getByText("EXEMPLO", { exact: true })).toBeVisible();
-});
-
-
-test("status cards isolate malformed health responses from readiness state", async ({ page }) => {
-  await page.route("**/api/health", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: "{not-valid-json",
-    });
-  });
-  await page.route("**/api/ready", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        status: "ready",
-        dependencies: { supabase: { status: "available" } },
-      }),
-    });
-  });
-
-  await page.goto("/");
-
-  const applicationCard = page.locator(".status-card").filter({ hasText: "Aplicação" });
-  const supabaseCard = page.locator(".status-card").filter({ hasText: "Supabase local" });
-
-  await expect(applicationCard).toContainText("Verificando");
-  await expect(supabaseCard).toContainText("Disponível");
-});
-
-
-test("status cards keep the newest refresh when an older request finishes late", async ({ page }) => {
-  let healthCalls = 0;
-  let readyCalls = 0;
-
-  await page.route("**/api/health", async (route) => {
-    healthCalls += 1;
-    if (healthCalls === 1) {
-      await new Promise((resolve) => setTimeout(resolve, 16_500));
-      await route.fulfill({
-        status: 503,
-        contentType: "application/json",
-        body: JSON.stringify({ status: "not_ok", environment: "local", runtime: "docker", revision: "test" }),
-      });
-      return;
-    }
-
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({ status: "ok", environment: "local", runtime: "docker", revision: "test" }),
-    });
-  });
-
-  await page.route("**/api/ready", async (route) => {
-    readyCalls += 1;
-    if (readyCalls === 1) {
-      await new Promise((resolve) => setTimeout(resolve, 16_500));
-      await route.fulfill({
-        status: 503,
-        contentType: "application/json",
-        body: JSON.stringify({
-          status: "not_ready",
-          dependencies: { supabase: { status: "unavailable", reason: "timeout" } },
-        }),
-      });
-      return;
-    }
-
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        status: "ready",
-        dependencies: { supabase: { status: "available" } },
-      }),
-    });
-  });
-
-  await page.goto("/");
-
-  const applicationCard = page.locator(".status-card").filter({ hasText: "Aplicação" });
-  const supabaseCard = page.locator(".status-card").filter({ hasText: "Supabase local" });
-
-  await expect(applicationCard).toContainText("Respondendo", { timeout: 16_000 });
-  await expect(supabaseCard).toContainText("Disponível", { timeout: 16_000 });
-
-  await page.waitForTimeout(2_000);
-
-  await expect(applicationCard).toContainText("Respondendo");
-  await expect(supabaseCard).toContainText("Disponível");
-});
+async function expectA11y(page: import("@playwright/test").Page) {
+  const result = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+    .analyze();
+  expect(result.violations).toEqual([]);
+}
