@@ -8,9 +8,9 @@
   "assurance": "ELEVATED",
   "admissionBaseRef": "main",
   "admissionBaseSha": "f98b54a2a933e1cf312575a571afb57566422d82",
-  "workBranch": "implementation/gmz-impl-007-catalog-core",
-  "executionBaseSha": null,
-  "executionBaseState": "MUST_BIND_AFTER_ADMISSION_PROMOTION",
+  "workBranch": "execution/gmz-impl-007-catalog-core",
+  "executionBaseSha": "1b64fbfbef3d31d215f4a2a1e30e88f8f946860c",
+  "executionBaseState": "BOUND_FOR_EXECUTION",
   "sourcePack": "FROZEN_V0_1",
   "productionDenominator": 515,
   "productionEarnedAtAdmission": 52,
@@ -88,9 +88,9 @@
   ],
   "governanceSnapshot": {
     "checkpointPath": ".engineering/CHECKPOINT.json",
-    "checkpointGitBlobSha": "789223da901d9c0415da82bf5d8cb781d9d486e4",
-    "status": "GMZ_IMPL_006_PROMOTED_COMPLETE_READY_FOR_NEXT",
-    "note": "Admission snapshot after GMZ-IMPL-006 promotion; executor mutation remains blocked until admission merge and exact execution-base bind."
+    "checkpointGitBlobSha": "77b8b2a7dc88d1d97f01e5889f8bf5d2d40a95e8",
+    "status": "GMZ_IMPL_007_ADMISSION_CANDIDATE_READY_FOR_REVIEW",
+    "note": "Historical admission checkpoint snapshot captured at the objectively approved and merged admission. Its status is intentionally historical and is not expected to match the current .engineering/CHECKPOINT.json execution status after exact execution-base binding."
   },
   "implementationContract": {
     "catalogCore": "ADMITTED_AFTER_BIND",
@@ -133,8 +133,8 @@
     "Executor does not merge"
   ],
   "executor": "GEF heavy executor / Codex",
-  "codexAllowed": false,
-  "codexAuthorizedScope": "BLOCKED until objective admission audit, admission merge, and exact execution-base bind.",
+  "codexAllowed": true,
+  "codexAuthorizedScope": "GMZ-IMPL-007-CD-002 ONLY: diagnose and minimally correct the desktop catalog feedback and mobile MFA E2E failures within the bounded scope; no MFA runtime mutation; full exact-head proof, no merge or credit promotion.",
   "codexProhibited": [
     "runtime/schema mutation before bind",
     "main direct mutation",
@@ -149,5 +149,87 @@
     "service-role catalog authorization/business mutation",
     "unrelated cleanup"
   ],
-  "stopCondition": "GMZ_IMPL_007_ADMISSION_READY_FOR_REVIEW"
+  "stopCondition": "GMZ_IMPL_007_CD_002_READY_FOR_OBJECTIVE_AUDIT",
+  "admissionAudit": {
+    "admissionPr": 68,
+    "auditedHead": "9abc2f690f035b41801662688cb6f7ab9e2e9f9a",
+    "admissionMergeSha": "1b64fbfbef3d31d215f4a2a1e30e88f8f946860c",
+    "critical": 0,
+    "high": 0,
+    "stableSourceFingerprints": "16/16 MATCH",
+    "sonarqube": "PASS",
+    "socket": "PASS",
+    "codeRabbit": "SUCCESS",
+    "unresolvedReviewThreads": 0,
+    "runtimeOrSchemaCodeIntroduced": false,
+    "disposition": "APPROVED_FOR_ADMISSION_PROMOTION"
+  },
+  "correctionDelta": {
+    "id": "GMZ-IMPL-007-CD-002",
+    "state": "AUTHORIZED_FOR_DIAGNOSTIC_CORRECTION",
+    "authorizationHead": "a6c853e4874b67ccefba558c7afd413463196065",
+    "cause": "CD-001 originals corrected with focused proof; full E2E 27/32 PASS, 2 FAIL, 3 NOT RUN. Desktop channel creation feedback and mobile MFA enrollment QR behavior require objective diagnosis.",
+    "authorizedTestPaths": [
+      "tests/e2e/catalog.spec.ts",
+      "tests/e2e/mfa-admin-guard.spec.ts",
+      "tests/e2e/catalog-ui-fixture.ts",
+      "tests/e2e/auth-session-fixture.ts"
+    ],
+    "authorizedCatalogRuntimePathsConditionalOnProvenDefect": [
+      "src/components/goodz/catalog-console.tsx",
+      "src/app/app/catalog/actions.ts",
+      "src/lib/catalog/catalog-commands.server.ts"
+    ],
+    "forbiddenRuntimeScopes": [
+      "MFA/Auth/Admin Guard/reauthentication runtime code",
+      "DB schema/migrations/RLS",
+      "catalog business authority/audit/price weakening",
+      "dependencies/lockfile",
+      ".gef/**",
+      ".engineering/CHECKPOINT.json",
+      "production/remote Supabase"
+    ],
+    "deferredIssue": 70,
+    "sonar": "Triage all 22 new code-quality issues (17 CRITICAL, 5 MAJOR code smells per PR closeout); differentiate blocking actionable issues from nonblocking/out-of-scope, record proof, do not silently dismiss.",
+    "requiredProof": [
+      "focused catalog >=3/3",
+      "focused mobile MFA >=3/3",
+      "full E2E 32/32 default workers",
+      "full E2E 32/32 workers=1",
+      "Axe zero violations",
+      "exact-head complete ELEVATED L5",
+      "fresh exact-head hosted checks",
+      "real hosted CodeRabbit review",
+      "unresolved CRITICAL/HIGH=0/0",
+      "CHECKPOINT.json unchanged",
+      "PR open/draft/unmerged"
+    ],
+    "stopCondition": "GMZ_IMPL_007_CD_002_READY_FOR_OBJECTIVE_AUDIT"
+  },
+  "correctionDeltas": [
+    {
+      "id": "GMZ-IMPL-007-CD-001",
+      "state": "AUTHORIZED_FOR_CORRECTION",
+      "objectiveReviewHead": "5e0712a0084126d39e0b36d9236892715e9c375b",
+      "objectiveReviewSource": "CodeRabbit hosted implementation review 812e624c-c4cc-48fa-91bf-733d75c92a2a plus independent verification",
+      "findings": {
+        "establishmentScopeContainment": "MAJOR_CONFIRMED",
+        "privateSettlementHelperExecute": "MAJOR_CONFIRMED",
+        "readerPresentationLocator": "MINOR_CONFIRMED",
+        "unboundedOverviewPriceHistory": "LOW_DEFERRED_ISSUE_70"
+      },
+      "allowedRuntimePaths": [
+        "supabase/migrations/20261005090100_catalog_authorization.sql",
+        "supabase/migrations/20261005090200_catalog_contracts.sql",
+        "supabase/tests/database/catalog_tenant_authorization.test.sql",
+        "tests/supabase/catalog-authorization.integration.mjs",
+        "tests/e2e/catalog.spec.ts"
+      ],
+      "checkpointJsonMutation": false,
+      "dependencyMutation": false,
+      "remoteSupabase": false,
+      "mergeAuthority": false,
+      "jevDecisionEconomyRule": "Use installed TypeSafe/Jev MCP + skill for atomic typed choice/score/noul classification or routing to save expensive reasoning tokens; batch independent questions; low-confidence or security/auth/money/high-impact decisions require deterministic verification and primary-model reasoning; Jev never replaces code generation, multi-step reasoning, repository truth, tests, or final acceptance."
+    }
+  ]
 }

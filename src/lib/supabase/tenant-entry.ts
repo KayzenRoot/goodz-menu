@@ -1,4 +1,5 @@
 import type { ServerSupabaseClient } from "@/lib/supabase/auth-session";
+import { loadAllPages } from "@/lib/supabase/query-pagination";
 
 export type VisibleTenant = {
   id: string;
@@ -15,36 +16,6 @@ export type VisibleTenant = {
 export type TenantEntryResult =
   | { ok: true; tenants: VisibleTenant[] }
   | { ok: false };
-
-const PAGE_SIZE = 1000;
-
-type PageResult<Row> = { data: Row[] | null; error: unknown; count: number | null };
-
-async function loadAllPages<Row>(queryPage: (from: number, to: number) => PromiseLike<PageResult<Row>>) {
-  const rows: Row[] = [];
-  let expectedCount: number | undefined;
-
-  for (let from = 0; ; ) {
-    const page = await queryPage(from, from + PAGE_SIZE - 1);
-    if (
-      page.error !== null
-      || !Array.isArray(page.data)
-      || page.data.length > PAGE_SIZE
-      || page.count === null
-      || !Number.isSafeInteger(page.count)
-      || page.count < 0
-      || (expectedCount !== undefined && page.count !== expectedCount)
-    ) return null;
-
-    expectedCount = page.count;
-    if (page.data.length === 0 && rows.length < expectedCount) return null;
-    rows.push(...page.data);
-    if (rows.length > expectedCount) return null;
-    if (rows.length === expectedCount) return rows;
-
-    from += page.data.length;
-  }
-}
 
 export async function loadVisibleTenantEntry(client: ServerSupabaseClient): Promise<TenantEntryResult> {
   try {
