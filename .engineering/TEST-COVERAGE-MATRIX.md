@@ -1,6 +1,6 @@
 # Goodz Menu — Test Coverage Matrix
 
-Status: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+Status: `APPROVED_V0.1`
 
 | Area | Unit | Integration | E2E | Negative/Security | Visual/A11y | Performance |
 |---|---|---|---|---|---|---|

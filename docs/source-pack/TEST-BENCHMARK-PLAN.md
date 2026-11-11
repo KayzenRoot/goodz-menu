@@ -1,6 +1,6 @@
 # Goodz Menu — Test & Benchmark Plan
 
-Status: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`  
+Status: `APPROVED_V0.1`<br>
 Authority domain: `VALIDATION`
 
 ## 1. Purpose

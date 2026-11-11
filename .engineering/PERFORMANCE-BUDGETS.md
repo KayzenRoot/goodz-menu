@@ -1,6 +1,6 @@
 # Goodz Menu — Performance Budgets
 
-Status: `FROZEN_CANDIDATE_V0.1 / REVIEW_PENDING`
+Status: `APPROVED_V0.1`
 
 Budgets are quality gates, not marketing promises. They apply to defined benchmark populations and can only change through evidence-backed governance.
 
