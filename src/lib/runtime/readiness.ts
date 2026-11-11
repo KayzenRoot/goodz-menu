@@ -9,6 +9,7 @@ export async function probeLocalSupabase(baseUrl: URL): Promise<SupabaseProbe> {
     const response = await fetch(healthUrl, {
       method: "GET",
       cache: "no-store",
+      redirect: "error",
       signal: AbortSignal.timeout(2500),
       headers: { accept: "application/json" },
     });
