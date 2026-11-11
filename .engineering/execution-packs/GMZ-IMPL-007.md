@@ -1,12 +1,12 @@
 # GMZ-IMPL-007 — Execution Pack
 
-Status: `CD-002 SCOPE-ALIGNED ADMISSION PROPOSAL / EXECUTION BLOCKED`
+Status: `ADMITTED / BOUND_FOR_EXECUTION`
 
 Amendment: `GMZ-IMPL-007-CD-002`
 Proposal branch: `codex/gmz-impl-007-cd-002-admission`
 Proposal base: `556a9dbbcb3250b640c40fefe1ade0d5c425d871`
-Execution branch after future approval: `PENDING_ADMISSION_AUDIT_AND_BIND`
-Exact execution base: `PENDING_ADMISSION_PROMOTION_AND_BIND`
+Execution branch: `execution/gmz-impl-007-catalog-core-bound-20a63ab`
+Exact execution base: `20a63ab8baa6f0776224c104656e20d05be5d6b0`
 Executor: `GEF heavy executor / Codex`  
 Merge authority: `NO`
 
@@ -67,8 +67,4 @@ Publish final candidate, fresh hosted gates, Evidence Bundle, checkpoint proposa
 
 ## STOP CONDITION
 
-Before bind:
-`GMZ_IMPL_007_CD_002_ADMISSION_READY_FOR_REVIEW`
-
-After governed execution:
 `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`
