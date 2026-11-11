@@ -1,15 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { requestCorrelationId, safeBuildRevision } from "@/lib/observability/correlation";
+import { resolveCorrelationId } from "@/lib/observability/correlation";
 
-describe("request correlation", () => {
-  it("preserves a valid UUID and replaces arbitrary header contents", () => {
-    const id = "3f713b35-b405-4ad1-9b2a-20bcffb5a410";
-    expect(requestCorrelationId(new Request("http://localhost", { headers: { "x-request-id": id } }))).toBe(id);
-    expect(requestCorrelationId(new Request("http://localhost", { headers: { "x-request-id": "authorization: secret" } }))).toMatch(/^[0-9a-f-]{36}$/i);
+describe("resolveCorrelationId", () => {
+  it("keeps a valid caller correlation id", () => {
+    expect(resolveCorrelationId(new Headers({ "x-correlation-id": "req-01:abc" }))).toBe("req-01:abc");
   });
 
-  it("limits revision strings to safe visible characters", () => {
-    expect(safeBuildRevision("build.123-ab" as string)).toBe("build.123-ab");
-    expect(safeBuildRevision("token=hidden" as string)).toBe("unknown");
+  it("falls back to a generated id when the caller value is unsafe", () => {
+    const id = resolveCorrelationId(new Headers({ "x-request-id": "bad/header" }));
+    expect(id).toMatch(/^[0-9a-f-]{36}$/i);
+  });
+
+  it("uses the request id when no correlation id was supplied", () => {
+    expect(resolveCorrelationId(new Headers({ "x-request-id": "request_2026.10" }))).toBe("request_2026.10");
   });
 });

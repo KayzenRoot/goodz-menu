@@ -1,6 +1,7 @@
 import { cpSync, existsSync, mkdirSync } from "node:fs";
 import { spawn } from "node:child_process";
 import path from "node:path";
+import { isPublicSupabaseAnonKey } from "../src/lib/env/supabase-public-key.mjs";
 
 const root = process.cwd();
 const localStandalone = path.join(root, ".next", "standalone");
@@ -46,13 +47,31 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
   process.exit(1);
 }
 
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY?.trim();
+if (supabaseAnonKey && !isPublicSupabaseAnonKey(supabaseAnonKey)) {
+  console.error("SUPABASE_ANON_KEY must be a public anonymous key; the server was not started.");
+  process.exit(1);
+}
+
+const nodeExtraCaCerts = process.env.NODE_EXTRA_CA_CERTS?.trim();
+if (supabaseAnonKey && (!nodeExtraCaCerts || !existsSync(nodeExtraCaCerts))) {
+  console.error("A CA pública do proxy Supabase TLS não está disponível; o servidor não foi iniciado.");
+  process.exit(1);
+}
+
 const child = spawn(process.execPath, [serverPath], {
   cwd: standaloneDirectory,
   stdio: "inherit",
+  windowsHide: true,
   env: {
-    ...process.env,
+    ...getSystemEnvironment(),
+    NODE_ENV: process.env.NODE_ENV ?? "production",
     GOODZ_ENVIRONMENT: process.env.GOODZ_ENVIRONMENT ?? "local",
     GOODZ_RUNTIME: process.env.GOODZ_RUNTIME ?? "native",
+    ...(process.env.SUPABASE_API_URL ? { SUPABASE_API_URL: process.env.SUPABASE_API_URL } : {}),
+    ...(supabaseAnonKey ? { SUPABASE_ANON_KEY: supabaseAnonKey } : {}),
+    ...(process.env.BUILD_REVISION ? { BUILD_REVISION: process.env.BUILD_REVISION } : {}),
+    ...(nodeExtraCaCerts ? { NODE_EXTRA_CA_CERTS: nodeExtraCaCerts } : {}),
     HOSTNAME: options.hostname,
     PORT: String(port),
   },
@@ -70,3 +89,11 @@ child.on("error", (error) => {
 child.on("exit", (code, signal) => {
   process.exitCode = code ?? (signal ? 1 : 0);
 });
+
+function getSystemEnvironment() {
+  const environment = {};
+  for (const key of ["PATH", "Path", "SystemRoot", "WINDIR", "COMSPEC", "TEMP", "TMP", "USERPROFILE", "HOME"]) {
+    if (process.env[key]) environment[key] = process.env[key];
+  }
+  return environment;
+}

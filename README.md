@@ -1,50 +1,25 @@
 # Goodz Menu
 
-Goodz Menu is an AI-native operating platform for food businesses, combining POS, cash, catalog, recipes, inventory, purchasing, finance, delivery, omnichannel commerce, CRM, analytics, SaaS administration and decision intelligence.
+Goodz Menu é uma plataforma operacional para negócios de alimentação. Esta branch reinicia a implementação pela fundação executável, preservando o produto aprovado, o Source Pack e o histórico Git.
 
-## Current state
+## Estado desta branch
 
-- GEF Bootstrap: `1.1.1`
-- GEF init: `APPLIED / CONFIRMED`
-- Product ideation: `CLOSED`
-- Source Pack: `IN_CONSTRUCTION`
-- Product implementation: `NOT_AUTHORIZED`
-- Active planning Work Order: `GMZ-SP-001`
-- Active planning Issue: `#2`
+- Work Order: [GMZ-REBOOT-001](.engineering/work-orders/GMZ-REBOOT-001.md)
+- Issue: [#73](https://github.com/KayzenRoot/goodz-menu/issues/73)
+- Pull request draft: [#74](https://github.com/KayzenRoot/goodz-menu/pull/74)
+- Escopo: shell visual, runtime local, health/readiness, correlação e harness de validação.
+- Fora desta etapa: autenticação de produto, tenancy, catálogo, pedidos, finanças e qualquer dado de negócio.
 
-## Development model
+O preview não representa um módulo concluído nem dados operacionais. A fundação deve passar por auditoria objetiva antes de iniciar o Work Order separado de `GMZ-M01`.
 
-Goodz Menu follows the GEF lifecycle:
+## Desenvolvimento
 
-```text
-ANALYZE
-→ SOURCE CHECK
-→ NEXT NECESSARY INCREMENT
-→ WORK ORDER
-→ CONTEXT LOCK
-→ PREFLIGHT
-→ EXECUTOR
-→ TESTS / EVIDENCE
-→ PR
-→ AUDIT
-→ APPROVED / CORRECTION_REQUIRED / BLOCKED
-→ CHECKPOINT
-→ MERGE
-→ NEXT
+Veja [docs/LOCAL-DEVELOPMENT.md](docs/LOCAL-DEVELOPMENT.md) para os comandos PowerShell, Supabase local isolado, Docker, testes e capturas de evidência.
+
+```powershell
+pnpm install --frozen-lockfile
+pnpm supabase:start
+pnpm dev
 ```
 
-No application code should be introduced until the canonical Source Pack, Scope, Architecture, Security, Test Plan and Definition of Done are sufficiently frozen for the first implementation increment.
-
-## Local-first target
-
-The application is intended to run locally through Docker during development so the owner can continuously validate behavior, visual design and operational flows before cloud deployment.
-
-## Canonical governance
-
-See:
-- `.engineering/SOURCE-HIERARCHY.md`
-- `.engineering/PROJECT-IDENTITY.md`
-- `.engineering/CHECKPOINT.md`
-- `.engineering/DECISIONS-LEDGER.md`
-- `.engineering/MODULE-MAP.md`
-- `.engineering/work-orders/GMZ-SP-001.md`
+O runtime bloqueia URLs Supabase remotas e não usa chave service-role.

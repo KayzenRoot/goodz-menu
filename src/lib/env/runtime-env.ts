@@ -1,102 +1,111 @@
 import { z } from "zod";
+import { isPublicSupabaseAnonKey } from "./supabase-public-key.mjs";
 
-const environmentSchema = z.enum(["local", "test", "staging", "production"]);
-const runtimeSchema = z.enum(["native", "docker"]);
+const EnvironmentSchema = z.enum(["local", "test"]);
+const RuntimeSchema = z.enum(["native", "docker"]);
+const RevisionSchema = z.string().trim().min(1).max(64).regex(/^[A-Za-z0-9][A-Za-z0-9._-]*$/);
+const TestNativeLoopbackHosts = new Set(["localhost", "127.0.0.1", "[::1]"]);
 
-export type GoodzEnvironment = z.infer<typeof environmentSchema>;
+export type GoodzEnvironment = z.infer<typeof EnvironmentSchema>;
+export type GoodzRuntime = z.infer<typeof RuntimeSchema>;
 
-export type RuntimeConfig = {
+export type RuntimeEnvironment = {
   environment: GoodzEnvironment;
-  runtime: "native" | "docker";
-  buildRevision: string;
+  runtime: GoodzRuntime;
   supabaseApiUrl: URL;
+  supabaseAnonKey?: string;
+  revision: string;
 };
 
-export type RuntimeConfigResult =
-  | { ok: true; config: RuntimeConfig }
-  | { ok: false; environment: GoodzEnvironment | "unknown"; reason: "invalid_environment" | "supabase_url_required" | "invalid_supabase_url" };
+export type RuntimeEnvironmentError =
+  | "invalid_environment"
+  | "invalid_runtime"
+  | "invalid_supabase_url"
+  | "invalid_supabase_anon_key";
 
-export type SupabaseAuthConfig = {
-  supabaseApiUrl: URL;
-  anonKey: string;
-};
+export type RuntimeEnvironmentResult =
+  | { ok: true; config: RuntimeEnvironment }
+  | {
+      ok: false;
+      environment: GoodzEnvironment | "unknown";
+      runtime: GoodzRuntime | "unknown";
+      revision: string;
+      reason: RuntimeEnvironmentError;
+    };
 
-export type SupabaseAuthConfigResult =
-  | { ok: true; environment: GoodzEnvironment; config: SupabaseAuthConfig }
-  | { ok: false; environment: GoodzEnvironment | "unknown"; reason: "invalid_environment" | "supabase_url_required" | "invalid_supabase_url" | "supabase_anon_key_required" | "invalid_supabase_anon_key" };
+type EnvironmentInput = Record<string, string | undefined>;
 
-export function readRuntimeConfig(source: Record<string, string | undefined> = process.env): RuntimeConfigResult {
-  const inferredEnvironment = source.GOODZ_ENVIRONMENT ?? (source.NODE_ENV === "production" ? "production" : "local");
-  const environmentResult = environmentSchema.safeParse(inferredEnvironment);
+export function parseRuntimeEnvironment(input: EnvironmentInput): RuntimeEnvironmentResult {
+  const environmentResult = EnvironmentSchema.safeParse(input.GOODZ_ENVIRONMENT ?? "local");
+  const runtimeResult = RuntimeSchema.safeParse(input.GOODZ_RUNTIME ?? "native");
+  const revisionResult = RevisionSchema.safeParse(input.BUILD_REVISION ?? "local");
+  const environment = environmentResult.success ? environmentResult.data : "unknown";
+  const runtime = runtimeResult.success ? runtimeResult.data : "unknown";
+  const revision = revisionResult.success ? revisionResult.data : "unknown";
+
   if (!environmentResult.success) {
-    return { ok: false, environment: "unknown", reason: "invalid_environment" };
+    return { ok: false, environment, runtime, revision, reason: "invalid_environment" };
+  }
+  if (!runtimeResult.success) {
+    return { ok: false, environment, runtime, revision, reason: "invalid_runtime" };
   }
 
-  const environment = environmentResult.data;
-  const endpoint = source.SUPABASE_API_URL ??
-    (environment === "local" || environment === "test" ? "http://127.0.0.1:54321" : undefined);
-  if (!endpoint) return { ok: false, environment, reason: "supabase_url_required" };
-
+  const defaultEndpoint = runtimeResult.data === "docker"
+    ? "https://supabase-tls:8443"
+    : "https://localhost:56443";
+  const endpoint = input.SUPABASE_API_URL ?? defaultEndpoint;
   let supabaseApiUrl: URL;
+
   try {
     supabaseApiUrl = new URL(endpoint);
   } catch {
-    return { ok: false, environment, reason: "invalid_supabase_url" };
+    return { ok: false, environment, runtime, revision, reason: "invalid_supabase_url" };
   }
 
-  if (
-    !["http:", "https:"].includes(supabaseApiUrl.protocol) ||
-    supabaseApiUrl.username !== "" ||
-    supabaseApiUrl.password !== "" ||
-    supabaseApiUrl.search !== "" ||
-    supabaseApiUrl.hash !== "" ||
-    ((environment === "local" || environment === "test") &&
-      !["localhost", "127.0.0.1", "[::1]", "host.docker.internal"].includes(supabaseApiUrl.hostname)) ||
-    ((environment === "staging" || environment === "production") && supabaseApiUrl.protocol !== "https:")
-  ) {
-    return { ok: false, environment, reason: "invalid_supabase_url" };
+  if (!isAllowedLocalSupabaseEndpoint(supabaseApiUrl, environmentResult.data, runtimeResult.data)) {
+    return { ok: false, environment, runtime, revision, reason: "invalid_supabase_url" };
+  }
+
+  const anonKey = input.SUPABASE_ANON_KEY?.trim();
+  if (anonKey && !isPublicSupabaseAnonKey(anonKey, environmentResult.data === "test")) {
+    return { ok: false, environment, runtime, revision, reason: "invalid_supabase_anon_key" };
   }
 
   return {
     ok: true,
     config: {
-      environment,
-      runtime: runtimeSchema.safeParse(source.GOODZ_RUNTIME ?? "native").data ?? "native",
-      buildRevision: /^[a-zA-Z0-9._-]{1,80}$/.test(source.BUILD_REVISION ?? "local")
-        ? source.BUILD_REVISION ?? "local"
-        : "unknown",
+      environment: environmentResult.data,
+      runtime: runtimeResult.data,
       supabaseApiUrl,
+      ...(anonKey ? { supabaseAnonKey: anonKey } : {}),
+      revision,
     },
   };
 }
 
-export function readSupabaseAuthConfig(source: Record<string, string | undefined> = process.env): SupabaseAuthConfigResult {
-  const runtime = readRuntimeConfig(source);
-  if (!runtime.ok) return runtime;
-
-  const anonKey = source.SUPABASE_ANON_KEY?.trim();
-  if (!anonKey) return { ok: false, environment: runtime.config.environment, reason: "supabase_anon_key_required" };
-  if (!isPublicSupabaseKey(anonKey)) return { ok: false, environment: runtime.config.environment, reason: "invalid_supabase_anon_key" };
-
-  return {
-    ok: true,
-    environment: runtime.config.environment,
-    config: { supabaseApiUrl: runtime.config.supabaseApiUrl, anonKey },
-  };
+function isAllowedLocalSupabaseEndpoint(url: URL, environment: GoodzEnvironment, runtime: GoodzRuntime): boolean {
+  return isAllowedTransport(url, environment, runtime) &&
+    isAllowedHost(url, environment, runtime) &&
+    isAllowedPort(url, environment, runtime) &&
+    url.username === "" &&
+    url.password === "" &&
+    url.search === "" &&
+    url.hash === "" &&
+    url.pathname === "/";
 }
 
-export { safePostLoginPath } from "../auth/navigation";
+function isAllowedTransport(url: URL, environment: GoodzEnvironment, runtime: GoodzRuntime): boolean {
+  return url.protocol === "https:" ||
+    (environment === "test" && runtime === "native" && url.protocol === "http:");
+}
 
-function isPublicSupabaseKey(value: string): boolean {
-  if (/^sb_publishable_[A-Za-z0-9_-]+$/.test(value)) return true;
+function isAllowedHost(url: URL, environment: GoodzEnvironment, runtime: GoodzRuntime): boolean {
+  const host = url.hostname.toLowerCase();
+  if (runtime === "docker") return host === "supabase-tls";
+  return host === "localhost" || (environment === "test" && TestNativeLoopbackHosts.has(host));
+}
 
-  const segments = value.split(".");
-  if (segments.length !== 3 || !/^[A-Za-z0-9_-]+$/.test(segments[1])) return false;
-
-  try {
-    const payload: unknown = JSON.parse(Buffer.from(segments[1], "base64url").toString("utf8"));
-    return typeof payload === "object" && payload !== null && "role" in payload && payload.role === "anon";
-  } catch {
-    return false;
-  }
+function isAllowedPort(url: URL, environment: GoodzEnvironment, runtime: GoodzRuntime): boolean {
+  const expectedPort = runtime === "docker" ? "8443" : "56443";
+  return url.port === expectedPort || (environment === "test" && runtime === "native" && url.port !== "");
 }

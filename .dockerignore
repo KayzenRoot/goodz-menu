@@ -2,6 +2,7 @@
 .github
 .engineering
 .gef
+.local-tls
 .next
 node_modules
 gmz-scaffold

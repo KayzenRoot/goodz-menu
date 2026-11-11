@@ -1,5 +1,5 @@
-import { FoundationPreview } from "@/components/goodz/foundation-preview";
+import { FoundationShell } from "@/components/foundation-shell";
 
-export default function Home() {
-  return <FoundationPreview />;
+export default function HomePage() {
+  return <FoundationShell />;
 }

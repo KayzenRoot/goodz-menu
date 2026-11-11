@@ -15,7 +15,6 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV GOODZ_ENVIRONMENT=local
-ENV SUPABASE_API_URL=http://127.0.0.1:54321
 RUN pnpm build
 
 FROM node:24-alpine AS runner
@@ -30,6 +29,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/scripts/start.mjs ./scripts/start.mjs
+COPY --from=builder --chown=nextjs:nodejs /app/src/lib/env/supabase-public-key.mjs ./src/lib/env/supabase-public-key.mjs
 USER nextjs
 EXPOSE 3000
 CMD ["node", "scripts/start.mjs", "--hostname", "0.0.0.0", "--port", "3000"]

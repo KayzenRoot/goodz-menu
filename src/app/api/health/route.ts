@@ -1,19 +1,28 @@
-import { NextResponse } from "next/server";
-import { requestCorrelationId, safeBuildRevision, safeEnvironmentName, safeRuntimeName } from "@/lib/observability/correlation";
-import { logRuntimeEvent } from "@/lib/observability/runtime-log";
+import { correlationHeaders, resolveCorrelationId } from "@/lib/observability/correlation";
+import { parseRuntimeEnvironment } from "@/lib/env/runtime-env";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export function GET(request: Request) {
-  const correlationId = requestCorrelationId(request);
-  logRuntimeEvent({ event: "health", correlationId, status: "ok" });
-  const response = NextResponse.json({
-    status: "ok",
-    environment: safeEnvironmentName(),
-    runtime: safeRuntimeName(),
-    revision: safeBuildRevision(),
-    correlationId,
-  }, { headers: { "cache-control": "no-store" } });
-  response.headers.set("x-request-id", correlationId);
-  return response;
+export function GET(request: Request): Response {
+  const correlationId = resolveCorrelationId(request.headers);
+  const environment = parseRuntimeEnvironment(process.env);
+  const identity = environment.ok
+    ? environment.config
+    : {
+        environment: environment.environment,
+        runtime: environment.runtime,
+        revision: environment.revision,
+      };
+
+  return Response.json(
+    {
+      status: "ok",
+      environment: identity.environment,
+      runtime: identity.runtime,
+      revision: identity.revision,
+      correlationId,
+    },
+    { status: 200, headers: correlationHeaders(correlationId) },
+  );
 }
