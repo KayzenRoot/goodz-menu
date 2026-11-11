@@ -7,7 +7,11 @@ import { parseLocalSupabaseStatus } from "./parse-local-supabase-status.mjs";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const supabaseCli = path.join(root, "node_modules", "supabase", "dist", "supabase.js");
 const playwrightCli = path.join(root, "node_modules", "@playwright", "test", "cli.js");
-const status = await run(process.execPath, [supabaseCli, "status", "--output", "json"], { capture: true });
+const supabaseWorkdir = process.env.GOODZ_SUPABASE_WORKDIR?.trim();
+const statusArgs = supabaseWorkdir
+  ? [supabaseCli, "--workdir", path.resolve(supabaseWorkdir), "status", "--output", "json"]
+  : [supabaseCli, "status", "--output", "json"];
+const status = await run(process.execPath, statusArgs, { capture: true });
 const localStatus = parseLocalSupabaseStatus(status.stdout);
 
 const apiUrl = localStatus.API_URL ?? localStatus.api_url;

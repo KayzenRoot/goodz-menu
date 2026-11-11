@@ -40,10 +40,12 @@ const root = process.cwd();
 const supabaseCli = path.join(root, "node_modules", "supabase", "dist", "supabase.js");
 const localUrl = /^http:\/\/(127\.0\.0\.1|localhost|\[::1\])(?::\d+)?$/;
 const permissionKey = "tenant.hierarchy.read";
+const supabaseWorkdir = process.env.GOODZ_SUPABASE_WORKDIR?.trim();
 
 function runSupabase(args: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [supabaseCli, ...args], {
+    const scopedArgs = supabaseWorkdir ? ["--workdir", path.resolve(supabaseWorkdir), ...args] : args;
+    const child = spawn(process.execPath, [supabaseCli, ...scopedArgs], {
       cwd: root,
       stdio: ["ignore", "pipe", "pipe"],
       windowsHide: true,
@@ -140,6 +142,7 @@ export async function createAuthSessionFixture(): Promise<AuthSessionFixture> {
     await executeSql(`DELETE FROM auth.users WHERE id IN (${userIds});
 DELETE FROM public.tenant_roles WHERE organization_id IN ('${ids.organization}', '${ids.foreignOrganization}');
 DELETE FROM public.tenant_roles WHERE organization_id = '${ids.secondaryOrganization}';
+DELETE FROM public.sales_channels WHERE organization_id IN ('${ids.organization}', '${ids.secondaryOrganization}', '${ids.foreignOrganization}');
 DELETE FROM public.branches b
 WHERE b.organization_id IN ('${ids.organization}', '${ids.secondaryOrganization}', '${ids.foreignOrganization}')
   AND NOT EXISTS (SELECT 1 FROM public.audit_events ae WHERE ae.branch_id = b.id OR ae.target_id = b.id);

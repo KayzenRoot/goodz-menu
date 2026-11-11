@@ -26,6 +26,7 @@ export default async function TenantEntryPage() {
             <p>Os espaços exibidos seguem suas permissões atuais.</p>
           </div>
           <div className="tenant-security-actions">
+            <Link className="auth-entry-link" href="/app/catalog">Catálogo</Link>
             <Link className="auth-entry-link" href="/app/security">Segurança</Link>
             <Link className="auth-entry-link" href="/app/admin-guard">Ação protegida</Link>
             <LogoutButton supabaseUrl={config.config.supabaseApiUrl.toString()} anonKey={config.config.anonKey} />
