@@ -1,0 +1,31 @@
+{
+  "workOrder": "GMZ-IMPL-007",
+  "implementationCommit": "686e352dafded94a29437d6eef84843d4e745b27",
+  "implementationTree": "db78e0dab08b5e753a29e3849a3694978551522d",
+  "artifacts": [
+    {
+      "path": "catalog-owner-desktop-chromium-dark.png",
+      "sha256": "6ddda20f54426ab4eb9721607952a35209e30f3495ff15f1d966a2e8215604f5",
+      "viewport": "1440x1000",
+      "theme": "dark"
+    },
+    {
+      "path": "catalog-owner-desktop-chromium-light.png",
+      "sha256": "30a5980ee2d42114152c26e940f7982b6296627e0652e97b322af5f478c0150a",
+      "viewport": "1440x1000",
+      "theme": "light"
+    },
+    {
+      "path": "catalog-owner-mobile-chromium-dark.png",
+      "sha256": "38e38260c134f4d92c861fac823b09bcb133ed490760f3db085a302e5ad9d2f4",
+      "viewport": "390x844",
+      "theme": "dark"
+    },
+    {
+      "path": "catalog-owner-mobile-chromium-light.png",
+      "sha256": "18255e116e5353901823b79e6cd8abb732c0dedf74f8e5c077b5d78e3ec91f9c",
+      "viewport": "390x844",
+      "theme": "light"
+    }
+  ]
+}
