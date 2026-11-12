@@ -72,8 +72,10 @@
     "remoteMainTreeSha": "d34dd3b5fb5009f099aa0bbc5e061f26e0b3090b",
     "worktreeWasCleanAtPreparation": true,
     "status": "PASS_AT_BASE_PRE_EDIT",
-    "lockedSourcesMatched": 26,
+    "lockedSourcesMatched": 25,
     "scopePreimageGitBlobSha": "b6aa3380cfc344813b0d58cffd549cbc3d9c339c",
+    "scopePreimageMatched": true,
+    "totalSourceFingerprintsMatched": 26,
     "maintainerAuthorizationReceived": true,
     "checkedBeforeScopeWrite": [
       "origin/main, HEAD, and base tree equal the exact authorized base.",
