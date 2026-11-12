@@ -8,10 +8,10 @@ Status: `EXECUTOR_REPORT / OBJECTIVE_AUDIT_PENDING`
 - Execution branch: `execution/gmz-impl-007-catalog-core-bound-20a63ab`.
 - Exact authorized base: `20a63ab8baa6f0776224c104656e20d05be5d6b0`.
 - Bind commit: `94dd542c8ef9039661884c00882d8f86a9eafd84`; its parent is the exact base above.
-- Implementation commit: `686e352dafded94a29437d6eef84843d4e745b27`.
-- Implementation tree: `db78e0dab08b5e753a29e3849a3694978551522d`.
+- Implementation commit: `13ca0e309cd046bc8a67f05a3ded92325fa2567d`.
+- Implementation tree: `47e0558c6902fc54341b1fbd981bcc0beb18ec43`.
 - The bound Context Lock reports `16/16` locked-source fingerprints matching the exact base. Its Checkpoint snapshot matches the bound branch (`279d6974b9a30c7393e2de568aa37941df783ced`); the pre-bind Checkpoint at the base intentionally differs. `.gef` is unchanged between base and bind commit.
-- The implementation commit contains 29 source/test/config files (`4,845` insertions, `183` deletions). It does not modify Scope, Checkpoint, Context Lock, or `.gef`.
+- The original implementation commit contains 29 source/test/config files (`4,845` insertions, `183` deletions). The follow-up implementation commit changes 12 in-scope code/test files (`224` insertions, `164` deletions): it returns durable audit-event IDs from catalog commands, validates and exposes those references in success feedback, adds matching SQL/Data API/E2E assertions, shares local Auth fixture helpers, fixes deterministic permission sorting, and raises only the MFA E2E timeout from 120s to 180s. It does not modify Scope, Checkpoint, Context Lock, or `.gef`.
 - Current product credit remains `52/515` (`10.10%`). No credit or completion is claimed.
 
 ## Implementation summary
@@ -19,6 +19,8 @@ Status: `EXECUTOR_REPORT / OBJECTIVE_AUDIT_PENDING`
 - Added tenant-aware ProductCategory, Product, ProductVariant, SalesChannel, ChannelOffer, and versioned base-price history with exact numeric storage, constraints, indexes, tenant-aware RLS, and no ordinary-client catalog mutation.
 - Added authenticated server commands using current user/membership authority, RBAC and the existing Admin Guard for privileged price/availability changes, plus durable audit/correlation with fail-closed behavior.
 - Added a minimal responsive catalog-management surface and generated Supabase types.
+- Catalog mutation RPCs return a JSON receipt containing the entity ID and persisted audit-event IDs; server actions validate UUIDs before reporting success, and the UI displays the audit references (or identifies a no-op as having no material change).
+- Shared the sanitized local Supabase Auth fixture helpers between the Auth and catalog E2E fixtures; catalog cleanup removes synthetic memberships before their referenced roles and tenant rows.
 - Added migration, pgTAP, authenticated Data API, unit, fixture-cleanup, and desktop/mobile E2E coverage.
 - Updated Next.js, its ESLint plugin, Zod, Vitest and the pinned Vite peer override. The ESLint-braces guard now checks the installed plugin against the configured Next.js version.
 - No promotional prices, discounts, schedules, modifiers, combos, media runtime, recipes, inventory, POS, orders, finance, provider sync, remote Supabase, or production deployment were introduced.
@@ -37,7 +39,7 @@ The implementation tree above was validated locally against the dedicated isolat
 | `pnpm security:braces-disposition` | PASS — production dependency guard; 211 resolved production packages, no braces, no `settings.next.rootDir`, all 22 Next recommended rules enabled |
 | `pnpm test:supabase:authz` | PASS — 59 authenticated authorization checks |
 | `pnpm test:supabase:catalog` | PASS — 28 authenticated catalog checks; local reset ran on completion |
-| `supabase db reset --local` followed by `supabase test db --local` | PASS — all 5 migrations applied; 4 SQL test files, 227/227 assertions |
+| `supabase db reset --local` followed by `supabase test db --local` | PASS — all 5 migrations applied; 4 SQL test files, 229/229 assertions |
 | `supabase migration list --local` | PASS — all 5 migrations applied, including `20261111090000` and `20261111090100` |
 | `supabase db lint --local` | PASS — no schema errors |
 | `supabase db advisors --local` | PASS — no issues reported |
@@ -54,21 +56,25 @@ The implementation tree above was validated locally against the dedicated isolat
 | `.next/static` client-bundle scan | PASS — 19 JS files; no service-role names/values or server-only audit-writer/catalog-admin-guard references |
 | `git diff --check` | PASS before the implementation commit |
 
+After the receipt/fixture correction, the executor reran `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `git diff --cached --check`; all passed, including 71/71 unit tests. The dedicated local pgTAP, catalog Data API, Auth Data API, DB lint/advisors, and desktop/mobile E2E results above were rerun after syncing the isolated test workdir to the current migration; desktop and mobile each passed 13/13. The build result above was produced on the same runtime implementation before the test/evidence-only follow-up; application runtime code did not change after that build.
+
 ### Corrected attempts and observations
 
 - An initial E2E call did not set `GOODZ_SUPABASE_WORKDIR` and selected the wrong local project. It was discarded; all final E2E runs explicitly used the dedicated local workdir.
 - A subsequent E2E run exposed fixture cleanup failing because the catalog migration seeds tenant `sales_channels`. The fixture now deletes those synthetic rows before the organization; the final desktop and mobile runs above passed.
+- The MFA E2E scenario exceeded its prior 120s timeout while waiting for a TOTP rollover under local Docker load. Its timeout is now 180s; assertions and test steps are unchanged. The full desktop suite then passed 13/13.
 - E2E output included React hydration warnings mentioning an inline `caret-color: transparent` attribute. Source search and a standalone blank-page probe did not identify its origin. The warnings did not fail the final tests; their origin is unproven and disclosed for review.
 - Human keyboard, real-zoom, screen-reader, and visual sign-off remains pending. Browser screenshots and automated Axe/focus/responsive checks are evidence, not human approval.
 
 ## Visual artifacts
 
-Automated screenshots are stored beside `MANIFEST.json`; the manifest pins SHA-256, viewport, theme, and implementation tree. Browser inspection found no obvious clipping, horizontal overflow, or theme break. This does not satisfy the pending human sign-off.
+Automated screenshots are stored beside `MANIFEST.json`; the manifest pins SHA-256, viewport, theme, and implementation tree `47e0558c6902fc54341b1fbd981bcc0beb18ec43`. Mobile light/dark and desktop light screenshots were inspected; no obvious clipping or horizontal overflow was found. The Next development indicator remains visible in the captures. This does not satisfy the pending human sign-off.
 
 ## Hosted gates and review
 
-- Implementation PR: not yet created at the time this bundle was authored.
-- Fresh exact-PR-head SonarCloud, Socket Project Report/PR Alerts, and CodeRabbit CLI: PENDING.
+- Implementation PR: #80, OPEN/DRAFT; the last published head before this follow-up was `dad0e90e55850967ba8b440b5b5594dfc792c5dd`.
+- At that prior PR head, SonarCloud reported 3.7% duplication and a D Reliability Rating. The follow-up commit above has not yet been published in this bundle snapshot; a fresh Sonar analysis on the final pushed head remains required.
+- Fresh exact-final-PR-head Socket Project Report/PR Alerts and CodeRabbit CLI: PENDING.
 - Independent exact-head objective audit: PENDING.
 - Human accessibility sign-off: PENDING.
 - Therefore disposition remains `OBJECTIVE_AUDIT_PENDING`; this bundle does not claim `READY_FOR_OBJECTIVE_AUDIT`.
