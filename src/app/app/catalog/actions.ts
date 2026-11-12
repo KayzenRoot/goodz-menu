@@ -144,6 +144,17 @@ export async function saveOfferAction(
   formData: FormData,
 ): Promise<CatalogActionState> {
   const correlationId = await createCorrelationId();
+  const input = parseOfferForm(formData);
+  if (!input) return { kind: "invalid", correlationId };
+
+  const auth = await getCurrentAuthContext();
+  if (!auth) return { kind: "denied", correlationId };
+
+  if (input.offerId === null) return createOffer(auth, input, correlationId);
+  return updateOffer(auth, input, input.offerId, correlationId);
+}
+
+function parseOfferForm(formData: FormData) {
   const offerId = parseUuidEntry(formData.get("offerId"), false);
   const submittedOrganizationId = parseUuidEntry(formData.get("organizationId"), offerId.ok && offerId.value === null);
   const submittedEstablishmentId = parseUuidEntry(formData.get("establishmentId"), offerId.ok && offerId.value === null);
@@ -162,99 +173,118 @@ export async function saveOfferAction(
     !offerId.ok || !submittedOrganizationId.ok || !submittedEstablishmentId.ok || !submittedBranchId.ok
     || !submittedChannelId.ok || !targetKind.ok || !submittedProductId.ok || !submittedVariantId.ok
     || !title.ok || !description.ok || !price.ok || !availability.ok || !visible.ok || !status.ok
+  ) return null;
+
+  return {
+    offerId: offerId.value,
+    organizationId: submittedOrganizationId.value,
+    establishmentId: submittedEstablishmentId.value,
+    branchId: submittedBranchId.value,
+    channelId: submittedChannelId.value,
+    targetKind: targetKind.value,
+    productId: submittedProductId.value,
+    variantId: submittedVariantId.value,
+    title: title.value,
+    description: description.value,
+    price: price.value,
+    availability: availability.value,
+    visible: visible.value,
+    status: status.value,
+  };
+}
+
+type ParsedOfferForm = NonNullable<ReturnType<typeof parseOfferForm>>;
+type CatalogAuthContext = NonNullable<Awaited<ReturnType<typeof getCurrentAuthContext>>>;
+
+async function createOffer(
+  auth: CatalogAuthContext,
+  input: ParsedOfferForm,
+  correlationId: string,
+): Promise<CatalogActionState> {
+  if (
+    !input.organizationId || !input.establishmentId || !input.branchId || !input.channelId
+    || input.price.numeric !== null || input.availability !== "unknown" || input.visible || input.status !== "active"
   ) return { kind: "invalid", correlationId };
 
-  const auth = await getCurrentAuthContext();
-  if (!auth) return { kind: "denied", correlationId };
+  const productTarget = input.targetKind === "product" && input.productId !== null && input.variantId === null;
+  const variantTarget = input.targetKind === "variant" && input.variantId !== null && input.productId === null;
+  if (!productTarget && !variantTarget) return { kind: "invalid", correlationId };
 
-  if (offerId.value === null) {
-    if (
-      !submittedOrganizationId.value || !submittedEstablishmentId.value || !submittedBranchId.value
-      || !submittedChannelId.value || price.value.numeric !== null
-      || availability.value !== "unknown" || visible.value || status.value !== "active"
-    ) return { kind: "invalid", correlationId };
+  const { data: branch, error: branchError } = await auth.client.from("branches")
+    .select("id,organization_id,establishment_id,status")
+    .eq("id", input.branchId)
+    .maybeSingle();
+  if (
+    branchError || !branch || branch.status !== "active"
+    || branch.organization_id !== input.organizationId
+    || branch.establishment_id !== input.establishmentId
+  ) return { kind: "denied", correlationId };
 
-    const productTarget = targetKind.value === "product" && submittedProductId.value !== null && submittedVariantId.value === null;
-    const variantTarget = targetKind.value === "variant" && submittedVariantId.value !== null && submittedProductId.value === null;
-    if (!productTarget && !variantTarget) return { kind: "invalid", correlationId };
+  const permissionArgs = {
+    p_organization_id: branch.organization_id,
+    p_establishment_id: branch.establishment_id,
+    p_branch_id: branch.id,
+    p_permission_key: "catalog.write",
+  } as unknown as Database["public"]["Functions"]["catalog_has_permission"]["Args"];
+  const { data: canWrite, error: permissionError } = await auth.client.rpc("catalog_has_permission", permissionArgs);
+  if (permissionError || canWrite !== true) return { kind: "denied", correlationId };
 
-    const { data: branch, error: branchError } = await auth.client.from("branches")
-      .select("id,organization_id,establishment_id,status")
-      .eq("id", submittedBranchId.value)
-      .maybeSingle();
-    if (
-      branchError || !branch || branch.status !== "active"
-      || branch.organization_id !== submittedOrganizationId.value
-      || branch.establishment_id !== submittedEstablishmentId.value
-    ) return { kind: "denied", correlationId };
+  const args = {
+    p_id: null,
+    p_organization_id: branch.organization_id,
+    p_establishment_id: branch.establishment_id,
+    p_branch_id: branch.id,
+    p_sales_channel_id: input.channelId,
+    p_target_kind: input.targetKind,
+    p_product_id: productTarget ? input.productId : null,
+    p_variant_id: variantTarget ? input.variantId : null,
+    p_title_override: input.title,
+    p_description_override: input.description,
+    p_base_price: null,
+    p_currency: "BRL",
+    p_availability_state: "unknown",
+    p_is_visible: false,
+    p_status: "active",
+    p_step_up_proof_id: null,
+    p_correlation_id: correlationId,
+  } as unknown as Database["public"]["Functions"]["catalog_save_offer"]["Args"];
+  return saveOfferCommand(auth, args, correlationId);
+}
 
-    const permissionArgs = {
-      p_organization_id: branch.organization_id,
-      p_establishment_id: branch.establishment_id,
-      p_branch_id: branch.id,
-      p_permission_key: "catalog.write",
-    } as unknown as Database["public"]["Functions"]["catalog_has_permission"]["Args"];
-    const { data: canWrite, error: permissionError } = await auth.client.rpc("catalog_has_permission", permissionArgs);
-    if (permissionError || canWrite !== true) return { kind: "denied", correlationId };
-
-    const args = {
-      p_id: null,
-      p_organization_id: branch.organization_id,
-      p_establishment_id: branch.establishment_id,
-      p_branch_id: branch.id,
-      p_sales_channel_id: submittedChannelId.value,
-      p_target_kind: targetKind.value,
-      p_product_id: productTarget ? submittedProductId.value : null,
-      p_variant_id: variantTarget ? submittedVariantId.value : null,
-      p_title_override: title.value,
-      p_description_override: description.value,
-      p_base_price: null,
-      p_currency: "BRL",
-      p_availability_state: "unknown",
-      p_is_visible: false,
-      p_status: "active",
-      p_step_up_proof_id: null,
-      p_correlation_id: correlationId,
-    } as unknown as Database["public"]["Functions"]["catalog_save_offer"]["Args"];
-    try {
-      const { data, error } = await auth.client.rpc("catalog_save_offer", args);
-      return finishCatalogCommand(error, correlationId, data);
-    } catch {
-      return { kind: "failed", correlationId };
-    }
-  }
-
+async function updateOffer(
+  auth: CatalogAuthContext,
+  input: ParsedOfferForm,
+  offerId: string,
+  correlationId: string,
+): Promise<CatalogActionState> {
   const { data: currentOffer, error: readError } = await auth.client.from("channel_offers")
     .select("id,organization_id,establishment_id,branch_id,sales_channel_id,target_kind,product_id,variant_id,base_price,currency,availability_state,is_visible,status")
-    .eq("id", offerId.value)
+    .eq("id", offerId)
     .maybeSingle();
   if (readError || !currentOffer) return { kind: "denied", correlationId };
-  if (currentOffer.base_price !== null && price.value.numeric === null) return { kind: "invalid", correlationId };
+  if (currentOffer.base_price !== null && input.price.numeric === null) return { kind: "invalid", correlationId };
 
   const currentPrice = currentOffer.base_price === null ? null : currentOffer.base_price.toFixed(2);
-  const priceChanged = currentPrice !== price.value.text || currentOffer.currency !== "BRL";
-  const availabilityChanged = currentOffer.availability_state !== availability.value
-    || currentOffer.is_visible !== visible.value
-    || (currentOffer.status === "archived" && status.value === "active" && visible.value);
+  const priceChanged = currentPrice !== input.price.text || currentOffer.currency !== "BRL";
+  const availabilityChanged = currentOffer.availability_state !== input.availability
+    || currentOffer.is_visible !== input.visible
+    || (currentOffer.status === "archived" && input.status === "active" && input.visible);
   const requiredPermissions: CatalogPrivilegedPermission[] = [];
   if (priceChanged) requiredPermissions.push(CATALOG_PRIVILEGED_PERMISSIONS[0]);
   if (availabilityChanged) requiredPermissions.push(CATALOG_PRIVILEGED_PERMISSIONS[1]);
 
-  let stepUpProofId: string | null = null;
-  let commandCorrelationId = correlationId;
-  if (requiredPermissions.length > 0) {
-    const guard = await runCatalogAdminGuard({
+  const guard = requiredPermissions.length > 0
+    ? await runCatalogAdminGuard({
       offerId: currentOffer.id,
       organizationId: currentOffer.organization_id,
       establishmentId: currentOffer.establishment_id,
       branchId: currentOffer.branch_id,
-    }, requiredPermissions);
-    commandCorrelationId = guard.correlationId;
-    if (!guard.decision.allowed) return mapGuardDecision(guard.decision.reason, commandCorrelationId);
-    if (!guard.proofId) return { kind: "failed", correlationId: commandCorrelationId };
-    stepUpProofId = guard.proofId;
-  }
+    }, requiredPermissions)
+    : null;
+  if (guard && !guard.decision.allowed) return mapGuardDecision(guard.decision.reason, guard.correlationId);
+  if (guard && !guard.proofId) return { kind: "failed", correlationId: guard.correlationId };
 
+  const commandCorrelationId = guard?.correlationId ?? correlationId;
   const args = {
     p_id: currentOffer.id,
     p_organization_id: currentOffer.organization_id,
@@ -264,26 +294,32 @@ export async function saveOfferAction(
     p_target_kind: currentOffer.target_kind,
     p_product_id: currentOffer.product_id,
     p_variant_id: currentOffer.variant_id,
-    p_title_override: title.value,
-    p_description_override: description.value,
+    p_title_override: input.title,
+    p_description_override: input.description,
     // Keep the validated exact decimal text through JSON transport to PostgreSQL numeric.
-    p_base_price: price.value.numeric,
+    p_base_price: input.price.numeric,
     p_currency: currentOffer.currency,
-    p_availability_state: availability.value,
-    p_is_visible: visible.value,
-    p_status: status.value,
-    p_step_up_proof_id: stepUpProofId,
+    p_availability_state: input.availability,
+    p_is_visible: input.visible,
+    p_status: input.status,
+    p_step_up_proof_id: guard?.proofId ?? null,
     p_correlation_id: commandCorrelationId,
   } as unknown as Database["public"]["Functions"]["catalog_save_offer"]["Args"];
-
-  try {
-    const { data, error } = await auth.client.rpc("catalog_save_offer", args);
-    return finishCatalogCommand(error, commandCorrelationId, data);
-  } catch {
-    return { kind: "failed", correlationId: commandCorrelationId };
-  }
+  return saveOfferCommand(auth, args, commandCorrelationId);
 }
 
+async function saveOfferCommand(
+  auth: CatalogAuthContext,
+  args: Database["public"]["Functions"]["catalog_save_offer"]["Args"],
+  correlationId: string,
+): Promise<CatalogActionState> {
+  try {
+    const { data, error } = await auth.client.rpc("catalog_save_offer", args);
+    return finishCatalogCommand(error, correlationId, data);
+  } catch {
+    return { kind: "failed", correlationId };
+  }
+}
 function parseBooleanEntry(value: FormDataEntryValue | null) {
   if (value === null) return { ok: true as const, value: false };
   if (value === "on" || value === "true") return { ok: true as const, value: true };

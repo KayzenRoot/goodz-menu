@@ -66,51 +66,7 @@ export default async function CatalogPage({ searchParams }: PageProps) {
     );
   }
 
-  const [organizationRead, organizationWrite, branchRead, branchWrite, branchPriceWrite, branchAvailabilityWrite] = await Promise.all([
-    checkCatalogPermission(auth.client, tenant.id, null, null, "catalog.read"),
-    checkCatalogPermission(auth.client, tenant.id, null, null, "catalog.write"),
-    selectedBranch
-      ? checkCatalogPermission(auth.client, tenant.id, selectedBranch.establishmentId, selectedBranch.id, "catalog.read")
-      : deniedPermission(),
-    selectedBranch
-      ? checkCatalogPermission(auth.client, tenant.id, selectedBranch.establishmentId, selectedBranch.id, "catalog.write")
-      : deniedPermission(),
-    selectedBranch
-      ? checkCatalogPermission(auth.client, tenant.id, selectedBranch.establishmentId, selectedBranch.id, "catalog.price.write")
-      : deniedPermission(),
-    selectedBranch
-      ? checkCatalogPermission(auth.client, tenant.id, selectedBranch.establishmentId, selectedBranch.id, "catalog.availability.write")
-      : deniedPermission(),
-  ]);
-  const canReadOrganizationCatalog = organizationRead.allowed;
-  const canReadBranchOffers = branchRead.allowed;
-
-  const [categoryResult, productResult, variantResult, channelResult, offerResult] = await Promise.all([
-    canReadOrganizationCatalog
-      ? auth.client.from("product_categories").select("id,organization_id,parent_id,name,description,status")
-        .eq("organization_id", tenant.id).order("name").limit(500)
-      : emptyResult<"product_categories">(),
-    canReadOrganizationCatalog
-      ? auth.client.from("products").select("id,organization_id,category_id,name,description,status")
-        .eq("organization_id", tenant.id).order("name").limit(500)
-      : emptyResult<"products">(),
-    canReadOrganizationCatalog
-      ? auth.client.from("product_variants").select("id,organization_id,product_id,name,size_label,flavor_label,status")
-        .eq("organization_id", tenant.id).order("name").limit(1000)
-      : emptyResult<"product_variants">(),
-    canReadOrganizationCatalog
-      ? auth.client.from("sales_channels").select("id,organization_id,channel_key,display_name,status")
-        .eq("organization_id", tenant.id).eq("status", "active").order("display_name").limit(100)
-      : emptyResult<"sales_channels">(),
-    canReadBranchOffers && selectedBranch
-      ? auth.client.from("channel_offers").select("id,organization_id,establishment_id,branch_id,sales_channel_id,target_kind,product_id,variant_id,title_override,description_override,base_price,currency,availability_state,is_visible,status")
-        .eq("organization_id", tenant.id).eq("branch_id", selectedBranch.id).order("created_at", { ascending: false }).limit(500)
-      : emptyResult<"channel_offers">(),
-  ]);
-
-  const permissionChecks = [organizationRead, organizationWrite, branchRead, branchWrite, branchPriceWrite, branchAvailabilityWrite];
-  const dataFailed = permissionChecks.some(({ failed }) => failed)
-    || [categoryResult, productResult, variantResult, channelResult, offerResult].some(({ error }) => error !== null);
+  const catalogData = await loadCatalogPageData(auth.client, tenant.id, selectedBranch);
   const verifiedFactorIds = factorResult.error || !factorResult.data
     ? []
     : factorResult.data.totp.filter(({ status }) => status === "verified").map(({ id }) => id);
@@ -125,23 +81,87 @@ export default async function CatalogPage({ searchParams }: PageProps) {
         selectedOrganizationId={tenant.id}
         selectedBranchId={selectedBranch?.id ?? ""}
         verifiedFactorIds={verifiedFactorIds}
-        canWriteCatalog={organizationWrite.allowed}
-        canReadOffers={canReadBranchOffers}
-        canWriteOffers={branchWrite.allowed}
-        canWritePrice={branchPriceWrite.allowed}
-        canWriteAvailability={branchAvailabilityWrite.allowed}
-        access={canReadOrganizationCatalog ? "organization" : canReadBranchOffers ? "branch" : "none"}
-        loadFailed={dataFailed || !entry.ok}
-        categories={categoryResult.data ?? []}
-        products={productResult.data ?? []}
-        variants={variantResult.data ?? []}
-        channels={channelResult.data ?? []}
-        offers={offerResult.data ?? []}
+        canWriteCatalog={catalogData.canWriteCatalog}
+        canReadOffers={catalogData.canReadOffers}
+        canWriteOffers={catalogData.canWriteOffers}
+        canWritePrice={catalogData.canWritePrice}
+        canWriteAvailability={catalogData.canWriteAvailability}
+        access={catalogData.access}
+        loadFailed={catalogData.failed || !entry.ok}
+        categories={catalogData.categories}
+        products={catalogData.products}
+        variants={catalogData.variants}
+        channels={catalogData.channels}
+        offers={catalogData.offers}
       />
     </AuthFrame>
   );
 }
 
+
+async function loadCatalogPageData(
+  client: ServerSupabaseClient,
+  organizationId: string,
+  selectedBranch: Readonly<{ id: string; establishmentId: string }> | null,
+) {
+  const [organizationRead, organizationWrite, branchRead, branchWrite, branchPriceWrite, branchAvailabilityWrite] = await Promise.all([
+    checkCatalogPermission(client, organizationId, null, null, "catalog.read"),
+    checkCatalogPermission(client, organizationId, null, null, "catalog.write"),
+    selectedBranch
+      ? checkCatalogPermission(client, organizationId, selectedBranch.establishmentId, selectedBranch.id, "catalog.read")
+      : deniedPermission(),
+    selectedBranch
+      ? checkCatalogPermission(client, organizationId, selectedBranch.establishmentId, selectedBranch.id, "catalog.write")
+      : deniedPermission(),
+    selectedBranch
+      ? checkCatalogPermission(client, organizationId, selectedBranch.establishmentId, selectedBranch.id, "catalog.price.write")
+      : deniedPermission(),
+    selectedBranch
+      ? checkCatalogPermission(client, organizationId, selectedBranch.establishmentId, selectedBranch.id, "catalog.availability.write")
+      : deniedPermission(),
+  ]);
+  const canReadOrganizationCatalog = organizationRead.allowed;
+  const canReadOffers = branchRead.allowed;
+  const [categoryResult, productResult, variantResult, channelResult, offerResult] = await Promise.all([
+    canReadOrganizationCatalog
+      ? client.from("product_categories").select("id,organization_id,parent_id,name,description,status")
+        .eq("organization_id", organizationId).order("name").limit(500)
+      : emptyResult<"product_categories">(),
+    canReadOrganizationCatalog
+      ? client.from("products").select("id,organization_id,category_id,name,description,status")
+        .eq("organization_id", organizationId).order("name").limit(500)
+      : emptyResult<"products">(),
+    canReadOrganizationCatalog
+      ? client.from("product_variants").select("id,organization_id,product_id,name,size_label,flavor_label,status")
+        .eq("organization_id", organizationId).order("name").limit(1000)
+      : emptyResult<"product_variants">(),
+    canReadOrganizationCatalog
+      ? client.from("sales_channels").select("id,organization_id,channel_key,display_name,status")
+        .eq("organization_id", organizationId).eq("status", "active").order("display_name").limit(100)
+      : emptyResult<"sales_channels">(),
+    canReadOffers && selectedBranch
+      ? client.from("channel_offers").select("id,organization_id,establishment_id,branch_id,sales_channel_id,target_kind,product_id,variant_id,title_override,description_override,base_price,currency,availability_state,is_visible,status")
+        .eq("organization_id", organizationId).eq("branch_id", selectedBranch.id).order("created_at", { ascending: false }).limit(500)
+      : emptyResult<"channel_offers">(),
+  ]);
+  const permissionChecks = [organizationRead, organizationWrite, branchRead, branchWrite, branchPriceWrite, branchAvailabilityWrite];
+  const queryResults = [categoryResult, productResult, variantResult, channelResult, offerResult];
+
+  return {
+    access: canReadOrganizationCatalog ? "organization" as const : canReadOffers ? "branch" as const : "none" as const,
+    failed: permissionChecks.some(({ failed }) => failed) || queryResults.some(({ error }) => error !== null),
+    canWriteCatalog: organizationWrite.allowed,
+    canReadOffers,
+    canWriteOffers: branchWrite.allowed,
+    canWritePrice: branchPriceWrite.allowed,
+    canWriteAvailability: branchAvailabilityWrite.allowed,
+    categories: categoryResult.data ?? [],
+    products: productResult.data ?? [],
+    variants: variantResult.data ?? [],
+    channels: channelResult.data ?? [],
+    offers: offerResult.data ?? [],
+  };
+}
 type CatalogPermissionKey = "catalog.read" | "catalog.write" | "catalog.price.write" | "catalog.availability.write";
 type CatalogPermissionResult = Readonly<{ allowed: boolean; failed: boolean }>;
 

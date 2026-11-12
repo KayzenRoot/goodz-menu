@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useRef, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import Link from "next/link";
 import {
   reauthenticateForPrivilegedAction,
@@ -53,28 +53,12 @@ export function CatalogPanel(props: CatalogPanelProps) {
   const tenantName = props.tenants.find(({ id }) => id === props.selectedOrganizationId)?.displayName ?? "";
   const branchName = props.branches.find(({ id }) => id === props.selectedBranchId)?.displayName ?? "";
   const normalizedSearch = search.trim().toLocaleLowerCase("pt-BR");
-  const productNames = useMemo(() => new Map(props.products.map(({ id, name }) => [id, name])), [props.products]);
-  const variantNames = useMemo(() => new Map(props.variants.map(({ id, name }) => [id, name])), [props.variants]);
-  const channelNames = useMemo(() => new Map(props.channels.map(({ id, display_name }) => [id, display_name])), [props.channels]);
-  const categories = normalizedSearch
-    ? props.categories.filter(({ name, description }) => matches(normalizedSearch, name, description))
-    : props.categories;
-  const products = normalizedSearch
-    ? props.products.filter(({ name, description }) => matches(normalizedSearch, name, description))
-    : props.products;
-  const variants = normalizedSearch
-    ? props.variants.filter(({ name, size_label, flavor_label }) => matches(normalizedSearch, name, size_label, flavor_label))
-    : props.variants;
-  const offers = normalizedSearch
-    ? props.offers.filter((offer) => matches(
-        normalizedSearch,
-        offer.title_override,
-        offer.description_override,
-        offer.product_id ? productNames.get(offer.product_id) : null,
-        offer.variant_id ? variantNames.get(offer.variant_id) : null,
-        channelNames.get(offer.sales_channel_id),
-      ))
-    : props.offers;
+  const names = useMemo<CatalogNameMaps>(() => ({
+    productNames: new Map(props.products.map(({ id, name }) => [id, name])),
+    variantNames: new Map(props.variants.map(({ id, name }) => [id, name])),
+    channelNames: new Map(props.channels.map(({ id, display_name }) => [id, display_name])),
+  }), [props.products, props.variants, props.channels]);
+  const visible = filterCatalogData(props, normalizedSearch, names);
 
   return (
     <div className="catalog-page">
@@ -90,186 +74,328 @@ export function CatalogPanel(props: CatalogPanelProps) {
           <Link className="auth-entry-link" href="/app/admin-guard">Ação protegida</Link>
         </nav>
       </header>
-
-      <form className="catalog-scope" method="get" action="/app/catalog">
-        <div className="auth-field">
-          <label htmlFor="catalog-organization">Organização</label>
-          <select id="catalog-organization" name="organization" defaultValue={props.selectedOrganizationId} required>
-            {props.tenants.map(({ id, displayName }) => <option key={id} value={id}>{displayName}</option>)}
-          </select>
-        </div>
-        <div className="auth-field">
-          <label htmlFor="catalog-branch">Unidade</label>
-          <select id="catalog-branch" name="branch" defaultValue={props.selectedBranchId}>
-            <option value="">Selecione uma unidade</option>
-            {props.branches.map(({ id, displayName }) => <option key={id} value={id}>{displayName}</option>)}
-          </select>
-        </div>
-        <button className="auth-submit catalog-scope-submit" type="submit">Abrir catálogo</button>
-      </form>
-
-      {props.loadFailed ? (
-        <p className="catalog-alert" role="alert">Não foi possível carregar os dados deste espaço. Atualize a página e tente novamente.</p>
-      ) : null}
-
-      {!props.loadFailed && props.access === "none" ? (
-        <section className="catalog-empty" aria-labelledby="catalog-scope-title">
-          <h2 id="catalog-scope-title">Permissão de catálogo necessária</h2>
-          <p>
-            {props.selectedOrganizationId
-              ? "Sua sessão não tem permissão de leitura de catálogo no escopo selecionado."
-              : "Não há uma organização ativa disponível para abrir o catálogo."}
-          </p>
-        </section>
-      ) : null}
-
-      {!props.loadFailed && props.access === "branch" ? (
-        <>
-          <div className="catalog-toolbar">
-            <div>
-              <p className="catalog-context">{tenantName || "Organização"}{branchName ? ` · ${branchName}` : ""}</p>
-              <p className="catalog-counts">{offers.length} ofertas disponíveis nesta unidade. Produtos e variantes canônicos são geridos pela organização.</p>
-            </div>
-            <div className="auth-field catalog-search">
-              <label htmlFor="catalog-search">Buscar ofertas</label>
-              <input id="catalog-search" type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Título ou descrição do canal" />
-            </div>
-          </div>
-          <section className="catalog-section" aria-labelledby="branch-offers-title">
-            <div className="catalog-section-heading">
-              <div><span className="catalog-index">04</span><h2 id="branch-offers-title">Ofertas da unidade</h2></div>
-              <span className="catalog-section-count">{offers.length}</span>
-            </div>
-            {offers.length === 0 ? <p className="catalog-empty-note">Ainda não há ofertas nesta unidade. Uma pessoa com acesso ao catálogo da organização pode criar a primeira oferta.</p> : null}
-            <OfferCardGrid
-              offers={offers}
-              productNames={productNames}
-              variantNames={variantNames}
-              channelNames={channelNames}
-              verifiedFactorIds={props.verifiedFactorIds}
-              supabaseUrl={props.supabaseUrl}
-              anonKey={props.anonKey}
-              canWriteOffers={props.canWriteOffers}
-              canWritePrice={props.canWritePrice}
-              canWriteAvailability={props.canWriteAvailability}
-            />
-          </section>
-        </>
-      ) : null}
-
-      {!props.loadFailed && props.access === "organization" ? (
-        <>
-          <div className="catalog-toolbar">
-            <div>
-              <p className="catalog-context">{tenantName || "Organização"}{branchName ? ` · ${branchName}` : ""}</p>
-              <p className="catalog-counts">{props.products.length} produtos · {props.categories.length} categorias · {props.offers.length} ofertas nesta unidade</p>
-            </div>
-            <div className="auth-field catalog-search">
-              <label htmlFor="catalog-search">Buscar no catálogo</label>
-              <input id="catalog-search" type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Nome, descrição ou variante" />
-            </div>
-          </div>
-
-          <section className="catalog-section" aria-labelledby="categories-title">
-            <div className="catalog-section-heading">
-              <div><span className="catalog-index">01</span><h2 id="categories-title">Categorias</h2></div>
-              <span className="catalog-section-count">{categories.length}</span>
-            </div>
-            {props.canWriteCatalog ? <CategoryForm organizationId={props.selectedOrganizationId} categories={props.categories} /> : <p className="catalog-readonly-note">Sua função permite consultar, mas não alterar categorias.</p>}
-            <div className="catalog-card-grid">
-              {categories.map((category) => (
-                props.canWriteCatalog
-                  ? <CategoryForm key={category.id} organizationId={props.selectedOrganizationId} category={category} categories={props.categories} />
-                  : <ReadonlyCatalogCard key={category.id} kicker="CATEGORIA" title={category.name} details={[category.description ?? "", category.status === "active" ? "Ativa" : "Arquivada"]} />
-              ))}
-            </div>
-          </section>
-
-          <section className="catalog-section" aria-labelledby="products-title">
-            <div className="catalog-section-heading">
-              <div><span className="catalog-index">02</span><h2 id="products-title">Produtos canônicos</h2></div>
-              <span className="catalog-section-count">{products.length}</span>
-            </div>
-            {props.canWriteCatalog ? <ProductForm organizationId={props.selectedOrganizationId} categories={props.categories} /> : <p className="catalog-readonly-note">Sua função permite consultar, mas não alterar produtos.</p>}
-            <div className="catalog-card-grid">
-              {products.map((product) => (
-                props.canWriteCatalog
-                  ? <ProductForm key={product.id} organizationId={props.selectedOrganizationId} product={product} categories={props.categories} />
-                  : <ReadonlyCatalogCard key={product.id} kicker="PRODUTO CANÔNICO" title={product.name} details={[product.description ?? "", product.status === "active" ? "Ativo" : "Arquivado"]} />
-              ))}
-            </div>
-          </section>
-
-          <section className="catalog-section" aria-labelledby="variants-title">
-            <div className="catalog-section-heading">
-              <div><span className="catalog-index">03</span><h2 id="variants-title">Variantes</h2></div>
-              <span className="catalog-section-count">{variants.length}</span>
-            </div>
-            {products.map((product) => (
-              <div className="catalog-variant-group" key={product.id}>
-                <h3>{product.name}</h3>
-                {props.canWriteCatalog ? <VariantForm organizationId={props.selectedOrganizationId} productId={product.id} /> : null}
-                <div className="catalog-card-grid">
-                  {variants.filter(({ product_id }) => product_id === product.id).map((variant) => (
-                    props.canWriteCatalog
-                      ? <VariantForm key={variant.id} organizationId={props.selectedOrganizationId} productId={product.id} variant={variant} />
-                      : <ReadonlyCatalogCard key={variant.id} kicker="VARIANTE" title={variant.name} details={[variant.size_label ?? "", variant.flavor_label ?? "", variant.status === "active" ? "Ativa" : "Arquivada"]} />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </section>
-
-          <section className="catalog-section" aria-labelledby="offers-title">
-            <div className="catalog-section-heading">
-              <div><span className="catalog-index">04</span><h2 id="offers-title">Ofertas da unidade</h2></div>
-              <span className="catalog-section-count">{offers.length}</span>
-            </div>
-            {props.selectedBranchId && props.canReadOffers ? (
-              <>
-                {props.canWriteOffers && props.canWriteCatalog ? (
-                  <div className="catalog-create-grid">
-                    <NewProductOfferForm
-                      organizationId={props.selectedOrganizationId}
-                      branchId={props.selectedBranchId}
-                      establishmentId={props.branches.find(({ id }) => id === props.selectedBranchId)?.establishmentId ?? ""}
-                      channels={props.channels}
-                      products={props.products.filter(({ status }) => status === "active")}
-                    />
-                    <NewVariantOfferForm
-                      organizationId={props.selectedOrganizationId}
-                      branchId={props.selectedBranchId}
-                      establishmentId={props.branches.find(({ id }) => id === props.selectedBranchId)?.establishmentId ?? ""}
-                      channels={props.channels}
-                      variants={props.variants.filter(({ status }) => status === "active")}
-                      products={props.products}
-                    />
-                  </div>
-                ) : props.canWriteOffers ? <p className="catalog-empty-note">Novas ofertas exigem leitura do catálogo canônico da organização.</p> : <p className="catalog-empty-note">Sua função pode consultar ofertas, mas não alterá-las.</p>}
-                {offers.length === 0 ? <p className="catalog-empty-note">Ainda não há ofertas nesta unidade.</p> : null}
-                <OfferCardGrid
-                  offers={offers}
-                  productNames={productNames}
-                  variantNames={variantNames}
-                  channelNames={channelNames}
-                  verifiedFactorIds={props.verifiedFactorIds}
-                  supabaseUrl={props.supabaseUrl}
-                  anonKey={props.anonKey}
-                  canWriteOffers={props.canWriteOffers}
-                  canWritePrice={props.canWritePrice}
-                  canWriteAvailability={props.canWriteAvailability}
-                />
-              </>
-            ) : (
-              <p className="catalog-empty-note">{props.selectedBranchId ? "Sua sessão não tem permissão para consultar ofertas nesta unidade." : "Escolha uma unidade para criar e revisar ofertas por canal."}</p>
-            )}
-          </section>
-        </>
+      <CatalogScopeSelector props={props} />
+      {props.loadFailed ? <p className="catalog-alert" role="alert">Não foi possível carregar os dados deste espaço. Atualize a página e tente novamente.</p> : null}
+      {!props.loadFailed ? (
+        <CatalogAccessView
+          props={props}
+          names={names}
+          visible={visible}
+          search={search}
+          onSearch={setSearch}
+          tenantName={tenantName}
+          branchName={branchName}
+        />
       ) : null}
     </div>
   );
 }
 
+type CatalogNameMaps = Readonly<{
+  productNames: Map<string, string>;
+  variantNames: Map<string, string>;
+  channelNames: Map<string, string>;
+}>;
+
+type FilteredCatalogData = Readonly<{
+  categories: Category[];
+  products: Product[];
+  variants: Variant[];
+  offers: Offer[];
+}>;
+
+function filterCatalogData(
+  props: CatalogPanelProps,
+  needle: string,
+  names: CatalogNameMaps,
+): FilteredCatalogData {
+  if (!needle) return {
+    categories: props.categories,
+    products: props.products,
+    variants: props.variants,
+    offers: props.offers,
+  };
+  return {
+    categories: props.categories.filter(({ name, description }) => matches(needle, name, description)),
+    products: props.products.filter(({ name, description }) => matches(needle, name, description)),
+    variants: props.variants.filter(({ name, size_label, flavor_label }) => matches(needle, name, size_label, flavor_label)),
+    offers: props.offers.filter((offer) => matches(
+      needle,
+      offer.title_override,
+      offer.description_override,
+      offer.product_id ? names.productNames.get(offer.product_id) : null,
+      offer.variant_id ? names.variantNames.get(offer.variant_id) : null,
+      names.channelNames.get(offer.sales_channel_id),
+    )),
+  };
+}
+
+function CatalogScopeSelector({ props }: Readonly<{ props: CatalogPanelProps }>) {
+  return (
+    <form className="catalog-scope" method="get" action="/app/catalog">
+      <div className="auth-field">
+        <label htmlFor="catalog-organization">Organização</label>
+        <select id="catalog-organization" name="organization" defaultValue={props.selectedOrganizationId} required>
+          {props.tenants.map(({ id, displayName }) => <option key={id} value={id}>{displayName}</option>)}
+        </select>
+      </div>
+      <div className="auth-field">
+        <label htmlFor="catalog-branch">Unidade</label>
+        <select id="catalog-branch" name="branch" defaultValue={props.selectedBranchId}>
+          <option value="">Selecione uma unidade</option>
+          {props.branches.map(({ id, displayName }) => <option key={id} value={id}>{displayName}</option>)}
+        </select>
+      </div>
+      <button className="auth-submit catalog-scope-submit" type="submit">Abrir catálogo</button>
+    </form>
+  );
+}
+
+function CatalogAccessView({
+  props,
+  names,
+  visible,
+  search,
+  onSearch,
+  tenantName,
+  branchName,
+}: Readonly<{
+  props: CatalogPanelProps;
+  names: CatalogNameMaps;
+  visible: FilteredCatalogData;
+  search: string;
+  onSearch: (value: string) => void;
+  tenantName: string;
+  branchName: string;
+}>) {
+  if (props.access === "none") {
+    return <CatalogNoAccess organizationId={props.selectedOrganizationId} />;
+  }
+  if (props.access === "branch") {
+    return <BranchCatalogView props={props} names={names} offers={visible.offers} search={search} onSearch={onSearch} tenantName={tenantName} branchName={branchName} />;
+  }
+  return <OrganizationCatalogView props={props} names={names} visible={visible} search={search} onSearch={onSearch} tenantName={tenantName} branchName={branchName} />;
+}
+
+function CatalogNoAccess({ organizationId }: Readonly<{ organizationId: string }>) {
+  return (
+    <section className="catalog-empty" aria-labelledby="catalog-scope-title">
+      <h2 id="catalog-scope-title">Permissão de catálogo necessária</h2>
+      <p>{organizationId
+        ? "Sua sessão não tem permissão de leitura de catálogo no escopo selecionado."
+        : "Não há uma organização ativa disponível para abrir o catálogo."}</p>
+    </section>
+  );
+}
+
+function CatalogSearchToolbar({
+  tenantName,
+  branchName,
+  countText,
+  label,
+  placeholder,
+  search,
+  onSearch,
+}: Readonly<{
+  tenantName: string;
+  branchName: string;
+  countText: string;
+  label: string;
+  placeholder: string;
+  search: string;
+  onSearch: (value: string) => void;
+}>) {
+  return (
+    <div className="catalog-toolbar">
+      <div>
+        <p className="catalog-context">{tenantName || "Organização"}{branchName ? ` · ${branchName}` : ""}</p>
+        <p className="catalog-counts">{countText}</p>
+      </div>
+      <div className="auth-field catalog-search">
+        <label htmlFor="catalog-search">{label}</label>
+        <input id="catalog-search" type="search" value={search} onChange={(event) => onSearch(event.target.value)} placeholder={placeholder} />
+      </div>
+    </div>
+  );
+}
+
+function CatalogSectionHeading({
+  index,
+  id,
+  title,
+  count,
+}: Readonly<{ index: string; id: string; title: string; count: number }>) {
+  return (
+    <div className="catalog-section-heading">
+      <div><span className="catalog-index">{index}</span><h2 id={id}>{title}</h2></div>
+      <span className="catalog-section-count">{count}</span>
+    </div>
+  );
+}
+
+function BranchCatalogView({ props, names, offers, search, onSearch, tenantName, branchName }: Readonly<{
+  props: CatalogPanelProps;
+  names: CatalogNameMaps;
+  offers: Offer[];
+  search: string;
+  onSearch: (value: string) => void;
+  tenantName: string;
+  branchName: string;
+}>) {
+  return (
+    <>
+      <CatalogSearchToolbar
+        tenantName={tenantName}
+        branchName={branchName}
+        countText={`${offers.length} ofertas disponíveis nesta unidade. Produtos e variantes canônicos são geridos pela organização.`}
+        label="Buscar ofertas"
+        placeholder="Título ou descrição do canal"
+        search={search}
+        onSearch={onSearch}
+      />
+      <section className="catalog-section" aria-labelledby="branch-offers-title">
+        <CatalogSectionHeading index="04" id="branch-offers-title" title="Ofertas da unidade" count={offers.length} />
+        {offers.length === 0 ? <p className="catalog-empty-note">Ainda não há ofertas nesta unidade. Uma pessoa com acesso ao catálogo da organização pode criar a primeira oferta.</p> : null}
+        <OfferCardGrid {...offerCardGridProps(props, names, offers)} />
+      </section>
+    </>
+  );
+}
+
+function OrganizationCatalogView({ props, names, visible, search, onSearch, tenantName, branchName }: Readonly<{
+  props: CatalogPanelProps;
+  names: CatalogNameMaps;
+  visible: FilteredCatalogData;
+  search: string;
+  onSearch: (value: string) => void;
+  tenantName: string;
+  branchName: string;
+}>) {
+  return (
+    <>
+      <CatalogSearchToolbar
+        tenantName={tenantName}
+        branchName={branchName}
+        countText={`${props.products.length} produtos · ${props.categories.length} categorias · ${props.offers.length} ofertas nesta unidade`}
+        label="Buscar no catálogo"
+        placeholder="Nome, descrição ou variante"
+        search={search}
+        onSearch={onSearch}
+      />
+      <CategorySection props={props} categories={visible.categories} />
+      <ProductSection props={props} products={visible.products} />
+      <VariantSection props={props} products={visible.products} variants={visible.variants} />
+      <CatalogOfferSection props={props} names={names} offers={visible.offers} />
+    </>
+  );
+}
+
+function CategorySection({ props, categories }: Readonly<{ props: CatalogPanelProps; categories: Category[] }>) {
+  return (
+    <section className="catalog-section" aria-labelledby="categories-title">
+      <CatalogSectionHeading index="01" id="categories-title" title="Categorias" count={categories.length} />
+      {props.canWriteCatalog ? <CategoryForm organizationId={props.selectedOrganizationId} categories={props.categories} /> : <p className="catalog-readonly-note">Sua função permite consultar, mas não alterar categorias.</p>}
+      <div className="catalog-card-grid">
+        {categories.map((category) => props.canWriteCatalog
+          ? <CategoryForm key={category.id} organizationId={props.selectedOrganizationId} category={category} categories={props.categories} />
+          : <ReadonlyCatalogCard key={category.id} kicker="CATEGORIA" title={category.name} details={[category.description ?? "", category.status === "active" ? "Ativa" : "Arquivada"]} />)}
+      </div>
+    </section>
+  );
+}
+
+function ProductSection({ props, products }: Readonly<{ props: CatalogPanelProps; products: Product[] }>) {
+  return (
+    <section className="catalog-section" aria-labelledby="products-title">
+      <CatalogSectionHeading index="02" id="products-title" title="Produtos canônicos" count={products.length} />
+      {props.canWriteCatalog ? <ProductForm organizationId={props.selectedOrganizationId} categories={props.categories} /> : <p className="catalog-readonly-note">Sua função permite consultar, mas não alterar produtos.</p>}
+      <div className="catalog-card-grid">
+        {products.map((product) => props.canWriteCatalog
+          ? <ProductForm key={product.id} organizationId={props.selectedOrganizationId} product={product} categories={props.categories} />
+          : <ReadonlyCatalogCard key={product.id} kicker="PRODUTO CANÔNICO" title={product.name} details={[product.description ?? "", product.status === "active" ? "Ativo" : "Arquivado"]} />)}
+      </div>
+    </section>
+  );
+}
+
+function VariantSection({ props, products, variants }: Readonly<{ props: CatalogPanelProps; products: Product[]; variants: Variant[] }>) {
+  return (
+    <section className="catalog-section" aria-labelledby="variants-title">
+      <CatalogSectionHeading index="03" id="variants-title" title="Variantes" count={variants.length} />
+      {products.map((product) => (
+        <div className="catalog-variant-group" key={product.id}>
+          <h3>{product.name}</h3>
+          {props.canWriteCatalog ? <VariantForm organizationId={props.selectedOrganizationId} productId={product.id} /> : null}
+          <div className="catalog-card-grid">
+            {variants.filter(({ product_id }) => product_id === product.id).map((variant) => props.canWriteCatalog
+              ? <VariantForm key={variant.id} organizationId={props.selectedOrganizationId} productId={product.id} variant={variant} />
+              : <ReadonlyCatalogCard key={variant.id} kicker="VARIANTE" title={variant.name} details={[variant.size_label ?? "", variant.flavor_label ?? "", variant.status === "active" ? "Ativa" : "Arquivada"]} />)}
+          </div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function CatalogOfferSection({ props, names, offers }: Readonly<{ props: CatalogPanelProps; names: CatalogNameMaps; offers: Offer[] }>) {
+  const selectedBranch = props.branches.find(({ id }) => id === props.selectedBranchId);
+  return (
+    <section className="catalog-section" aria-labelledby="offers-title">
+      <CatalogSectionHeading index="04" id="offers-title" title="Ofertas da unidade" count={offers.length} />
+      {props.selectedBranchId && props.canReadOffers ? (
+        <>
+          <OfferManagementForms props={props} establishmentId={selectedBranch?.establishmentId ?? ""} />
+          {offers.length === 0 ? <p className="catalog-empty-note">Ainda não há ofertas nesta unidade.</p> : null}
+          <OfferCardGrid {...offerCardGridProps(props, names, offers)} />
+        </>
+      ) : (
+        <p className="catalog-empty-note">{props.selectedBranchId ? "Sua sessão não tem permissão para consultar ofertas nesta unidade." : "Escolha uma unidade para criar e revisar ofertas por canal."}</p>
+      )}
+    </section>
+  );
+}
+
+function OfferManagementForms({ props, establishmentId }: Readonly<{ props: CatalogPanelProps; establishmentId: string }>) {
+  if (props.canWriteOffers && props.canWriteCatalog) {
+    return (
+      <div className="catalog-create-grid">
+        <NewProductOfferForm
+          organizationId={props.selectedOrganizationId}
+          branchId={props.selectedBranchId}
+          establishmentId={establishmentId}
+          channels={props.channels}
+          products={props.products.filter(({ status }) => status === "active")}
+        />
+        <NewVariantOfferForm
+          organizationId={props.selectedOrganizationId}
+          branchId={props.selectedBranchId}
+          establishmentId={establishmentId}
+          channels={props.channels}
+          variants={props.variants.filter(({ status }) => status === "active")}
+          products={props.products}
+        />
+      </div>
+    );
+  }
+  return props.canWriteOffers
+    ? <p className="catalog-empty-note">Novas ofertas exigem leitura do catálogo canônico da organização.</p>
+    : <p className="catalog-empty-note">Sua função pode consultar ofertas, mas não alterá-las.</p>;
+}
+
+function offerCardGridProps(props: CatalogPanelProps, names: CatalogNameMaps, offers: Offer[]) {
+  return {
+    offers,
+    productNames: names.productNames,
+    variantNames: names.variantNames,
+    channelNames: names.channelNames,
+    verifiedFactorIds: props.verifiedFactorIds,
+    supabaseUrl: props.supabaseUrl,
+    anonKey: props.anonKey,
+    canWriteOffers: props.canWriteOffers,
+    canWritePrice: props.canWritePrice,
+    canWriteAvailability: props.canWriteAvailability,
+  };
+}
 function ReadonlyCatalogCard({ kicker, title, details }: Readonly<{ kicker: string; title: string; details: string[] }>) {
   const visibleDetails = details.filter(Boolean);
   return (
@@ -534,22 +660,7 @@ function OfferForm({
     setDraft(persistedDraft);
   }, [persistedDraft]);
 
-  if (!canWriteOffers) {
-    return (
-      <article className="catalog-card catalog-offer-card catalog-readonly-card">
-        <span className="catalog-card-kicker">OFERTA · {channelName.toLocaleUpperCase("pt-BR")}</span>
-        <h3>{label}</h3>
-        <dl className="catalog-readonly-details">
-          <div><dt>Preço base</dt><dd>{offer.base_price === null ? "Ainda não definido" : `${offer.currency} ${offer.base_price.toFixed(2)}`}</dd></div>
-          <div><dt>Disponibilidade</dt><dd>{availabilityLabel(offer.availability_state)}</dd></div>
-          <div><dt>Visibilidade</dt><dd>{offer.is_visible ? "Visível" : "Oculta"}</dd></div>
-          <div><dt>Estado</dt><dd>{offer.status === "active" ? "Ativa" : "Arquivada"}</dd></div>
-        </dl>
-        {offer.title_override ? <p className="catalog-readonly-copy"><strong>Título do canal:</strong> {offer.title_override}</p> : null}
-        {offer.description_override ? <p className="catalog-readonly-copy"><strong>Descrição do canal:</strong> {offer.description_override}</p> : null}
-      </article>
-    );
-  }
+  if (!canWriteOffers) return <ReadonlyOfferCard offer={offer} label={label} channelName={channelName} />;
 
   return (
     <section className="catalog-card catalog-offer-card">
@@ -561,88 +672,223 @@ function OfferForm({
         <span className="catalog-card-kicker">OFERTA · {channelName.toLocaleUpperCase("pt-BR")}</span>
         <h3>{label}</h3>
         <p className="catalog-help">Nome e descrição do produto continuam canônicos; estes campos são apenas apresentação do canal.</p>
-        <div className="auth-field"><label htmlFor={`offer-title-${offer.id}`}>Título nesta oferta</label><input id={`offer-title-${offer.id}`} name="titleOverride" maxLength={160} value={draft.title} onChange={(event) => setDraft((value) => ({ ...value, title: event.target.value }))} /></div>
-        <div className="auth-field"><label htmlFor={`offer-description-${offer.id}`}>Descrição nesta oferta</label><textarea id={`offer-description-${offer.id}`} name="descriptionOverride" maxLength={2000} rows={2} value={draft.description} onChange={(event) => setDraft((value) => ({ ...value, description: event.target.value }))} /></div>
-        {canWritePrice ? (
-          <div className="auth-field">
-            <label htmlFor={`offer-price-${offer.id}`}>Preço base em BRL</label>
-            <input id={`offer-price-${offer.id}`} name="basePrice" type="text" inputMode="decimal" autoComplete="off" maxLength={13} pattern="(?:0|[1-9][0-9]{0,9})(?:\.[0-9]{1,2})?" placeholder="0,00" value={draft.price} onChange={(event) => setDraft((value) => ({ ...value, price: event.target.value }))} />
-            <span className="catalog-field-note">Use ponto decimal. Até duas casas. O histórico de preço não pode ser apagado.</span>
-          </div>
-        ) : (
-          <div className="auth-field">
-            <span className="catalog-field-label">Preço base em BRL</span>
-            <output className="catalog-readonly-value">{offer.base_price === null ? "Ainda não definido" : `${offer.currency} ${offer.base_price.toFixed(2)}`}</output>
-            <input type="hidden" name="basePrice" value={offer.base_price === null ? "" : offer.base_price.toFixed(2)} />
-          </div>
-        )}
-        <div className="auth-field">
-          {canWriteAvailability ? <label htmlFor={`offer-availability-${offer.id}`}>Disponibilidade interna</label> : <span className="catalog-field-label">Disponibilidade interna</span>}
-          {canWriteAvailability ? (
-            <select id={`offer-availability-${offer.id}`} name="availabilityState" value={draft.availability} onChange={(event) => setDraft((value) => ({ ...value, availability: event.target.value as typeof draft.availability }))}>
-              <option value="unknown">Desconhecida</option><option value="available">Disponível</option><option value="unavailable">Indisponível</option>
-            </select>
-          ) : (
-            <>
-              <output className="catalog-readonly-value">{availabilityLabel(offer.availability_state)}</output>
-              <input type="hidden" name="availabilityState" value={offer.availability_state} />
-            </>
-          )}
-        </div>
-        {canWriteAvailability ? (
-          <div className="catalog-checkbox-row">
-            <input id={`offer-visible-${offer.id}`} name="isVisible" type="checkbox" checked={draft.visible} onChange={(event) => setDraft((value) => ({ ...value, visible: event.target.checked }))} />
-            <label htmlFor={`offer-visible-${offer.id}`}>Visível no canal (exige preço e disponibilidade disponível)</label>
-          </div>
-        ) : (
-          <div className="catalog-checkbox-row catalog-readonly-value">
-            <span>Visibilidade: {offer.is_visible ? "visível" : "oculta"}</span>
-            <input type="hidden" name="isVisible" value={offer.is_visible ? "true" : "false"} />
-          </div>
-        )}
-        {canWriteAvailability || !offer.is_visible ? (
-          <div className="auth-field"><label htmlFor={`offer-status-${offer.id}`}>Estado da oferta</label>
-            <select id={`offer-status-${offer.id}`} name="status" value={draft.status} onChange={(event) => setDraft((value) => ({ ...value, status: event.target.value as typeof draft.status }))}>
-              <option value="active">Ativa</option><option value="archived">Arquivada</option>
-            </select>
-          </div>
-        ) : (
-          <div className="auth-field"><span className="catalog-field-label">Estado da oferta</span><output className="catalog-readonly-value">{offer.status === "active" ? "Ativa" : "Arquivada"}</output><input type="hidden" name="status" value={offer.status} /></div>
-        )}
+        <OfferEditorFields offer={offer} draft={draft} setDraft={setDraft} canWritePrice={canWritePrice} canWriteAvailability={canWriteAvailability} />
         <button className="catalog-save-button" type="submit" disabled={pending}>{pending ? "Salvando oferta…" : "Salvar oferta"}</button>
       </form>
       <ActionFeedback state={state} />
-      {state?.kind === "step_up_required" ? (
-        <div className="catalog-step-up" aria-labelledby={`offer-step-up-${offer.id}`}>
-          <h4 id={`offer-step-up-${offer.id}`}>Confirme a verificação em duas etapas</h4>
-          {verifiedFactorIds[0] && !totpVerified ? (
-            <TotpChallengeForm
-              supabaseUrl={supabaseUrl}
-              anonKey={anonKey}
-              factorId={verifiedFactorIds[0]}
-              fieldId={`catalog-offer-totp-${offer.id}`}
-              onVerified={() => setTotpVerified(true)}
-              buttonLabel="Validar código e depois salvar novamente"
-            />
-          ) : verifiedFactorIds[0] ? <output className="catalog-step-up-status">Código validado. Envie a oferta novamente para concluir a alteração.</output> : <p>Configure um fator autenticador em <Link href="/app/security">Segurança</Link>.</p>}
-        </div>
-      ) : null}
-      {state?.kind === "reauthentication_required" ? (
-        <div className="catalog-step-up" aria-labelledby={`offer-reauth-${offer.id}`}>
-          <h4 id={`offer-reauth-${offer.id}`}>Confirme sua senha recente</h4>
-          <form className="catalog-auth-form" action={reauthenticationAction}>
-            <div className="auth-field"><label htmlFor={`offer-password-${offer.id}`}>Senha da conta</label><input id={`offer-password-${offer.id}`} name="reauth-password" type="password" autoComplete="current-password" required /></div>
-            <button className="catalog-save-button" type="submit" disabled={reauthenticationPending}>{reauthenticationPending ? "Confirmando…" : "Confirmar identidade"}</button>
-          </form>
-          {reauthentication?.kind === "reauthenticated" ? <output className="catalog-step-up-status">Identidade confirmada. Envie a oferta novamente para concluir a alteração.</output> : null}
-          {reauthentication?.kind === "denied" ? <p className="catalog-form-error" role="alert">Não foi possível confirmar a identidade.</p> : null}
-        </div>
-      ) : null}
-      {state?.kind === "factor_setup_required" ? <p className="catalog-form-error" role="alert">Configure um fator autenticador em <Link href="/app/security">Segurança</Link> antes de alterar preço ou disponibilidade.</p> : null}
+      <OfferSecurityFeedback
+        offerId={offer.id}
+        state={state}
+        verifiedFactorIds={verifiedFactorIds}
+        totpVerified={totpVerified}
+        setTotpVerified={setTotpVerified}
+        supabaseUrl={supabaseUrl}
+        anonKey={anonKey}
+        reauthentication={reauthentication}
+        reauthenticationAction={reauthenticationAction}
+        reauthenticationPending={reauthenticationPending}
+      />
     </section>
   );
 }
 
+function ReadonlyOfferCard({ offer, label, channelName }: Readonly<{ offer: Offer; label: string; channelName: string }>) {
+  return (
+    <article className="catalog-card catalog-offer-card catalog-readonly-card">
+      <span className="catalog-card-kicker">OFERTA · {channelName.toLocaleUpperCase("pt-BR")}</span>
+      <h3>{label}</h3>
+      <dl className="catalog-readonly-details">
+        <div><dt>Preço base</dt><dd>{offer.base_price === null ? "Ainda não definido" : `${offer.currency} ${offer.base_price.toFixed(2)}`}</dd></div>
+        <div><dt>Disponibilidade</dt><dd>{availabilityLabel(offer.availability_state)}</dd></div>
+        <div><dt>Visibilidade</dt><dd>{offer.is_visible ? "Visível" : "Oculta"}</dd></div>
+        <div><dt>Estado</dt><dd>{offer.status === "active" ? "Ativa" : "Arquivada"}</dd></div>
+      </dl>
+      {offer.title_override ? <p className="catalog-readonly-copy"><strong>Título do canal:</strong> {offer.title_override}</p> : null}
+      {offer.description_override ? <p className="catalog-readonly-copy"><strong>Descrição do canal:</strong> {offer.description_override}</p> : null}
+    </article>
+  );
+}
+
+function OfferEditorFields({ offer, draft, setDraft, canWritePrice, canWriteAvailability }: Readonly<{
+  offer: Offer;
+  draft: OfferDraft;
+  setDraft: Dispatch<SetStateAction<OfferDraft>>;
+  canWritePrice: boolean;
+  canWriteAvailability: boolean;
+}>) {
+  return (
+    <>
+      <div className="auth-field"><label htmlFor={`offer-title-${offer.id}`}>Título nesta oferta</label><input id={`offer-title-${offer.id}`} name="titleOverride" maxLength={160} value={draft.title} onChange={(event) => setDraft((value) => ({ ...value, title: event.target.value }))} /></div>
+      <div className="auth-field"><label htmlFor={`offer-description-${offer.id}`}>Descrição nesta oferta</label><textarea id={`offer-description-${offer.id}`} name="descriptionOverride" maxLength={2000} rows={2} value={draft.description} onChange={(event) => setDraft((value) => ({ ...value, description: event.target.value }))} /></div>
+      {canWritePrice
+        ? <EditableOfferPrice offer={offer} draft={draft} setDraft={setDraft} />
+        : <ReadonlyOfferPrice offer={offer} />}
+      {canWriteAvailability
+        ? <EditableOfferAvailability offer={offer} draft={draft} setDraft={setDraft} />
+        : <ReadonlyOfferAvailability offer={offer} />}
+      {canWriteAvailability
+        ? <EditableOfferVisibility offer={offer} draft={draft} setDraft={setDraft} />
+        : <ReadonlyOfferVisibility offer={offer} />}
+      {canWriteAvailability || !offer.is_visible
+        ? <EditableOfferStatus offer={offer} draft={draft} setDraft={setDraft} />
+        : <ReadonlyOfferStatus offer={offer} />}
+    </>
+  );
+}
+
+function EditableOfferPrice({ offer, draft, setDraft }: Readonly<{ offer: Offer; draft: OfferDraft; setDraft: Dispatch<SetStateAction<OfferDraft>> }>) {
+  return (
+    <div className="auth-field">
+      <label htmlFor={`offer-price-${offer.id}`}>Preço base em BRL</label>
+      <input id={`offer-price-${offer.id}`} name="basePrice" type="text" inputMode="decimal" autoComplete="off" maxLength={13} pattern="(?:0|[1-9][0-9]{0,9})(?:\.[0-9]{1,2})?" placeholder="0,00" value={draft.price} onChange={(event) => setDraft((value) => ({ ...value, price: event.target.value }))} />
+      <span className="catalog-field-note">Use ponto decimal. Até duas casas. O histórico de preço não pode ser apagado.</span>
+    </div>
+  );
+}
+
+function ReadonlyOfferPrice({ offer }: Readonly<{ offer: Offer }>) {
+  const priceText = offer.base_price === null ? "" : offer.base_price.toFixed(2);
+  return (
+    <div className="auth-field">
+      <span className="catalog-field-label">Preço base em BRL</span>
+      <output className="catalog-readonly-value">{offer.base_price === null ? "Ainda não definido" : `${offer.currency} ${offer.base_price.toFixed(2)}`}</output>
+      <input type="hidden" name="basePrice" value={priceText} />
+    </div>
+  );
+}
+
+function EditableOfferAvailability({ offer, draft, setDraft }: Readonly<{ offer: Offer; draft: OfferDraft; setDraft: Dispatch<SetStateAction<OfferDraft>> }>) {
+  return (
+    <div className="auth-field">
+      <label htmlFor={`offer-availability-${offer.id}`}>Disponibilidade interna</label>
+      <select id={`offer-availability-${offer.id}`} name="availabilityState" value={draft.availability} onChange={(event) => setDraft((value) => ({ ...value, availability: event.target.value as typeof value.availability }))}>
+        <option value="unknown">Desconhecida</option><option value="available">Disponível</option><option value="unavailable">Indisponível</option>
+      </select>
+    </div>
+  );
+}
+
+function ReadonlyOfferAvailability({ offer }: Readonly<{ offer: Offer }>) {
+  return (
+    <div className="auth-field">
+      <span className="catalog-field-label">Disponibilidade interna</span>
+      <output className="catalog-readonly-value">{availabilityLabel(offer.availability_state)}</output>
+      <input type="hidden" name="availabilityState" value={offer.availability_state} />
+    </div>
+  );
+}
+
+function EditableOfferVisibility({ offer, draft, setDraft }: Readonly<{ offer: Offer; draft: OfferDraft; setDraft: Dispatch<SetStateAction<OfferDraft>> }>) {
+  return (
+    <div className="catalog-checkbox-row">
+      <input id={`offer-visible-${offer.id}`} name="isVisible" type="checkbox" checked={draft.visible} onChange={(event) => setDraft((value) => ({ ...value, visible: event.target.checked }))} />
+      <label htmlFor={`offer-visible-${offer.id}`}>Visível no canal (exige preço e disponibilidade disponível)</label>
+    </div>
+  );
+}
+
+function ReadonlyOfferVisibility({ offer }: Readonly<{ offer: Offer }>) {
+  return (
+    <div className="catalog-checkbox-row catalog-readonly-value">
+      <span>Visibilidade: {offer.is_visible ? "visível" : "oculta"}</span>
+      <input type="hidden" name="isVisible" value={offer.is_visible ? "true" : "false"} />
+    </div>
+  );
+}
+
+function EditableOfferStatus({ offer, draft, setDraft }: Readonly<{ offer: Offer; draft: OfferDraft; setDraft: Dispatch<SetStateAction<OfferDraft>> }>) {
+  return (
+    <div className="auth-field"><label htmlFor={`offer-status-${offer.id}`}>Estado da oferta</label>
+      <select id={`offer-status-${offer.id}`} name="status" value={draft.status} onChange={(event) => setDraft((value) => ({ ...value, status: event.target.value as typeof value.status }))}>
+        <option value="active">Ativa</option><option value="archived">Arquivada</option>
+      </select>
+    </div>
+  );
+}
+
+function ReadonlyOfferStatus({ offer }: Readonly<{ offer: Offer }>) {
+  return (
+    <div className="auth-field"><span className="catalog-field-label">Estado da oferta</span>
+      <output className="catalog-readonly-value">{offer.status === "active" ? "Ativa" : "Arquivada"}</output>
+      <input type="hidden" name="status" value={offer.status} />
+    </div>
+  );
+}
+
+function OfferSecurityFeedback({
+  offerId,
+  state,
+  verifiedFactorIds,
+  totpVerified,
+  setTotpVerified,
+  supabaseUrl,
+  anonKey,
+  reauthentication,
+  reauthenticationAction,
+  reauthenticationPending,
+}: Readonly<{
+  offerId: string;
+  state: CatalogActionState;
+  verifiedFactorIds: string[];
+  totpVerified: boolean;
+  setTotpVerified: Dispatch<SetStateAction<boolean>>;
+  supabaseUrl: string;
+  anonKey: string;
+  reauthentication: ReauthenticationActionState;
+  reauthenticationAction: (formData: FormData) => void;
+  reauthenticationPending: boolean;
+}>) {
+  return (
+    <>
+      {state?.kind === "step_up_required" ? (
+        <OfferStepUpPrompt offerId={offerId} verifiedFactorId={verifiedFactorIds[0]} totpVerified={totpVerified} setTotpVerified={setTotpVerified} supabaseUrl={supabaseUrl} anonKey={anonKey} />
+      ) : null}
+      {state?.kind === "reauthentication_required" ? (
+        <OfferReauthenticationPrompt offerId={offerId} state={reauthentication} action={reauthenticationAction} pending={reauthenticationPending} />
+      ) : null}
+      {state?.kind === "factor_setup_required" ? <p className="catalog-form-error" role="alert">Configure um fator autenticador em <Link href="/app/security">Segurança</Link> antes de alterar preço ou disponibilidade.</p> : null}
+    </>
+  );
+}
+
+function OfferStepUpPrompt({ offerId, verifiedFactorId, totpVerified, setTotpVerified, supabaseUrl, anonKey }: Readonly<{
+  offerId: string;
+  verifiedFactorId: string | undefined;
+  totpVerified: boolean;
+  setTotpVerified: Dispatch<SetStateAction<boolean>>;
+  supabaseUrl: string;
+  anonKey: string;
+}>) {
+  return (
+    <div className="catalog-step-up" aria-labelledby={`offer-step-up-${offerId}`}>
+      <h4 id={`offer-step-up-${offerId}`}>Confirme a verificação em duas etapas</h4>
+      {verifiedFactorId && !totpVerified
+        ? <TotpChallengeForm supabaseUrl={supabaseUrl} anonKey={anonKey} factorId={verifiedFactorId} fieldId={`catalog-offer-totp-${offerId}`} onVerified={() => setTotpVerified(true)} buttonLabel="Validar código e depois salvar novamente" />
+        : verifiedFactorId
+          ? <output className="catalog-step-up-status">Código validado. Envie a oferta novamente para concluir a alteração.</output>
+          : <p>Configure um fator autenticador em <Link href="/app/security">Segurança</Link>.</p>}
+    </div>
+  );
+}
+
+function OfferReauthenticationPrompt({ offerId, state, action, pending }: Readonly<{
+  offerId: string;
+  state: ReauthenticationActionState;
+  action: (formData: FormData) => void;
+  pending: boolean;
+}>) {
+  return (
+    <div className="catalog-step-up" aria-labelledby={`offer-reauth-${offerId}`}>
+      <h4 id={`offer-reauth-${offerId}`}>Confirme sua senha recente</h4>
+      <form className="catalog-auth-form" action={action}>
+        <div className="auth-field"><label htmlFor={`offer-password-${offerId}`}>Senha da conta</label><input id={`offer-password-${offerId}`} name="reauth-password" type="password" autoComplete="current-password" required /></div>
+        <button className="catalog-save-button" type="submit" disabled={pending}>{pending ? "Confirmando…" : "Confirmar identidade"}</button>
+      </form>
+      {state?.kind === "reauthenticated" ? <output className="catalog-step-up-status">Identidade confirmada. Envie a oferta novamente para concluir a alteração.</output> : null}
+      {state?.kind === "denied" ? <p className="catalog-form-error" role="alert">Não foi possível confirmar a identidade.</p> : null}
+    </div>
+  );
+}
 function ActionFeedback({ state }: Readonly<{ state: CatalogActionState }>) {
   if (!state) return null;
   if (state.kind === "saved") return <output className="catalog-form-success">Salvo. Código de atendimento: {state.correlationId}. Referências de auditoria: {state.auditEventIds.length ? state.auditEventIds.join(", ") : "sem alteração material"}.</output>;
