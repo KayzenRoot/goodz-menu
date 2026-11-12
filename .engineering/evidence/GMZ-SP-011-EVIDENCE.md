@@ -1,6 +1,6 @@
 # GMZ-SP-011 — Evidence Bundle
 
-Status: `EXECUTOR REPORT / PUBLISHED DRAFT / INDEPENDENT EXACT-HEAD AUDIT PENDING`
+Status: `EXECUTOR REPORT / PRIOR EXACT-HEAD AUDIT APPROVED / LIVE PR REF GOVERNS FOLLOW-UP HEAD`
 
 ## Authority and scope
 
@@ -40,9 +40,9 @@ Status: `EXECUTOR REPORT / PUBLISHED DRAFT / INDEPENDENT EXACT-HEAD AUDIT PENDIN
 
 ## Remaining gates and stop conditions
 
-- Independent exact-head audit: `PENDING`.
+- Independent exact-head audit at PR #83 head `134903b280500b1f05012713fc508f0f289e72e1` / tree `879ad3890d10939b38b4654c7245450bcdc6bd32`: `APPROVED`, no known CRITICAL/HIGH defect. The review was read-only and did not run product tests. Any later PR HEAD must be assessed at its own exact SHA; this approval does not cover future commits.
 - Human keyboard, real-zoom, screen-reader, and visual sign-off: `PENDING` by maintainer request.
 - GMZ-IMPL-007's existing Context Lock pins an older Scope blob. If this Scope paragraph is later merged, the separate execution branch must remain stopped until its own fresh exact-base Context Lock and bind are approved.
 - No PR merge, Checkpoint update, earned-credit change, issue closure, promotion, remote Supabase operation, release, or deployment occurred under this Work Order.
 
-STOP CONDITION: `GMZ_SP_011_SOURCE_NOTE_RECONCILIATION_READY_FOR_OBJECTIVE_AUDIT` is not claimed until the final published exact-head audit is approved.
+The source reconciliation reached `GMZ_SP_011_SOURCE_NOTE_RECONCILIATION_READY_FOR_OBJECTIVE_AUDIT` at the exact reviewed candidate `134903b280500b1f05012713fc508f0f289e72e1`. This statement records that candidate only; a later documentation follow-up is not covered by its approval and must be checked at the live PR ref. No merge, issue closure, Checkpoint promotion, or deployment is authorized.
