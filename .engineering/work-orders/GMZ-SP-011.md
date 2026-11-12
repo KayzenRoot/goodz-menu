@@ -17,18 +17,18 @@ Requested execution stop condition: `GMZ_SP_011_SOURCE_NOTE_RECONCILIATION_READY
 ## CONTEXT
 
 - Decision D-0022 accepted GMZ-CSD-002 as an additive first-release boundary and deferred promotional pricing.
-- The paragraph in `docs/source-pack/SCOPE.md` still says active GMZ-IMPL-007 admits promotional-price mutations and must be amended before execution.
-- GMZ-IMPL-007-CD-002 was admitted through PR #77, merged at `985151f62be6cb26a67bc1c70fac4b7eaf831bd5`, and the current Work Order now excludes promotional prices, discounts, and schedules.
-- The current Scope paragraph is therefore stale and contradicts the amended Work Order. This proposal does not reinterpret D-0022 or modify the Decision Ledger's historical decision record.
-- `docs/source-pack/SCOPE.md` is a locked source in the active GMZ-IMPL-007 Context Lock. It must not be changed on that execution branch. If this Work Order is admitted and the Scope edit is later merged, GMZ-IMPL-007 must be rebound to an exact updated main base before any further execution or objective-audit progression.
+- PR #77 merged the governance-only GMZ-IMPL-007-CD-002 proposal at `985151f62be6cb26a67bc1c70fac4b7eaf831bd5`. Its Work Order text excludes promotional prices, discounts, and schedules, but PR #77 explicitly records that admission and a fresh execution bind were still pending; the merge did not itself admit or authorize the amendment.
+- At this proposal's exact base, `main@20a63ab8baa6f0776224c104656e20d05be5d6b0`, `.engineering/CHECKPOINT.json` still says `implementationAuthorized: false`, and the CD-002 evidence still labels the amendment proposed. The separate PR #80 execution branch later records a maintainer-authorized bind; that branch remains unmerged and does not change this proposal's base state.
+- The Scope paragraph still describes the pre-amendment Work Order text as current. Its description is stale relative to the merged candidate text; this proposal does not claim the amendment was admitted through PR #77 or that the Scope note authorizes it. Admission/binding remains separately evidenced, and a Scope edit changes a locked source that requires a fresh exact-base bind before further execution or audit.
+- `docs/source-pack/SCOPE.md` is a locked source in the active GMZ-IMPL-007 Context Lock. It must not be changed on that execution branch. If this Work Order is admitted and the Scope edit is later merged, GMZ-IMPL-007's lock will need to be rebound to the updated exact main base before further execution or objective-audit progression.
 - Current GMZ-IMPL-007 PR #80 remains OPEN/DRAFT. Its description and Evidence Bundle reconciliation are separate outstanding actions; this Work Order does not claim they are resolved.
 
 ## SCOPE
 
 1. Replace only the obsolete “Active Work Order conflict” paragraph in `docs/source-pack/SCOPE.md` with a concise statement that:
    - promotional pricing, discounts, and schedules remain deferred from the first release;
-   - the amended GMZ-IMPL-007 Work Order excludes those mutations; and
-   - this note is descriptive and does not authorize promotion implementation, Checkpoint credit, or deployment.
+   - the current GMZ-IMPL-007 Work Order text excludes those mutations, without implying that PR #77 itself admitted or authorized the amendment; and
+   - the note is descriptive, grants no implementation authority, and preserves the requirement for separate governed admission/binding before any executor mutation.
 2. Keep all accepted CSD-002 module classifications, operational decisions, release boundaries, and the 515-point denominator byte-for-byte unchanged outside that paragraph.
 3. Bind the source edit through a separate Context Lock, based on the live approved `main` SHA immediately before execution. That lock must allow only the specified Scope paragraph and lock all other stable sources.
 4. Publish exact base/head/tree, the minimal diff, deterministic document checks, and independent exact-head review evidence.
@@ -57,7 +57,8 @@ Before binding and editing, read current exact-base versions of:
 - Preserve the accepted first-release boundary from D-0022 and GMZ-CSD-002.
 - Preserve all `GMZ-M00..M28` classifications and denominator `515`.
 - Do not imply that this editorial correction admits any product feature or grants execution authority.
-- Identify that the current GMZ-IMPL-007 Work Order excludes promotions, based on its current approved text and merged CD-002 evidence.
+- Identify that the current GMZ-IMPL-007 Work Order text excludes promotions, based on the merged CD-002 proposal; do not call that proposal admitted solely because PR #77 merged.
+- Distinguish the merge of PR #77 from formal admission/authorization; preserve the exact-base Checkpoint and evidence status.
 - Treat the Work Order, Scope, and Checkpoint as separate governance artifacts; update no Checkpoint value or earned credit.
 
 ## ARCHITECTURE RULES
@@ -76,7 +77,7 @@ Before binding and editing, read current exact-base versions of:
 
 ## ACCEPTANCE CRITERIA
 
-1. The changed Scope paragraph matches the current amended Work Order and leaves the accepted first-release boundary unchanged.
+1. The changed Scope paragraph matches the current GMZ-IMPL-007 Work Order text, distinguishes proposal content from formal admission, and leaves the accepted first-release boundary unchanged.
 2. `git diff --check` passes; a mechanical diff review proves no other Scope content changed.
 3. Evidence records exact base/head/tree, the Scope blob before/after, and all deterministic document checks.
 4. An independent exact-head audit returns `APPROVED` with no known CRITICAL/HIGH defect and confirms scope/authority consistency.
