@@ -6,7 +6,7 @@ SELECT no_plan();
 
 CREATE TEMP TABLE gmz_catalog_proofs (name text PRIMARY KEY, proof_id uuid NOT NULL);
 GRANT SELECT, INSERT, UPDATE ON TABLE pg_temp.gmz_catalog_proofs TO PUBLIC;
-CREATE TEMP TABLE gmz_catalog_offers (offer_key text PRIMARY KEY, offer_id uuid UNIQUE NOT NULL);
+CREATE TEMP TABLE gmz_catalog_offers (offer_key text PRIMARY KEY, offer_id uuid UNIQUE NOT NULL, receipt jsonb NOT NULL);
 GRANT SELECT, INSERT, UPDATE ON TABLE pg_temp.gmz_catalog_offers TO PUBLIC;
 
 INSERT INTO auth.users (
@@ -164,27 +164,40 @@ SELECT throws_ok(
   '23503', 'Catalog product is unavailable.', 'variant cannot reference a foreign tenant product'
 );
 SELECT lives_ok(
-  $$INSERT INTO pg_temp.gmz_catalog_offers (offer_key, offer_id)
-  SELECT 'branch-one', public.catalog_save_offer(
+  $$INSERT INTO pg_temp.gmz_catalog_offers (offer_key, offer_id, receipt)
+  SELECT 'branch-one', (command.receipt->>'entity_id')::uuid, command.receipt
+  FROM (SELECT public.catalog_save_offer(
     NULL, '85000000-0000-4000-8000-000000000001',
     '87000000-0000-4000-8000-000000000001', '88000000-0000-4000-8000-000000000001',
     (SELECT id FROM public.sales_channels WHERE organization_id = '85000000-0000-4000-8000-000000000001' AND channel_key = 'pickup'),
     'product', (SELECT id FROM public.products WHERE organization_id = '85000000-0000-4000-8000-000000000001' AND name = 'Classic Burger'),
     NULL, 'Channel title', 'Channel description', NULL, 'BRL', 'unknown', false, 'active', NULL,
     '8d000000-0000-4000-8000-000000000008'
-  )$$,
+  ) AS receipt) AS command$$,
   'owner creates a branch-scoped offer through the authenticated command'
 );
+RESET ROLE;
+SELECT ok(
+  jsonb_array_length((SELECT receipt->'audit_event_ids' FROM pg_temp.gmz_catalog_offers WHERE offer_key = 'branch-one')) = 1
+    AND EXISTS (
+      SELECT 1 FROM public.audit_events AS audit
+      WHERE audit.id = ((SELECT receipt->'audit_event_ids'->>0 FROM pg_temp.gmz_catalog_offers WHERE offer_key = 'branch-one'))::uuid
+        AND audit.correlation_id = '8d000000-0000-4000-8000-000000000008'
+    ),
+  'offer creation returns the persisted audit-event reference'
+);
+SET LOCAL ROLE authenticated;
 SELECT lives_ok(
-  $$INSERT INTO pg_temp.gmz_catalog_offers (offer_key, offer_id)
-  SELECT 'branch-two', public.catalog_save_offer(
+  $$INSERT INTO pg_temp.gmz_catalog_offers (offer_key, offer_id, receipt)
+  SELECT 'branch-two', (command.receipt->>'entity_id')::uuid, command.receipt
+  FROM (SELECT public.catalog_save_offer(
     NULL, '85000000-0000-4000-8000-000000000001',
     '87000000-0000-4000-8000-000000000001', '88000000-0000-4000-8000-000000000002',
     (SELECT id FROM public.sales_channels WHERE organization_id = '85000000-0000-4000-8000-000000000001' AND channel_key = 'pickup'),
     'product', (SELECT id FROM public.products WHERE organization_id = '85000000-0000-4000-8000-000000000001' AND name = 'Classic Burger'),
     NULL, NULL, NULL, NULL, 'BRL', 'unknown', false, 'active', NULL,
     '8d000000-0000-4000-8000-000000000009'
-  )$$,
+  ) AS receipt) AS command$$,
   'one canonical product supports a separate offer at another branch'
 );
 SELECT throws_ok(
@@ -323,14 +336,27 @@ SELECT throws_ok(
   )$$,
   '42501', 'Privileged catalog confirmation is unavailable.', 'price mutation requires a one-use Admin Guard proof'
 );
-SELECT public.catalog_save_offer(
+UPDATE pg_temp.gmz_catalog_offers
+SET receipt = public.catalog_save_offer(
   (SELECT offer_id FROM pg_temp.gmz_catalog_offers WHERE offer_key = 'branch-one'), '85000000-0000-4000-8000-000000000001',
   '87000000-0000-4000-8000-000000000001', '88000000-0000-4000-8000-000000000001',
   (SELECT id FROM public.sales_channels WHERE organization_id = '85000000-0000-4000-8000-000000000001' AND channel_key = 'pickup'),
   'product', (SELECT id FROM public.products WHERE organization_id = '85000000-0000-4000-8000-000000000001' AND name = 'Classic Burger'),
   NULL, 'Channel title', 'Channel description', 12.50, 'BRL', 'unknown', false, 'active',
   (SELECT proof_id FROM pg_temp.gmz_catalog_proofs WHERE name = 'price-one'), '8d000000-0000-4000-8000-000000000014'
+)
+WHERE offer_key = 'branch-one';
+RESET ROLE;
+SELECT ok(
+  jsonb_array_length((SELECT receipt->'audit_event_ids' FROM pg_temp.gmz_catalog_offers WHERE offer_key = 'branch-one')) = 1
+    AND EXISTS (
+      SELECT 1 FROM public.audit_events AS audit
+      WHERE audit.id = ((SELECT receipt->'audit_event_ids'->>0 FROM pg_temp.gmz_catalog_offers WHERE offer_key = 'branch-one'))::uuid
+        AND audit.correlation_id = '8d000000-0000-4000-8000-000000000014'
+    ),
+  'price update returns the persisted material audit-event reference'
 );
+SET LOCAL ROLE authenticated;
 SELECT is((SELECT count(*)::integer FROM public.channel_offer_price_history WHERE channel_offer_id = (SELECT offer_id FROM pg_temp.gmz_catalog_offers WHERE offer_key = 'branch-one')), 1, 'first price update writes exactly one history version');
 SELECT is((SELECT amount FROM public.channel_offer_price_history WHERE channel_offer_id = (SELECT offer_id FROM pg_temp.gmz_catalog_offers WHERE offer_key = 'branch-one') AND version = 1), 12.50::numeric, 'history version one stores the exact initial price');
 RESET ROLE;

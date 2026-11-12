@@ -395,19 +395,19 @@ isOneToOne: false
 { Args: { "p_branch_id": string,"p_establishment_id": string,"p_organization_id": string,"p_permission_key": string }; Returns: boolean
                            },
 "catalog_save_category":
-{ Args: { "p_correlation_id": string,"p_description": string,"p_id": string,"p_name": string,"p_organization_id": string,"p_parent_id": string,"p_status": string }; Returns: string
+{ Args: { "p_correlation_id": string,"p_description": string,"p_id": string,"p_name": string,"p_organization_id": string,"p_parent_id": string,"p_status": string }; Returns: Json
                            },
 "catalog_save_channel":
-{ Args: { "p_channel_key": string,"p_correlation_id": string,"p_display_name": string,"p_id": string,"p_organization_id": string,"p_status": string }; Returns: string
+{ Args: { "p_channel_key": string,"p_correlation_id": string,"p_display_name": string,"p_id": string,"p_organization_id": string,"p_status": string }; Returns: Json
                            },
 "catalog_save_offer":
-{ Args: { "p_availability_state": string,"p_base_price": number,"p_branch_id": string,"p_correlation_id": string,"p_currency": string,"p_description_override": string,"p_establishment_id": string,"p_id": string,"p_is_visible": boolean,"p_organization_id": string,"p_product_id": string,"p_sales_channel_id": string,"p_status": string,"p_step_up_proof_id": string,"p_target_kind": string,"p_title_override": string,"p_variant_id": string }; Returns: string
+{ Args: { "p_availability_state": string,"p_base_price": number,"p_branch_id": string,"p_correlation_id": string,"p_currency": string,"p_description_override": string,"p_establishment_id": string,"p_id": string,"p_is_visible": boolean,"p_organization_id": string,"p_product_id": string,"p_sales_channel_id": string,"p_status": string,"p_step_up_proof_id": string,"p_target_kind": string,"p_title_override": string,"p_variant_id": string }; Returns: Json
                            },
 "catalog_save_product":
-{ Args: { "p_category_id": string,"p_correlation_id": string,"p_description": string,"p_id": string,"p_name": string,"p_organization_id": string,"p_status": string }; Returns: string
+{ Args: { "p_category_id": string,"p_correlation_id": string,"p_description": string,"p_id": string,"p_name": string,"p_organization_id": string,"p_status": string }; Returns: Json
                            },
 "catalog_save_variant":
-{ Args: { "p_correlation_id": string,"p_flavor_label": string,"p_id": string,"p_name": string,"p_organization_id": string,"p_product_id": string,"p_size_label": string,"p_status": string }; Returns: string
+{ Args: { "p_correlation_id": string,"p_flavor_label": string,"p_id": string,"p_name": string,"p_organization_id": string,"p_product_id": string,"p_size_label": string,"p_status": string }; Returns: Json
                            }
           }
           Enums: {

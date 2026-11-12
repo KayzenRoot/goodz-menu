@@ -117,7 +117,9 @@ export function validateCatalogAdminGuardEvent(value: unknown): CatalogAdminGuar
     throw new Error("Catalog guard audit event is invalid.");
   }
 
-  const normalizedPermissions = [...permissions].sort() as CatalogPrivilegedPermission[];
+  const normalizedPermissions = [...permissions].sort((left, right) => (
+    left < right ? -1 : left > right ? 1 : 0
+  )) as CatalogPrivilegedPermission[];
   return {
     actor_user_id: actor_user_id as string | null,
     organization_id: organization_id as string | null,

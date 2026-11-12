@@ -90,6 +90,18 @@ function assertUuid(value, label) {
   return value;
 }
 
+function assertCatalogCommandReceipt(value, label) {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    throw new Error(`${label} did not return a catalog command receipt.`);
+  }
+  const entityId = assertUuid(value.entity_id, `${label} entity`);
+  if (!Array.isArray(value.audit_event_ids) || value.audit_event_ids.length === 0) {
+    throw new Error(`${label} did not return a material audit-event reference.`);
+  }
+  for (const eventId of value.audit_event_ids) assertUuid(eventId, `${label} audit event`);
+  return entityId;
+}
+
 async function createUser(api, label) {
   const email = `gmz-impl-007-catalog-${label}-${randomUUID()}@example.invalid`;
   const password = `T-${randomBytes(24).toString("base64url")}a9!`;
@@ -170,7 +182,7 @@ async function expectRpcId(api, name, args, user, label) {
   const result = await rpc(api, name, args, user.accessToken);
   if (!result.response.ok) throw new Error(`${label} failed with HTTP ${result.response.status}.`);
   record(label);
-  return assertUuid(result.value, label);
+  return assertCatalogCommandReceipt(result.value, label);
 }
 
 async function expectRpcDenied(api, name, args, user, label) {

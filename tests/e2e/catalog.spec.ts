@@ -94,7 +94,9 @@ test("catalog owner flow keeps canonical product data separate and gates commerc
   await categoryName.fill("Bebidas do catálogo E2E");
   await categoryDescription.fill("Categoria sintética acessível e editável");
   await page.getByRole("region", { name: "Categorias" }).getByRole("button", { name: "Criar categoria" }).click();
-  await expect(page.getByRole("region", { name: "Categorias" }).locator(".catalog-form-success")).toContainText("Salvo.", { timeout: 20_000 });
+  const categorySuccess = page.getByRole("region", { name: "Categorias" }).locator(".catalog-form-success");
+  await expect(categorySuccess).toContainText("Salvo.", { timeout: 20_000 });
+  await expect(categorySuccess).toContainText(/Referências de auditoria: [0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}/i);
 
   await page.locator("#product-name-new").fill("Produto canônico E2E");
   await page.locator("#product-description-new").fill("Descrição canônica independente da oferta por canal.");

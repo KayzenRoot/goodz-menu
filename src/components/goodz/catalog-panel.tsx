@@ -645,7 +645,7 @@ function OfferForm({
 
 function ActionFeedback({ state }: Readonly<{ state: CatalogActionState }>) {
   if (!state) return null;
-  if (state.kind === "saved") return <p className="catalog-form-success" role="status">Salvo. Código de atendimento: {state.correlationId}</p>;
+  if (state.kind === "saved") return <p className="catalog-form-success" role="status">Salvo. Código de atendimento: {state.correlationId}. Referências de auditoria: {state.auditEventIds.length ? state.auditEventIds.join(", ") : "sem alteração material"}.</p>;
   if (state.kind === "invalid") return <p className="catalog-form-error" role="alert">Revise os campos e as relações informadas. Código: {state.correlationId}</p>;
   if (state.kind === "denied") return <p className="catalog-form-error" role="alert">A alteração não foi autorizada para o seu escopo atual. Código: {state.correlationId}</p>;
   if (state.kind === "failed") return <p className="catalog-form-error" role="alert">Não foi possível concluir a alteração. Nenhuma confirmação foi retornada. Código: {state.correlationId}</p>;

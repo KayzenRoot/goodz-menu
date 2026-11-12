@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import type { AdminGuardReason } from "@/lib/supabase/admin-guard-policy";
 import { requestCorrelationId } from "@/lib/observability/correlation";
 import { getCurrentAuthContext } from "@/lib/supabase/auth-session";
-import type { Database } from "@/lib/supabase/database.types";
+import type { Database, Json } from "@/lib/supabase/database.types";
 import {
   CATALOG_PRIVILEGED_PERMISSIONS,
   type CatalogPrivilegedPermission,
@@ -20,7 +20,7 @@ import {
 
 export type CatalogActionState =
   | null
-  | { kind: "saved"; correlationId: string }
+  | { kind: "saved"; correlationId: string; auditEventIds: string[] }
   | { kind: "invalid"; correlationId: string }
   | { kind: "denied"; correlationId: string }
   | { kind: "failed"; correlationId: string }
@@ -60,8 +60,8 @@ export async function saveCategoryAction(
   } as unknown as Database["public"]["Functions"]["catalog_save_category"]["Args"];
 
   try {
-    const { error } = await auth.client.rpc("catalog_save_category", args);
-    return finishCatalogCommand("category", error, correlationId);
+    const { data, error } = await auth.client.rpc("catalog_save_category", args);
+    return finishCatalogCommand(error, correlationId, data);
   } catch {
     return { kind: "failed", correlationId };
   }
@@ -95,8 +95,8 @@ export async function saveProductAction(
   } as unknown as Database["public"]["Functions"]["catalog_save_product"]["Args"];
 
   try {
-    const { error } = await auth.client.rpc("catalog_save_product", args);
-    return finishCatalogCommand("product", error, correlationId);
+    const { data, error } = await auth.client.rpc("catalog_save_product", args);
+    return finishCatalogCommand(error, correlationId, data);
   } catch {
     return { kind: "failed", correlationId };
   }
@@ -132,8 +132,8 @@ export async function saveVariantAction(
   } as unknown as Database["public"]["Functions"]["catalog_save_variant"]["Args"];
 
   try {
-    const { error } = await auth.client.rpc("catalog_save_variant", args);
-    return finishCatalogCommand("variant", error, correlationId);
+    const { data, error } = await auth.client.rpc("catalog_save_variant", args);
+    return finishCatalogCommand(error, correlationId, data);
   } catch {
     return { kind: "failed", correlationId };
   }
@@ -217,8 +217,8 @@ export async function saveOfferAction(
       p_correlation_id: correlationId,
     } as unknown as Database["public"]["Functions"]["catalog_save_offer"]["Args"];
     try {
-      const { error } = await auth.client.rpc("catalog_save_offer", args);
-      return finishCatalogCommand("offer", error, correlationId);
+      const { data, error } = await auth.client.rpc("catalog_save_offer", args);
+      return finishCatalogCommand(error, correlationId, data);
     } catch {
       return { kind: "failed", correlationId };
     }
@@ -277,8 +277,8 @@ export async function saveOfferAction(
   } as unknown as Database["public"]["Functions"]["catalog_save_offer"]["Args"];
 
   try {
-    const { error } = await auth.client.rpc("catalog_save_offer", args);
-    return finishCatalogCommand("offer", error, commandCorrelationId);
+    const { data, error } = await auth.client.rpc("catalog_save_offer", args);
+    return finishCatalogCommand(error, commandCorrelationId, data);
   } catch {
     return { kind: "failed", correlationId: commandCorrelationId };
   }
@@ -300,15 +300,32 @@ async function createCorrelationId(): Promise<string> {
 }
 
 function finishCatalogCommand(
-  _operation: "category" | "product" | "variant" | "offer",
   error: CatalogRpcError | null,
   correlationId: string,
+  result: Json | null,
 ): CatalogActionState {
   if (error) {
     return { kind: categorizeError(error), correlationId };
   }
+  const receipt = parseCatalogCommandReceipt(result);
+  if (!receipt) return { kind: "failed", correlationId };
   revalidatePath("/app/catalog");
-  return { kind: "saved", correlationId };
+  return { kind: "saved", correlationId, auditEventIds: receipt.auditEventIds };
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function parseCatalogCommandReceipt(result: Json | null): Readonly<{ auditEventIds: string[] }> | null {
+  if (typeof result !== "object" || result === null || Array.isArray(result)) return null;
+  if (typeof result.entity_id !== "string" || !UUID.test(result.entity_id)) return null;
+  const auditEventIds = result.audit_event_ids;
+  if (!Array.isArray(auditEventIds)) return null;
+  const validatedAuditEventIds: string[] = [];
+  for (const id of auditEventIds) {
+    if (typeof id !== "string" || !UUID.test(id)) return null;
+    validatedAuditEventIds.push(id);
+  }
+  return { auditEventIds: validatedAuditEventIds };
 }
 
 function categorizeError(error: CatalogRpcError): "invalid" | "denied" | "failed" {

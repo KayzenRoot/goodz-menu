@@ -34,6 +34,21 @@ $function$;
 REVOKE ALL ON FUNCTION private.write_catalog_audit_event(uuid, uuid, uuid, uuid, text, text, uuid, text, uuid, jsonb)
   FROM PUBLIC, anon, authenticated, service_role;
 
+CREATE OR REPLACE FUNCTION private.catalog_command_result(p_entity_id uuid, p_audit_event_ids uuid[])
+RETURNS jsonb
+LANGUAGE sql
+IMMUTABLE
+SET search_path = ''
+AS $function$
+  SELECT pg_catalog.jsonb_build_object(
+    'entity_id', p_entity_id,
+    'audit_event_ids', pg_catalog.to_jsonb(COALESCE(p_audit_event_ids, ARRAY[]::uuid[]))
+  );
+$function$;
+
+REVOKE ALL ON FUNCTION private.catalog_command_result(uuid, uuid[])
+  FROM PUBLIC, anon, authenticated, service_role;
+
 CREATE OR REPLACE FUNCTION public.append_catalog_step_up_event(
   p_actor_user_id uuid,
   p_organization_id uuid,
@@ -179,13 +194,14 @@ CREATE OR REPLACE FUNCTION public.catalog_save_category(
   p_status text,
   p_correlation_id uuid
 )
-RETURNS uuid
+RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = ''
 AS $function$
 DECLARE
   v_id uuid;
+  v_audit_event_ids uuid[] := ARRAY[]::uuid[];
   v_old public.product_categories%ROWTYPE;
   v_action text;
   v_fields text[];
@@ -245,7 +261,7 @@ BEGIN
     IF v_old.parent_id IS DISTINCT FROM p_parent_id THEN v_fields := pg_catalog.array_append(v_fields, 'parent_id'); END IF;
     IF v_old.description IS DISTINCT FROM p_description THEN v_fields := pg_catalog.array_append(v_fields, 'description'); END IF;
     IF v_old.status IS DISTINCT FROM p_status THEN v_fields := pg_catalog.array_append(v_fields, 'status'); END IF;
-    IF cardinality(v_fields) = 0 THEN RETURN v_id; END IF;
+    IF cardinality(v_fields) = 0 THEN RETURN private.catalog_command_result(v_id, v_audit_event_ids); END IF;
     UPDATE public.product_categories
     SET parent_id = p_parent_id, name = p_name, description = p_description, status = p_status, updated_at = pg_catalog.now()
     WHERE organization_id = p_organization_id AND id = p_id;
@@ -253,13 +269,13 @@ BEGIN
       THEN 'catalog.category.archived' ELSE 'catalog.category.updated' END;
   END IF;
 
-  PERFORM private.write_catalog_audit_event(
+  v_audit_event_ids := pg_catalog.array_append(v_audit_event_ids, private.write_catalog_audit_event(
     (SELECT auth.uid()), p_organization_id, NULL, NULL, v_action, 'product_category', v_id,
     CASE WHEN v_action LIKE '%.archived' THEN 'catalog_archived'
       WHEN v_action LIKE '%.created' THEN 'catalog_created' ELSE 'catalog_updated' END,
     p_correlation_id, pg_catalog.jsonb_build_object('changed_fields', pg_catalog.to_jsonb(v_fields))
-  );
-  RETURN v_id;
+  ));
+  RETURN private.catalog_command_result(v_id, v_audit_event_ids);
 END;
 $function$;
 
@@ -276,13 +292,14 @@ CREATE OR REPLACE FUNCTION public.catalog_save_product(
   p_status text,
   p_correlation_id uuid
 )
-RETURNS uuid
+RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = ''
 AS $function$
 DECLARE
   v_id uuid;
+  v_audit_event_ids uuid[] := ARRAY[]::uuid[];
   v_old public.products%ROWTYPE;
   v_action text;
   v_fields text[];
@@ -322,7 +339,7 @@ BEGIN
     IF v_old.name IS DISTINCT FROM p_name THEN v_fields := pg_catalog.array_append(v_fields, 'name'); END IF;
     IF v_old.description IS DISTINCT FROM p_description THEN v_fields := pg_catalog.array_append(v_fields, 'description'); END IF;
     IF v_old.status IS DISTINCT FROM p_status THEN v_fields := pg_catalog.array_append(v_fields, 'status'); END IF;
-    IF cardinality(v_fields) = 0 THEN RETURN v_id; END IF;
+    IF cardinality(v_fields) = 0 THEN RETURN private.catalog_command_result(v_id, v_audit_event_ids); END IF;
     UPDATE public.products SET category_id = p_category_id, name = p_name, description = p_description,
       status = p_status, updated_at = pg_catalog.now()
     WHERE organization_id = p_organization_id AND id = p_id;
@@ -330,13 +347,13 @@ BEGIN
       THEN 'catalog.product.archived' ELSE 'catalog.product.updated' END;
   END IF;
 
-  PERFORM private.write_catalog_audit_event(
+  v_audit_event_ids := pg_catalog.array_append(v_audit_event_ids, private.write_catalog_audit_event(
     (SELECT auth.uid()), p_organization_id, NULL, NULL, v_action, 'product', v_id,
     CASE WHEN v_action LIKE '%.archived' THEN 'catalog_archived'
       WHEN v_action LIKE '%.created' THEN 'catalog_created' ELSE 'catalog_updated' END,
     p_correlation_id, pg_catalog.jsonb_build_object('changed_fields', pg_catalog.to_jsonb(v_fields))
-  );
-  RETURN v_id;
+  ));
+  RETURN private.catalog_command_result(v_id, v_audit_event_ids);
 END;
 $function$;
 
@@ -354,13 +371,14 @@ CREATE OR REPLACE FUNCTION public.catalog_save_variant(
   p_status text,
   p_correlation_id uuid
 )
-RETURNS uuid
+RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = ''
 AS $function$
 DECLARE
   v_id uuid;
+  v_audit_event_ids uuid[] := ARRAY[]::uuid[];
   v_old public.product_variants%ROWTYPE;
   v_action text;
   v_fields text[];
@@ -400,7 +418,7 @@ BEGIN
     IF v_old.size_label IS DISTINCT FROM p_size_label THEN v_fields := pg_catalog.array_append(v_fields, 'size_label'); END IF;
     IF v_old.flavor_label IS DISTINCT FROM p_flavor_label THEN v_fields := pg_catalog.array_append(v_fields, 'flavor_label'); END IF;
     IF v_old.status IS DISTINCT FROM p_status THEN v_fields := pg_catalog.array_append(v_fields, 'status'); END IF;
-    IF cardinality(v_fields) = 0 THEN RETURN v_id; END IF;
+    IF cardinality(v_fields) = 0 THEN RETURN private.catalog_command_result(v_id, v_audit_event_ids); END IF;
     UPDATE public.product_variants SET name = p_name, size_label = p_size_label, flavor_label = p_flavor_label,
       status = p_status, updated_at = pg_catalog.now()
     WHERE organization_id = p_organization_id AND id = p_id;
@@ -408,13 +426,13 @@ BEGIN
       THEN 'catalog.variant.archived' ELSE 'catalog.variant.updated' END;
   END IF;
 
-  PERFORM private.write_catalog_audit_event(
+  v_audit_event_ids := pg_catalog.array_append(v_audit_event_ids, private.write_catalog_audit_event(
     (SELECT auth.uid()), p_organization_id, NULL, NULL, v_action, 'product_variant', v_id,
     CASE WHEN v_action LIKE '%.archived' THEN 'catalog_archived'
       WHEN v_action LIKE '%.created' THEN 'catalog_created' ELSE 'catalog_updated' END,
     p_correlation_id, pg_catalog.jsonb_build_object('changed_fields', pg_catalog.to_jsonb(v_fields))
-  );
-  RETURN v_id;
+  ));
+  RETURN private.catalog_command_result(v_id, v_audit_event_ids);
 END;
 $function$;
 
@@ -430,13 +448,14 @@ CREATE OR REPLACE FUNCTION public.catalog_save_channel(
   p_status text,
   p_correlation_id uuid
 )
-RETURNS uuid
+RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = ''
 AS $function$
 DECLARE
   v_id uuid;
+  v_audit_event_ids uuid[] := ARRAY[]::uuid[];
   v_old public.sales_channels%ROWTYPE;
   v_action text;
   v_fields text[];
@@ -467,20 +486,20 @@ BEGIN
     v_fields := ARRAY[]::text[];
     IF v_old.display_name IS DISTINCT FROM p_display_name THEN v_fields := pg_catalog.array_append(v_fields, 'display_name'); END IF;
     IF v_old.status IS DISTINCT FROM p_status THEN v_fields := pg_catalog.array_append(v_fields, 'status'); END IF;
-    IF cardinality(v_fields) = 0 THEN RETURN v_id; END IF;
+    IF cardinality(v_fields) = 0 THEN RETURN private.catalog_command_result(v_id, v_audit_event_ids); END IF;
     UPDATE public.sales_channels SET display_name = p_display_name, status = p_status, updated_at = pg_catalog.now()
     WHERE organization_id = p_organization_id AND id = p_id;
     v_action := CASE WHEN p_status = 'archived' AND v_old.status <> 'archived'
       THEN 'catalog.channel.archived' ELSE 'catalog.channel.updated' END;
   END IF;
 
-  PERFORM private.write_catalog_audit_event(
+  v_audit_event_ids := pg_catalog.array_append(v_audit_event_ids, private.write_catalog_audit_event(
     (SELECT auth.uid()), p_organization_id, NULL, NULL, v_action, 'sales_channel', v_id,
     CASE WHEN v_action LIKE '%.archived' THEN 'catalog_archived'
       WHEN v_action LIKE '%.created' THEN 'catalog_created' ELSE 'catalog_updated' END,
     p_correlation_id, pg_catalog.jsonb_build_object('changed_fields', pg_catalog.to_jsonb(v_fields))
-  );
-  RETURN v_id;
+  ));
+  RETURN private.catalog_command_result(v_id, v_audit_event_ids);
 END;
 $function$;
 
@@ -507,7 +526,7 @@ CREATE OR REPLACE FUNCTION public.catalog_save_offer(
   p_step_up_proof_id uuid,
   p_correlation_id uuid
 )
-RETURNS uuid
+RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = ''
@@ -524,6 +543,7 @@ DECLARE
   v_normal_fields text[] := ARRAY[]::text[];
   v_commercial_fields text[] := ARRAY[]::text[];
   v_price_history_version integer;
+  v_audit_event_ids uuid[] := ARRAY[]::uuid[];
   v_action text;
   v_id uuid;
   v_metadata jsonb;
@@ -666,11 +686,11 @@ BEGIN
         organization_id, channel_offer_id, version, amount, currency, actor_user_id, correlation_id
       ) VALUES (p_organization_id, v_id, 1, p_base_price, p_currency, v_actor, p_correlation_id);
     END IF;
-    PERFORM private.write_catalog_audit_event(
+    v_audit_event_ids := pg_catalog.array_append(v_audit_event_ids, private.write_catalog_audit_event(
       v_actor, p_organization_id, p_establishment_id, p_branch_id, 'catalog.offer.created', 'channel_offer', v_id,
       'catalog_created', p_correlation_id,
       pg_catalog.jsonb_build_object('changed_fields', pg_catalog.to_jsonb(v_normal_fields))
-    );
+    ));
   ELSE
     IF cardinality(v_normal_fields) > 0 OR cardinality(v_commercial_fields) > 0 THEN
       UPDATE public.channel_offers
@@ -684,7 +704,7 @@ BEGIN
           updated_at = pg_catalog.now()
       WHERE organization_id = p_organization_id AND id = v_id;
     ELSE
-      RETURN v_id;
+      RETURN private.catalog_command_result(v_id, v_audit_event_ids);
     END IF;
   END IF;
 
@@ -700,11 +720,11 @@ BEGIN
   IF cardinality(v_normal_fields) > 0 AND NOT v_is_create THEN
     v_action := CASE WHEN p_status = 'archived' AND v_old.status <> 'archived'
       THEN 'catalog.offer.archived' ELSE 'catalog.offer.updated' END;
-    PERFORM private.write_catalog_audit_event(
+    v_audit_event_ids := pg_catalog.array_append(v_audit_event_ids, private.write_catalog_audit_event(
       v_actor, p_organization_id, p_establishment_id, p_branch_id, v_action, 'channel_offer', v_id,
       CASE WHEN v_action = 'catalog.offer.archived' THEN 'catalog_archived' ELSE 'catalog_updated' END,
       p_correlation_id, pg_catalog.jsonb_build_object('changed_fields', pg_catalog.to_jsonb(v_normal_fields))
-    );
+    ));
   END IF;
 
   IF cardinality(v_commercial_fields) > 0 THEN
@@ -719,13 +739,13 @@ BEGIN
       'old_visibility', CASE WHEN v_is_create THEN NULL ELSE v_old.is_visible END,
       'new_visibility', p_is_visible
     );
-    PERFORM private.write_catalog_audit_event(
+    v_audit_event_ids := pg_catalog.array_append(v_audit_event_ids, private.write_catalog_audit_event(
       v_actor, p_organization_id, p_establishment_id, p_branch_id, v_action, 'channel_offer', v_id,
       'catalog_commercial_updated', p_correlation_id, v_metadata
-    );
+    ));
   END IF;
 
-  RETURN v_id;
+  RETURN private.catalog_command_result(v_id, v_audit_event_ids);
 END;
 $function$;
 
