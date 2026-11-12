@@ -1,29 +1,29 @@
 {
   "workOrder": "GMZ-IMPL-007",
-  "implementationCommit": "13ca0e309cd046bc8a67f05a3ded92325fa2567d",
-  "implementationTree": "47e0558c6902fc54341b1fbd981bcc0beb18ec43",
+  "implementationCommit": "0521de1ced13aa32a083bf9627a7aad7ab21b139",
+  "implementationTree": "e107499e1e8327752c05868d5789d475a6f199f2",
   "artifacts": [
     {
       "path": "catalog-owner-desktop-chromium-dark.png",
-      "sha256": "d23d0c31b113d0c89daba15f4d710e580d7ce8df80fd7befec6689d4f06c53c5",
+      "sha256": "63c2fff17a0f9072cb0531892a758a6baac48ae65f632cf5199c1b0cdfa13070",
       "viewport": "1440x1000",
       "theme": "dark"
     },
     {
       "path": "catalog-owner-desktop-chromium-light.png",
-      "sha256": "f75901443ee2527e4443b24e43192ef1fe18b461c7529dd574db2a165bdc454c",
+      "sha256": "f6454e523aa99e2155e4d68ff520dd2a35ba5bddd22c45cc019dfb4a812485ad",
       "viewport": "1440x1000",
       "theme": "light"
     },
     {
       "path": "catalog-owner-mobile-chromium-dark.png",
-      "sha256": "e48e6660a2e631f178d46567763644a823fe69252ed5c8ffc9986aeb835c7efb",
+      "sha256": "4649919e169cc9ecba932a9972bc5636529d82c346db57b1f3f15f3b78bbb42d",
       "viewport": "390x844",
       "theme": "dark"
     },
     {
       "path": "catalog-owner-mobile-chromium-light.png",
-      "sha256": "6c21902baf548ab76cbee8464d429cfec161f7579369b6f5f87b26733e99db30",
+      "sha256": "2e13830951a375a6270e5edc36c1bdeb5edd88384513d3e7184949262674206a",
       "viewport": "390x844",
       "theme": "light"
     }

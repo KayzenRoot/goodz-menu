@@ -8,10 +8,10 @@ Status: `EXECUTOR_REPORT / OBJECTIVE_AUDIT_PENDING`
 - Execution branch: `execution/gmz-impl-007-catalog-core-bound-20a63ab`.
 - Exact authorized base: `20a63ab8baa6f0776224c104656e20d05be5d6b0`.
 - Bind commit: `94dd542c8ef9039661884c00882d8f86a9eafd84`; its parent is the exact base above.
-- Implementation commit: `13ca0e309cd046bc8a67f05a3ded92325fa2567d`.
-- Implementation tree: `47e0558c6902fc54341b1fbd981bcc0beb18ec43`.
+- Latest implementation commit: `0521de1ced13aa32a083bf9627a7aad7ab21b139`.
+- Latest implementation tree: `e107499e1e8327752c05868d5789d475a6f199f2`.
 - The bound Context Lock reports `16/16` locked-source fingerprints matching the exact base. Its Checkpoint snapshot matches the bound branch (`279d6974b9a30c7393e2de568aa37941df783ced`); the pre-bind Checkpoint at the base intentionally differs. `.gef` is unchanged between base and bind commit.
-- The original implementation commit contains 29 source/test/config files (`4,845` insertions, `183` deletions). The follow-up implementation commit changes 12 in-scope code/test files (`224` insertions, `164` deletions): it returns durable audit-event IDs from catalog commands, validates and exposes those references in success feedback, adds matching SQL/Data API/E2E assertions, shares local Auth fixture helpers, fixes deterministic permission sorting, and raises only the MFA E2E timeout from 120s to 180s. It does not modify Scope, Checkpoint, Context Lock, or `.gef`.
+- The original implementation commit contains 29 source/test/config files (`4,845` insertions, `183` deletions). Commit `13ca0e309cd046bc8a67f05a3ded92325fa2567d` changes 12 in-scope code/test files (`224` insertions, `164` deletions): it returns durable audit-event IDs from catalog commands, validates and exposes those references in success feedback, adds matching SQL/Data API/E2E assertions, shares local Auth fixture helpers, fixes deterministic permission sorting, and raises only the MFA E2E timeout from 120s to 180s. Commit `0521de1ced13aa32a083bf9627a7aad7ab21b139` changes the command migration to centralize the identical category/product/variant/channel audit receipt logic in a private helper. Neither correction modifies Scope, Checkpoint, Context Lock, or `.gef`.
 - Current product credit remains `52/515` (`10.10%`). No credit or completion is claimed.
 
 ## Implementation summary
@@ -20,6 +20,7 @@ Status: `EXECUTOR_REPORT / OBJECTIVE_AUDIT_PENDING`
 - Added authenticated server commands using current user/membership authority, RBAC and the existing Admin Guard for privileged price/availability changes, plus durable audit/correlation with fail-closed behavior.
 - Added a minimal responsive catalog-management surface and generated Supabase types.
 - Catalog mutation RPCs return a JSON receipt containing the entity ID and persisted audit-event IDs; server actions validate UUIDs before reporting success, and the UI displays the audit references (or identifies a no-op as having no material change).
+- Category, product, variant, and sales-channel commands now use one private helper for audit insertion, reason-code mapping, changed-field metadata, and audit-ID collection. The helper is revoked from API roles; the public command transaction still fails closed if audit insertion fails.
 - Shared the sanitized local Supabase Auth fixture helpers between the Auth and catalog E2E fixtures; catalog cleanup removes synthetic memberships before their referenced roles and tenant rows.
 - Added migration, pgTAP, authenticated Data API, unit, fixture-cleanup, and desktop/mobile E2E coverage.
 - Updated Next.js, its ESLint plugin, Zod, Vitest and the pinned Vite peer override. The ESLint-braces guard now checks the installed plugin against the configured Next.js version.
@@ -56,24 +57,28 @@ The implementation tree above was validated locally against the dedicated isolat
 | `.next/static` client-bundle scan | PASS — 19 JS files; no service-role names/values or server-only audit-writer/catalog-admin-guard references |
 | `git diff --check` | PASS before the implementation commit |
 
-After the receipt/fixture correction, the executor reran `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `git diff --cached --check`; all passed, including 71/71 unit tests. The dedicated local pgTAP, catalog Data API, Auth Data API, DB lint/advisors, and desktop/mobile E2E results above were rerun after syncing the isolated test workdir to the current migration; desktop and mobile each passed 13/13. The build result above was produced on the same runtime implementation before the test/evidence-only follow-up; application runtime code did not change after that build.
+After the receipt/fixture correction, the executor reran `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `git diff --cached --check`; all passed, including 71/71 unit tests. After the private audit helper correction, the dedicated local workdir reset applied all five migrations, pgTAP passed 229/229, Catalog Data API passed 28/28, Auth Data API passed 59/59, DB lint/advisors passed, and desktop/mobile E2E each passed 13/13. The E2E suites completed against the implementation tree recorded in the screenshot manifest. TypeScript/application files did not change in the helper correction. The build result above was produced after the catalog receipt runtime changes and before this SQL-only helper refactor.
 
 ### Corrected attempts and observations
 
 - An initial E2E call did not set `GOODZ_SUPABASE_WORKDIR` and selected the wrong local project. It was discarded; all final E2E runs explicitly used the dedicated local workdir.
 - A subsequent E2E run exposed fixture cleanup failing because the catalog migration seeds tenant `sales_channels`. The fixture now deletes those synthetic rows before the organization; the final desktop and mobile runs above passed.
 - The MFA E2E scenario exceeded its prior 120s timeout while waiting for a TOTP rollover under local Docker load. Its timeout is now 180s; assertions and test steps are unchanged. The full desktop suite then passed 13/13.
+- At PR head `1869e12ec3180f6fb37e3effed659e28c7c8529a`, fresh SonarCloud analysis had removed the D Reliability condition but still reported 3.5% new-code duplication. The private helper correction in implementation commit `0521de1ced13aa32a083bf9627a7aad7ab21b139` addresses the confirmed duplicated audit block; fresh hosted analysis on the pushed corrected head remains pending.
 - E2E output included React hydration warnings mentioning an inline `caret-color: transparent` attribute. Source search and a standalone blank-page probe did not identify its origin. The warnings did not fail the final tests; their origin is unproven and disclosed for review.
 - Human keyboard, real-zoom, screen-reader, and visual sign-off remains pending. Browser screenshots and automated Axe/focus/responsive checks are evidence, not human approval.
 
 ## Visual artifacts
 
-Automated screenshots are stored beside `MANIFEST.json`; the manifest pins SHA-256, viewport, theme, and implementation tree `47e0558c6902fc54341b1fbd981bcc0beb18ec43`. Mobile light/dark and desktop light screenshots were inspected; no obvious clipping or horizontal overflow was found. The Next development indicator remains visible in the captures. This does not satisfy the pending human sign-off.
+Automated screenshots are stored beside `MANIFEST.json`; the manifest pins SHA-256, viewport, theme, and implementation tree `e107499e1e8327752c05868d5789d475a6f199f2`. Mobile light/dark and desktop light screenshots were inspected; no obvious clipping or horizontal overflow was found. The Next development indicator remains visible in the captures. This does not satisfy the pending human sign-off.
 
 ## Hosted gates and review
 
-- Implementation PR: #80, OPEN/DRAFT; the last published head before this follow-up was `dad0e90e55850967ba8b440b5b5594dfc792c5dd`.
-- At that prior PR head, SonarCloud reported 3.7% duplication and a D Reliability Rating. The follow-up commit above has not yet been published in this bundle snapshot; a fresh Sonar analysis on the final pushed head remains required.
+- Implementation PR: #80, OPEN/DRAFT; latest implementation code commit: `0521de1ced13aa32a083bf9627a7aad7ab21b139`.
+- Sonar history on the PR: head `dad0e90e55850967ba8b440b5b5594dfc792c5dd` reported 3.7% duplication and D Reliability; head `1869e12ec3180f6fb37e3effed659e28c7c8529a` reported 3.5% duplication only. The SQL helper correction resolved the measured duplication gate on implementation code head `0521de1ced13aa32a083bf9627a7aad7ab21b139`.
+- At implementation code head `0521de1ced13aa32a083bf9627a7aad7ab21b139`, SonarCloud completed with Quality Gate `PASS`, 2.3% new-code duplication, 0 security hotspots, 131 new issues, and 0.0% new-code coverage reported. The 131 issues remain subject to independent classification; this report does not claim they are all defects or all resolved.
+- At the same implementation head, Socket Security Project Report and PR Alerts both completed `PASS` with no new dependency alerts. After the evidence-only commit advances the PR head, fresh hosted analysis on that exact final head remains necessary.
+- Independent exact-head objective audit: PENDING. CodeRabbit CLI: PENDING.
 - Fresh exact-final-PR-head Socket Project Report/PR Alerts and CodeRabbit CLI: PENDING.
 - Independent exact-head objective audit: PENDING.
 - Human accessibility sign-off: PENDING.
