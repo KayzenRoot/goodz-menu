@@ -2,6 +2,16 @@
 
 Status: `EXECUTOR_REPORT / CORRECTION_REQUIRED_P2`
 
+## 2026-11-12 in-scope status-semantics correction
+
+- Following the PR's existing Sonar annotations for `typescript:S6819` on catalog status messages, commit `e39539d82809eb283726855f2a9d7b688a0fe8d1` replaces the catalog's `role="status"` paragraphs with native `<output>` elements. Shared feedback and step-up styles retain block layout. The E2E assertion now queries the implicit `status` role and checks the note class.
+- Exact runtime correction tree: `c026133c4d7fd50ba36f8e1ff440b45a8cb05b73`.
+- Exact-candidate checks: `git diff --check` PASS; `pnpm lint` PASS; `pnpm typecheck` PASS; `pnpm test` PASS (14 files, 71/71 tests); `pnpm build` PASS (8 routes).
+- The relevant catalog E2E flow ran against the built production server and the dedicated local Supabase project, one worker per run. Desktop: `pnpm test:e2e -- --config=.playwright-gmz-prod.config.ts --project=desktop-chromium tests/e2e/catalog.spec.ts` PASS (1/1). Mobile: same command with `--project=mobile-chromium` PASS (1/1). The temporary Playwright config only overrides `webServer.command` to `node scripts/start.mjs --hostname 127.0.0.1 --port 3100`; it was removed after the run. Each flow asserts the `status` role, keyboard focus order, responsive width, light/dark screenshots, and Axe WCAG 2.2 AA with zero violations.
+- The first cold desktop attempt and two development-server mobile attempts failed before catalog login completed; the browser trace showed native `/login` reloads without an Auth token request, and one mobile attempt reported a 16 MiB native allocation failure. A warmed desktop development attempt passed; final desktop and mobile production-server runs both passed. These development-server attempts are disclosed and are not counted as passes.
+- The four screenshots and `MANIFEST.json` were refreshed from these production-server runs. The manifest now pins runtime commit/tree `e39539d...` / `c026133...` and the new SHA-256 hashes. Local visual inspection found no obvious clipping; it is executor observation only.
+- Fresh hosted SonarCloud/Socket checks, CodeRabbit, and independent review of the new pushed exact HEAD remain pending. This local change does not claim the Sonar findings are cleared. The previous objective audit remains `CORRECTION REQUIRED — P2`; PR description reconciliation is still outstanding. Human keyboard, real zoom, screen-reader, and visual sign-off remain pending.
+
 ## Authority and exact source
 
 - Work Order: `GMZ-IMPL-007`, issue `#67`; only `GMZ-M06` catalog and `GMZ-M26` validation were executed.
@@ -74,7 +84,7 @@ After the receipt/fixture correction, the executor reran `pnpm lint`, `pnpm type
 
 ## Visual artifacts
 
-Automated screenshots are stored beside `MANIFEST.json`; the manifest pins SHA-256, viewport, theme, and implementation tree `e107499e1e8327752c05868d5789d475a6f199f2`. Mobile light/dark and desktop light screenshots were inspected; no obvious clipping or horizontal overflow was found. The Next development indicator remains visible in the captures. This does not satisfy the pending human sign-off.
+Automated screenshots are stored beside `MANIFEST.json`; the refreshed manifest pins SHA-256, viewport, theme, production capture runtime, and implementation commit/tree `e39539d82809eb283726855f2a9d7b688a0fe8d1` / `c026133c4d7fd50ba36f8e1ff440b45a8cb05b73`. Desktop and mobile light/dark captures were inspected; no obvious clipping or horizontal overflow was found. This executor observation does not satisfy the pending human sign-off.
 
 ## Hosted gates and review
 

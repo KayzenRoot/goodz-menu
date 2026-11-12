@@ -1,29 +1,30 @@
 {
   "workOrder": "GMZ-IMPL-007",
-  "implementationCommit": "0521de1ced13aa32a083bf9627a7aad7ab21b139",
-  "implementationTree": "e107499e1e8327752c05868d5789d475a6f199f2",
+  "implementationCommit": "e39539d82809eb283726855f2a9d7b688a0fe8d1",
+  "implementationTree": "c026133c4d7fd50ba36f8e1ff440b45a8cb05b73",
+  "captureRuntime": "production",
   "artifacts": [
     {
       "path": "catalog-owner-desktop-chromium-dark.png",
-      "sha256": "63c2fff17a0f9072cb0531892a758a6baac48ae65f632cf5199c1b0cdfa13070",
+      "sha256": "EE3B0D83C759FD192C24D7A901ADC863EE62252E53B46DA371D33156DFA73B08",
       "viewport": "1440x1000",
       "theme": "dark"
     },
     {
       "path": "catalog-owner-desktop-chromium-light.png",
-      "sha256": "f6454e523aa99e2155e4d68ff520dd2a35ba5bddd22c45cc019dfb4a812485ad",
+      "sha256": "B863D2410C40D435E3C5C4AAA22F492BD635FC8AB8EBE6CA542FB22A6E534B22",
       "viewport": "1440x1000",
       "theme": "light"
     },
     {
       "path": "catalog-owner-mobile-chromium-dark.png",
-      "sha256": "4649919e169cc9ecba932a9972bc5636529d82c346db57b1f3f15f3b78bbb42d",
+      "sha256": "0DA98FF397BE8817FFC9176A35587E2C1A4E8CC8ACD2941A770D537F57046C9D",
       "viewport": "390x844",
       "theme": "dark"
     },
     {
       "path": "catalog-owner-mobile-chromium-light.png",
-      "sha256": "2e13830951a375a6270e5edc36c1bdeb5edd88384513d3e7184949262674206a",
+      "sha256": "78FA84BB2DA35ECB23C513575EFDF7C3560A634039F7C13D011346FF308F015D",
       "viewport": "390x844",
       "theme": "light"
     }
