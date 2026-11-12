@@ -2,6 +2,19 @@
 
 Status: `EXECUTOR_REPORT / CORRECTION_REQUIRED_P2`
 
+## 2026-11-12 catalog refactor and final production E2E revalidation (executor report)
+
+- Exact code candidate: commit eb49c155d95f467430deb4110a9a1188487d5234, tree 1d135f79169db7c71307b81430a09264121c8c58. The refactor changes only src/app/app/catalog/actions.ts, src/app/app/catalog/page.tsx, and src/components/goodz/catalog-panel.tsx, all within the bound GMZ-M06/GMZ-M26 scope.
+- Exact authorized base remains 20a63ab8baa6f0776224c104656e20d05be5d6b0 (tree 6b6a0b3f9db083e213d6c032808034dc58427b73). The branch descends from this base. A fresh deterministic check on the candidate found all 16 Context Lock source fingerprints matching and the Checkpoint snapshot matching; the lock is BOUND_FOR_EXECUTION with codexAllowed=true for GMZ-M06/M26 only.
+- Main is now 73c8532511a32e00c37785b21f0a3c338cad2af4 after the governance-only PR #82 addition. None of the 16 locked source fingerprints changed. No Scope edit was made; the Scope edit is a separate Work Order and requires a new exact-base lock. No code merge, earned credit, Checkpoint promotion, remote Supabase use, or deployment occurred.
+- pnpm lint, pnpm typecheck, pnpm test (14 files, 71/71 tests), and pnpm build passed on the same source content as the exact code candidate. The code did not change after those checks.
+- Full production-server E2E on the dedicated local Supabase project passed 12/12 selected tests on desktop and 12/12 selected tests on mobile, one worker. Commands used the temporary .playwright-gmz-prod.config.ts, --timeout=180000, and --grep-invert 'local TOTP enrollment'. The signed-clock enrollment test was intentionally excluded because its test seam refuses NODE_ENV=production; it is not claimed as passed in these production runs, and the seam was not weakened.
+- The dedicated local Supabase reset completed before the runs. No remote Supabase project was used. The temporary Playwright config was removed after the runs.
+- Four GMZ-IMPL-007 production screenshots were regenerated and their SHA-256 values are recorded in .engineering/evidence/GMZ-IMPL-007/screenshots/MANIFEST.json, pinned to the code commit/tree above. Incidental captures regenerated in GMZ-IMPL-001 and GMZ-IMPL-004 were restored to their baseline; only the four in-scope catalog captures remain changed. An executor inspection of all four captures at 1440x1000 and 390x844 found no obvious clipping or horizontal overflow; this observation does not satisfy human visual or accessibility sign-off.
+- At publication preflight, PR #80 remained OPEN/DRAFT with remote head 69c24732013c7124088f57b6b77fb89e2a6cca14, and this code candidate was one commit ahead. Hosted checks observed on 69c were green but do not apply to the new candidate. The PR description, independent exact-head audit, CodeRabbit review, and fresh hosted checks must be reconciled after the evidence update is pushed.
+- The objective-audit disposition remains CORRECTION REQUIRED — P2 until a new exact-head review resolves the evidence/description mismatch and evaluates the locked Scope note. Human keyboard, real-zoom, screen-reader, and visual sign-off remains pending. The candidate is not ready for merge or promotion.
+
+
 ## 2026-11-12 exact-head hosted checks and independent review
 
 - Exact audited candidate: base `20a63ab8baa6f0776224c104656e20d05be5d6b0` (tree `6b6a0b3f9db083e213d6c032808034dc58427b73`) to PR #80 head `83431aafe000bc94d0e99c3790f9b2ecd675f0ae` (tree `34737d6ae8a81975d693bbd5abd14b445774f32a`). The independent reviewer confirmed base ancestry, a clean tree, and all 16 locked-source fingerprints matching.
