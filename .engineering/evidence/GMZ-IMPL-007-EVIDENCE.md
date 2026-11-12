@@ -1,6 +1,6 @@
 # GMZ-IMPL-007 — Evidence Bundle
 
-Status: `EXECUTOR_REPORT / OBJECTIVE_AUDIT_PENDING`
+Status: `EXECUTOR_REPORT / CORRECTION_REQUIRED_P2`
 
 ## Authority and exact source
 
@@ -10,6 +10,10 @@ Status: `EXECUTOR_REPORT / OBJECTIVE_AUDIT_PENDING`
 - Bind commit: `94dd542c8ef9039661884c00882d8f86a9eafd84`; its parent is the exact base above.
 - Latest implementation commit: `0521de1ced13aa32a083bf9627a7aad7ab21b139`.
 - Latest implementation tree: `e107499e1e8327752c05868d5789d475a6f199f2`.
+- The independent audit snapshot before this evidence correction was PR #80 HEAD `8259dd403761b4ba44f5ee780c90092c84e36c37`, tree `1566bea302ee39c5784891b535f45311b620048f`, based on `20a63ab8baa6f0776224c104656e20d05be5d6b0`. That exact-head audit returned `CORRECTION REQUIRED — P2` for the stale evidence status and the historical status note in `docs/source-pack/SCOPE.md:106`; it found no known CRITICAL/HIGH code defect. The audit did not independently execute the reported local test suites.
+- The accepted Scope table at `docs/source-pack/SCOPE.md:98` defers promotions. The merged GMZ-IMPL-007 amendment in PR #77 (`985151f62be6cb26a67bc1c70fac4b7eaf831bd5`) now explicitly excludes them from this Work Order (`.engineering/work-orders/GMZ-IMPL-007.md:43,77,82,122,237`). Scope line 106 still records the pre-amendment conflict as current. Scope is a locked Context Lock source in this execution; it was not edited. A separate governed source-maintenance action and fresh lock/review are required to remove that stale status note.
+- The PR description still points to the earlier `dad0e90e55850967ba8b440b5b5594dfc792c5dd` snapshot. The connected GitHub PR-description update was denied with HTTP 403 `Resource not accessible by integration`; it was not bypassed. A maintainer must update the PR description through an authorized path.
+- This evidence-only correction does not change implementation code. The hosted checks and independent audit must be refreshed on its pushed PR HEAD before any new exact-head disposition.
 - The bound Context Lock reports `16/16` locked-source fingerprints matching the exact base. Its Checkpoint snapshot matches the bound branch (`279d6974b9a30c7393e2de568aa37941df783ced`); the pre-bind Checkpoint at the base intentionally differs. `.gef` is unchanged between base and bind commit.
 - The original implementation commit contains 29 source/test/config files (`4,845` insertions, `183` deletions). Commit `13ca0e309cd046bc8a67f05a3ded92325fa2567d` changes 12 in-scope code/test files (`224` insertions, `164` deletions): it returns durable audit-event IDs from catalog commands, validates and exposes those references in success feedback, adds matching SQL/Data API/E2E assertions, shares local Auth fixture helpers, fixes deterministic permission sorting, and raises only the MFA E2E timeout from 120s to 180s. Commit `0521de1ced13aa32a083bf9627a7aad7ab21b139` changes the command migration to centralize the identical category/product/variant/channel audit receipt logic in a private helper. Neither correction modifies Scope, Checkpoint, Context Lock, or `.gef`.
 - Current product credit remains `52/515` (`10.10%`). No credit or completion is claimed.
@@ -64,7 +68,7 @@ After the receipt/fixture correction, the executor reran `pnpm lint`, `pnpm type
 - An initial E2E call did not set `GOODZ_SUPABASE_WORKDIR` and selected the wrong local project. It was discarded; all final E2E runs explicitly used the dedicated local workdir.
 - A subsequent E2E run exposed fixture cleanup failing because the catalog migration seeds tenant `sales_channels`. The fixture now deletes those synthetic rows before the organization; the final desktop and mobile runs above passed.
 - The MFA E2E scenario exceeded its prior 120s timeout while waiting for a TOTP rollover under local Docker load. Its timeout is now 180s; assertions and test steps are unchanged. The full desktop suite then passed 13/13.
-- At PR head `1869e12ec3180f6fb37e3effed659e28c7c8529a`, fresh SonarCloud analysis had removed the D Reliability condition but still reported 3.5% new-code duplication. The private helper correction in implementation commit `0521de1ced13aa32a083bf9627a7aad7ab21b139` addresses the confirmed duplicated audit block; fresh hosted analysis on the pushed corrected head remains pending.
+- At PR head `1869e12ec3180f6fb37e3effed659e28c7c8529a`, fresh SonarCloud analysis had removed the D Reliability condition but still reported 3.5% new-code duplication. The private helper correction in implementation commit `0521de1ced13aa32a083bf9627a7aad7ab21b139` addresses the confirmed duplicated audit block. Fresh hosted analysis later passed on PR HEAD `8259dd403761b4ba44f5ee780c90092c84e36c37`; a new analysis is required after this evidence-only correction advances the PR head.
 - E2E output included React hydration warnings mentioning an inline `caret-color: transparent` attribute. Source search and a standalone blank-page probe did not identify its origin. The warnings did not fail the final tests; their origin is unproven and disclosed for review.
 - Human keyboard, real-zoom, screen-reader, and visual sign-off remains pending. Browser screenshots and automated Axe/focus/responsive checks are evidence, not human approval.
 
@@ -74,15 +78,14 @@ Automated screenshots are stored beside `MANIFEST.json`; the manifest pins SHA-2
 
 ## Hosted gates and review
 
-- Implementation PR: #80, OPEN/DRAFT; latest implementation code commit: `0521de1ced13aa32a083bf9627a7aad7ab21b139`.
+- Implementation PR: #80, OPEN/DRAFT; latest implementation code commit: `0521de1ced13aa32a083bf9627a7aad7ab21b139`. The PR description remains stale as noted above.
 - Sonar history on the PR: head `dad0e90e55850967ba8b440b5b5594dfc792c5dd` reported 3.7% duplication and D Reliability; head `1869e12ec3180f6fb37e3effed659e28c7c8529a` reported 3.5% duplication only. The SQL helper correction resolved the measured duplication gate on implementation code head `0521de1ced13aa32a083bf9627a7aad7ab21b139`.
-- At implementation code head `0521de1ced13aa32a083bf9627a7aad7ab21b139`, SonarCloud completed with Quality Gate `PASS`, 2.3% new-code duplication, 0 security hotspots, 131 new issues, and 0.0% new-code coverage reported. The 131 issues remain subject to independent classification; this report does not claim they are all defects or all resolved.
-- At the same implementation head, Socket Security Project Report and PR Alerts both completed `PASS` with no new dependency alerts. After the evidence-only commit advances the PR head, fresh hosted analysis on that exact final head remains necessary.
-- Independent exact-head objective audit: PENDING. CodeRabbit CLI: PENDING.
-- Fresh exact-final-PR-head Socket Project Report/PR Alerts and CodeRabbit CLI: PENDING.
-- Independent exact-head objective audit: PENDING.
+- On PR HEAD `8259dd403761b4ba44f5ee780c90092c84e36c37`, all three hosted checks completed successfully: SonarCloud Code Analysis (`130932757328`, Quality Gate `PASS`, 2.3% new-code duplication, 0 security hotspots, 131 new issues, 0.0% new-code coverage); Socket PR Alerts (`130932598618`, no new dependency alerts); and Socket Project Report (`130932548829`). All reported this exact HEAD. The 131 Sonar issues are not declared false positives or all resolved.
+- Independent exact-head objective audit at `8259dd403761b4ba44f5ee780c90092c84e36c37`: `CORRECTION REQUIRED — P2`. The audit found no known CRITICAL/HIGH code defect, confirmed the prior audit-event receipt finding is mitigated, and identified the evidence-head/status mismatch plus the stale Scope line 106 note. Local test output remains executor-reported evidence, not independent test execution.
+- CodeRabbit CLI: authenticated and available; the required review on the pushed evidence-corrected exact PR HEAD remains pending.
+- After this evidence-only correction is pushed, fresh exact-head hosted checks, CodeRabbit review, and independent objective audit are required. No code tests are repeated unless code or test inputs change.
 - Human accessibility sign-off: PENDING.
-- Therefore disposition remains `OBJECTIVE_AUDIT_PENDING`; this bundle does not claim `READY_FOR_OBJECTIVE_AUDIT`.
+- Therefore disposition remains `CORRECTION_REQUIRED_P2`; this bundle does not claim `READY_FOR_OBJECTIVE_AUDIT`.
 
 ## Risks and limitations
 
@@ -96,4 +99,4 @@ None now. The admitted maximum remains `GMZ-M06: 7` plus `GMZ-M26: 2` (`9/515`) 
 
 ## Stop condition
 
-`GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT` is not yet reached. Continue through the draft implementation PR, fresh hosted gates, independent exact-head audit, and any in-scope correction. Stop without merge or deployment.
+`GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT` is not yet reached. The exact-head auditor returned `CORRECTION REQUIRED — P2`; refresh the pushed evidence-only PR head's hosted checks, CodeRabbit review, and independent audit. The stale Scope note is a locked-source governance correction and remains outside this execution bind. The PR body also needs a maintainer update through an authorized GitHub path. Keep human accessibility sign-off pending. Stop without merge, Checkpoint promotion, issue closure, or deployment.
