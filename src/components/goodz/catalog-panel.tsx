@@ -14,6 +14,7 @@ import {
   type CatalogActionState,
 } from "@/app/app/catalog/actions";
 import { TotpChallengeForm } from "@/components/goodz/totp-challenge-form";
+import { filterCatalogData, type CatalogFilterResult, type CatalogNameMaps } from "@/lib/catalog/catalog-filter";
 import type { Database } from "@/lib/supabase/database.types";
 
 type Category = Pick<Database["public"]["Tables"]["product_categories"]["Row"], "id" | "organization_id" | "parent_id" | "name" | "description" | "status">;
@@ -91,44 +92,7 @@ export function CatalogPanel(props: CatalogPanelProps) {
   );
 }
 
-type CatalogNameMaps = Readonly<{
-  productNames: Map<string, string>;
-  variantNames: Map<string, string>;
-  channelNames: Map<string, string>;
-}>;
-
-type FilteredCatalogData = Readonly<{
-  categories: Category[];
-  products: Product[];
-  variants: Variant[];
-  offers: Offer[];
-}>;
-
-function filterCatalogData(
-  props: CatalogPanelProps,
-  needle: string,
-  names: CatalogNameMaps,
-): FilteredCatalogData {
-  if (!needle) return {
-    categories: props.categories,
-    products: props.products,
-    variants: props.variants,
-    offers: props.offers,
-  };
-  return {
-    categories: props.categories.filter(({ name, description }) => matches(needle, name, description)),
-    products: props.products.filter(({ name, description }) => matches(needle, name, description)),
-    variants: props.variants.filter(({ name, size_label, flavor_label }) => matches(needle, name, size_label, flavor_label)),
-    offers: props.offers.filter((offer) => matches(
-      needle,
-      offer.title_override,
-      offer.description_override,
-      offer.product_id ? names.productNames.get(offer.product_id) : null,
-      offer.variant_id ? names.variantNames.get(offer.variant_id) : null,
-      names.channelNames.get(offer.sales_channel_id),
-    )),
-  };
-}
+type FilteredCatalogData = CatalogFilterResult<Category, Product, Variant, Offer>;
 
 function CatalogScopeSelector({ props }: Readonly<{ props: CatalogPanelProps }>) {
   return (
@@ -284,7 +248,7 @@ function OrganizationCatalogView({ props, names, visible, search, onSearch, tena
       />
       <CategorySection props={props} categories={visible.categories} />
       <ProductSection props={props} products={visible.products} />
-      <VariantSection props={props} products={visible.products} variants={visible.variants} />
+      <VariantSection props={props} products={visible.variantProducts} variants={visible.variants} />
       <CatalogOfferSection props={props} names={names} offers={visible.offers} />
     </>
   );
@@ -926,8 +890,4 @@ function availabilityLabel(value: Offer["availability_state"]): string {
   if (value === "available") return "Disponível";
   if (value === "unavailable") return "Indisponível";
   return "Desconhecida";
-}
-
-function matches(needle: string, ...values: (string | null | undefined)[]) {
-  return values.some((value) => value?.toLocaleLowerCase("pt-BR").includes(needle));
 }
