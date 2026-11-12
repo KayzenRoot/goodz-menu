@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "goodz.context-lock",
+  "workOrder": "GMZ-SP-011",
+  "issue": 81,
+  "repository": "KayzenRoot/goodz-menu",
+  "gefVersion": "1.1.1",
+  "risk": "ELEVATED",
+  "baseBranch": "main",
+  "baseSha": "73c8532511a32e00c37785b21f0a3c338cad2af4",
+  "baseTreeSha": "d34dd3b5fb5009f099aa0bbc5e061f26e0b3090b",
+  "candidateBranch": "codex/gmz-sp011-context-lock-candidate",
+  "status": "BOUND_FOR_SINGLE_PARAGRAPH_EXECUTION",
+  "scopeEditAuthorization": "AUTHORIZED_BY_MAINTAINER",
+  "maintainerAuthorization": {
+    "source": "Explicit response to the GMZ-SP-011 Scope-edit approval prompt in the current Codex conversation",
+    "date": "2026-11-12",
+    "path": "docs/source-pack/SCOPE.md",
+    "regionHeading": "Active Work Order conflict",
+    "bounds": "Replace only this paragraph with the approved text. No merge, issue closure, Checkpoint or credit change, promotion, or deployment."
+  },
+  "admissionEvidence": {
+    "pullRequest": 82,
+    "state": "MERGED",
+    "mergeCommit": "73c8532511a32e00c37785b21f0a3c338cad2af4",
+    "note": "PR #82 admits GMZ-SP-011 only; it does not authorize a Scope edit."
+  },
+  "writeAllowed": [
+    {
+      "path": "docs/source-pack/SCOPE.md",
+      "regionHeading": "Active Work Order conflict",
+      "preimageGitBlobSha": "b6aa3380cfc344813b0d58cffd549cbc3d9c339c",
+      "constraint": "Replace only this single paragraph; preserve every other byte and all classifications/denominator."
+    }
+  ],
+  "writeForbidden": [
+    "all other Scope content and classifications or denominator",
+    "Checkpoint, Decisions Ledger, earned credit, or the active GMZ-IMPL-007 Context Lock",
+    "product implementation, schema, migrations, product tests, CI, dependencies, deployment configuration",
+    "issue closure, merge, promotion, release, deployment, remote Supabase",
+    "rebinding or altering the separate GMZ-IMPL-007 execution branch"
+  ],
+  "lockedSources": [
+    { "path": ".engineering/CHECKPOINT.json", "gitBlobSha": "77b8b2a7dc88d1d97f01e5889f8bf5d2d40a95e8" },
+    { "path": ".engineering/CHECKPOINT.md", "gitBlobSha": "0c682054ebf1dada74976a5c9a7296c8cf29adcf" },
+    { "path": ".engineering/SOURCE-HIERARCHY.md", "gitBlobSha": "189109435a264fe5a7306d6d10fc3ea62145dab2" },
+    { "path": ".engineering/DECISIONS-LEDGER.md", "gitBlobSha": "bf34c92e7c80562dbf5b552fe3830551010b44ab" },
+    { "path": ".engineering/MODULE-MAP.md", "gitBlobSha": "c70a041da273787eb0d6f3ce43a6bc3a7260eeb0" },
+    { "path": "docs/source-pack/BACKLOG.md", "gitBlobSha": "16085c637166bfa1c450b560ed6f404beb594ba3" },
+    { "path": "docs/source-pack/REQUIREMENTS.md", "gitBlobSha": "2e179c00446980a481e56dd02fe71865a7237f59" },
+    { "path": "docs/source-pack/ARCHITECTURE.md", "gitBlobSha": "a82ff873264a1ba77fa37e6914f321a48e0a75f5" },
+    { "path": "docs/source-pack/DATA-MODEL.md", "gitBlobSha": "51d59b4d4b96dd5ccd246a55d34d9172d9b82eb0" },
+    { "path": "docs/source-pack/API-INTEGRATION-CONTRACTS.md", "gitBlobSha": "4dd9b6f4648d04ac4539a4d093e662d430a239cc" },
+    { "path": "docs/source-pack/SECURITY.md", "gitBlobSha": "24e98825a54313a47e46abc32661f4ebaa6894d7" },
+    { "path": "docs/source-pack/TEST-BENCHMARK-PLAN.md", "gitBlobSha": "6e9002690fe8055d7da0936f3d323929d510158c" },
+    { "path": "docs/source-pack/DEFINITION-OF-DONE.md", "gitBlobSha": "a3d1652a7dc9edfabafcb98151b9db8aed417888" },
+    { "path": "docs/source-pack/DEPLOYMENT.md", "gitBlobSha": "b8f730179337a5c26ba34cdf9da43dab4b5e3b83" },
+    { "path": ".engineering/DATA-OWNERSHIP-MATRIX.md", "gitBlobSha": "0deb322cfa871f93410810ab1fc82933aca05213" },
+    { "path": ".engineering/SECURITY-CONTROL-MATRIX.md", "gitBlobSha": "e8888a50cb68230822f6c1352f63d33d19705df7" },
+    { "path": ".engineering/TEST-COVERAGE-MATRIX.md", "gitBlobSha": "10eb7a6afe1f8349b5a0f264ed46cbb96257cb98" },
+    { "path": ".engineering/PROGRESS-LEDGER.md", "gitBlobSha": "cd4a90f113fb7b7aa0f28768b6679da4962d5a4e" },
+    { "path": ".engineering/work-orders/GMZ-IMPL-007.md", "gitBlobSha": "1a412280dcc4f797dca03962f488fa3c053a1bc0" },
+    { "path": ".engineering/evidence/GMZ-IMPL-007-CD-002-ADMISSION.md", "gitBlobSha": "bab62cfa7d966494053b905c1b609aedea1f8beb" },
+    { "path": ".engineering/context-locks/GMZ-IMPL-007.json", "gitBlobSha": "ad21edae12ceb633027c1ab32f3ae6f7a0dda8fa" },
+    { "path": ".engineering/work-orders/GMZ-SP-010.md", "gitBlobSha": "3f9936b27280004963636af1eb2160ec31b3cf27" },
+    { "path": ".engineering/work-orders/GMZ-SP-011.md", "gitBlobSha": "51b3ae064b1fbc7747afb9e0ed2425d923dcf5f7" },
+    { "path": ".engineering/GEF-FAST-TRACK.md", "gitBlobSha": "47f063548918626af0f69ee90059bd7208ac4625" },
+    { "path": ".engineering/adrs/ADR-0005-GEF-FAST-TRACK-PARALLEL-DELIVERY.md", "gitBlobSha": "23744c36943587900a40416c3ccb884c068dd5e8" }
+  ],
+  "preflight": {
+    "remoteMainSha": "73c8532511a32e00c37785b21f0a3c338cad2af4",
+    "remoteMainTreeSha": "d34dd3b5fb5009f099aa0bbc5e061f26e0b3090b",
+    "worktreeWasCleanAtPreparation": true,
+    "status": "PASS_AT_BASE_PRE_EDIT",
+    "lockedSourcesMatched": 26,
+    "scopePreimageGitBlobSha": "b6aa3380cfc344813b0d58cffd549cbc3d9c339c",
+    "maintainerAuthorizationReceived": true,
+    "checkedBeforeScopeWrite": [
+      "origin/main, HEAD, and base tree equal the exact authorized base.",
+      "All locked source fingerprints match origin/main.",
+      "The current Scope blob matches the recorded preimage.",
+      "PR #82 is MERGED as the exact admitted Work Order record; issue #81 remains open."
+    ]
+  },
+  "downstream": "If the Scope paragraph is later merged, rebind GMZ-IMPL-007 to the new exact main base before further execution or objective-audit progression.",
+  "stopCondition": "GMZ_SP_011_SOURCE_NOTE_RECONCILIATION_READY_FOR_OBJECTIVE_AUDIT"
+}
