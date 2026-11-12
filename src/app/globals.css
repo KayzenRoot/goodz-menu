@@ -184,12 +184,12 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .catalog-save-button:hover:not(:disabled) { filter: brightness(.94); transform: translateY(-1px); }
 .catalog-save-button:disabled { cursor: wait; opacity: .7; }
 .catalog-action-feedback { display: grid; gap: 8px; }
-.catalog-form-success, .catalog-form-error, .catalog-form-note, .catalog-alert { margin: 0; padding: 10px 12px; border: 1px solid var(--border-subtle); border-radius: 9px; font-size: 10px; line-height: 1.55; overflow-wrap: anywhere; }
+.catalog-form-success, .catalog-form-error, .catalog-form-note, .catalog-alert { display: block; margin: 0; padding: 10px 12px; border: 1px solid var(--border-subtle); border-radius: 9px; font-size: 10px; line-height: 1.55; overflow-wrap: anywhere; }
 .catalog-form-success { border-color: color-mix(in srgb, var(--success), var(--border-subtle) 65%); background: color-mix(in srgb, var(--success), var(--surface) 94%); color: var(--success); }
 .catalog-form-error, .catalog-alert { border-color: color-mix(in srgb, var(--danger), var(--border-subtle) 62%); background: color-mix(in srgb, var(--danger), var(--surface) 94%); color: var(--danger); }
 .catalog-form-note { border-color: color-mix(in srgb, var(--warning), var(--border-subtle) 62%); background: color-mix(in srgb, var(--warning), var(--surface) 95%); color: var(--warning); }
 .catalog-step-up { display: grid; gap: 11px; margin-top: 11px; padding: 14px; border: 1px dashed color-mix(in srgb, var(--warning), var(--border-strong) 40%); border-radius: 11px; background: color-mix(in srgb, var(--warning), var(--surface) 97%); }
-.catalog-step-up > p { margin: 0; color: var(--text-secondary); font-size: 10px; line-height: 1.6; }
+.catalog-step-up > p, .catalog-step-up-status { display: block; margin: 0; color: var(--text-secondary); font-size: 10px; line-height: 1.6; }
 .catalog-auth-form { display: grid; gap: 12px; }
 .catalog-auth-form .catalog-save-button { justify-self: start; }
 .catalog-offer-card { border-top: 3px solid var(--accent); }

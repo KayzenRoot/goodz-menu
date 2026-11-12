@@ -624,7 +624,7 @@ function OfferForm({
               onVerified={() => setTotpVerified(true)}
               buttonLabel="Validar código e depois salvar novamente"
             />
-          ) : verifiedFactorIds[0] ? <p role="status">Código validado. Envie a oferta novamente para concluir a alteração.</p> : <p>Configure um fator autenticador em <Link href="/app/security">Segurança</Link>.</p>}
+          ) : verifiedFactorIds[0] ? <output className="catalog-step-up-status">Código validado. Envie a oferta novamente para concluir a alteração.</output> : <p>Configure um fator autenticador em <Link href="/app/security">Segurança</Link>.</p>}
         </div>
       ) : null}
       {state?.kind === "reauthentication_required" ? (
@@ -634,7 +634,7 @@ function OfferForm({
             <div className="auth-field"><label htmlFor={`offer-password-${offer.id}`}>Senha da conta</label><input id={`offer-password-${offer.id}`} name="reauth-password" type="password" autoComplete="current-password" required /></div>
             <button className="catalog-save-button" type="submit" disabled={reauthenticationPending}>{reauthenticationPending ? "Confirmando…" : "Confirmar identidade"}</button>
           </form>
-          {reauthentication?.kind === "reauthenticated" ? <p role="status">Identidade confirmada. Envie a oferta novamente para concluir a alteração.</p> : null}
+          {reauthentication?.kind === "reauthenticated" ? <output className="catalog-step-up-status">Identidade confirmada. Envie a oferta novamente para concluir a alteração.</output> : null}
           {reauthentication?.kind === "denied" ? <p className="catalog-form-error" role="alert">Não foi possível confirmar a identidade.</p> : null}
         </div>
       ) : null}
@@ -645,12 +645,12 @@ function OfferForm({
 
 function ActionFeedback({ state }: Readonly<{ state: CatalogActionState }>) {
   if (!state) return null;
-  if (state.kind === "saved") return <p className="catalog-form-success" role="status">Salvo. Código de atendimento: {state.correlationId}. Referências de auditoria: {state.auditEventIds.length ? state.auditEventIds.join(", ") : "sem alteração material"}.</p>;
+  if (state.kind === "saved") return <output className="catalog-form-success">Salvo. Código de atendimento: {state.correlationId}. Referências de auditoria: {state.auditEventIds.length ? state.auditEventIds.join(", ") : "sem alteração material"}.</output>;
   if (state.kind === "invalid") return <p className="catalog-form-error" role="alert">Revise os campos e as relações informadas. Código: {state.correlationId}</p>;
   if (state.kind === "denied") return <p className="catalog-form-error" role="alert">A alteração não foi autorizada para o seu escopo atual. Código: {state.correlationId}</p>;
   if (state.kind === "failed") return <p className="catalog-form-error" role="alert">Não foi possível concluir a alteração. Nenhuma confirmação foi retornada. Código: {state.correlationId}</p>;
-  if (state.kind === "step_up_required") return <p className="catalog-form-note" role="status">Verificação recente em duas etapas necessária. Código: {state.correlationId}</p>;
-  if (state.kind === "reauthentication_required") return <p className="catalog-form-note" role="status">Uma confirmação recente da senha é necessária. Código: {state.correlationId}</p>;
+  if (state.kind === "step_up_required") return <output className="catalog-form-note">Verificação recente em duas etapas necessária. Código: {state.correlationId}</output>;
+  if (state.kind === "reauthentication_required") return <output className="catalog-form-note">Uma confirmação recente da senha é necessária. Código: {state.correlationId}</output>;
   return <p className="catalog-form-error" role="alert">Configure um fator autenticador antes de continuar. Código: {state.correlationId}</p>;
 }
 

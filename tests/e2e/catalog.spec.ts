@@ -131,7 +131,9 @@ test("catalog owner flow keeps canonical product data separate and gates commerc
   const deniedCorrelationId = randomUUID();
   await page.setExtraHTTPHeaders({ "x-request-id": deniedCorrelationId });
   await mainOffer.getByRole("button", { name: "Salvar oferta" }).click();
-  await expect(mainOffer.locator(".catalog-form-note")).toContainText("Verificação recente em duas etapas necessária", { timeout: 20_000 });
+  const stepUpNotice = mainOffer.getByRole("status").filter({ hasText: "Verificação recente em duas etapas necessária" });
+  await expect(stepUpNotice).toBeVisible({ timeout: 20_000 });
+  await expect(stepUpNotice).toHaveClass(/catalog-form-note/);
   await expect(mainOffer.getByRole("heading", { name: "Confirme a verificação em duas etapas" })).toBeVisible();
   await expect(mainOffer.locator(".catalog-step-up")).toContainText("Configure um fator autenticador");
   await expect(mainOffer.locator(".catalog-form-note")).not.toContainText(/SQL|PostgreSQL|stack|exception|service.role/i);
