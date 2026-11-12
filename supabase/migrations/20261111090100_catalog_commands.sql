@@ -49,6 +49,34 @@ $function$;
 REVOKE ALL ON FUNCTION private.catalog_command_result(uuid, uuid[])
   FROM PUBLIC, anon, authenticated, service_role;
 
+CREATE OR REPLACE FUNCTION private.append_catalog_audit_event(
+  p_event_ids uuid[],
+  p_organization_id uuid,
+  p_action text,
+  p_target_type text,
+  p_target_id uuid,
+  p_correlation_id uuid,
+  p_changed_fields text[]
+)
+RETURNS uuid[]
+LANGUAGE sql
+VOLATILE
+SET search_path = ''
+AS $function$
+  SELECT pg_catalog.array_append(
+    COALESCE(p_event_ids, ARRAY[]::uuid[]),
+    private.write_catalog_audit_event(
+      (SELECT auth.uid()), p_organization_id, NULL, NULL, p_action, p_target_type, p_target_id,
+      CASE WHEN p_action LIKE '%.archived' THEN 'catalog_archived'
+        WHEN p_action LIKE '%.created' THEN 'catalog_created' ELSE 'catalog_updated' END,
+      p_correlation_id, pg_catalog.jsonb_build_object('changed_fields', pg_catalog.to_jsonb(p_changed_fields))
+    )
+  );
+$function$;
+
+REVOKE ALL ON FUNCTION private.append_catalog_audit_event(uuid[], uuid, text, text, uuid, uuid, text[])
+  FROM PUBLIC, anon, authenticated, service_role;
+
 CREATE OR REPLACE FUNCTION public.append_catalog_step_up_event(
   p_actor_user_id uuid,
   p_organization_id uuid,
@@ -269,12 +297,9 @@ BEGIN
       THEN 'catalog.category.archived' ELSE 'catalog.category.updated' END;
   END IF;
 
-  v_audit_event_ids := pg_catalog.array_append(v_audit_event_ids, private.write_catalog_audit_event(
-    (SELECT auth.uid()), p_organization_id, NULL, NULL, v_action, 'product_category', v_id,
-    CASE WHEN v_action LIKE '%.archived' THEN 'catalog_archived'
-      WHEN v_action LIKE '%.created' THEN 'catalog_created' ELSE 'catalog_updated' END,
-    p_correlation_id, pg_catalog.jsonb_build_object('changed_fields', pg_catalog.to_jsonb(v_fields))
-  ));
+  v_audit_event_ids := private.append_catalog_audit_event(
+    v_audit_event_ids, p_organization_id, v_action, 'product_category', v_id, p_correlation_id, v_fields
+  );
   RETURN private.catalog_command_result(v_id, v_audit_event_ids);
 END;
 $function$;
@@ -347,12 +372,9 @@ BEGIN
       THEN 'catalog.product.archived' ELSE 'catalog.product.updated' END;
   END IF;
 
-  v_audit_event_ids := pg_catalog.array_append(v_audit_event_ids, private.write_catalog_audit_event(
-    (SELECT auth.uid()), p_organization_id, NULL, NULL, v_action, 'product', v_id,
-    CASE WHEN v_action LIKE '%.archived' THEN 'catalog_archived'
-      WHEN v_action LIKE '%.created' THEN 'catalog_created' ELSE 'catalog_updated' END,
-    p_correlation_id, pg_catalog.jsonb_build_object('changed_fields', pg_catalog.to_jsonb(v_fields))
-  ));
+  v_audit_event_ids := private.append_catalog_audit_event(
+    v_audit_event_ids, p_organization_id, v_action, 'product', v_id, p_correlation_id, v_fields
+  );
   RETURN private.catalog_command_result(v_id, v_audit_event_ids);
 END;
 $function$;
@@ -426,12 +448,9 @@ BEGIN
       THEN 'catalog.variant.archived' ELSE 'catalog.variant.updated' END;
   END IF;
 
-  v_audit_event_ids := pg_catalog.array_append(v_audit_event_ids, private.write_catalog_audit_event(
-    (SELECT auth.uid()), p_organization_id, NULL, NULL, v_action, 'product_variant', v_id,
-    CASE WHEN v_action LIKE '%.archived' THEN 'catalog_archived'
-      WHEN v_action LIKE '%.created' THEN 'catalog_created' ELSE 'catalog_updated' END,
-    p_correlation_id, pg_catalog.jsonb_build_object('changed_fields', pg_catalog.to_jsonb(v_fields))
-  ));
+  v_audit_event_ids := private.append_catalog_audit_event(
+    v_audit_event_ids, p_organization_id, v_action, 'product_variant', v_id, p_correlation_id, v_fields
+  );
   RETURN private.catalog_command_result(v_id, v_audit_event_ids);
 END;
 $function$;
@@ -493,12 +512,9 @@ BEGIN
       THEN 'catalog.channel.archived' ELSE 'catalog.channel.updated' END;
   END IF;
 
-  v_audit_event_ids := pg_catalog.array_append(v_audit_event_ids, private.write_catalog_audit_event(
-    (SELECT auth.uid()), p_organization_id, NULL, NULL, v_action, 'sales_channel', v_id,
-    CASE WHEN v_action LIKE '%.archived' THEN 'catalog_archived'
-      WHEN v_action LIKE '%.created' THEN 'catalog_created' ELSE 'catalog_updated' END,
-    p_correlation_id, pg_catalog.jsonb_build_object('changed_fields', pg_catalog.to_jsonb(v_fields))
-  ));
+  v_audit_event_ids := private.append_catalog_audit_event(
+    v_audit_event_ids, p_organization_id, v_action, 'sales_channel', v_id, p_correlation_id, v_fields
+  );
   RETURN private.catalog_command_result(v_id, v_audit_event_ids);
 END;
 $function$;
