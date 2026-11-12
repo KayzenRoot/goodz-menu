@@ -1,6 +1,6 @@
 # GMZ-IMPL-007 — Evidence Bundle
 
-Status: `EXECUTOR_REPORT / OBJECTIVE_AUDIT_PENDING` — tested code candidate `77286acf36fc15e357d14e793e469f383ec5fe52` (tree `3162bdcb3287ec4ef4e883be21e325aefb310ea0`) is published on PR #80. The last completed hosted-analysis snapshot recorded here is PR head `d476af0e26c12a47696d45bfdcd5281e87953ffa` (tree `f01cc506ae4df4c52f744341917260ba4617150a`): Quality Gate `OK`, 0 OPEN CRITICAL/BLOCKER or HIGH-impact issues, 29 OPEN code smells (21 MAJOR, 8 MINOR), 0 BUG/VULNERABILITY, and 0 `plsql:S1192`. Criterion 30 was satisfied at that analyzed head. The independent review at that snapshot returned `CORRECTION REQUIRED — P2` for Evidence Bundle/current-state reconciliation, with no known CRITICAL/HIGH code defect. This bundle revision reconciles that d476 evidence snapshot; current checks and independent disposition must be read from the live exact PR head. CodeRabbit response and human accessibility sign-off remain pending; no objective-audit approval is claimed.
+Status: EXECUTOR_REPORT / PRIOR EXACT-HEAD AUDIT APPROVED / EVIDENCE FOLLOW-UP PENDING REVIEW — prior PR #80 HEAD 285176710efe2dfa4136f024467166e674a71052 / tree 532117694ac848c32c52e2d167db70009ff49531 passed independent read-only audit with no known CRITICAL/HIGH defect. This follow-up corrects the screenshot-manifest implementation pointer and records that audit; neither the prior audit nor its hosted checks covers the new documentation HEAD. The manifest implementation commit/tree are eb49c155d95f467430deb4110a9a1188487d5234 / 1d135f79169db7c71307b81430a09264121c8c58, verified against the manifest and PNG hashes below. CodeRabbit remains unavailable to the authenticated KayzenRoot organization with HTTP 403 Invalid organization; human accessibility sign-off remains pending. No objective-audit approval is claimed for this follow-up HEAD.
 
 ## 2026-11-12 SQL literal remediation and local revalidation (executor report)
 
@@ -127,7 +127,7 @@ After the receipt/fixture correction, the executor reran `pnpm lint`, `pnpm type
 
 ## Visual artifacts
 
-Automated screenshots are stored beside `MANIFEST.json`; the refreshed manifest pins SHA-256, viewport, theme, production capture runtime, and implementation commit/tree `e39539d82809eb283726855f2a9d7b688a0fe8d1` / `c026133c4d7fd50ba36f8e1ff440b45a8cb05b73`. Desktop and mobile light/dark captures were inspected; no obvious clipping or horizontal overflow was found. This executor observation does not satisfy the pending human sign-off.
+Automated screenshots are stored beside MANIFEST.json; the refreshed manifest pins SHA-256, viewport, theme, production capture runtime, and implementation commit/tree eb49c155d95f467430deb4110a9a1188487d5234 / 1d135f79169db7c71307b81430a09264121c8c58. Desktop and mobile light/dark captures were inspected; no obvious clipping or horizontal overflow was found. This executor observation does not satisfy the pending human sign-off.
 
 ## Historical hosted-gate/review snapshot — PR head `83431aafe000bc94d0e99c3790f9b2ecd675f0ae` (superseded)
 
@@ -139,6 +139,15 @@ Automated screenshots are stored beside `MANIFEST.json`; the refreshed manifest 
 - At that historical snapshot, fresh checks and independent audit were required after publication. The checks later completed at `d476af0`; that head's audit then identified the stale status statements documented here. Code tests are not repeated for the Evidence Bundle-only correction because code and test inputs do not change.
 - Human accessibility sign-off: PENDING.
 - The disposition at `83431a` was `CORRECTION_REQUIRED_P2`; this historical snapshot is not the current exact-head audit result.
+
+## 2026-11-12 latest live exact-head snapshot before this evidence follow-up
+
+- Exact PR #80 head/tree: 285176710efe2dfa4136f024467166e674a71052 / 532117694ac848c32c52e2d167db70009ff49531; exact authorized base remains 20a63ab8baa6f0776224c104656e20d05be5d6b0 / 6b6a0b3f9db083e213d6c032808034dc58427b73.
+- At that exact head, SonarCloud Code Analysis completed successfully with Quality Gate PASS; its check reported 29 new issues, 0 accepted issues, 0 security hotspots, 2.2% duplication, and 0.0% new-code coverage. Socket Security Pull Request Alerts completed successfully with no new dependency alerts; Socket Security Project Report completed successfully.
+- Independent exact-head audit of 2851767 returned APPROVED, with no known CRITICAL/HIGH. The auditor verified the active base/tree, tested code/tree, recorded test counts, screenshot manifest, and corrected historical f50df65 wording. The audit was read-only; it did not rerun product tests or submit a GitHub review.
+- The live screenshot manifest pins implementation commit/tree eb49c155d95f467430deb4110a9a1188487d5234 / 1d135f79169db7c71307b81430a09264121c8c58. Recomputed SHA-256 values matched all four desktop/mobile light/dark PNG entries. This supersedes the manifest pointer stated in the older historical review at 83431a.
+- coderabbit auth status --agent reported authenticated as KayzenRoot, but coderabbit review --agent --base-commit 20a63ab8baa6f0776224c104656e20d05be5d6b0 -c AGENTS.md failed with HTTP 403 Invalid organization (FORBIDDEN, vsCode.subscribeToEvents). No fallback review or bypass was used; CodeRabbit remains pending.
+- Human keyboard, real-zoom, screen-reader, and visual sign-off remains pending as requested. This evidence-only correction changes no product code or test input; product tests were not rerun. The resulting new PR HEAD requires fresh exact-head checks and independent review.
 
 ## Risks and limitations
 
@@ -152,4 +161,4 @@ None now. The admitted maximum remains `GMZ-M06: 7` plus `GMZ-M26: 2` (`9/515`) 
 
 ## Stop condition
 
-`GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT` is not reached by the d476 review. At exact PR head `d476af0e26c12a47696d45bfdcd5281e87953ffa` / tree `f01cc506ae4df4c52f744341917260ba4617150a`, the independent audit returned `CORRECTION REQUIRED — P2` because the bundle then contained unqualified current-status statements from older snapshots and did not reconcile its evidence to that exact head. No known CRITICAL/HIGH code defect was found. This bundle revision labels those older statements historical and records the d476 analysis plus the actual code/test SHAs; it does not convert the d476 verdict into approval of a later PR head. The live PR #80 ref, hosted checks, and a fresh independent review determine the current status. The Scope correction is present only in separate draft PR #83; it is not merged and does not change PR #80's base or locked Scope. CodeRabbit response and human keyboard, real-zoom, screen-reader, and visual sign-off remain pending. No merge, Checkpoint promotion, issue closure, or deployment is claimed.
+The CORRECTION REQUIRED — P2 disposition at d476 was historical and was superseded by the independent APPROVED audit of exact head 285176710efe2dfa4136f024467166e674a71052 / tree 532117694ac848c32c52e2d167db70009ff49531. This evidence-only follow-up is not covered by that later approval. GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT must not be claimed for the new HEAD until fresh exact-head checks and review pass. The Scope correction remains in separate draft PR #83 and does not change PR #80's bound base while unmerged. CodeRabbit and human accessibility sign-off remain pending. No merge, Checkpoint promotion, issue closure, or deployment is claimed.
