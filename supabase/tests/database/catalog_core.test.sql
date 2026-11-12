@@ -46,6 +46,7 @@ SELECT
   '8d000000-0000-4000-8000-000000000014'::uuid AS c_price_two_correlation,
   'authorized'::text AS c_reason_authorized,
   '8e000000-0000-4000-8000-000000000001'::uuid AS c_guard_audit_correlation,
+  'Catalog item is unavailable.'::text AS c_message_catalog_item_unavailable,
   'Invalid catalog step-up event.'::text AS c_invalid_step_up_message,
   'allow'::text AS c_outcome_allow,
   'price-one'::text AS c_price_one_proof_name,
@@ -257,7 +258,7 @@ SELECT throws_ok(
     (SELECT c_target_product FROM pg_temp.gmz007_catalog_constants), (SELECT id FROM public.products WHERE organization_id = (SELECT c_organization_a FROM pg_temp.gmz007_catalog_constants) AND name = (SELECT c_canonical_product_name FROM pg_temp.gmz007_catalog_constants)),
     NULL, NULL, NULL, NULL, 'BRL', (SELECT c_availability_unknown FROM pg_temp.gmz007_catalog_constants), false, (SELECT c_active_status FROM pg_temp.gmz007_catalog_constants), NULL, '8d000000-0000-4000-8000-000000000012'
   )$$,
-  (SELECT c_no_data_found FROM pg_temp.gmz007_catalog_constants), 'Catalog item is unavailable.', 'foreign offer ID cannot be substituted into another tenant command'
+  (SELECT c_no_data_found FROM pg_temp.gmz007_catalog_constants), (SELECT c_message_catalog_item_unavailable FROM pg_temp.gmz007_catalog_constants), 'foreign offer ID cannot be substituted into another tenant command'
 );
 SELECT throws_ok(
   $$SELECT public.catalog_save_offer(
@@ -267,7 +268,7 @@ SELECT throws_ok(
     (SELECT c_target_product FROM pg_temp.gmz007_catalog_constants), (SELECT id FROM public.products WHERE organization_id = (SELECT c_organization_a FROM pg_temp.gmz007_catalog_constants) AND name = (SELECT c_canonical_product_name FROM pg_temp.gmz007_catalog_constants)),
     NULL, NULL, NULL, NULL, 'BRL', (SELECT c_availability_unknown FROM pg_temp.gmz007_catalog_constants), false, (SELECT c_active_status FROM pg_temp.gmz007_catalog_constants), NULL, '8d000000-0000-4000-8000-000000000013'
   )$$,
-  (SELECT c_no_data_found FROM pg_temp.gmz007_catalog_constants), 'Catalog item is unavailable.', 'unused offer ID receives the same unavailable response as a foreign ID'
+  (SELECT c_no_data_found FROM pg_temp.gmz007_catalog_constants), (SELECT c_message_catalog_item_unavailable FROM pg_temp.gmz007_catalog_constants), 'unused offer ID receives the same unavailable response as a foreign ID'
 );
 SELECT throws_ok(
   $$SELECT public.catalog_save_offer(
@@ -321,7 +322,7 @@ SELECT throws_ok(
     (SELECT c_target_product FROM pg_temp.gmz007_catalog_constants), (SELECT product_id FROM public.channel_offers WHERE id = (SELECT offer_id FROM pg_temp.gmz_catalog_offers WHERE offer_key = (SELECT c_branch_one_offer_key FROM pg_temp.gmz007_catalog_constants))),
     NULL, NULL, NULL, NULL, 'BRL', (SELECT c_availability_unknown FROM pg_temp.gmz007_catalog_constants), false, (SELECT c_active_status FROM pg_temp.gmz007_catalog_constants), NULL, '8d000000-0000-4000-8000-000000000015'
   )$$,
-  (SELECT c_no_data_found FROM pg_temp.gmz007_catalog_constants), 'Catalog item is unavailable.', 'sibling-branch offer substitution returns the generic unavailable response'
+  (SELECT c_no_data_found FROM pg_temp.gmz007_catalog_constants), (SELECT c_message_catalog_item_unavailable FROM pg_temp.gmz007_catalog_constants), 'sibling-branch offer substitution returns the generic unavailable response'
 );
 SELECT throws_ok(
   $$SELECT public.catalog_save_offer(
@@ -331,7 +332,7 @@ SELECT throws_ok(
     (SELECT c_target_product FROM pg_temp.gmz007_catalog_constants), (SELECT product_id FROM public.channel_offers WHERE id = (SELECT offer_id FROM pg_temp.gmz_catalog_offers WHERE offer_key = (SELECT c_branch_one_offer_key FROM pg_temp.gmz007_catalog_constants))),
     NULL, NULL, NULL, NULL, 'BRL', (SELECT c_availability_unknown FROM pg_temp.gmz007_catalog_constants), false, (SELECT c_active_status FROM pg_temp.gmz007_catalog_constants), NULL, '8d000000-0000-4000-8000-000000000016'
   )$$,
-  (SELECT c_no_data_found FROM pg_temp.gmz007_catalog_constants), 'Catalog item is unavailable.', 'unknown offer ID returns the same response as the sibling-branch ID'
+  (SELECT c_no_data_found FROM pg_temp.gmz007_catalog_constants), (SELECT c_message_catalog_item_unavailable FROM pg_temp.gmz007_catalog_constants), 'unknown offer ID returns the same response as the sibling-branch ID'
 );
 
 SELECT set_config((SELECT c_jwt_claims_setting FROM pg_temp.gmz007_catalog_constants), '{"sub":"86000000-0000-4000-8000-000000000002","role":"authenticated"}', true);
