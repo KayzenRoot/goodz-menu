@@ -26,7 +26,9 @@ const fixture = {
 
 function runSupabase(args) {
   return new Promise((resolveRun, rejectRun) => {
-    const child = spawn(process.execPath, [supabaseCli, ...args], {
+    const workdir = process.env.GOODZ_SUPABASE_WORKDIR?.trim();
+    const scopedArgs = workdir ? ["--workdir", resolve(workdir), ...args] : args;
+    const child = spawn(process.execPath, [supabaseCli, ...scopedArgs], {
       cwd: repositoryRoot,
       stdio: ["ignore", "pipe", "pipe"],
       windowsHide: true,
@@ -199,6 +201,7 @@ function fixtureCleanupSql() {
 DELETE FROM public.tenant_roles WHERE organization_id IN (${orgIds});
 DELETE FROM public.branches WHERE organization_id IN (${orgIds});
 DELETE FROM public.establishments WHERE organization_id IN (${orgIds});
+DELETE FROM public.sales_channels WHERE organization_id IN (${orgIds});
 DELETE FROM public.organizations WHERE id IN (${orgIds});`;
 }
 

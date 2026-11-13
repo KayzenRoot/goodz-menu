@@ -7,10 +7,10 @@
   "gefVersion": "1.1.1",
   "assurance": "ELEVATED",
   "admissionBaseRef": "main",
-  "admissionBaseSha": "f98b54a2a933e1cf312575a571afb57566422d82",
-  "workBranch": "implementation/gmz-impl-007-catalog-core",
-  "executionBaseSha": null,
-  "executionBaseState": "MUST_BIND_AFTER_ADMISSION_PROMOTION",
+  "admissionBaseSha": "556a9dbbcb3250b640c40fefe1ade0d5c425d871",
+  "workBranch": "execution/gmz-impl-007-catalog-core-bound-20a63ab",
+  "executionBaseSha": "20a63ab8baa6f0776224c104656e20d05be5d6b0",
+  "executionBaseState": "BOUND_FOR_EXECUTION",
   "sourcePack": "FROZEN_V0_1",
   "productionDenominator": 515,
   "productionEarnedAtAdmission": 52,
@@ -35,7 +35,7 @@
     },
     {
       "path": "docs/source-pack/SCOPE.md",
-      "gitBlobSha": "88c516753fabf67e67bbec25df3efc70b0c6bfa8"
+      "gitBlobSha": "b6aa3380cfc344813b0d58cffd549cbc3d9c339c"
     },
     {
       "path": "docs/source-pack/REQUIREMENTS.md",
@@ -59,7 +59,7 @@
     },
     {
       "path": "docs/source-pack/TEST-BENCHMARK-PLAN.md",
-      "gitBlobSha": "1531d1a9abd4d9470cac2d8d24847e4258c91e45"
+      "gitBlobSha": "6e9002690fe8055d7da0936f3d323929d510158c"
     },
     {
       "path": "docs/source-pack/DEFINITION-OF-DONE.md",
@@ -79,7 +79,7 @@
     },
     {
       "path": ".engineering/TEST-COVERAGE-MATRIX.md",
-      "gitBlobSha": "5fcf44880b1b3725273505a2a7efd4e1e4c7aa9d"
+      "gitBlobSha": "10eb7a6afe1f8349b5a0f264ed46cbb96257cb98"
     },
     {
       "path": ".engineering/PROGRESS-LEDGER.md",
@@ -88,9 +88,9 @@
   ],
   "governanceSnapshot": {
     "checkpointPath": ".engineering/CHECKPOINT.json",
-    "checkpointGitBlobSha": "789223da901d9c0415da82bf5d8cb781d9d486e4",
-    "status": "GMZ_IMPL_006_PROMOTED_COMPLETE_READY_FOR_NEXT",
-    "note": "Admission snapshot after GMZ-IMPL-006 promotion; executor mutation remains blocked until admission merge and exact execution-base bind."
+    "checkpointGitBlobSha": "279d6974b9a30c7393e2de568aa37941df783ced",
+    "status": "GMZ_IMPL_007_BOUND_FOR_EXECUTION",
+    "note": "Exact execution bind authorized after the independent admission audit and PR #77 merge; product credit remains unchanged."
   },
   "implementationContract": {
     "catalogCore": "ADMITTED_AFTER_BIND",
@@ -133,10 +133,9 @@
     "Executor does not merge"
   ],
   "executor": "GEF heavy executor / Codex",
-  "codexAllowed": false,
-  "codexAuthorizedScope": "BLOCKED until objective admission audit, admission merge, and exact execution-base bind.",
+  "codexAllowed": true,
+  "codexAuthorizedScope": "Only GMZ-IMPL-007 on execution/gmz-impl-007-catalog-core-bound-20a63ab, descended from exact executionBaseSha 20a63ab8baa6f0776224c104656e20d05be5d6b0. Scope is GMZ-M06 catalog and GMZ-M26 validation only. No code merge, credit promotion, remote Supabase or production deployment.",
   "codexProhibited": [
-    "runtime/schema mutation before bind",
     "main direct mutation",
     "merge",
     "force push",
@@ -147,7 +146,19 @@
     "remote Supabase",
     "production infrastructure",
     "service-role catalog authorization/business mutation",
-    "unrelated cleanup"
+    "unrelated cleanup",
+    "runtime/schema mutation outside this Work Order and exact bound scope"
   ],
-  "stopCondition": "GMZ_IMPL_007_ADMISSION_READY_FOR_REVIEW"
+  "stopCondition": "GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT",
+  "admissionHeadSha": "6fce15cc60b445904d19cc9db003d602926fb98a",
+  "admissionMergeSha": "985151f62be6cb26a67bc1c70fac4b7eaf831bd5",
+  "maintainerAuthorization": {
+    "scope": "GMZ-M06 plus GMZ-M26",
+    "executionBaseSha": "20a63ab8baa6f0776224c104656e20d05be5d6b0",
+    "implementationExecutionAllowed": true,
+    "implementationCodeMergeAllowed": false,
+    "earnedCreditPromotionAllowed": false,
+    "remoteSupabaseAllowed": false,
+    "productionDeploymentAllowed": false
+  }
 }

@@ -211,11 +211,15 @@ async function activeEslintConfig() {
       "utf8",
     ),
   );
+  const configuredPluginVersion = projectManifest.devDependencies?.["@next/eslint-plugin-next"];
+  const configuredNextVersion = projectManifest.dependencies?.next;
   if (
-    projectManifest.devDependencies?.["@next/eslint-plugin-next"] !== "16.3.8" ||
-    pluginManifest.version !== "16.3.8"
+    typeof configuredNextVersion !== "string" ||
+    typeof configuredPluginVersion !== "string" ||
+    configuredPluginVersion !== configuredNextVersion ||
+    pluginManifest.version !== configuredPluginVersion
   ) {
-    fail("The pinned Next ESLint plugin version changed; reassess the guarded call path.");
+    fail("The Next.js package, configured ESLint plugin, and installed plugin versions are not aligned.");
   }
 
   const recommendedRules = nextPlugin.configs?.recommended?.rules;
@@ -268,7 +272,7 @@ function runSelfTests() {
   const fixtureTree = [{
     name: "goodz-menu",
     version: "0.1.0",
-    dependencies: { next: { version: "16.3.8", dependencies: { react: { version: "19.3.0" } } } },
+    dependencies: { next: { version: "16.4.6", dependencies: { react: { version: "19.3.0" } } } },
   }];
   if (assertNoBracesInProductionTree(fixtureTree, "goodz-menu", "0.1.0") !== 2) {
     fail("Deterministic self-test counted the wrong number of production packages.");
@@ -277,7 +281,7 @@ function runSelfTests() {
     () => assertNoBracesInProductionTree([{
       name: "goodz-menu",
       version: "0.1.0",
-      dependencies: { next: { version: "16.3.8", dependencies: { braces: { version: "3.0.3" } } } },
+      dependencies: { next: { version: "16.4.6", dependencies: { braces: { version: "3.0.3" } } } },
     }], "goodz-menu", "0.1.0"),
     "braces in the production tree",
   );
