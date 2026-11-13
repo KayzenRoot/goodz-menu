@@ -1,6 +1,26 @@
 # GMZ-IMPL-007 — Evidence Bundle
 
-Status: HISTORICAL EXACT-HEAD RECORD — At PR head 31df7e4cb1eedb3e20f7e16ef669b195178551c5, the full Work Order review returned CORRECTION REQUIRED — P3 because this bundle still described the limited follow-up review as pending while the live PR body recorded its limited approval. The limited review approved only the Evidence Bundle/check-description delta; the full-review result controls the overall disposition, and full Work Order acceptance remains pending. This status is pinned to 31df and does not assert the state of later PR heads.
+Status: GMZ-IMPL-007 objective acceptance remains pending. The independent full review at PR head `a1f0c53891f073ca9780816a09e173e8ed816166` returned `CORRECTION REQUIRED`; its findings and the in-scope correction are recorded below. The variant-search fix is committed at code head `c9ce787141eb1659ce2e4cf0a44842522fdc35ae`, with the browser regression test at `81b14bd05445a6ee744cb6a5ebe8a7c73064c88c`. Overall acceptance also remains blocked by the unresolved canonical Scope conflict and the human accessibility review required by AC20. No merge, issue closure, credit promotion, or deployment is authorized by the current Work Order.
+
+## 2026-11-12 independent full review at exact PR head `a1f0c53891f073ca9780816a09e173e8ed816166`
+
+- Base SHA/tree: `20a63ab8baa6f0776224c104656e20d05be5d6b0` / `6b6a0b3f9db083e213d6c032808034dc58427b73`. Reviewed head/tree: `a1f0c53891f073ca9780816a09e173e8ed816166` / `7836d9a74cefd544c7932897c66b6db918c4045b`.
+- Independent full-review verdict: `CORRECTION REQUIRED`. The reviewer found no known CRITICAL/HIGH defect in the database, RLS, server-action, and authorization paths examined, but found the following acceptance issues:
+  - `P2` — `filterCatalogData` retained a matching variant but excluded its parent product from `visible.products`; `VariantSection` iterates only those visible products, so searching a variant's name, size, or flavor hid the result. Reviewed locations: `src/components/goodz/catalog-panel.tsx:120-121` and `:321-335`.
+  - `P3` — this bundle's newest live snapshot was still pinned to `285176710efe2dfa4136f024467166e674a71052`; it did not bind the exact reviewed HEAD/tree above, leaving AC31's current-head evidence incomplete. This section records that missing exact-head review now.
+  - Full Work Order acceptance remained blocked by the conflicting promotional-pricing note at `docs/source-pack/SCOPE.md:106` and AC20 human keyboard/focus, real zoom/reflow, screen-reader, and visual sign-off. PR #83 remains OPEN/DRAFT by maintainer decision. CodeRabbit also remains pending after the documented HTTP 403; no substitute or bypass was used.
+- Reviewer coverage included the catalog load/search/forms, feedback states, labels, TOTP flow, focus-visible styles, responsive layout, migrations, RLS, server actions, and authorization. It ran no tests and did no manual browser or assistive-technology sign-off.
+- Exact-head hosted checks at `a1f0c53891f073ca9780816a09e173e8ed816166` all passed: SonarCloud Code Analysis (`131557702187`, Quality Gate passed), Socket Security Pull Request Alerts (`131557418062`), and Socket Security Project Report (`131557381306`). These results apply to `a1f0c53` only; they do not apply to the later code/test commits below.
+
+## In-scope variant-search correction and validation
+
+- Code correction commit/tree: `c9ce787141eb1659ce2e4cf0a44842522fdc35ae` / `060b4b73f0efa50306b67d30f0c3d049a2ccaf8a`.
+- Browser-test commit/tree: `81b14bd05445a6ee744cb6a5ebe8a7c73064c88c` / `7b7b39d8a8c3e9a32cb09fe4ec265256c06e1c7c`. This commit changes only `tests/e2e/catalog.spec.ts`; it is parented on the code correction.
+- The search helper now returns parent products for matching variants, returns matching variant rows under those parents, and includes a product's variants when its canonical product matches the search. Unit coverage checks variant name, size, flavor, parent product visibility, product-name search, and empty search.
+- `pnpm test`: PASS — 15 files, 76 tests. `pnpm lint`: PASS. `pnpm typecheck`: PASS. `pnpm build`: PASS — 8 routes. These commands ran on the code/test contents committed as `c9ce787`; no production application source changed in the subsequent E2E-test commit.
+- `pnpm test:e2e -- tests/e2e/catalog.spec.ts --workers=1` with `GOODZ_SUPABASE_WORKDIR=D:\Projects\goodz-menu-gmz-impl-007-local-20261111`: PASS — desktop Chromium and mobile Chromium, 2/2. The regression query used only the synthetic local catalog fixture and verified that a flavor-only match displays the variant and its canonical parent. `pnpm lint`, `pnpm typecheck`, and `git diff --check` also passed after adding the E2E assertion.
+- The E2E runner emitted the existing unresolved React hydration-mismatch warning. It did not fail either browser test. Test-generated screenshot changes were restored to the already pinned manifest images; this run does not claim human visual approval or alter the screenshot manifest.
+- New hosted checks and an independent audit of the new candidate HEAD have not yet completed. The successful `a1f0c53` checks and audit must not be treated as evidence for `81b14bd` or a later Evidence-only commit.
 
 ## 2026-11-12 SQL literal remediation and local revalidation (executor report)
 
