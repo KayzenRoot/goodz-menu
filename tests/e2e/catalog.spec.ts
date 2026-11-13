@@ -111,6 +111,13 @@ test("catalog owner flow keeps canonical product data separate and gates commerc
   await page.getByRole("region", { name: "Variantes" }).getByRole("button", { name: "Criar variante" }).click();
   await expect(page.getByRole("region", { name: "Variantes" }).locator(".catalog-form-success")).toContainText("Salvo.", { timeout: 20_000 });
 
+  const catalogSearch = page.getByRole("searchbox", { name: "Buscar no catálogo" });
+  await catalogSearch.fill("Baunilha");
+  const filteredVariantSection = page.getByRole("region", { name: "Variantes" });
+  await expect(filteredVariantSection.getByRole("heading", { name: "Produto canônico E2E" })).toBeVisible();
+  await expect(filteredVariantSection.getByLabel("Nome da variante").last()).toHaveValue("Grande");
+  await catalogSearch.fill("");
+
   const productOfferForm = page.locator("form.catalog-offer-create").filter({ has: page.locator(`#new-product-${fixture.branchId}-product`) });
   await productOfferForm.getByLabel("Produto").selectOption({ label: "Produto canônico E2E" });
   await productOfferForm.getByLabel("Canal de venda").selectOption({ label: "Goodz Online" });
