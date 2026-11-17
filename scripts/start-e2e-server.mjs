@@ -22,7 +22,7 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
   process.exit(1);
 }
 
-const child = spawn(process.execPath, [nextCli, "dev", "--hostname", options.hostname, "--port", String(port)], {
+const child = spawn(process.execPath, [nextCli, "dev", "--webpack", "--hostname", options.hostname, "--port", String(port)], {
   cwd: root,
   stdio: "inherit",
   windowsHide: true,

@@ -4,8 +4,9 @@ import {mkdtemp,readFile,writeFile,rm} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 
-const SCRIPT=new URL('../../scripts/goodz-orchestrator.mjs',import.meta.url).pathname;
+const SCRIPT=fileURLToPath(new URL('../../scripts/goodz-orchestrator.mjs',import.meta.url));
 const fence=String.fromCharCode(96).repeat(3);
 const issue=(n,title,paths,opts={})=>({
  number:n,title,state:opts.state||'open',
