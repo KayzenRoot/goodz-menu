@@ -7,10 +7,10 @@ Goodz Menu is an AI-native operating platform for food businesses, combining POS
 - GEF Bootstrap: `1.1.1` (`APPLIED / CONFIRMED`)
 - Product ideation: `CLOSED` (`GMZ-SRC-001` archived byte-exact)
 - Source Pack & Complete-Product Scope: `FROZEN_V0.1`
-- First operational release boundary: `GMZ-CSD-002 ACCEPTED` (own online menu & orders, pickup or own delivery, payment at handoff)
-- Delivery governance overlay: `GEF Fast Track v1` (`ADR-0005`)
-- Promoted production credit: `52 / 515 = 10.10%` (`GMZ-IMPL-001` through `GMZ-IMPL-006`)
-- Next domain foundation in flight: `GMZ-IMPL-007` (Catalog Core & Channel Offers)
+- First operational release boundary: `GMZ-CSD-002 + D-0023 APPROVED` (own online menu & orders, pickup or own delivery, payment at handoff)
+- Delivery governance overlay: `GEF Fast Track v1` (`ADR-0005` active)
+- Promoted production credit: `61 / 515 = 11.84%` (`GMZ-IMPL-001` through `GMZ-IMPL-007`)
+- Next MVP foundation target: `GMZ-M03` (Settings, Policy & Entitlements)
 
 ## Development model
 

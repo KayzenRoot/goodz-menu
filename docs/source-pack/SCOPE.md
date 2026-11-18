@@ -1,6 +1,6 @@
 # Goodz Menu — Scope
 
-Status: `FROZEN_V0.1 + CSD-002 ACCEPTED (Checkpoint acknowledgement pending)`
+Status: `FROZEN_V0.1 + CSD-002 ACCEPTED + D-0023 PILOT PARAMETERS APPROVED`
 Authority domain: `SCOPE`
 
 ## Scope model
@@ -103,23 +103,11 @@ The accepted release contains only these partial module slices:
 
 The following `CORE_REQUIRED` modules remain required for the complete product but are deferred from this first release: M05, M07–M09, M13–M14, M17–M20, and M22. The existing POS/accounting process remains authoritative for counter sales, cash close, reconciliation, and financial reporting. Manual catalog availability requires a named operator and must be paused when uncertain. Handoff-payment recording, if enabled by a later Work Order, requires an authorized and audited staff action; it does not establish cash close, settlement, refund, or accounting truth. Manual onboarding may replace SaaS self-service, but never tenant isolation or least privilege.
 
-Promotional prices, discounts, and schedules remain deferred under the accepted GMZ-CSD-002 first-release boundary. The current GMZ-IMPL-007 Work Order text excludes these mutations; PR #77 merged only the CD-002 proposal and did not itself constitute formal admission or authorize execution. This note is descriptive and grants no implementation authority. Any executor action remains subject to separate governed admission and a fresh exact-base Context Lock and execution-base bind.
+Promotional prices, discounts, and schedules remain deferred under the accepted GMZ-CSD-002 first-release boundary. `GMZ-IMPL-007` (Catalog Core & Channel Offers Foundation) excluded those mutations and has been merged and promoted (`c65cd9eb7d0cdcfebd3f6d265b987c7f34f4f971`).
 
 `PRODUCT_INCLUDED` modules M15, M16, M21, M24, and M28 remain outside the first release. All complete-product module classifications above remain unchanged; this overlay neither removes deferred product scope nor reclassifies a `CORE_REQUIRED` module.
 
-The complete-product denominator remains `515`. No release points or earned credit are assigned by this scope decision. Before implementation, separate admitted Work Orders must define stable slices, acceptance criteria, evidence, weights, and no-double-count rules. The following decisions remain open until resolved or explicitly deferred in governed Work Orders:
-
-- Pilot company/establishment count and whether additional branches are visible to the pilot or only supported by the data model.
-- Exact M03 Settings Registry allowlist.
-- Handoff-payment methods and staff permissions, proof/receipt, failed or partial payment, cancellation, refund, dispute, and audit/reversal behavior. No online capture or gateway is proposed.
-- Manual-availability owner and update cadence, and whether uncertain availability pauses one offer or the entire storefront.
-- Full customer/staff order lifecycle, cancellation and late-delivery behavior, and which delivery states are required for the pilot.
-- M27 consent, retention, export, deletion/anonymization, and data-subject criteria.
-- Production provider, domain, cost, environment separation, secret configuration, migration plan, backup/restore, RPO/RTO, rollback, and release authority.
-
-GMZ-REBOOT-001's human keyboard, real-zoom, screen-reader, and visual sign-off and its objective audit remain required. Reconcile the Checkpoint and Context Lock through a separate approved action before selecting a new implementation line or beginning GMZ-M01.
-
-This accepted boundary does not replace the active Checkpoint, Work Order, or Context Lock and does not authorize code changes, checkpoint promotion, merge, or deployment. At the current base, the active GMZ-IMPL-007 Context Lock pins `docs/source-pack/SCOPE.md` to Git blob `88c516753fabf67e67bbec25df3efc70b0c6bfa8`. This proposed change alters that locked source; if promoted, the existing lock must be treated as stale and re-audited/rebound before any executor mutation. The detailed requirement mapping, risk analysis, exclusions, and candidate acceptance criteria remain in the GMZ-CSD-002 review record at PR #75.
+The complete-product denominator remains `515`. The seven operational pilot parameters previously listed as open (pilot establishment/branch visibility, `M03` Settings Registry allowlist, handoff-payment policy, manual-availability operator/cadence, customer/staff order and delivery lifecycle, `M27` LGPD consent/retention/anonymization criteria, and `M25` production topology/backup/RPO/RTO/rollback authority) are resolved in `.engineering/DECISIONS-LEDGER.md` (`D-0023`), and the parallel `GMZ-REBOOT-001` draft line was closed in favor of the promoted `main` baseline. Subsequent implementation slices follow governed Work Orders or `ADR-0005` Fast Track contracts according to risk tier.
 
 ## Scope invariants
 - no master idea disappears because it is deferred;
@@ -128,4 +116,4 @@ This accepted boundary does not replace the active Checkpoint, Work Order, or Co
 - provider-specific failure cannot corrupt canonical core state;
 - AI differentiation remains part of product identity.
 
-STOP CONDITION: `GMZ_SCOPE_FROZEN_V0_1`; CSD-002 Checkpoint acknowledgement remains pending.
+STOP CONDITION: `GMZ_SCOPE_FROZEN_V0_1`

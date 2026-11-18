@@ -1,6 +1,6 @@
 # Goodz Menu — GEF Fast Track v1
 
-Status: PROPOSED (active only after governance PR merges). Authority: [ADR-0005](adrs/ADR-0005-GEF-FAST-TRACK-PARALLEL-DELIVERY.md).
+Status: ACTIVE (merged via PR #72 at `3139534697743494626f4940b78ac3f9d468ceb6`). Authority: [ADR-0005](adrs/ADR-0005-GEF-FAST-TRACK-PARALLEL-DELIVERY.md).
 
 **Goal:** one prompt, several independent issue agents, one integration PR; less paperwork, same real security.
 

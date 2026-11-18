@@ -1,16 +1,17 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_007_BOUND_FOR_EXECUTION`
+Status: `GMZ_IMPL_007_PROMOTED_COMPLETE_READY_FOR_NEXT`
 
 ## Current state
 - Project: Goodz Menu
 - Repository: `KayzenRoot/goodz-menu`
-- GEF: `1.1.1`
+- GEF: `1.1.1` (`ADR-0005` Fast Track overlay active)
 - GEF init: `APPLIED / CONFIRMED`
 - Ideation: `CLOSED`
 - Controlled Scope Delta 001: `ACCEPTED`
+- Controlled Scope Delta 002 (`D-0022` + `D-0023` pilot parameters): `ACCEPTED / APPROVED`
 - Source Pack: `FROZEN_V0.1`
-- Scope: `FROZEN_V0.1`
+- Scope: `FROZEN_V0.1 + CSD-002 + D-0023`
 - Requirements: `APPROVED_V0.1`
 - Architecture: `APPROVED_V0.1`
 - Security: `APPROVED_V0_1`
@@ -24,28 +25,16 @@ Status: `GMZ_IMPL_007_BOUND_FOR_EXECUTION`
 - AI Architecture: `APPROVED_V0.1`
 - UI/UX Design System: `APPROVED_V0.1`
 - Security Control Matrix: `APPROVED_V0.1`
-- Business-domain implementation: `AUTHORIZED_FOR_GMZ_IMPL_007_ONLY`
+- Business-domain implementation: `NOT_AUTHORIZED (admit/contract next slice first)`
 
 ## Active increment
-- Work Order: `GMZ-IMPL-007`
-- Issue: `#67`
-- Admission PR: `#77`, proposal base `556a9dbbcb3250b640c40fefe1ade0d5c425d871`, reviewed head `6fce15cc60b445904d19cc9db003d602926fb98a`, merge `985151f62be6cb26a67bc1c70fac4b7eaf831bd5`
-- Execution branch: `execution/gmz-impl-007-catalog-core-bound-20a63ab`
-- Exact execution base: `2bcfccca9813b8ca732da8dd9fb11d4f9545de92` (rebound after `GMZ-SP-011` PR #83)
-- Assurance: `ELEVATED`
-- Implementation authorization: `YES — maintainer authorized the exact bind and execution of GMZ-M06/GMZ-M26 on the bound base`
-- Last promoted increment: `GMZ-IMPL-006`
-- Current earned production credit: `52 / 515 = 10.10%`
-- Predeclared maximum later slice: `9 / 515`
-  - GMZ-M06: `7`
-  - GMZ-M26: `2`
-- Projected only after later acceptance/merge/promotion: `61 / 515 = 11.84%`
-- Admission scope: canonical catalog Product/ProductVariant/ChannelOffer foundation with tenant-safe RLS, exact/versioned price, durable material-mutation audit and minimal management UI
-- Explicitly not admitted: modifiers/combos/media runtime, recipes, inventory, POS, orders, finance, provider sync, remote Supabase, production deployment
-- Next governed action: `EXECUTE GMZ-IMPL-007 ON THE EXACT BOUND BASE`
+- Work Order: `NONE (GMZ-IMPL-007 promoted complete)`
+- Last promoted increment: `GMZ-IMPL-007` (PR `#80`, merge `c65cd9eb7d0cdcfebd3f6d265b987c7f34f4f971`)
+- Current earned production credit: `61 / 515 = 11.84%`
+- Next governed action: `ADMIT / CONTRACT NEXT MVP SLICE (GMZ-M03 SETTINGS, POLICY & ENTITLEMENTS)`
 
 ## Progress accounting
-Overall production completion: `52 / 515 = 10.10%`.
+Overall production completion: `61 / 515 = 11.84%`.
 
 Planning artifacts do not manufacture product-completion percentage.
 
@@ -1023,3 +1012,25 @@ STOP CONDITION: `GMZ_IMPL_006_PROMOTED_COMPLETE`.
 - next action: `AUDIT_AND_MERGE_GMZ_IMPL_007_ADMISSION_THEN_BIND_EXECUTION_BASE`
 
 STOP CONDITION: `GMZ_IMPL_007_ADMISSION_READY_FOR_REVIEW`.
+
+
+## GMZ-IMPL-007 post-merge promotion
+
+- implementation PR: `#80`
+- accepted candidate: `949236946e15db17a1a242eee7c751ceabfc02a7`
+- implementation merge: `c65cd9eb7d0cdcfebd3f6d265b987c7f34f4f971`
+- objective audit: `APPROVED_FOR_PROMOTION`
+- credit:
+  - GMZ-M06: `7`
+  - GMZ-M26: `2`
+  - total: `9 / 515`
+- cumulative production credit: `61 / 515 = 11.84%`
+- GMZ-M06 accepted baseline: `7 / 16 — PARTIAL`
+- GMZ-M26 accepted baseline: `13 / 18 — PARTIAL`
+- pilot operational parameters (`GMZ-CSD-002` / `D-0023`): `APPROVED`
+- implementation authorization: `NO`
+- unresolved review threads: `0`
+- CRITICAL/HIGH: `0 / 0`
+- next: `ADMIT / CONTRACT NEXT MVP SLICE (GMZ-M03)`
+
+STOP CONDITION: `GMZ_IMPL_007_PROMOTED_COMPLETE`.
