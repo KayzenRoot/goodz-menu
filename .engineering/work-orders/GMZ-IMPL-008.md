@@ -1,10 +1,11 @@
 # GMZ-IMPL-008 — Settings Registry, Policy Hierarchy & Pilot Entitlements Foundation
 
-Status: `ADMITTED / BOUND_FOR_EXECUTION`
+Status: `PROMOTED_COMPLETE`
 Issue: `#86`
 Assurance: `ELEVATED`
 Execution branch: `execution/gmz-impl-008-settings-entitlements`
 Execution base: `2618f12df4c4d2c37b7234f7f7b0b081eda1a287`
+Merged PR: `#87` (`7da9c6049b7218ebf433649246d4cf669bbd08b4`)
 
 ## OBJECTIVE
 
