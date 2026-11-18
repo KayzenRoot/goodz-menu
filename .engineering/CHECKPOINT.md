@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_011_PROMOTED_COMPLETE_READY_FOR_NEXT`
+Status: `GMZ_IMPL_012_PROMOTED_MILESTONE_1_MVP_READY_FOR_PRODUCTION`
 
 ## Current state
 - Project: Goodz Menu
@@ -28,13 +28,13 @@ Status: `GMZ_IMPL_011_PROMOTED_COMPLETE_READY_FOR_NEXT`
 - Business-domain implementation: `NOT_AUTHORIZED (admit/contract next slice first)`
 
 ## Active increment
-- Work Order: `NONE (GMZ-IMPL-011 promoted complete)`
-- Last promoted increment: `GMZ-IMPL-011` (PR `#96`, merge `0ba65a25630b069ce30e3fe8ce3d486ececa6f97`)
-- Current earned production credit: `121 / 515 = 23.50%`
-- Next governed action: `ADMIT / CONTRACT FINAL MVP SLICE (GMZ-M27 LGPD PRIVACY & GMZ-M25 CI/CD + CLOUD GO-LIVE READINESS)`
+- Work Order: `NONE (GMZ-IMPL-012 promoted complete — Milestone 1 MVP Operational Release 100% delivered)`
+- Last promoted increment: `GMZ-IMPL-012` (PR `#99`, merge `25b4057cd53d23a710e0d6720e01f0c7e647ab9e`)
+- Current earned production credit: `143 / 515 = 27.77%`
+- Next governed action: `CLOUD PRODUCTION ROLLOUT OF MILESTONE 1 MVP OR ADMIT MILESTONE 2 WAVE 1 (GMZ-M05 POS/CASH, GMZ-M07 RECIPES, GMZ-M08 STOCK)`
 
 ## Progress accounting
-Overall production completion: `121 / 515 = 23.50%`.
+Overall production completion: `143 / 515 = 27.77%`.
 
 Planning artifacts do not manufacture product-completion percentage.
 
@@ -1130,3 +1130,29 @@ STOP CONDITION: `GMZ_IMPL_010_PROMOTED_COMPLETE`.
 - next: `ADMIT / CONTRACT FINAL MVP SLICE (GMZ-M27 LGPD & GMZ-M25 CI/CD + GO-LIVE)`
 
 STOP CONDITION: `GMZ_IMPL_011_PROMOTED_COMPLETE`.
+
+
+## GMZ-IMPL-012 post-merge promotion (Milestone 1 MVP Complete)
+
+- implementation PR: `#99` (Issue `#98`)
+- accepted candidate: `7ce55fa603c1bc3042a74cab9d4bdbd407f41e99`
+- implementation merge: `25b4057cd53d23a710e0d6720e01f0c7e647ab9e`
+- objective audit: `APPROVED_FOR_PROMOTION` (`0` open SonarCloud issues across all severities; `Socket` `SUCCESS`; `Goodz Production Gate` `SUCCESS`)
+- credit:
+  - GMZ-M27: `11`
+  - GMZ-M25: `8`
+  - GMZ-M23: `2`
+  - GMZ-M26: `1`
+  - total: `22 / 515`
+- cumulative production credit: `143 / 515 = 27.77%`
+- GMZ-M27 accepted baseline: `11 / 18 — PARTIAL`
+- GMZ-M25 accepted baseline: `12 / 18 — PARTIAL`
+- GMZ-M23 accepted baseline: `13 / 19 — PARTIAL`
+- GMZ-M26 accepted baseline: `18 / 18 — COMPLETE`
+- Milestone 1 (`GMZ-CSD-002` + `D-0023` Operational MVP): `COMPLETE / PRODUCTION-READY`
+- implementation authorization: `NO`
+- unresolved review threads: `0`
+- CRITICAL/HIGH: `0 / 0`
+- next: `CLOUD PRODUCTION ROLLOUT OF MILESTONE 1 MVP OR ADMIT MILESTONE 2 WAVE 1`
+
+STOP CONDITION: `GMZ_IMPL_012_PROMOTED_MILESTONE_1_MVP_COMPLETE`.

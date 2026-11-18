@@ -65,8 +65,8 @@ A score is not “importance”. It estimates delivery/proof burden.
 ## 4. Current production credit
 
 As of this baseline:
-- evidence-backed product implementation credit: `121 / 515`;
-- production completion: `23.50%`;
+- evidence-backed product implementation credit: `143 / 515`;
+- production completion: `27.77%`;
 - planning/source-pack progress is tracked separately and does not create product credit.
 
 This is intentionally strict.
@@ -105,8 +105,12 @@ This is intentionally strict.
 | GMZ-IMPL-011 | GMZ-M04 Storefront Shell & versioned safe theme presets | 3 | `0ba65a25630b069ce30e3fe8ce3d486ececa6f97` |
 | GMZ-IMPL-011 | GMZ-M23 storefront profile & media registration durable audit | 1 | `0ba65a25630b069ce30e3fe8ce3d486ececa6f97` |
 | GMZ-IMPL-011 | GMZ-M26 storefront CWV/WCAG/Data API/pgTAP validation & quality | 1 | `0ba65a25630b069ce30e3fe8ce3d486ececa6f97` |
+| GMZ-IMPL-012 | GMZ-M27 LGPD consent ledger, 365-day retention & Admin-Guard export/anonymization | 11 | `25b4057cd53d23a710e0d6720e01f0c7e647ab9e` |
+| GMZ-IMPL-012 | GMZ-M25 full CI/CD gate, secret boundary verifier, backup drill & go-live runbook | 8 | `25b4057cd53d23a710e0d6720e01f0c7e647ab9e` |
+| GMZ-IMPL-012 | GMZ-M23 structured log redaction & public checkout rate limiting | 2 | `25b4057cd53d23a710e0d6720e01f0c7e647ab9e` |
+| GMZ-IMPL-012 | GMZ-M26 end-to-end pilot go-live smoke & WCAG 2.2 AA completion | 1 | `25b4057cd53d23a710e0d6720e01f0c7e647ab9e` |
 
-Cumulative accepted credit: `121 / 515 = 23.50%`.
+Cumulative accepted credit: `143 / 515 = 27.77%`.
 
 GMZ-M01 accepted baseline: `10 / 19 — PARTIAL`.
 
@@ -124,11 +128,13 @@ GMZ-M11 accepted baseline: `12 / 18 — PARTIAL`.
 
 GMZ-M12 accepted baseline: `10 / 16 — PARTIAL`.
 
-GMZ-M23 accepted baseline: `11 / 19 — PARTIAL`.
+GMZ-M23 accepted baseline: `13 / 19 — PARTIAL`.
 
-GMZ-M25 accepted baseline: `4 / 18 — PARTIAL`.
+GMZ-M25 accepted baseline: `12 / 18 — PARTIAL`.
 
-GMZ-M26 accepted baseline: `17 / 18 — PARTIAL`.
+GMZ-M26 accepted baseline: `18 / 18 — COMPLETE`.
+
+GMZ-M27 accepted baseline: `11 / 18 — PARTIAL`.
 
 ## 5. Weight rationale classes
 
