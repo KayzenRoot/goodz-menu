@@ -54,6 +54,7 @@ CREATE TYPE private.storefront_literal_constants AS (
   key_profile_id text,
   key_media_asset_id text,
   key_tracking_token text,
+  key_display_name text,
   key_audit_event_ids text,
   json_object text,
   json_array text,
@@ -130,6 +131,7 @@ AS $function$
     'profile_id'::text,
     'media_asset_id'::text,
     'tracking_token'::text,
+    'display_name'::text,
     'audit_event_ids'::text,
     'object'::text,
     'array'::text,
@@ -1213,13 +1215,13 @@ BEGIN
   END IF;
 
   -- Fail-closed offer query: ONLY active, visible, explicitly 'available' offers on goodz_online channel
-  SELECT COALESCE(pg_catalog.jsonb_agg(offer_json ORDER BY offer_json->>'category_name', offer_json->>'display_name'), '[]'::jsonb)
+  SELECT COALESCE(pg_catalog.jsonb_agg(offer_json ORDER BY offer_json->>'category_name', offer_json->>v_c.key_display_name), '[]'::jsonb)
   INTO v_offers
   FROM (
     SELECT pg_catalog.jsonb_build_object(
       'offer_id', co.id,
       'category_name', COALESCE(cat.name, 'Destaques da casa'),
-      'display_name', COALESCE(
+      v_c.key_display_name, COALESCE(
         co.title_override,
         CASE WHEN pv.id IS NOT NULL THEN pr.name || ' · ' || pv.name ELSE pr.name END
       ),
@@ -1289,7 +1291,7 @@ BEGIN
   END IF;
 
   RETURN pg_catalog.jsonb_build_object(
-    'public_slug', v_prof.public_slug,
+    v_c.meta_public_slug, v_prof.public_slug,
     'establishment_name', v_est_name,
     'branch_name', v_branch_name,
     'headline', v_prof.headline,
@@ -1297,7 +1299,7 @@ BEGIN
     'hero_media', v_hero_media,
     'theme', pg_catalog.jsonb_build_object(
       'schema_version', v_prof.theme_schema_version,
-      'layout_family', v_prof.layout_family,
+      v_c.meta_layout_family, v_prof.layout_family,
       'accent_preset', v_prof.accent_preset,
       'card_style', v_prof.card_style
     ),
@@ -1484,7 +1486,7 @@ BEGIN
 
   SELECT COALESCE(pg_catalog.jsonb_agg(pg_catalog.jsonb_build_object(
     'line_number', oi.line_number,
-    'display_name', oi.display_name_snapshot,
+    v_c.key_display_name, oi.display_name_snapshot,
     'quantity', oi.quantity,
     'line_total_amount', oi.line_total_amount
   ) ORDER BY oi.line_number ASC), '[]'::jsonb)
@@ -1510,10 +1512,10 @@ BEGIN
   WHERE tr.organization_id = v_ord.organization_id AND tr.order_id = v_ord.id;
 
   RETURN pg_catalog.jsonb_build_object(
-    'public_slug', v_prof.public_slug,
+    v_c.meta_public_slug, v_prof.public_slug,
     'headline', v_prof.headline,
     'theme', pg_catalog.jsonb_build_object(
-      'layout_family', v_prof.layout_family,
+      v_c.meta_layout_family, v_prof.layout_family,
       'accent_preset', v_prof.accent_preset,
       'card_style', v_prof.card_style
     ),

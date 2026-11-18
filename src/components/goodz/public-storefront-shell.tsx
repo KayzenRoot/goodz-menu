@@ -521,9 +521,9 @@ function PublicDeliveryZoneFields({
         </select>
       </div>
       {!meetsMinimumOrder && selectedZone ? (
-        <p className="catalog-form-note" role="status">
+        <output className="catalog-form-note">
           Faltam <strong>{shortfallText}</strong> em itens para atingir o pedido mínimo ({formatBrlNumeric(selectedZone.minimum_order_amount)}) desta zona.
-        </p>
+        </output>
       ) : null}
       <div className="auth-field">
         <label htmlFor="pub-street">Logradouro</label>
