@@ -5,10 +5,12 @@ import type { Database } from "@/lib/supabase/database.types";
 import { validateAdminGuardAuditEvent } from "@/lib/supabase/admin-guard-policy";
 import { validateCatalogAdminGuardEvent } from "@/lib/supabase/catalog-admin-guard-policy";
 import { validateSettingsAdminGuardEvent } from "@/lib/supabase/settings-admin-guard-policy";
+import { validateOrdersAdminGuardEvent } from "@/lib/supabase/orders-admin-guard-policy";
 
 export type { AdminGuardAuditEvent } from "@/lib/supabase/admin-guard-policy";
 export type { CatalogAdminGuardEvent } from "@/lib/supabase/catalog-admin-guard-policy";
 export type { SettingsAdminGuardEvent } from "@/lib/supabase/settings-admin-guard-policy";
+export type { OrdersAdminGuardEvent } from "@/lib/supabase/orders-admin-guard-policy";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -104,6 +106,30 @@ export async function persistSettingsAdminGuardEvent(value: unknown): Promise<st
       p_reason_code: event.reason_code,
     } as unknown as Database["public"]["Functions"]["append_settings_step_up_event"]["Args"];
     const { data, error } = await client.rpc("append_settings_step_up_event", args)
+      .abortSignal(AbortSignal.timeout(3_000));
+    return verifyStepUpProofResult(event.outcome, error, data as string | null);
+  } catch {
+    throw new Error("Audit persistence is unavailable.");
+  }
+}
+
+/** Persists only the narrow orders handoff step-up decision; never mutates order rows. */
+export async function persistOrdersAdminGuardEvent(value: unknown): Promise<string | null> {
+  const event = validateOrdersAdminGuardEvent(value);
+  const client = createServiceRoleAuditClient();
+  try {
+    const args = {
+      p_actor_user_id: event.actor_user_id,
+      p_organization_id: event.organization_id,
+      p_establishment_id: event.establishment_id,
+      p_branch_id: event.branch_id,
+      p_order_id: event.order_id,
+      p_required_permissions: event.required_permissions,
+      p_correlation_id: event.correlation_id,
+      p_outcome: event.outcome,
+      p_reason_code: event.reason_code,
+    } as unknown as Database["public"]["Functions"]["append_orders_step_up_event"]["Args"];
+    const { data, error } = await client.rpc("append_orders_step_up_event", args)
       .abortSignal(AbortSignal.timeout(3_000));
     return verifyStepUpProofResult(event.outcome, error, data as string | null);
   } catch {
