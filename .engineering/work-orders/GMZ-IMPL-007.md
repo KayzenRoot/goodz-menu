@@ -1,6 +1,6 @@
 # GMZ-IMPL-007 — Catalog Core & Channel Offers Foundation
 
-Status: `ADMITTED / BOUND_FOR_EXECUTION`
+Status: `PROMOTED_COMPLETE` (PR `#80`, merge `c65cd9eb7d0cdcfebd3f6d265b987c7f34f4f971`)
 Issue: `#67`
 Assurance: `ELEVATED`
 Amendment: `GMZ-IMPL-007-CD-002`

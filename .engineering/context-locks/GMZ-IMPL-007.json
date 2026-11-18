@@ -10,7 +10,9 @@
   "admissionBaseSha": "556a9dbbcb3250b640c40fefe1ade0d5c425d871",
   "workBranch": "execution/gmz-impl-007-catalog-core-bound-20a63ab",
   "executionBaseSha": "2bcfccca9813b8ca732da8dd9fb11d4f9545de92",
-  "executionBaseState": "BOUND_FOR_EXECUTION",
+  "executionBaseState": "PROMOTED_COMPLETE",
+  "finalCandidateSha": "949236946e15db17a1a242eee7c751ceabfc02a7",
+  "mergeSha": "c65cd9eb7d0cdcfebd3f6d265b987c7f34f4f971",
   "sourcePack": "FROZEN_V0_1",
   "productionDenominator": 515,
   "productionEarnedAtAdmission": 52,
@@ -133,8 +135,8 @@
     "Executor does not merge"
   ],
   "executor": "GEF heavy executor / Codex",
-  "codexAllowed": true,
-  "codexAuthorizedScope": "Only GMZ-IMPL-007 on execution/gmz-impl-007-catalog-core-bound-20a63ab, rebound to exact executionBaseSha 2bcfccca9813b8ca732da8dd9fb11d4f9545de92. Scope is GMZ-M06 catalog and GMZ-M26 validation only. No code merge, credit promotion, remote Supabase or production deployment.",
+  "codexAllowed": false,
+  "codexAuthorizedScope": "PROMOTED_COMPLETE via PR #80 (c65cd9eb7d0cdcfebd3f6d265b987c7f34f4f971). No further mutation authorized under GMZ-IMPL-007.",
   "codexProhibited": [
     "main direct mutation",
     "merge",
