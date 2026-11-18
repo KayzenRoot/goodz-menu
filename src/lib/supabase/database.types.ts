@@ -166,6 +166,75 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"deliveries": {
+                  Row: {
+                    "assigned_at": string | null,"branch_id": string,"cancellation_reason": string | null,"cancelled_at": string | null,"courier_label": string,"courier_user_id": string | null,"created_at": string,"currency": string,"delivered_at": string | null,"delivery_fee_snapshot": number,"delivery_zone_id": string | null,"establishment_id": string,"estimated_delivery_minutes": number,"id": string,"minimum_order_snapshot": number,"order_id": string,"organization_id": string,"out_for_delivery_at": string | null,"route_reference": string,"status": string,"tracking_metadata": NonNullable<Json>,"updated_at": string,"zone_name_snapshot": string
+                  }
+                  Insert: {
+                    "assigned_at"?: string | null,"branch_id": string,"cancellation_reason"?: string | null,"cancelled_at"?: string | null,"courier_label"?: string,"courier_user_id"?: string | null,"created_at"?: string,"currency"?: string,"delivered_at"?: string | null,"delivery_fee_snapshot": number,"delivery_zone_id"?: string | null,"establishment_id": string,"estimated_delivery_minutes"?: number,"id"?: string,"minimum_order_snapshot"?: number,"order_id": string,"organization_id": string,"out_for_delivery_at"?: string | null,"route_reference"?: string,"status": string,"tracking_metadata"?: NonNullable<Json>,"updated_at"?: string,"zone_name_snapshot"?: string
+                  }
+                  Update: {
+                    "assigned_at"?: string | null,"branch_id"?: string,"cancellation_reason"?: string | null,"cancelled_at"?: string | null,"courier_label"?: string,"courier_user_id"?: string | null,"created_at"?: string,"currency"?: string,"delivered_at"?: string | null,"delivery_fee_snapshot"?: number,"delivery_zone_id"?: string | null,"establishment_id"?: string,"estimated_delivery_minutes"?: number,"id"?: string,"minimum_order_snapshot"?: number,"order_id"?: string,"organization_id"?: string,"out_for_delivery_at"?: string | null,"route_reference"?: string,"status"?: string,"tracking_metadata"?: NonNullable<Json>,"updated_at"?: string,"zone_name_snapshot"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "deliveries_branch_scope_fkey"
+      columns: ["organization_id","establishment_id","branch_id"]
+isOneToOne: false
+      referencedRelation: "branches"
+      referencedColumns: ["organization_id","establishment_id","id"]
+    },{
+      foreignKeyName: "deliveries_order_tenant_fkey"
+      columns: ["organization_id","order_id"]
+isOneToOne: true
+      referencedRelation: "orders"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "deliveries_zone_tenant_fkey"
+      columns: ["organization_id","delivery_zone_id"]
+isOneToOne: false
+      referencedRelation: "delivery_zones"
+      referencedColumns: ["organization_id","id"]
+    }
+                  ]
+                },"delivery_status_transitions": {
+                  Row: {
+                    "actor_kind": string,"actor_user_id": string | null,"correlation_id": string,"courier_label": string,"created_at": string,"delivery_id": string,"from_status": string | null,"id": string,"organization_id": string,"reason": string,"to_status": string
+                  }
+                  Insert: {
+                    "actor_kind": string,"actor_user_id"?: string | null,"correlation_id": string,"courier_label"?: string,"created_at"?: string,"delivery_id": string,"from_status"?: string | null,"id"?: string,"organization_id": string,"reason"?: string,"to_status": string
+                  }
+                  Update: {
+                    "actor_kind"?: string,"actor_user_id"?: string | null,"correlation_id"?: string,"courier_label"?: string,"created_at"?: string,"delivery_id"?: string,"from_status"?: string | null,"id"?: string,"organization_id"?: string,"reason"?: string,"to_status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "delivery_status_transitions_delivery_fkey"
+      columns: ["organization_id","delivery_id"]
+isOneToOne: false
+      referencedRelation: "deliveries"
+      referencedColumns: ["organization_id","id"]
+    }
+                  ]
+                },"delivery_zones": {
+                  Row: {
+                    "branch_id": string,"created_at": string,"currency": string,"delivery_fee_amount": number,"establishment_id": string,"estimated_delivery_minutes": number,"id": string,"minimum_order_amount": number,"name": string,"neighborhoods": (string)[],"organization_id": string,"status": string,"updated_at": string,"updated_by": string | null,"version": number
+                  }
+                  Insert: {
+                    "branch_id": string,"created_at"?: string,"currency"?: string,"delivery_fee_amount": number,"establishment_id": string,"estimated_delivery_minutes"?: number,"id"?: string,"minimum_order_amount"?: number,"name": string,"neighborhoods": (string)[],"organization_id": string,"status"?: string,"updated_at"?: string,"updated_by"?: string | null,"version"?: number
+                  }
+                  Update: {
+                    "branch_id"?: string,"created_at"?: string,"currency"?: string,"delivery_fee_amount"?: number,"establishment_id"?: string,"estimated_delivery_minutes"?: number,"id"?: string,"minimum_order_amount"?: number,"name"?: string,"neighborhoods"?: (string)[],"organization_id"?: string,"status"?: string,"updated_at"?: string,"updated_by"?: string | null,"version"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "delivery_zones_branch_scope_fkey"
+      columns: ["organization_id","establishment_id","branch_id"]
+isOneToOne: false
+      referencedRelation: "branches"
+      referencedColumns: ["organization_id","establishment_id","id"]
+    }
+                  ]
                 },"entitlements": {
                   Row: {
                     "created_at": string,"default_value": NonNullable<Json>,"description": string,"display_name": string,"key": string,"value_type": string
@@ -344,6 +413,12 @@ isOneToOne: false
       columns: ["organization_id","customer_id"]
 isOneToOne: false
       referencedRelation: "customers"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "orders_delivery_zone_tenant_fkey"
+      columns: ["organization_id","delivery_zone_id"]
+isOneToOne: false
+      referencedRelation: "delivery_zones"
       referencedColumns: ["organization_id","id"]
     }
                   ]
@@ -704,6 +779,9 @@ isOneToOne: false
 "append_catalog_step_up_event":
 { Args: { "p_actor_user_id": string,"p_branch_id": string,"p_correlation_id": string,"p_establishment_id": string,"p_organization_id": string,"p_outcome": string,"p_reason_code": string,"p_required_permissions": (string)[],"p_target_id": string }; Returns: string
                            },
+"append_delivery_step_up_event":
+{ Args: { "p_actor_user_id": string,"p_branch_id": string,"p_correlation_id": string,"p_establishment_id": string,"p_organization_id": string,"p_outcome": string,"p_reason_code": string,"p_required_permissions": (string)[],"p_target_id": string }; Returns: string
+                           },
 "append_orders_step_up_event":
 { Args: { "p_actor_user_id": string,"p_branch_id": string,"p_correlation_id": string,"p_establishment_id": string,"p_order_id": string,"p_organization_id": string,"p_outcome": string,"p_reason_code": string,"p_required_permissions": (string)[] }; Returns: string
                            },
@@ -728,6 +806,15 @@ isOneToOne: false
 "catalog_save_variant":
 { Args: { "p_correlation_id": string,"p_flavor_label": string,"p_id": string,"p_name": string,"p_organization_id": string,"p_product_id": string,"p_size_label": string,"p_status": string }; Returns: Json
                            },
+"delivery_advance_dispatch":
+{ Args: { "p_correlation_id": string,"p_courier_label": string,"p_delivery_id": string,"p_reason": string,"p_to_status": string }; Returns: Json
+                           },
+"delivery_has_permission":
+{ Args: { "p_branch_id": string,"p_establishment_id": string,"p_organization_id": string,"p_permission_key": string }; Returns: boolean
+                           },
+"delivery_save_zone":
+{ Args: { "p_branch_id": string,"p_correlation_id": string,"p_delivery_fee_amount": number,"p_establishment_id": string,"p_estimated_delivery_minutes": number,"p_minimum_order_amount": number,"p_name": string,"p_neighborhoods": (string)[],"p_organization_id": string,"p_status": string,"p_step_up_proof_id": string,"p_zone_id": string }; Returns: Json
+                           },
 "orders_can_read_organization_customers":
 { Args: { "p_organization_id": string }; Returns: boolean
                            },
@@ -740,7 +827,7 @@ isOneToOne: false
             }[]
                            },
 "orders_place_staff":
-{ Args: { "p_branch_id": string,"p_cash_change_for": number,"p_correlation_id": string,"p_customer_name": string,"p_customer_notes": string,"p_customer_phone": string,"p_declared_payment_method": string,"p_delivery_address": Json,"p_delivery_fee_amount": number,"p_establishment_id": string,"p_fulfillment_mode": string,"p_idempotency_key": string,"p_items": Json,"p_organization_id": string }; Returns: Json
+{ Args: { "p_branch_id": string,"p_cash_change_for": number,"p_correlation_id": string,"p_customer_name": string,"p_customer_notes": string,"p_customer_phone": string,"p_declared_payment_method": string,"p_delivery_address": Json,"p_delivery_fee_amount": number,"p_delivery_zone_id"?: string,"p_establishment_id": string,"p_fulfillment_mode": string,"p_idempotency_key": string,"p_items": Json,"p_organization_id": string }; Returns: Json
                            },
 "orders_record_handoff_payment":
 { Args: { "p_correlation_id": string,"p_order_id": string,"p_payment_method": string,"p_reason": string,"p_status": string,"p_step_up_proof_id": string }; Returns: Json

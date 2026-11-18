@@ -1,4 +1,5 @@
 import type { AdminGuardDecision, AdminGuardReason } from "@/lib/supabase/admin-guard-policy";
+import { validateStepUpEnvelope } from "@/lib/supabase/step-up-guard-event-base";
 
 export const ORDERS_PRIVILEGED_PERMISSIONS = [
   "orders.handoff_payment.sensitive",
@@ -23,19 +24,6 @@ export type OrdersAdminGuardEvent = {
   outcome: "allow" | "deny";
   reason_code: "authorized" | Exclude<AdminGuardReason, "audit_unavailable">;
 };
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const REASONS = [
-  "authorized",
-  "invalid_scope",
-  "unauthenticated",
-  "identity_unverified",
-  "authorization_denied",
-  "aal2_required",
-  "factor_unverified",
-  "reauthentication_required",
-  "step_up_required",
-] as const;
 
 export function createOrdersAdminGuardEvent(
   decision: AdminGuardDecision,
@@ -62,71 +50,21 @@ export function createOrdersAdminGuardEvent(
 }
 
 export function validateOrdersAdminGuardEvent(value: unknown): OrdersAdminGuardEvent {
-  if (!isPlainObject(value) || Object.keys(value).length !== 9) {
-    throw new Error("Orders guard audit event is invalid.");
-  }
-  const {
-    actor_user_id,
-    organization_id,
-    establishment_id,
-    branch_id,
-    order_id,
-    required_permissions,
-    correlation_id,
-    outcome,
-    reason_code,
-  } = value;
-
-  if (
-    !isNullableUuid(actor_user_id)
-    || !isNullableUuid(organization_id)
-    || !isNullableUuid(establishment_id)
-    || !isNullableUuid(branch_id)
-    || !isUuid(order_id)
-    || !isUuid(correlation_id)
-    || (outcome !== "allow" && outcome !== "deny")
-    || typeof reason_code !== "string"
-    || !(REASONS as readonly string[]).includes(reason_code)
-    || !Array.isArray(required_permissions)
-    || required_permissions.length !== 1
-    || required_permissions[0] !== "orders.handoff_payment.sensitive"
-  ) {
-    throw new Error("Orders guard audit event is invalid.");
-  }
-
-  const invalidScopeShape = (establishment_id !== null && organization_id === null)
-    || (branch_id !== null && (organization_id === null || establishment_id === null));
-  const invalidAllow = outcome === "allow" && (
-    actor_user_id === null || organization_id === null || reason_code !== "authorized"
-  );
-  const invalidDeny = outcome === "deny" && reason_code === "authorized";
-  if (invalidScopeShape || invalidAllow || invalidDeny) {
-    throw new Error("Orders guard audit event is invalid.");
-  }
-
+  const base = validateStepUpEnvelope(value, {
+    targetField: "order_id",
+    expectedPermission: "orders.handoff_payment.sensitive",
+    requireBranchOnAllow: false,
+    errorMessage: "Orders guard audit event is invalid.",
+  });
   return {
-    actor_user_id,
-    organization_id,
-    establishment_id,
-    branch_id,
-    order_id,
+    actor_user_id: base.actor_user_id,
+    organization_id: base.organization_id,
+    establishment_id: base.establishment_id,
+    branch_id: base.branch_id,
+    order_id: base.targetValue,
     required_permissions: ["orders.handoff_payment.sensitive"],
-    correlation_id,
-    outcome,
-    reason_code: reason_code as OrdersAdminGuardEvent["reason_code"],
+    correlation_id: base.correlation_id,
+    outcome: base.outcome,
+    reason_code: base.reason_code,
   };
-}
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
-  const proto = Object.getPrototypeOf(value);
-  return proto === Object.prototype || proto === null;
-}
-
-function isUuid(value: unknown): value is string {
-  return typeof value === "string" && UUID.test(value);
-}
-
-function isNullableUuid(value: unknown): value is string | null {
-  return value === null || isUuid(value);
 }

@@ -19,6 +19,7 @@
     "test:supabase:catalog": "node tests/supabase/catalog-data-api.integration.mjs",
     "test:supabase:settings": "node tests/supabase/settings-data-api.integration.mjs",
     "test:supabase:orders": "node tests/supabase/orders-data-api.integration.mjs",
+    "test:supabase:delivery": "node tests/supabase/delivery-data-api.integration.mjs",
     "supabase:init": "supabase init",
     "supabase:start": "supabase start",
     "supabase:status": "supabase status",
