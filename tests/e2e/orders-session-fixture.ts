@@ -98,11 +98,16 @@ export async function createOrdersSessionFixture(): Promise<OrdersSessionFixture
     inspectOrdersAudit: queryAuditEventsByCorrelation,
     async cleanup() {
       await runBatchSql(`
+        DELETE FROM private.delivery_step_up_consumptions
+        WHERE guard_event_id IN (SELECT id FROM public.audit_events WHERE organization_id = '${organizationId}');
         DELETE FROM private.orders_step_up_consumptions
         WHERE guard_event_id IN (SELECT id FROM public.audit_events WHERE organization_id = '${organizationId}');
         ALTER TABLE public.audit_events DISABLE TRIGGER audit_events_immutable;
         DELETE FROM public.audit_events WHERE organization_id = '${organizationId}';
         ALTER TABLE public.audit_events ENABLE TRIGGER audit_events_immutable;
+        ALTER TABLE public.delivery_status_transitions DISABLE TRIGGER delivery_status_transitions_immutable;
+        DELETE FROM public.deliveries WHERE organization_id = '${organizationId}';
+        ALTER TABLE public.delivery_status_transitions ENABLE TRIGGER delivery_status_transitions_immutable;
         ALTER TABLE public.order_handoff_payments DISABLE TRIGGER order_handoff_payments_immutable;
         ALTER TABLE public.order_status_transitions DISABLE TRIGGER order_status_transitions_immutable;
         ALTER TABLE public.order_items DISABLE TRIGGER order_items_immutable;
@@ -110,6 +115,7 @@ export async function createOrdersSessionFixture(): Promise<OrdersSessionFixture
         ALTER TABLE public.order_handoff_payments ENABLE TRIGGER order_handoff_payments_immutable;
         ALTER TABLE public.order_status_transitions ENABLE TRIGGER order_status_transitions_immutable;
         ALTER TABLE public.order_items ENABLE TRIGGER order_items_immutable;
+        DELETE FROM public.delivery_zones WHERE organization_id = '${organizationId}';
         DELETE FROM public.customers WHERE organization_id = '${organizationId}';
         DELETE FROM public.channel_offers WHERE organization_id = '${organizationId}';
         DELETE FROM public.products WHERE organization_id = '${organizationId}';

@@ -32,6 +32,15 @@ export type OrderAvailableOfferOption = Readonly<{
   basePrice: number;
 }>;
 
+export type OrderDeliveryZoneOption = Readonly<{
+  id: string;
+  name: string;
+  neighborhoods: string[];
+  deliveryFeeAmount: number;
+  minimumOrderAmount: number;
+  estimatedMinutes: number;
+}>;
+
 type OrderRow = Pick<
   Database["public"]["Tables"]["orders"]["Row"],
   | "id"
@@ -88,6 +97,7 @@ type OrdersPanelProps = Readonly<{
   orderingEnabled: boolean;
   loadFailed: boolean;
   availableOffers: OrderAvailableOfferOption[];
+  deliveryZones: OrderDeliveryZoneOption[];
   orders: OrderRow[];
   items: OrderItemRow[];
   transitions: OrderTransitionRow[];
@@ -150,6 +160,7 @@ export function OrdersPanel(props: OrdersPanelProps) {
         </div>
         <nav className="catalog-links" aria-label="Navegação da conta">
           <Link className="auth-entry-link" href="/app">Espaços</Link>
+          <Link className="auth-entry-link" href="/app/delivery">Entregas</Link>
           <Link className="auth-entry-link" href="/app/catalog">Catálogo</Link>
           <Link className="auth-entry-link" href="/app/settings">Configurações</Link>
           <Link className="auth-entry-link" href="/app/security">Segurança</Link>
@@ -456,7 +467,7 @@ function StaffOrderIntakeBody({
         </div>
       </div>
 
-      {mode === "own_delivery" ? <DeliveryAddressFields /> : null}
+      {mode === "own_delivery" ? <DeliveryAddressFields zones={props.deliveryZones} /> : null}
 
       {paymentMethod === "cash" ? (
         <div className="auth-field">
@@ -478,9 +489,29 @@ function StaffOrderIntakeBody({
   );
 }
 
-function DeliveryAddressFields() {
+function DeliveryAddressFields({ zones }: Readonly<{ zones: OrderDeliveryZoneOption[] }>) {
+  const [selectedZoneId, setSelectedZoneId] = useState<string>(zones[0]?.id ?? "");
+  const activeZone = zones.find((zone) => zone.id === selectedZoneId) ?? null;
+
   return (
     <div className="catalog-create-grid">
+      {zones.length > 0 ? (
+        <div className="auth-field">
+          <label htmlFor="intake-zone">Zona de entrega própria</label>
+          <select
+            id="intake-zone"
+            name="deliveryZoneId"
+            value={selectedZoneId}
+            onChange={(event) => setSelectedZoneId(event.target.value)}
+          >
+            {zones.map((zone) => (
+              <option key={zone.id} value={zone.id}>
+                {zone.name} · Taxa {formatBrlNumeric(zone.deliveryFeeAmount)} · Mín. {formatBrlNumeric(zone.minimumOrderAmount)}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
       <div className="auth-field">
         <label htmlFor="intake-street">Logradouro</label>
         <input id="intake-street" name="streetLine" maxLength={200} required />
@@ -491,16 +522,27 @@ function DeliveryAddressFields() {
       </div>
       <div className="auth-field">
         <label htmlFor="intake-neighborhood">Bairro</label>
-        <input id="intake-neighborhood" name="neighborhood" maxLength={120} required />
+        <input
+          id="intake-neighborhood"
+          name="neighborhood"
+          defaultValue={activeZone?.neighborhoods[0] ?? ""}
+          placeholder={activeZone ? activeZone.neighborhoods.join(", ") : "Ex.: Pinheiros"}
+          maxLength={120}
+          required
+        />
       </div>
       <div className="auth-field">
         <label htmlFor="intake-city">Cidade</label>
         <input id="intake-city" name="city" defaultValue="São Paulo" maxLength={120} required />
       </div>
-      <div className="auth-field">
-        <label htmlFor="intake-delivery-fee">Taxa de entrega própria (BRL)</label>
-        <input id="intake-delivery-fee" name="deliveryFee" defaultValue="6.00" required />
-      </div>
+      {zones.length === 0 ? (
+        <div className="auth-field">
+          <label htmlFor="intake-delivery-fee">Taxa de entrega própria (BRL)</label>
+          <input id="intake-delivery-fee" name="deliveryFee" defaultValue="6.00" required />
+        </div>
+      ) : (
+        <input type="hidden" name="deliveryFee" value={activeZone ? activeZone.deliveryFeeAmount.toFixed(2) : "0.00"} />
+      )}
     </div>
   );
 }
@@ -787,13 +829,22 @@ function OrdersActionFeedback({ state }: Readonly<{ state: OrdersActionState }>)
     );
   }
   const messages: Record<
-    "invalid" | "denied" | "storefront_paused" | "offer_unavailable" | "invalid_transition" | "failed",
+    | "invalid"
+    | "denied"
+    | "storefront_paused"
+    | "offer_unavailable"
+    | "below_minimum"
+    | "outside_zone"
+    | "invalid_transition"
+    | "failed",
     string
   > = {
     invalid: "Revise os campos obrigatórios informados.",
     denied: "Operação não autorizada para o seu papel nesta unidade.",
     storefront_paused: "Pedidos online estão pausados ou a modalidade escolhida está desativada.",
     offer_unavailable: "A oferta selecionada não está disponível para venda no momento.",
+    below_minimum: "O subtotal dos itens não atingiu o pedido mínimo da zona de entrega.",
+    outside_zone: "O bairro informado está fora das zonas de entrega ativas desta unidade.",
     invalid_transition: "Transição de estado inválida para o ciclo atual do pedido.",
     failed: "Não foi possível concluir a operação.",
   };

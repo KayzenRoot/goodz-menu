@@ -72,6 +72,7 @@ export function CatalogPanel(props: CatalogPanelProps) {
         <nav className="catalog-links" aria-label="Navegação da conta">
           <Link className="auth-entry-link" href="/app">Espaços</Link>
           <Link className="auth-entry-link" href="/app/orders">Pedidos</Link>
+          <Link className="auth-entry-link" href="/app/delivery">Entregas</Link>
           <Link className="auth-entry-link" href="/app/settings">Configurações</Link>
           <Link className="auth-entry-link" href="/app/security">Segurança</Link>
           <Link className="auth-entry-link" href="/app/admin-guard">Ação protegida</Link>

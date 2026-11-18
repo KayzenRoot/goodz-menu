@@ -1,9 +1,7 @@
-import { redirect } from "next/navigation";
 import { AuthFrame } from "@/components/goodz/auth-frame";
-import { OrdersPanel, type OrderAvailableOfferOption } from "@/components/goodz/orders-panel";
-import { readSupabaseAuthConfig } from "@/lib/env/runtime-env";
-import { getCurrentAuthContext, type ServerSupabaseClient } from "@/lib/supabase/auth-session";
-import { loadVisibleTenantEntry } from "@/lib/supabase/tenant-entry";
+import { OrdersPanel, type OrderAvailableOfferOption, type OrderDeliveryZoneOption } from "@/components/goodz/orders-panel";
+import type { ServerSupabaseClient } from "@/lib/supabase/auth-session";
+import { resolveBranchConsoleSessionContext } from "@/lib/supabase/branch-console-context.server";
 import type { Database } from "@/lib/supabase/database.types";
 
 export const dynamic = "force-dynamic";
@@ -13,42 +11,17 @@ type PageProps = Readonly<{
 }>;
 
 export default async function OrdersPage({ searchParams }: PageProps) {
-  const auth = await getCurrentAuthContext();
-  if (!auth) redirect("/login?next=%2Fapp%2Forders");
-  const config = readSupabaseAuthConfig();
-  if (!config.ok) redirect("/login?next=%2Fapp%2Forders");
+  const ctx = await resolveBranchConsoleSessionContext(searchParams, "/app/orders");
 
-  const [entry, factorResult, params] = await Promise.all([
-    loadVisibleTenantEntry(auth.client),
-    auth.client.auth.mfa.listFactors(),
-    searchParams,
-  ]);
-  const tenants = entry.ok ? entry.tenants.filter(({ status }) => status === "active") : [];
-  const requestedOrgId = firstParam(params.organization);
-  const tenant = tenants.find(({ id }) => id === requestedOrgId) ?? tenants[0] ?? null;
-
-  const branchOptions = tenant?.establishments
-    .filter(({ status }) => status === "active")
-    .flatMap((establishment) => establishment.branches
-      .filter(({ status }) => status === "active")
-      .map((branch) => ({
-        id: branch.id,
-        displayName: `${establishment.displayName} · ${branch.displayName}`,
-        establishmentId: establishment.id,
-      }))) ?? [];
-
-  const requestedBranchId = firstParam(params.branch);
-  const selectedBranch = branchOptions.find(({ id }) => id === requestedBranchId) ?? branchOptions[0] ?? null;
-
-  if (!tenant || !selectedBranch) {
+  if (!ctx.selectedOrganizationId || !ctx.selectedBranch) {
     return (
       <AuthFrame wide>
         <OrdersPanel
-          supabaseUrl={config.config.supabaseApiUrl.toString()}
-          anonKey={config.config.anonKey}
-          tenants={tenants.map(({ id, displayName }) => ({ id, displayName }))}
-          branches={branchOptions}
-          selectedOrganizationId={tenant?.id ?? ""}
+          supabaseUrl={ctx.supabaseUrl}
+          anonKey={ctx.anonKey}
+          tenants={ctx.tenants}
+          branches={ctx.branches}
+          selectedOrganizationId={ctx.selectedOrganizationId}
           selectedBranchId=""
           selectedEstablishmentId=""
           verifiedFactorIds={[]}
@@ -58,8 +31,9 @@ export default async function OrdersPage({ searchParams }: PageProps) {
           canWriteHandoff={false}
           canWriteSensitiveHandoff={false}
           orderingEnabled={false}
-          loadFailed={!entry.ok}
+          loadFailed={!ctx.entryOk}
           availableOffers={[]}
+          deliveryZones={[]}
           orders={[]}
           items={[]}
           transitions={[]}
@@ -69,30 +43,33 @@ export default async function OrdersPage({ searchParams }: PageProps) {
     );
   }
 
-  const verifiedFactorIds = factorResult.error || !factorResult.data
-    ? []
-    : factorResult.data.totp.filter(({ status }) => status === "verified").map(({ id }) => id);
-  const queueData = await loadOrdersBranchData(auth.client, tenant.id, selectedBranch.establishmentId, selectedBranch.id);
+  const queueData = await loadOrdersBranchData(
+    ctx.client,
+    ctx.selectedOrganizationId,
+    ctx.selectedBranch.establishmentId,
+    ctx.selectedBranch.id,
+  );
 
   return (
     <AuthFrame wide>
       <OrdersPanel
-        supabaseUrl={config.config.supabaseApiUrl.toString()}
-        anonKey={config.config.anonKey}
-        tenants={tenants.map(({ id, displayName }) => ({ id, displayName }))}
-        branches={branchOptions}
-        selectedOrganizationId={tenant.id}
-        selectedBranchId={selectedBranch.id}
-        selectedEstablishmentId={selectedBranch.establishmentId}
-        verifiedFactorIds={verifiedFactorIds}
+        supabaseUrl={ctx.supabaseUrl}
+        anonKey={ctx.anonKey}
+        tenants={ctx.tenants}
+        branches={ctx.branches}
+        selectedOrganizationId={ctx.selectedOrganizationId}
+        selectedBranchId={ctx.selectedBranch.id}
+        selectedEstablishmentId={ctx.selectedBranch.establishmentId}
+        verifiedFactorIds={ctx.verifiedFactorIds}
         canReadOrders={queueData.canReadOrders}
         canWriteOrders={queueData.canWriteOrders}
         canCancelOrders={queueData.canCancelOrders}
         canWriteHandoff={queueData.canWriteHandoff}
         canWriteSensitiveHandoff={queueData.canWriteSensitiveHandoff}
         orderingEnabled={queueData.orderingEnabled}
-        loadFailed={queueData.failed || !entry.ok}
+        loadFailed={queueData.failed || !ctx.entryOk}
         availableOffers={queueData.availableOffers}
+        deliveryZones={queueData.deliveryZones}
         orders={queueData.orders}
         items={queueData.items}
         transitions={queueData.transitions}
@@ -126,6 +103,7 @@ async function loadOrdersBranchData(
       orderingEnabled: false,
       failed: [readPerm, writePerm, cancelPerm, handoffPerm, sensitivePerm].some(({ failed }) => failed),
       availableOffers: [],
+      deliveryZones: [],
       orders: [],
       items: [],
       transitions: [],
@@ -133,7 +111,7 @@ async function loadOrdersBranchData(
     };
   }
 
-  const [ordersRes, settingsRes, offersList] = await Promise.all([
+  const [ordersRes, settingsRes, offersList, zonesRes] = await Promise.all([
     client.from("orders")
       .select("id,organization_id,establishment_id,branch_id,order_number,fulfillment_mode,status,currency,subtotal_amount,delivery_fee_amount,total_amount,declared_payment_method,cash_change_for_amount,handoff_payment_status,customer_name_snapshot,customer_phone_snapshot,delivery_address_snapshot,customer_notes,cancellation_reason,placed_at")
       .eq("organization_id", organizationId)
@@ -146,6 +124,12 @@ async function loadOrdersBranchData(
       p_branch_id: branchId,
     }),
     loadAvailableGoodzOnlineOffers(client, organizationId, establishmentId, branchId),
+    client.from("delivery_zones")
+      .select("id,name,neighborhoods,delivery_fee_amount,minimum_order_amount,estimated_delivery_minutes")
+      .eq("organization_id", organizationId)
+      .eq("branch_id", branchId)
+      .eq("status", "active")
+      .order("name", { ascending: true }),
   ]);
 
   const orders = ordersRes.data ?? [];
@@ -172,8 +156,16 @@ async function loadOrdersBranchData(
 
   const orderingSetting = (settingsRes.data ?? []).find((row) => row.setting_key === "storefront.ordering_enabled");
   const queriesFailed = Boolean(
-    ordersRes.error || settingsRes.error || itemsRes.error || transitionsRes.error || handoffRes.error,
+    ordersRes.error || settingsRes.error || zonesRes.error || itemsRes.error || transitionsRes.error || handoffRes.error,
   );
+  const deliveryZones: OrderDeliveryZoneOption[] = (zonesRes.data ?? []).map((zone) => ({
+    id: zone.id,
+    name: zone.name,
+    neighborhoods: zone.neighborhoods,
+    deliveryFeeAmount: zone.delivery_fee_amount,
+    minimumOrderAmount: zone.minimum_order_amount,
+    estimatedMinutes: zone.estimated_delivery_minutes,
+  }));
 
   return {
     canReadOrders: true,
@@ -184,6 +176,7 @@ async function loadOrdersBranchData(
     orderingEnabled: orderingSetting?.effective_value === true,
     failed: queriesFailed || [readPerm, writePerm, cancelPerm, handoffPerm, sensitivePerm].some(({ failed }) => failed),
     availableOffers: offersList,
+    deliveryZones,
     orders,
     items: itemsRes.data ?? [],
     transitions: transitionsRes.data ?? [],
@@ -236,8 +229,4 @@ async function checkOrdersPermission(
   } catch {
     return { allowed: false, failed: true };
   }
-}
-
-function firstParam(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
 }

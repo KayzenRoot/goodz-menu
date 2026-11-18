@@ -38,6 +38,8 @@ export type OrdersActionState =
   | { kind: "denied"; correlationId: string }
   | { kind: "storefront_paused"; correlationId: string }
   | { kind: "offer_unavailable"; correlationId: string }
+  | { kind: "below_minimum"; correlationId: string }
+  | { kind: "outside_zone"; correlationId: string }
   | { kind: "invalid_transition"; correlationId: string }
   | { kind: "failed"; correlationId: string }
   | { kind: "step_up_required"; correlationId: string }
@@ -64,6 +66,7 @@ type ParsedPlaceOrderInput = Readonly<{
   customerPhone: string;
   deliveryAddress: Json;
   deliveryFee: string;
+  deliveryZoneId: string | null;
   paymentMethod: HandoffPaymentMethod;
   cashChangeFor: string | null;
   customerNotes: string;
@@ -97,6 +100,7 @@ export async function placeStaffOrderAction(
     p_items: parsed.items,
     p_idempotency_key: parsed.idempotencyKey,
     p_correlation_id: correlationId,
+    p_delivery_zone_id: parsed.deliveryZoneId,
   } as unknown as Database["public"]["Functions"]["orders_place_staff"]["Args"];
 
   try {
@@ -238,6 +242,7 @@ function parsePlaceOrderForm(formData: FormData): ParsedPlaceOrderInput | null {
     customerPhone: customerPhone.value,
     deliveryAddress: addressResult.address,
     deliveryFee: addressResult.deliveryFee,
+    deliveryZoneId: addressResult.deliveryZoneId,
     paymentMethod: paymentMethod.value,
     cashChangeFor: paymentMethod.value === "cash" ? cashChange.value.numeric : null,
     customerNotes: customerNotes.value ?? "",
@@ -249,21 +254,23 @@ function parsePlaceOrderForm(formData: FormData): ParsedPlaceOrderInput | null {
 function parseOptionalDeliveryAddress(
   mode: OrderFulfillmentMode,
   formData: FormData,
-): Readonly<{ ok: true; address: Json; deliveryFee: string } | { ok: false }> {
+): Readonly<{ ok: true; address: Json; deliveryFee: string; deliveryZoneId: string | null } | { ok: false }> {
   if (mode === "pickup") {
-    return { ok: true, address: null, deliveryFee: "0.00" };
+    return { ok: true, address: null, deliveryFee: "0.00", deliveryZoneId: null };
   }
+  const zoneId = parseUuidEntry(formData.get("deliveryZoneId"), false);
   const street = parseTextEntry(formData.get("streetLine"), 200, true);
   const numberLabel = parseTextEntry(formData.get("numberLabel"), 40, false);
   const neighborhood = parseTextEntry(formData.get("neighborhood"), 120, true);
   const city = parseTextEntry(formData.get("city"), 120, true);
-  const fee = parsePriceEntry(formData.get("deliveryFee"));
-  if (!street.ok || !street.value || !numberLabel.ok || !neighborhood.ok || !neighborhood.value || !city.ok || !city.value || !fee.ok) {
+  const fee = parsePriceEntry(formData.get("deliveryFee") ?? "0.00");
+  if (!zoneId.ok || !street.ok || !street.value || !numberLabel.ok || !neighborhood.ok || !neighborhood.value || !city.ok || !city.value || !fee.ok) {
     return { ok: false };
   }
   return {
     ok: true,
     deliveryFee: fee.value.numeric ?? "0.00",
+    deliveryZoneId: zoneId.value,
     address: {
       street_line: street.value,
       number_label: numberLabel.value ?? "S/N",
@@ -319,18 +326,13 @@ function finishOrdersCommand(
   data: Json | null,
 ): OrdersActionState {
   if (error) {
-    const msg = error.message ?? "";
-    if (msg.includes("paused or disabled")) return { kind: "storefront_paused", correlationId };
-    if (msg.includes("offer is unavailable")) return { kind: "offer_unavailable", correlationId };
-    if (msg.includes("transition is invalid")) return { kind: "invalid_transition", correlationId };
-    if (error.code === "42501") return { kind: "denied", correlationId };
-    if (error.code === "22023" || error.code === "23514") return { kind: "invalid", correlationId };
-    return { kind: "failed", correlationId };
+    return mapOrdersRpcError(error, correlationId);
   }
 
   const parsed = parseOrderCommandReceipt(data);
   if (!parsed) return { kind: "failed", correlationId };
   revalidatePath("/app/orders");
+  revalidatePath("/app/delivery");
   return {
     kind: "saved",
     correlationId,
@@ -338,6 +340,24 @@ function finishOrdersCommand(
     idempotentReplay: parsed.idempotentReplay,
     auditEventIds: parsed.auditEventIds,
   };
+}
+
+const ORDERS_ERROR_SNIPPETS: readonly Readonly<[string, Exclude<OrdersActionState, null | { kind: "saved" }>["kind"]]>[] = [
+  ["paused or disabled", "storefront_paused"],
+  ["offer is unavailable", "offer_unavailable"],
+  ["minimum order amount", "below_minimum"],
+  ["outside configured delivery zones", "outside_zone"],
+  ["delivery zone is unavailable", "outside_zone"],
+  ["transition is invalid", "invalid_transition"],
+];
+
+function mapOrdersRpcError(error: OrdersRpcError, correlationId: string): OrdersActionState {
+  const msg = error.message ?? "";
+  const matched = ORDERS_ERROR_SNIPPETS.find(([snippet]) => msg.includes(snippet));
+  if (matched) return { kind: matched[1], correlationId };
+  if (error.code === "42501") return { kind: "denied", correlationId };
+  if (error.code === "22023" || error.code === "23514") return { kind: "invalid", correlationId };
+  return { kind: "failed", correlationId };
 }
 
 function parseOrderCommandReceipt(

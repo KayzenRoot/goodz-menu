@@ -27,6 +27,7 @@ export default async function TenantEntryPage() {
           </div>
           <div className="tenant-security-actions">
             <Link className="auth-entry-link" href="/app/orders">Pedidos</Link>
+            <Link className="auth-entry-link" href="/app/delivery">Entregas</Link>
             <Link className="auth-entry-link" href="/app/catalog">Catálogo</Link>
             <Link className="auth-entry-link" href="/app/settings">Configurações</Link>
             <Link className="auth-entry-link" href="/app/security">Segurança</Link>
