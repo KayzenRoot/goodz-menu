@@ -31,7 +31,7 @@ Status: `GMZ_IMPL_007_BOUND_FOR_EXECUTION`
 - Issue: `#67`
 - Admission PR: `#77`, proposal base `556a9dbbcb3250b640c40fefe1ade0d5c425d871`, reviewed head `6fce15cc60b445904d19cc9db003d602926fb98a`, merge `985151f62be6cb26a67bc1c70fac4b7eaf831bd5`
 - Execution branch: `execution/gmz-impl-007-catalog-core-bound-20a63ab`
-- Exact execution base: `20a63ab8baa6f0776224c104656e20d05be5d6b0`
+- Exact execution base: `2bcfccca9813b8ca732da8dd9fb11d4f9545de92` (rebound after `GMZ-SP-011` PR #83)
 - Assurance: `ELEVATED`
 - Implementation authorization: `YES — maintainer authorized the exact bind and execution of GMZ-M06/GMZ-M26 on the bound base`
 - Last promoted increment: `GMZ-IMPL-006`
@@ -61,7 +61,7 @@ The former Source Pack freeze blocker is closed by verified evidence.
 ## GMZ-IMPL-007 execution bind
 - Independent admission audit: `APPROVED_FOR_MAINTAINER_DECISION`; exact review is recorded in PR #77 comment `#6795017886`.
 - Admission merge: `985151f62be6cb26a67bc1c70fac4b7eaf831bd5`.
-- Execution base: `20a63ab8baa6f0776224c104656e20d05be5d6b0`.
+- Execution base: `2bcfccca9813b8ca732da8dd9fb11d4f9545de92` (rebound from `20a63ab8baa6f0776224c104656e20d05be5d6b0` after PR #83).
 - Bound branch: `execution/gmz-impl-007-catalog-core-bound-20a63ab`.
 - Context Lock: `BOUND_FOR_EXECUTION`; `16 / 16` stable source fingerprints match. Bound Checkpoint blob: `279d6974b9a30c7393e2de568aa37941df783ced`.
 - Scope: GMZ-M06 catalog (`7`) plus GMZ-M26 validation (`2`), maximum `9 / 515` only after objective acceptance, code merge and later promotion.

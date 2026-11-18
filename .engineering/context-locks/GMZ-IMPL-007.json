@@ -9,7 +9,7 @@
   "admissionBaseRef": "main",
   "admissionBaseSha": "556a9dbbcb3250b640c40fefe1ade0d5c425d871",
   "workBranch": "execution/gmz-impl-007-catalog-core-bound-20a63ab",
-  "executionBaseSha": "20a63ab8baa6f0776224c104656e20d05be5d6b0",
+  "executionBaseSha": "2bcfccca9813b8ca732da8dd9fb11d4f9545de92",
   "executionBaseState": "BOUND_FOR_EXECUTION",
   "sourcePack": "FROZEN_V0_1",
   "productionDenominator": 515,
@@ -35,7 +35,7 @@
     },
     {
       "path": "docs/source-pack/SCOPE.md",
-      "gitBlobSha": "b6aa3380cfc344813b0d58cffd549cbc3d9c339c"
+      "gitBlobSha": "fc5f140c64b5dd1d59f48f45d45b7d58981e8fcc"
     },
     {
       "path": "docs/source-pack/REQUIREMENTS.md",
@@ -88,9 +88,9 @@
   ],
   "governanceSnapshot": {
     "checkpointPath": ".engineering/CHECKPOINT.json",
-    "checkpointGitBlobSha": "279d6974b9a30c7393e2de568aa37941df783ced",
+    "checkpointGitBlobSha": "cf24033e2470c5f3eee757ff8c0e8a37f85541bc",
     "status": "GMZ_IMPL_007_BOUND_FOR_EXECUTION",
-    "note": "Exact execution bind authorized after the independent admission audit and PR #77 merge; product credit remains unchanged."
+    "note": "Exact execution bind refreshed at 2bcfccca9813b8ca732da8dd9fb11d4f9545de92 after GMZ-SP-011 Scope note reconciliation (PR #83); product credit remains unchanged."
   },
   "implementationContract": {
     "catalogCore": "ADMITTED_AFTER_BIND",
@@ -134,7 +134,7 @@
   ],
   "executor": "GEF heavy executor / Codex",
   "codexAllowed": true,
-  "codexAuthorizedScope": "Only GMZ-IMPL-007 on execution/gmz-impl-007-catalog-core-bound-20a63ab, descended from exact executionBaseSha 20a63ab8baa6f0776224c104656e20d05be5d6b0. Scope is GMZ-M06 catalog and GMZ-M26 validation only. No code merge, credit promotion, remote Supabase or production deployment.",
+  "codexAuthorizedScope": "Only GMZ-IMPL-007 on execution/gmz-impl-007-catalog-core-bound-20a63ab, rebound to exact executionBaseSha 2bcfccca9813b8ca732da8dd9fb11d4f9545de92. Scope is GMZ-M06 catalog and GMZ-M26 validation only. No code merge, credit promotion, remote Supabase or production deployment.",
   "codexProhibited": [
     "main direct mutation",
     "merge",
@@ -154,7 +154,7 @@
   "admissionMergeSha": "985151f62be6cb26a67bc1c70fac4b7eaf831bd5",
   "maintainerAuthorization": {
     "scope": "GMZ-M06 plus GMZ-M26",
-    "executionBaseSha": "20a63ab8baa6f0776224c104656e20d05be5d6b0",
+    "executionBaseSha": "2bcfccca9813b8ca732da8dd9fb11d4f9545de92",
     "implementationExecutionAllowed": true,
     "implementationCodeMergeAllowed": false,
     "earnedCreditPromotionAllowed": false,

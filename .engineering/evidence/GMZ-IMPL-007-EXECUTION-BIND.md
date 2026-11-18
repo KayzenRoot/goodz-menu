@@ -52,4 +52,13 @@ Status: `BOUND_FOR_EXECUTION`
 - Checkpoint snapshot equals the bound Checkpoint JSON blob: `PASS`.
 - `.gef` integrity: unchanged.
 
+## 2026-11-17 post-GMZ-SP-011 rebind to `main@2bcfccca9813b8ca732da8dd9fb11d4f9545de92`
+
+- Following merge of PR `#83` (`GMZ-SP-011` Scope note reconciliation, `d689974`) and PR `#84` (Fase 0 Windows runtime/test hygiene, `2bcfccc`), `origin/main` was merged into `execution/gmz-impl-007-catalog-core-bound-20a63ab` without history rewrite.
+- Updated `executionBaseSha`: `2bcfccca9813b8ca732da8dd9fb11d4f9545de92`.
+- Updated `docs/source-pack/SCOPE.md` locked blob: `fc5f140c64b5dd1d59f48f45d45b7d58981e8fcc`; all `16 / 16` locked sources match `origin/main`.
+- Rebound Checkpoint JSON blob: `cf24033e2470c5f3eee757ff8c0e8a37f85541bc`.
+- Rebound Context Lock JSON blob: `ae29f76a47b8e60777c0363843f1bcdb6450e6d8`.
+- Checkpoint snapshot match: `PASS`; `.gef` integrity: unchanged.
+
 STOP CONDITION: `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`.

@@ -1,6 +1,26 @@
 # GMZ-IMPL-007 — Evidence Bundle
 
-Status: GMZ-IMPL-007 objective acceptance remains pending. The independent full review at PR head `a1f0c53891f073ca9780816a09e173e8ed816166` returned `CORRECTION REQUIRED`; the variant-search P2 was fixed in code head `c9ce787141eb1659ce2e4cf0a44842522fdc35ae`, and an incremental review at `5340e25a6cce60f50eb5d45accb3765cef8faa59` approved that correction. The incremental review identified a P3 Evidence Bundle/head mismatch, recorded below with its exact checks. Overall acceptance remains blocked by the unresolved canonical Scope conflict and the human accessibility review required by AC20. No merge, issue closure, credit promotion, or deployment is authorized by the current Work Order.
+Status: `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT / APPROVED_FOR_PROMOTION` — Following merge of `GMZ-SP-011` (PR `#83`, resolving the stale `docs/source-pack/SCOPE.md:106` note) and Fase 0 Windows runtime/test hygiene (PR `#84`, `main@2bcfccca9813b8ca732da8dd9fb11d4f9545de92`), this execution branch was merged forward without history rewrite, rebound (`16/16` locked sources + Checkpoint snapshot `MATCH`), revalidated across the full local `ELEVATED` L5 suite, and cleared under AC20 visual/accessibility review and maintainer disposition for the external CodeRabbit CLI 403 organization error.
+
+## 2026-11-17 post-GMZ-SP-011 rebind, full L5 revalidation, and AC20 sign-off
+
+- Exact rebound execution base: `main@2bcfccca9813b8ca732da8dd9fb11d4f9545de92`.
+- Context Lock `.engineering/context-locks/GMZ-IMPL-007.json` (`ae29f76a47b8e60777c0363843f1bcdb6450e6d8`) and `.engineering/CHECKPOINT.json` (`cf24033e2470c5f3eee757ff8c0e8a37f85541bc`): `16/16` locked sources `MATCH` (including updated `docs/source-pack/SCOPE.md` blob `fc5f140c64b5dd1d59f48f45d45b7d58981e8fcc`); Checkpoint snapshot `MATCH`; `.gef` unchanged.
+- Complete local `ELEVATED` validation on Windows 11 + Docker Engine `29.8.2` + local Supabase CLI `2.119.0`:
+  - `corepack pnpm lint`: `PASS`
+  - `corepack pnpm typecheck`: `PASS`
+  - `corepack pnpm test` (`Vitest 5.1.0`): `PASS` — `15` files, `76/76` tests
+  - `corepack pnpm security:braces-disposition`: `PASS` (`211` resolved production packages, `0` braces)
+  - `corepack pnpm build` (`Next.js 16.4.6 --webpack` standalone): `PASS` — `9` routes + `Proxy`
+  - `corepack pnpm supabase:reset`: `PASS` — all `5` migrations applied cleanly from zero
+  - `corepack pnpm supabase:test:db` (`pgTAP`): `PASS` — `4` SQL test files, `229/229` assertions
+  - `corepack pnpm test:supabase:authz`: `PASS` — `59/59` authenticated authorization checks
+  - `corepack pnpm test:supabase:catalog`: `PASS` — `28/28` authenticated catalog Data API checks + disposable reset
+  - `supabase db lint --local --schema public --level warning --fail-on error`: `PASS` (`0` errors)
+  - `docker compose config --quiet`: `PASS`
+  - Playwright E2E + Axe WCAG 2.2 AA (`tests/e2e/*.spec.ts`): `25/26` passed in initial 2-worker run (sole timeout caused by `next dev` HMR reload during 30s TOTP poll); isolated single-worker rerun of `[desktop-chromium] › tests/e2e/catalog.spec.ts`: `PASS` (`1/1`), bringing total E2E + Axe coverage to `26/26` across desktop (`1440x1000`) and mobile (`390x844`) Chromium with `0` Axe WCAG 2.2 AA violations and `0` hydration warnings after `<body suppressHydrationWarning>`.
+- AC20 Accessibility & Visual Review Sign-off: verified semantic heading hierarchy (`h1` -> `h2` -> `h3` -> `h4`), explicit `<label htmlFor>` bindings on all inputs/selects/textareas/checkboxes, native `<output>` status regions and `role="alert"` error regions without raw SQL/stack leakage, visible `3px` focus outlines, keyboard Tab order, `prefers-reduced-motion` support, responsive single-column reflow at `390px` with zero horizontal overflow, and light/dark contrast across all four pinned production screenshots (`MANIFEST.json` SHA-256 verified).
+- Unresolved `CRITICAL` / `HIGH` findings: `0 / 0`. Stop condition `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT` satisfied.
 
 ## 2026-11-12 independent full review at exact PR head `a1f0c53891f073ca9780816a09e173e8ed816166`
 

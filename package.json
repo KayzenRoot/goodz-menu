@@ -7,8 +7,8 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "dev": "next dev --hostname 127.0.0.1",
-    "build": "next build",
+    "dev": "next dev --webpack --hostname 127.0.0.1",
+    "build": "next build --webpack",
     "start": "node scripts/start.mjs",
     "security:braces-disposition": "node scripts/verify-eslint-braces-not-affected.mjs",
     "lint": "eslint .",
