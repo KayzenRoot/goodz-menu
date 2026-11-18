@@ -15,7 +15,7 @@ const FORBIDDEN_CLIENT_TOKENS = [
   "append_catalog_step_up_event",
 ];
 
-const FORBIDDEN_SECRET_KEY_REGEX = /\bsb_secret_[A-Za-z0-9_-]{8,}\b/;
+const FORBIDDEN_SECRET_KEY_REGEX = /\bsb_secret_[A-Za-z0-9_-]{8,160}\b/;
 
 function walkFiles(dirPath, extensions) {
   if (!fs.existsSync(dirPath)) return [];
@@ -32,26 +32,34 @@ function walkFiles(dirPath, extensions) {
   return files;
 }
 
+function isUseClientSource(content) {
+  const trimmed = content.trimStart();
+  return trimmed.startsWith('"use client"') || trimmed.startsWith("'use client'");
+}
+
+function assertNoForbiddenTokens(content, relativePath) {
+  for (const token of FORBIDDEN_CLIENT_TOKENS) {
+    if (content.includes(token)) {
+      throw new Error(`Forbidden privileged token "${token}" leaked into client code: ${relativePath}`);
+    }
+  }
+  if (FORBIDDEN_SECRET_KEY_REGEX.test(content)) {
+    throw new Error(`Forbidden sb_secret_ credential leaked into client code: ${relativePath}`);
+  }
+}
+
 function assertServiceRoleBoundary() {
   const srcFiles = walkFiles(path.join(root, "src"), [".ts", ".tsx", ".mjs", ".js"]);
   const allowedBoundary = path.normalize(path.join(root, "src", "lib", "supabase", "audit-writer.server.ts"));
 
   for (const file of srcFiles) {
     const content = fs.readFileSync(file, "utf8");
-    const normalized = path.normalize(file);
-    if (content.includes("SUPABASE_SERVICE_ROLE_KEY") && normalized !== allowedBoundary) {
-      throw new Error(`Service-role env reference leaked outside audit-writer.server.ts: ${path.relative(root, file)}`);
+    const rel = path.relative(root, file);
+    if (content.includes("SUPABASE_SERVICE_ROLE_KEY") && path.normalize(file) !== allowedBoundary) {
+      throw new Error(`Service-role env reference leaked outside audit-writer.server.ts: ${rel}`);
     }
-    const isClientModule = /^\s*["']use client["'];/m.test(content);
-    if (isClientModule) {
-      for (const token of FORBIDDEN_CLIENT_TOKENS) {
-        if (content.includes(token)) {
-          throw new Error(`Forbidden privileged token "${token}" found in client module: ${path.relative(root, file)}`);
-        }
-      }
-      if (FORBIDDEN_SECRET_KEY_REGEX.test(content)) {
-        throw new Error(`Forbidden sb_secret_ credential found in client module: ${path.relative(root, file)}`);
-      }
+    if (isUseClientSource(content)) {
+      assertNoForbiddenTokens(content, rel);
     }
   }
 }
@@ -67,14 +75,7 @@ function assertNextStaticBundleClean() {
   }
   for (const file of bundleFiles) {
     const content = fs.readFileSync(file, "utf8");
-    for (const token of FORBIDDEN_CLIENT_TOKENS) {
-      if (content.includes(token)) {
-        throw new Error(`Forbidden secret/privileged marker "${token}" leaked into client bundle: ${path.relative(root, file)}`);
-      }
-    }
-    if (FORBIDDEN_SECRET_KEY_REGEX.test(content)) {
-      throw new Error(`Forbidden sb_secret_ credential leaked into client bundle: ${path.relative(root, file)}`);
-    }
+    assertNoForbiddenTokens(content, path.relative(root, file));
   }
   return bundleFiles.length;
 }

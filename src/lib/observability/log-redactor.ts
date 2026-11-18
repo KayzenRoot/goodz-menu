@@ -14,7 +14,7 @@ const SENSITIVE_KEY_SUBSTRINGS = [
 
 const JWT_TOKEN_REGEX = /\beyJ[A-Za-z0-9_-]{8,100}\.[A-Za-z0-9_-]{8,200}\.[A-Za-z0-9_-]{8,200}\b/g;
 const SUPABASE_KEY_REGEX = /\bsb_(?:secret|publishable)_[A-Za-z0-9_-]{8,120}\b/g;
-const BEARER_REGEX = /\bBearer\s+[A-Za-z0-9._~+/=-]{8,250}/gi;
+const BEARER_REGEX = /\bBearer\s+[a-z0-9._~+/=-]{8,250}/gi;
 const CAPABILITY_HEX_REGEX = /\b[0-9a-f]{48,64}\b/gi;
 
 export function redactStringValue(input: string): string {
@@ -59,5 +59,8 @@ function redactValue(key: string, value: unknown, depth: number): unknown {
     }
     return out;
   }
-  return String(value);
+  if (typeof value === "bigint" || typeof value === "symbol") {
+    return value.toString();
+  }
+  return "[UNSERIALIZABLE]";
 }
