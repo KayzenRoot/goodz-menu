@@ -326,17 +326,7 @@ function finishOrdersCommand(
   data: Json | null,
 ): OrdersActionState {
   if (error) {
-    const msg = error.message ?? "";
-    if (msg.includes("paused or disabled")) return { kind: "storefront_paused", correlationId };
-    if (msg.includes("offer is unavailable")) return { kind: "offer_unavailable", correlationId };
-    if (msg.includes("minimum order amount")) return { kind: "below_minimum", correlationId };
-    if (msg.includes("outside configured delivery zones") || msg.includes("delivery zone is unavailable")) {
-      return { kind: "outside_zone", correlationId };
-    }
-    if (msg.includes("transition is invalid")) return { kind: "invalid_transition", correlationId };
-    if (error.code === "42501") return { kind: "denied", correlationId };
-    if (error.code === "22023" || error.code === "23514") return { kind: "invalid", correlationId };
-    return { kind: "failed", correlationId };
+    return mapOrdersRpcError(error, correlationId);
   }
 
   const parsed = parseOrderCommandReceipt(data);
@@ -350,6 +340,24 @@ function finishOrdersCommand(
     idempotentReplay: parsed.idempotentReplay,
     auditEventIds: parsed.auditEventIds,
   };
+}
+
+const ORDERS_ERROR_SNIPPETS: readonly Readonly<[string, Exclude<OrdersActionState, null | { kind: "saved" }>["kind"]]>[] = [
+  ["paused or disabled", "storefront_paused"],
+  ["offer is unavailable", "offer_unavailable"],
+  ["minimum order amount", "below_minimum"],
+  ["outside configured delivery zones", "outside_zone"],
+  ["delivery zone is unavailable", "outside_zone"],
+  ["transition is invalid", "invalid_transition"],
+];
+
+function mapOrdersRpcError(error: OrdersRpcError, correlationId: string): OrdersActionState {
+  const msg = error.message ?? "";
+  const matched = ORDERS_ERROR_SNIPPETS.find(([snippet]) => msg.includes(snippet));
+  if (matched) return { kind: matched[1], correlationId };
+  if (error.code === "42501") return { kind: "denied", correlationId };
+  if (error.code === "22023" || error.code === "23514") return { kind: "invalid", correlationId };
+  return { kind: "failed", correlationId };
 }
 
 function parseOrderCommandReceipt(

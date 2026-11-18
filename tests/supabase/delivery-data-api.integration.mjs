@@ -245,39 +245,23 @@ async function main() {
     const delList = await sendRestRequest(api, `deliveries?order_id=eq.${orderId}&select=id,status,delivery_fee_snapshot`, {
       token: staffA.accessToken,
     });
-    if (!delList.ok || delList.payload?.[0]?.status !== "preparing" || Number(delList.payload[0].delivery_fee_snapshot) !== 8.9) {
+    const feeSnapshotText = Number(delList.payload?.[0]?.delivery_fee_snapshot).toFixed(2);
+    if (!delList.ok || delList.payload?.[0]?.status !== "preparing" || feeSnapshotText !== "8.90") {
       throw new Error("Expected automatic deliveries row with authoritative 8.90 fee snapshot.");
     }
     const deliveryId = delList.payload[0].id;
     record("Authoritative zone fee (8.90) snapshotted and deliveries row created in preparing state");
 
-    const steps = [
-      ["ready_for_dispatch", ""],
-      ["assigned", "Moto 07 · Rafael"],
-      ["out_for_delivery", ""],
-      ["delivered", ""],
-    ];
-    for (const [targetStatus, courier] of steps) {
-      const stepRes = await sendRestRequest(api, "rpc/delivery_advance_dispatch", {
-        method: "POST",
-        token: staffA.accessToken,
-        body: {
-          p_delivery_id: deliveryId,
-          p_to_status: targetStatus,
-          p_courier_label: courier,
-          p_reason: "",
-          p_correlation_id: randomUUID(),
-        },
-      });
-      if (!stepRes.ok || stepRes.payload?.status !== targetStatus) {
-        throw new Error(`Failed dispatch transition to ${targetStatus}: HTTP ${stepRes.status}`);
-      }
-    }
+    await advanceDispatchStep(api, staffA.accessToken, deliveryId, "ready_for_dispatch", "");
+    await advanceDispatchStep(api, staffA.accessToken, deliveryId, "assigned", "Moto 07 · Rafael");
+    await advanceDispatchStep(api, staffA.accessToken, deliveryId, "out_for_delivery", "");
+    await advanceDispatchStep(api, staffA.accessToken, deliveryId, "delivered", "");
 
     const finalOrder = await sendRestRequest(api, `orders?id=eq.${orderId}&select=status,total_amount`, {
       token: staffA.accessToken,
     });
-    if (finalOrder.payload?.[0]?.status !== "completed" || Number(finalOrder.payload[0].total_amount) !== 58.9) {
+    const totalAmountText = Number(finalOrder.payload?.[0]?.total_amount).toFixed(2);
+    if (finalOrder.payload?.[0]?.status !== "completed" || totalAmountText !== "58.90") {
       throw new Error("Expected parent order synchronized to completed with total 58.90.");
     }
     record("Full dispatch lifecycle synchronized parent order to completed (total BRL 58.90)");
@@ -285,6 +269,23 @@ async function main() {
     console.log(`DELIVERY DATA API INTEGRATION PASSED: ${checks.length}/${checks.length}`);
   } finally {
     await cleanupDeliveryFixture();
+  }
+}
+
+async function advanceDispatchStep(api, token, deliveryId, targetStatus, courier) {
+  const stepRes = await sendRestRequest(api, "rpc/delivery_advance_dispatch", {
+    method: "POST",
+    token,
+    body: {
+      p_delivery_id: deliveryId,
+      p_to_status: targetStatus,
+      p_courier_label: courier,
+      p_reason: "",
+      p_correlation_id: randomUUID(),
+    },
+  });
+  if (!stepRes.ok || stepRes.payload?.status !== targetStatus) {
+    throw new Error(`Failed dispatch transition to ${targetStatus}: HTTP ${stepRes.status}`);
   }
 }
 
