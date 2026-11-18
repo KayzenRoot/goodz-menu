@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_007_PROMOTED_COMPLETE_READY_FOR_NEXT`
+Status: `GMZ_IMPL_008_PROMOTED_COMPLETE_READY_FOR_NEXT`
 
 ## Current state
 - Project: Goodz Menu
@@ -28,13 +28,13 @@ Status: `GMZ_IMPL_007_PROMOTED_COMPLETE_READY_FOR_NEXT`
 - Business-domain implementation: `NOT_AUTHORIZED (admit/contract next slice first)`
 
 ## Active increment
-- Work Order: `NONE (GMZ-IMPL-007 promoted complete)`
-- Last promoted increment: `GMZ-IMPL-007` (PR `#80`, merge `c65cd9eb7d0cdcfebd3f6d265b987c7f34f4f971`)
-- Current earned production credit: `61 / 515 = 11.84%`
-- Next governed action: `ADMIT / CONTRACT NEXT MVP SLICE (GMZ-M03 SETTINGS, POLICY & ENTITLEMENTS)`
+- Work Order: `NONE (GMZ-IMPL-008 promoted complete)`
+- Last promoted increment: `GMZ-IMPL-008` (PR `#87`, merge `7da9c6049b7218ebf433649246d4cf669bbd08b4`)
+- Current earned production credit: `72 / 515 = 13.98%`
+- Next governed action: `ADMIT / CONTRACT NEXT MVP SLICE (GMZ-M10 ORDERS & STAFF QUEUE)`
 
 ## Progress accounting
-Overall production completion: `61 / 515 = 11.84%`.
+Overall production completion: `72 / 515 = 13.98%`.
 
 Planning artifacts do not manufacture product-completion percentage.
 
@@ -1034,3 +1034,24 @@ STOP CONDITION: `GMZ_IMPL_007_ADMISSION_READY_FOR_REVIEW`.
 - next: `ADMIT / CONTRACT NEXT MVP SLICE (GMZ-M03)`
 
 STOP CONDITION: `GMZ_IMPL_007_PROMOTED_COMPLETE`.
+
+
+## GMZ-IMPL-008 post-merge promotion
+
+- implementation PR: `#87` (Issue `#86`)
+- accepted candidate: `e3299963c74e26acefe47223bb03258be53f2828`
+- implementation merge: `7da9c6049b7218ebf433649246d4cf669bbd08b4`
+- objective audit: `APPROVED_FOR_PROMOTION` (`0` open SonarCloud issues across all severities; `Socket` `SUCCESS`)
+- credit:
+  - GMZ-M03: `10`
+  - GMZ-M26: `1`
+  - total: `11 / 515`
+- cumulative production credit: `72 / 515 = 13.98%`
+- GMZ-M03 accepted baseline: `10 / 16 — PARTIAL`
+- GMZ-M26 accepted baseline: `14 / 18 — PARTIAL`
+- implementation authorization: `NO`
+- unresolved review threads: `0`
+- CRITICAL/HIGH: `0 / 0`
+- next: `ADMIT / CONTRACT NEXT MVP SLICE (GMZ-M10 ORDERS & GMZ-M04 STAFF QUEUE)`
+
+STOP CONDITION: `GMZ_IMPL_008_PROMOTED_COMPLETE`.
