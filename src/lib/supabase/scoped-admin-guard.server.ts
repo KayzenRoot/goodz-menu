@@ -145,3 +145,60 @@ export async function readAuthorizedTenantScope(
   }
   return { organizationId: data.id, establishmentId: null, branchId: null };
 }
+
+export async function executeBranchPermissionGuard(options: Readonly<{
+  organizationId: string;
+  establishmentId: string;
+  branchId: string;
+  isValidExtraTarget?: boolean;
+  actionLogName: string;
+  checkBranchPermission: (
+    client: ServerSupabaseClient,
+    scope: { organizationId: string; establishmentId: string; branchId: string },
+  ) => Promise<boolean>;
+  persistWithScope: (
+    decision: AdminGuardDecision,
+    actorUserId: string | null,
+    scope: TenantScopeIds | null,
+    correlationId: string,
+  ) => Promise<string | null>;
+}>): Promise<Readonly<{ decision: AdminGuardDecision; proofId: string | null; correlationId: string }>> {
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  let observedScope: TenantScopeIds | null = null;
+  const validIds = uuidPattern.test(options.organizationId)
+    && uuidPattern.test(options.establishmentId)
+    && uuidPattern.test(options.branchId)
+    && (options.isValidExtraTarget ?? true);
+
+  return executeScopedAdminGuard({
+    resourceId: options.branchId,
+    actionLogName: options.actionLogName,
+    async authorizeWithClient(client, candidateResourceId) {
+      if (candidateResourceId !== options.branchId || !validIds) return false;
+      const scope = await readAuthorizedTenantScope(client, {
+        organizationId: options.organizationId,
+        establishmentId: options.establishmentId,
+        branchId: options.branchId,
+      });
+      if (!scope?.branchId || !scope.establishmentId) return false;
+      observedScope = scope;
+      return options.checkBranchPermission(client, {
+        organizationId: scope.organizationId,
+        establishmentId: scope.establishmentId,
+        branchId: scope.branchId,
+      });
+    },
+    async persistAudit(decision, identity, correlationId) {
+      const persistedProofId = await options.persistWithScope(
+        decision,
+        identity?.id ?? null,
+        observedScope,
+        correlationId,
+      );
+      if (decision.allowed && (!persistedProofId || !uuidPattern.test(persistedProofId))) {
+        throw new Error("Audit persistence is unavailable.");
+      }
+      return persistedProofId;
+    },
+  });
+}

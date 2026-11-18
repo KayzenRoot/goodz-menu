@@ -98,10 +98,13 @@ export async function createOrdersSessionFixture(): Promise<OrdersSessionFixture
     inspectOrdersAudit: queryAuditEventsByCorrelation,
     async cleanup() {
       await runBatchSql(`
+        DELETE FROM private.storefront_step_up_consumptions
+        WHERE guard_event_id IN (SELECT id FROM public.audit_events WHERE organization_id = '${organizationId}');
         DELETE FROM private.delivery_step_up_consumptions
         WHERE guard_event_id IN (SELECT id FROM public.audit_events WHERE organization_id = '${organizationId}');
         DELETE FROM private.orders_step_up_consumptions
         WHERE guard_event_id IN (SELECT id FROM public.audit_events WHERE organization_id = '${organizationId}');
+        DELETE FROM private.order_public_tracking_tokens WHERE organization_id = '${organizationId}';
         ALTER TABLE public.audit_events DISABLE TRIGGER audit_events_immutable;
         DELETE FROM public.audit_events WHERE organization_id = '${organizationId}';
         ALTER TABLE public.audit_events ENABLE TRIGGER audit_events_immutable;
@@ -115,6 +118,9 @@ export async function createOrdersSessionFixture(): Promise<OrdersSessionFixture
         ALTER TABLE public.order_handoff_payments ENABLE TRIGGER order_handoff_payments_immutable;
         ALTER TABLE public.order_status_transitions ENABLE TRIGGER order_status_transitions_immutable;
         ALTER TABLE public.order_items ENABLE TRIGGER order_items_immutable;
+        DELETE FROM public.storefront_profiles WHERE organization_id = '${organizationId}';
+        UPDATE public.products SET primary_media_asset_id = NULL WHERE organization_id = '${organizationId}';
+        DELETE FROM public.media_assets WHERE organization_id = '${organizationId}';
         DELETE FROM public.delivery_zones WHERE organization_id = '${organizationId}';
         DELETE FROM public.customers WHERE organization_id = '${organizationId}';
         DELETE FROM public.channel_offers WHERE organization_id = '${organizationId}';
