@@ -65,8 +65,8 @@ A score is not “importance”. It estimates delivery/proof burden.
 ## 4. Current production credit
 
 As of this baseline:
-- evidence-backed product implementation credit: `72 / 515`;
-- production completion: `13.98%`;
+- evidence-backed product implementation credit: `90 / 515`;
+- production completion: `17.48%`;
 - planning/source-pack progress is tracked separately and does not create product credit.
 
 This is intentionally strict.
@@ -93,8 +93,12 @@ This is intentionally strict.
 | GMZ-IMPL-007 | GMZ-M26 catalog RLS/Data API/E2E validation & quality | 2 | `c65cd9eb7d0cdcfebd3f6d265b987c7f34f4f971` |
 | GMZ-IMPL-008 | GMZ-M03 settings registry, policy hierarchy & pilot entitlements | 10 | `7da9c6049b7218ebf433649246d4cf669bbd08b4` |
 | GMZ-IMPL-008 | GMZ-M26 settings RLS/Data API/E2E validation & quality | 1 | `7da9c6049b7218ebf433649246d4cf669bbd08b4` |
+| GMZ-IMPL-009 | GMZ-M10 canonical orders, immutable snapshots & handoff payments | 10 | `82dcea6d1870edf5cab062accf795152ca8433f6` |
+| GMZ-IMPL-009 | GMZ-M04 Operations Shell staff order queue UI & feedback | 5 | `82dcea6d1870edf5cab062accf795152ca8433f6` |
+| GMZ-IMPL-009 | GMZ-M23 order lifecycle & handoff payment durable audit | 2 | `82dcea6d1870edf5cab062accf795152ca8433f6` |
+| GMZ-IMPL-009 | GMZ-M26 orders RLS/Data API/E2E validation & quality | 1 | `82dcea6d1870edf5cab062accf795152ca8433f6` |
 
-Cumulative accepted credit: `72 / 515 = 13.98%`.
+Cumulative accepted credit: `90 / 515 = 17.48%`.
 
 GMZ-M01 accepted baseline: `10 / 19 — PARTIAL`.
 
@@ -102,15 +106,17 @@ GMZ-M02 accepted baseline: `19 / 19 — COMPLETE`.
 
 GMZ-M03 accepted baseline: `10 / 16 — PARTIAL`.
 
-GMZ-M04 accepted baseline: `1 / 15 — PARTIAL`.
+GMZ-M04 accepted baseline: `6 / 15 — PARTIAL`.
 
 GMZ-M06 accepted baseline: `7 / 16 — PARTIAL`.
 
-GMZ-M23 accepted baseline: `7 / 19 — PARTIAL`.
+GMZ-M10 accepted baseline: `10 / 20 — PARTIAL`.
+
+GMZ-M23 accepted baseline: `9 / 19 — PARTIAL`.
 
 GMZ-M25 accepted baseline: `4 / 18 — PARTIAL`.
 
-GMZ-M26 accepted baseline: `14 / 18 — PARTIAL`.
+GMZ-M26 accepted baseline: `15 / 18 — PARTIAL`.
 
 ## 5. Weight rationale classes
 
