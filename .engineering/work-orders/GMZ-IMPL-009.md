@@ -1,10 +1,11 @@
 # GMZ-IMPL-009 — Canonical Orders, Handoff Payments & Staff Order Queue
 
-Status: `ADMITTED / BOUND_FOR_EXECUTION`
+Status: `PROMOTED_COMPLETE`
 Issue: `#89`
 Assurance: `ELEVATED`
 Execution branch: `execution/gmz-impl-009-orders-staff-queue`
 Execution base: `620af6d44478947b2e5c56d82924d8daf756e6a4`
+Merged PR: `#90` (`82dcea6d1870edf5cab062accf795152ca8433f6`)
 
 ## OBJECTIVE
 
