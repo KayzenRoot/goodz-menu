@@ -65,8 +65,8 @@ A score is not “importance”. It estimates delivery/proof burden.
 ## 4. Current production credit
 
 As of this baseline:
-- evidence-backed product implementation credit: `102 / 515`;
-- production completion: `19.81%`;
+- evidence-backed product implementation credit: `121 / 515`;
+- production completion: `23.50%`;
 - planning/source-pack progress is tracked separately and does not create product credit.
 
 This is intentionally strict.
@@ -100,8 +100,13 @@ This is intentionally strict.
 | GMZ-IMPL-010 | GMZ-M12 own delivery zones, exact fee/minimum rules & dispatch | 10 | `5ef48fcee7c9852a59916ff4f5998a40612dcb8a` |
 | GMZ-IMPL-010 | GMZ-M23 delivery zones & dispatch durable audit | 1 | `5ef48fcee7c9852a59916ff4f5998a40612dcb8a` |
 | GMZ-IMPL-010 | GMZ-M26 delivery RLS/Data API/E2E validation & quality | 1 | `5ef48fcee7c9852a59916ff4f5998a40612dcb8a` |
+| GMZ-IMPL-011 | GMZ-M11 Goodz Online public menu, checkout & capability-token tracking | 12 | `0ba65a25630b069ce30e3fe8ce3d486ececa6f97` |
+| GMZ-IMPL-011 | GMZ-M06 provider-agnostic MediaAsset & MediaVariant abstraction | 2 | `0ba65a25630b069ce30e3fe8ce3d486ececa6f97` |
+| GMZ-IMPL-011 | GMZ-M04 Storefront Shell & versioned safe theme presets | 3 | `0ba65a25630b069ce30e3fe8ce3d486ececa6f97` |
+| GMZ-IMPL-011 | GMZ-M23 storefront profile & media registration durable audit | 1 | `0ba65a25630b069ce30e3fe8ce3d486ececa6f97` |
+| GMZ-IMPL-011 | GMZ-M26 storefront CWV/WCAG/Data API/pgTAP validation & quality | 1 | `0ba65a25630b069ce30e3fe8ce3d486ececa6f97` |
 
-Cumulative accepted credit: `102 / 515 = 19.81%`.
+Cumulative accepted credit: `121 / 515 = 23.50%`.
 
 GMZ-M01 accepted baseline: `10 / 19 — PARTIAL`.
 
@@ -109,19 +114,21 @@ GMZ-M02 accepted baseline: `19 / 19 — COMPLETE`.
 
 GMZ-M03 accepted baseline: `10 / 16 — PARTIAL`.
 
-GMZ-M04 accepted baseline: `6 / 15 — PARTIAL`.
+GMZ-M04 accepted baseline: `9 / 15 — PARTIAL`.
 
-GMZ-M06 accepted baseline: `7 / 16 — PARTIAL`.
+GMZ-M06 accepted baseline: `9 / 16 — PARTIAL`.
 
 GMZ-M10 accepted baseline: `10 / 20 — PARTIAL`.
 
+GMZ-M11 accepted baseline: `12 / 18 — PARTIAL`.
+
 GMZ-M12 accepted baseline: `10 / 16 — PARTIAL`.
 
-GMZ-M23 accepted baseline: `10 / 19 — PARTIAL`.
+GMZ-M23 accepted baseline: `11 / 19 — PARTIAL`.
 
 GMZ-M25 accepted baseline: `4 / 18 — PARTIAL`.
 
-GMZ-M26 accepted baseline: `16 / 18 — PARTIAL`.
+GMZ-M26 accepted baseline: `17 / 18 — PARTIAL`.
 
 ## 5. Weight rationale classes
 
