@@ -1,0 +1,106 @@
+name: Goodz Production Gate
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  static-and-bundle-gate:
+    name: Static, Unit, Build & Secret Boundary Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js 22 with Corepack
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Enable pnpm via Corepack
+        run: corepack enable
+
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify braces advisory disposition
+        run: pnpm security:braces-disposition
+
+      - name: Run ESLint
+        run: pnpm lint
+
+      - name: Run TypeScript typecheck
+        run: pnpm typecheck
+
+      - name: Run Vitest unit suite
+        run: pnpm test
+
+      - name: Build production Next.js bundle
+        env:
+          GOODZ_ENVIRONMENT: local
+          SUPABASE_API_URL: http://127.0.0.1:54321
+        run: pnpm build
+
+      - name: Verify production secret boundary and Dockerfile hardening
+        run: pnpm verify:prod-readiness
+
+  database-and-pilot-smoke:
+    name: Supabase Migrations, pgTAP, Data API, Backup Drill & E2E Smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: static-and-bundle-gate
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js 22 with Corepack
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Enable pnpm via Corepack
+        run: corepack enable
+
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium browser
+        run: node node_modules/@playwright/test/cli.js install --with-deps chromium
+
+      - name: Start local Supabase stack and apply migrations
+        run: pnpm supabase:start
+
+      - name: Lint PostgreSQL schema and functions
+        run: node node_modules/supabase/dist/supabase.js db lint --local
+
+      - name: Run pgTAP database security and domain suite
+        run: pnpm supabase:test:db
+
+      - name: Run Data API integration suites
+        run: |
+          pnpm test:supabase:authz
+          pnpm test:supabase:settings
+          pnpm test:supabase:orders
+          pnpm test:supabase:delivery
+          pnpm test:supabase:storefront
+          pnpm test:supabase:privacy
+
+      - name: Execute PostgreSQL backup and restore drill
+        run: pnpm verify:backup-drill
+
+      - name: Run Pilot Go-Live E2E and WCAG 2.2 AA smoke
+        run: node scripts/run-local-e2e.mjs tests/e2e/privacy-and-golive.spec.ts --workers=1
+
+      - name: Stop local Supabase stack
+        if: always()
+        run: pnpm supabase:stop

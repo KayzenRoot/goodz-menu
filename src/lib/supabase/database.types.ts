@@ -147,6 +147,25 @@ isOneToOne: false
       referencedColumns: ["organization_id","id"]
     }
                   ]
+                },"customer_consents": {
+                  Row: {
+                    "actor_user_id": string | null,"correlation_id": string,"created_at": string,"customer_id": string,"granted": boolean,"id": string,"organization_id": string,"purpose": string,"source": string
+                  }
+                  Insert: {
+                    "actor_user_id"?: string | null,"correlation_id": string,"created_at"?: string,"customer_id": string,"granted": boolean,"id"?: string,"organization_id": string,"purpose": string,"source": string
+                  }
+                  Update: {
+                    "actor_user_id"?: string | null,"correlation_id"?: string,"created_at"?: string,"customer_id"?: string,"granted"?: boolean,"id"?: string,"organization_id"?: string,"purpose"?: string,"source"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "customer_consents_customer_fkey"
+      columns: ["organization_id","customer_id"]
+isOneToOne: false
+      referencedRelation: "customers"
+      referencedColumns: ["organization_id","id"]
+    }
+                  ]
                 },"customers": {
                   Row: {
                     "anonymized_at": string | null,"created_at": string,"display_name": string,"id": string,"last_order_at": string | null,"marketing_opt_in": boolean,"marketing_opt_in_updated_at": string | null,"organization_id": string,"phone": string,"phone_normalized": string,"updated_at": string
@@ -854,6 +873,9 @@ isOneToOne: false
 "append_orders_step_up_event":
 { Args: { "p_actor_user_id": string,"p_branch_id": string,"p_correlation_id": string,"p_establishment_id": string,"p_order_id": string,"p_organization_id": string,"p_outcome": string,"p_reason_code": string,"p_required_permissions": (string)[] }; Returns: string
                            },
+"append_privacy_step_up_event":
+{ Args: { "p_actor_user_id": string,"p_correlation_id": string,"p_customer_id": string,"p_organization_id": string,"p_outcome": string,"p_reason_code": string,"p_required_permissions": (string)[] }; Returns: string
+                           },
 "append_settings_step_up_event":
 { Args: { "p_actor_user_id": string,"p_branch_id": string,"p_correlation_id": string,"p_establishment_id": string,"p_organization_id": string,"p_outcome": string,"p_reason_code": string,"p_required_permissions": (string)[],"p_scope_type": string,"p_setting_key": string }; Returns: string
                            },
@@ -909,6 +931,20 @@ isOneToOne: false
                            },
 "orders_transition_status":
 { Args: { "p_correlation_id": string,"p_order_id": string,"p_reason": string,"p_to_status": string }; Returns: Json
+                           },
+"privacy_anonymize_customer":
+{ Args: { "p_correlation_id": string,"p_customer_id": string,"p_organization_id": string,"p_reason": string,"p_step_up_proof_id": string }; Returns: Json
+                           },
+"privacy_export_customer_data":
+{ Args: { "p_correlation_id": string,"p_customer_id": string,"p_organization_id": string,"p_step_up_proof_id": string }; Returns: Json
+                           },
+"privacy_has_permission":
+{ Args: { "p_organization_id": string,"p_permission_key": string }; Returns: boolean
+                           },
+"privacy_list_customers":
+{ Args: { "p_organization_id": string,"p_retention_days"?: number }; Returns: {
+              "anonymized_at": string,"customer_id": string,"display_name": string,"is_retention_expired": boolean,"last_order_at": string,"marketing_opt_in": boolean,"phone": string
+            }[]
                            },
 "resolve_effective_settings":
 { Args: { "p_branch_id"?: string,"p_device_overrides"?: Json,"p_establishment_id"?: string,"p_organization_id": string }; Returns: {

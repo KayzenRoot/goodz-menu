@@ -8,6 +8,7 @@ import { validateSettingsAdminGuardEvent } from "@/lib/supabase/settings-admin-g
 import { validateOrdersAdminGuardEvent } from "@/lib/supabase/orders-admin-guard-policy";
 import { validateDeliveryAdminGuardEvent } from "@/lib/supabase/delivery-admin-guard-policy";
 import { validateStorefrontAdminGuardEvent } from "@/lib/supabase/storefront-admin-guard-policy";
+import { validatePrivacyAdminGuardEvent } from "@/lib/supabase/privacy-admin-guard-policy";
 
 export type { AdminGuardAuditEvent } from "@/lib/supabase/admin-guard-policy";
 export type { CatalogAdminGuardEvent } from "@/lib/supabase/catalog-admin-guard-policy";
@@ -15,6 +16,7 @@ export type { SettingsAdminGuardEvent } from "@/lib/supabase/settings-admin-guar
 export type { OrdersAdminGuardEvent } from "@/lib/supabase/orders-admin-guard-policy";
 export type { DeliveryAdminGuardEvent } from "@/lib/supabase/delivery-admin-guard-policy";
 export type { StorefrontAdminGuardEvent } from "@/lib/supabase/storefront-admin-guard-policy";
+export type { PrivacyAdminGuardEvent } from "@/lib/supabase/privacy-admin-guard-policy";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -45,7 +47,8 @@ type StepUpRpcName =
   | "append_settings_step_up_event"
   | "append_orders_step_up_event"
   | "append_delivery_step_up_event"
-  | "append_storefront_step_up_event";
+  | "append_storefront_step_up_event"
+  | "append_privacy_step_up_event";
 
 async function invokeStepUpRpc<Name extends StepUpRpcName>(
   rpcName: Name,
@@ -169,4 +172,18 @@ export async function persistStorefrontAdminGuardEvent(value: unknown): Promise<
     p_outcome: event.outcome,
     p_reason_code: event.reason_code,
   } as unknown as Database["public"]["Functions"]["append_storefront_step_up_event"]["Args"], event.outcome);
+}
+
+/** Persists only the narrow LGPD privacy step-up decision; never mutates customer rows. */
+export async function persistPrivacyAdminGuardEvent(value: unknown): Promise<string | null> {
+  const event = validatePrivacyAdminGuardEvent(value);
+  return invokeStepUpRpc("append_privacy_step_up_event", {
+    p_actor_user_id: event.actor_user_id,
+    p_organization_id: event.organization_id,
+    p_customer_id: event.customer_id,
+    p_required_permissions: event.required_permissions,
+    p_correlation_id: event.correlation_id,
+    p_outcome: event.outcome,
+    p_reason_code: event.reason_code,
+  } as unknown as Database["public"]["Functions"]["append_privacy_step_up_event"]["Args"], event.outcome);
 }

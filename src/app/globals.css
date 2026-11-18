@@ -234,12 +234,15 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .orders-page .auth-field select,
 .delivery-page .auth-field select,
 .storefront-admin-page .auth-field select,
+.privacy-page .auth-field select,
 .storefront-shell .auth-field select { width: 100%; height: 49px; padding: 0 13px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface-raised); color: var(--text-primary); font: inherit; font-size: 13px; }
 .settings-page .auth-field select:focus-visible,
 .orders-page .auth-field select:focus-visible,
 .delivery-page .auth-field select:focus-visible,
 .storefront-admin-page .auth-field select:focus-visible,
+.privacy-page .auth-field select:focus-visible,
 .storefront-shell .auth-field select:focus-visible { border-color: var(--accent); outline: 3px solid color-mix(in srgb, var(--accent), transparent 76%); outline-offset: 1px; }
+.privacy-export-pre { margin: 6px 0 0; padding: 10px; max-height: 220px; max-width: 100%; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; border: 1px solid var(--border-subtle); border-radius: 8px; background: var(--surface); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; line-height: 1.45; }
 .orders-status-banner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow-soft); font-size: 12px; }
 .orders-kpi-strip { display: flex; flex-wrap: wrap; gap: 8px; }
 .orders-filter-bar { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 16px; }

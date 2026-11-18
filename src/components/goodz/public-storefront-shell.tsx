@@ -563,6 +563,7 @@ function PublicCheckoutFeedback({ state }: Readonly<{ state: PublicCheckoutActio
   }
   const messages: Record<string, string> = {
     invalid: "Confira seu nome, telefone e dados de entrega.",
+    rate_limited: "Muitas tentativas em sequência. Aguarde alguns segundos e tente novamente.",
     paused: "O recebimento de pedidos online acabou de ser pausado nesta unidade.",
     offer_unavailable: "Um dos itens selecionados esgotou. Atualize a página.",
     below_minimum: "O subtotal dos itens não atingiu o pedido mínimo da zona.",
