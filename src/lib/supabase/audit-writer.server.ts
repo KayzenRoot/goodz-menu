@@ -7,12 +7,14 @@ import { validateCatalogAdminGuardEvent } from "@/lib/supabase/catalog-admin-gua
 import { validateSettingsAdminGuardEvent } from "@/lib/supabase/settings-admin-guard-policy";
 import { validateOrdersAdminGuardEvent } from "@/lib/supabase/orders-admin-guard-policy";
 import { validateDeliveryAdminGuardEvent } from "@/lib/supabase/delivery-admin-guard-policy";
+import { validateStorefrontAdminGuardEvent } from "@/lib/supabase/storefront-admin-guard-policy";
 
 export type { AdminGuardAuditEvent } from "@/lib/supabase/admin-guard-policy";
 export type { CatalogAdminGuardEvent } from "@/lib/supabase/catalog-admin-guard-policy";
 export type { SettingsAdminGuardEvent } from "@/lib/supabase/settings-admin-guard-policy";
 export type { OrdersAdminGuardEvent } from "@/lib/supabase/orders-admin-guard-policy";
 export type { DeliveryAdminGuardEvent } from "@/lib/supabase/delivery-admin-guard-policy";
+export type { StorefrontAdminGuardEvent } from "@/lib/supabase/storefront-admin-guard-policy";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -42,7 +44,8 @@ type StepUpRpcName =
   | "append_catalog_step_up_event"
   | "append_settings_step_up_event"
   | "append_orders_step_up_event"
-  | "append_delivery_step_up_event";
+  | "append_delivery_step_up_event"
+  | "append_storefront_step_up_event";
 
 async function invokeStepUpRpc<Name extends StepUpRpcName>(
   rpcName: Name,
@@ -150,4 +153,20 @@ export async function persistDeliveryAdminGuardEvent(value: unknown): Promise<st
     p_outcome: event.outcome,
     p_reason_code: event.reason_code,
   } as unknown as Database["public"]["Functions"]["append_delivery_step_up_event"]["Args"], event.outcome);
+}
+
+/** Persists only the narrow storefront profile step-up decision; never mutates storefront rows. */
+export async function persistStorefrontAdminGuardEvent(value: unknown): Promise<string | null> {
+  const event = validateStorefrontAdminGuardEvent(value);
+  return invokeStepUpRpc("append_storefront_step_up_event", {
+    p_actor_user_id: event.actor_user_id,
+    p_organization_id: event.organization_id,
+    p_establishment_id: event.establishment_id,
+    p_branch_id: event.branch_id,
+    p_target_id: event.target_id,
+    p_required_permissions: event.required_permissions,
+    p_correlation_id: event.correlation_id,
+    p_outcome: event.outcome,
+    p_reason_code: event.reason_code,
+  } as unknown as Database["public"]["Functions"]["append_storefront_step_up_event"]["Args"], event.outcome);
 }

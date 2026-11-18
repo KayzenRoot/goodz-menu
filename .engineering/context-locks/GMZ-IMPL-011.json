@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "1.1",
+  "kind": "goodz.implementation-context-lock",
+  "workOrderId": "GMZ-IMPL-011",
+  "issue": 95,
+  "repository": "KayzenRoot/goodz-menu",
+  "gefVersion": "1.1.1",
+  "assurance": "ELEVATED",
+  "workBranch": "execution/gmz-impl-011-storefront-media",
+  "executionBaseSha": "2cf2a2cbd9126a4a73a28fdbace584d980e3a7a2",
+  "executionBaseState": "BOUND_FOR_EXECUTION",
+  "sourcePack": "FROZEN_V0_1",
+  "productionDenominator": 515,
+  "productionEarnedAtAdmission": 102,
+  "maxSliceCredit": 19,
+  "creditAllocation": {
+    "GMZ-M11": 12,
+    "GMZ-M06": 2,
+    "GMZ-M04": 3,
+    "GMZ-M23": 1,
+    "GMZ-M26": 1
+  },
+  "projectedEarnedIfAccepted": 121,
+  "lockedSources": [
+    { "path": ".engineering/SOURCE-HIERARCHY.md", "gitBlobSha": "189109435a264fe5a7306d6d10fc3ea62145dab2" },
+    { "path": ".engineering/MODULE-MAP.md", "gitBlobSha": "c70a041da273787eb0d6f3ce43a6bc3a7260eeb0" },
+    { "path": "docs/source-pack/BACKLOG.md", "gitBlobSha": "1a040afbf88fc907f03c99162d23c01892b2da80" },
+    { "path": "docs/source-pack/SCOPE.md", "gitBlobSha": "03fe1073f0c928a7be83d4c2b78bf54808208f75" },
+    { "path": "docs/source-pack/REQUIREMENTS.md", "gitBlobSha": "2e179c00446980a481e56dd02fe71865a7237f59" },
+    { "path": "docs/source-pack/ARCHITECTURE.md", "gitBlobSha": "a82ff873264a1ba77fa37e6914f321a48e0a75f5" },
+    { "path": "docs/source-pack/DATA-MODEL.md", "gitBlobSha": "51d59b4d4b96dd5ccd246a55d34d9172d9b82eb0" },
+    { "path": "docs/source-pack/API-INTEGRATION-CONTRACTS.md", "gitBlobSha": "4dd9b6f4648d04ac4539a4d093e662d430a239cc" },
+    { "path": "docs/source-pack/SECURITY.md", "gitBlobSha": "24e98825a54313a47e46abc32661f4ebaa6894d7" },
+    { "path": "docs/source-pack/TEST-BENCHMARK-PLAN.md", "gitBlobSha": "6e9002690fe8055d7da0936f3d323929d510158c" },
+    { "path": "docs/source-pack/DEFINITION-OF-DONE.md", "gitBlobSha": "a3d1652a7dc9edfabafcb98151b9db8aed417888" },
+    { "path": "docs/source-pack/DEPLOYMENT.md", "gitBlobSha": "b8f730179337a5c26ba34cdf9da43dab4b5e3b83" },
+    { "path": ".engineering/DATA-OWNERSHIP-MATRIX.md", "gitBlobSha": "0deb322cfa871f93410810ab1fc82933aca05213" },
+    { "path": ".engineering/SECURITY-CONTROL-MATRIX.md", "gitBlobSha": "e8888a50cb68230822f6c1352f63d33d19705df7" },
+    { "path": ".engineering/TEST-COVERAGE-MATRIX.md", "gitBlobSha": "10eb7a6afe1f8349b5a0f264ed46cbb96257cb98" },
+    { "path": ".engineering/PROGRESS-LEDGER.md", "gitBlobSha": "c0a76aa3219878f42d3c6f1d5677f1bddc1a4ee5" },
+    { "path": ".engineering/DECISIONS-LEDGER.md", "gitBlobSha": "24cfb8785d99512a6b53be1875f2572203dacf50" }
+  ],
+  "governanceSnapshot": {
+    "checkpointPath": ".engineering/CHECKPOINT.json",
+    "checkpointGitBlobSha": "0f63e9d36c25ff46448a708d9ff8eb8ae791bd79",
+    "status": "GMZ_IMPL_010_PROMOTED_COMPLETE_READY_FOR_NEXT"
+  },
+  "codexAllowed": true,
+  "codexAuthorizedScope": "GMZ-M11 Goodz Online storefront & checkout/tracking, GMZ-M06 media abstraction, GMZ-M04 Storefront Shell, GMZ-M23 storefront audit, and GMZ-M26 validation on execution/gmz-impl-011-storefront-media.",
+  "stopCondition": "GMZ_IMPL_011_READY_FOR_OBJECTIVE_AUDIT"
+}

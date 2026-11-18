@@ -231,9 +231,15 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .settings-checkbox-group { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
 .settings-checkbox-group legend { margin-bottom: 6px; padding: 0; }
 .settings-page .auth-field select,
-.orders-page .auth-field select { width: 100%; height: 49px; padding: 0 13px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface-raised); color: var(--text-primary); font: inherit; font-size: 13px; }
+.orders-page .auth-field select,
+.delivery-page .auth-field select,
+.storefront-admin-page .auth-field select,
+.storefront-shell .auth-field select { width: 100%; height: 49px; padding: 0 13px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface-raised); color: var(--text-primary); font: inherit; font-size: 13px; }
 .settings-page .auth-field select:focus-visible,
-.orders-page .auth-field select:focus-visible { border-color: var(--accent); outline: 3px solid color-mix(in srgb, var(--accent), transparent 76%); outline-offset: 1px; }
+.orders-page .auth-field select:focus-visible,
+.delivery-page .auth-field select:focus-visible,
+.storefront-admin-page .auth-field select:focus-visible,
+.storefront-shell .auth-field select:focus-visible { border-color: var(--accent); outline: 3px solid color-mix(in srgb, var(--accent), transparent 76%); outline-offset: 1px; }
 .orders-status-banner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow-soft); font-size: 12px; }
 .orders-kpi-strip { display: flex; flex-wrap: wrap; gap: 8px; }
 .orders-filter-bar { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
@@ -254,4 +260,72 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 }
 @media (max-width: 760px) {
   .settings-scope-bar { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Storefront Shell & Versioned Safe Theme Presets (GMZ-REQ-WEB-001..003) */
+.storefront-shell { min-height: 100dvh; padding: 24px 16px 48px; background: var(--canvas); color: var(--text-primary); }
+.storefront-shell[data-accent="terracotta_oven"] { --accent: #9c3822; --accent-strong: #782715; --accent-soft: #fcece8; }
+.dark .storefront-shell[data-accent="terracotta_oven"] { --accent: #eb937c; --accent-strong: #f7c2b4; --accent-soft: #3a1d16; }
+.storefront-shell[data-accent="midnight_amber"] { --accent: #7f4d06; --accent-strong: #5e3802; --accent-soft: #fcf3e3; }
+.dark .storefront-shell[data-accent="midnight_amber"] { --accent: #eeb965; --accent-strong: #f9d89c; --accent-soft: #36260d; }
+.storefront-shell .catalog-save-button { color: #ffffff; }
+.dark .storefront-shell .catalog-save-button { color: #101613; }
+
+.storefront-container { width: min(1220px, 100%); margin: 0 auto; display: grid; gap: 22px; }
+.storefront-hero { display: grid; grid-template-columns: minmax(0, 1.2fr) auto; align-items: center; gap: 22px; padding: 24px; border: 1px solid var(--border-subtle); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow-soft); }
+.storefront-hero-copy { display: grid; gap: 10px; min-width: 0; }
+.storefront-eyebrow { color: var(--accent-strong); font-size: 11px; font-weight: 760; letter-spacing: .7px; text-transform: uppercase; }
+.storefront-hero h1 { margin: 0; font-size: clamp(22px, 3vw, 32px); line-height: 1.15; }
+.storefront-subheadline { margin: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.55; }
+.storefront-meta-pills { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.storefront-notice { margin: 0; padding: 9px 12px; border-left: 3px solid var(--accent); border-radius: 6px; background: var(--accent-soft); color: var(--accent-strong); font-size: 12px; font-weight: 600; }
+.storefront-hero-media { width: min(320px, 100%); aspect-ratio: 4 / 3; overflow: hidden; border-radius: 14px; border: 1px solid var(--border-subtle); background: var(--surface-raised); }
+.storefront-hero-media img, .storefront-offer-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.storefront-paused-banner { padding: 16px 20px; border: 1px solid color-mix(in srgb, var(--warning), var(--border-subtle) 50%); border-radius: 14px; background: color-mix(in srgb, var(--warning), var(--surface) 94%); color: var(--warning); }
+.storefront-paused-banner h2 { margin: 0 0 4px; font-size: 15px; }
+.storefront-paused-banner p { margin: 0; font-size: 12px; }
+
+.storefront-main-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(300px, .85fr); align-items: start; gap: 22px; }
+.storefront-menu-column { display: grid; gap: 22px; min-width: 0; }
+.storefront-category-block { display: grid; gap: 12px; }
+.storefront-category-title { margin: 0; font-size: 18px; color: var(--text-primary); }
+.storefront-offers-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.storefront-shell[data-layout="express_grid"] .storefront-offers-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; }
+
+.storefront-offer-card { display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow-soft); }
+.storefront-shell[data-card="crisp_minimal"] .storefront-offer-card,
+.storefront-shell[data-card="crisp_minimal"] .storefront-checkout-card,
+.storefront-shell[data-card="crisp_minimal"] .storefront-hero { box-shadow: none; border-color: var(--border-strong); }
+.storefront-offer-media { width: 100%; aspect-ratio: 4 / 3; overflow: hidden; background: var(--surface-raised); border-bottom: 1px solid var(--border-subtle); }
+.storefront-offer-body { display: flex; flex: 1; flex-direction: column; justify-content: space-between; gap: 12px; padding: 15px; }
+.storefront-offer-body h3 { margin: 0 0 4px; font-size: 15px; color: var(--text-primary); }
+.storefront-offer-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 8px; border-top: 1px solid var(--border-subtle); }
+.storefront-price { font-size: 14px; color: var(--text-primary); }
+.storefront-qty-stepper { display: inline-flex; align-items: center; gap: 6px; }
+.storefront-qty-btn, .storefront-add-btn { min-height: 34px; padding: 0 12px; border: 1px solid var(--accent); border-radius: 8px; background: var(--accent); color: #ffffff; font-size: 12px; font-weight: 720; cursor: pointer; }
+.dark .storefront-qty-btn, .dark .storefront-add-btn { color: #101613; }
+.storefront-qty-count { min-width: 22px; text-align: center; font-size: 13px; font-weight: 740; }
+
+.storefront-checkout-card { display: grid; gap: 14px; padding: 18px; border: 1px solid var(--border-subtle); border-radius: 16px; background: var(--surface); box-shadow: var(--shadow-soft); position: sticky; top: 16px; }
+.storefront-checkout-card h2 { margin: 0; font-size: 17px; }
+.storefront-totals { display: grid; gap: 6px; padding: 12px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--surface-raised); font-size: 12px; }
+.storefront-totals > div { display: flex; justify-content: space-between; gap: 8px; }
+.storefront-total-row { padding-top: 6px; border-top: 1px solid var(--border-subtle); font-size: 14px; }
+.storefront-submit { width: 100%; justify-self: stretch; text-align: center; }
+.storefront-tracking-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.orders-history-box { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--surface-raised); font-size: 11px; }
+.orders-history-list { margin: 0; padding-left: 16px; display: grid; gap: 5px; font-size: 12px; line-height: 1.5; }
+
+@media (max-width: 960px) {
+  .storefront-main-grid, .storefront-tracking-grid { grid-template-columns: minmax(0, 1fr); }
+  .storefront-shell[data-layout="express_grid"] .storefront-offers-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .storefront-checkout-card { position: static; }
+}
+@media (max-width: 680px) {
+  .storefront-shell { padding: 14px 12px 36px; }
+  .storefront-hero { grid-template-columns: minmax(0, 1fr); padding: 16px; }
+  .storefront-hero-media { width: 100%; }
+  .storefront-offers-grid,
+  .storefront-shell[data-layout="express_grid"] .storefront-offers-grid { grid-template-columns: minmax(0, 1fr); }
 }

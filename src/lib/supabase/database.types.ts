@@ -149,13 +149,13 @@ isOneToOne: false
                   ]
                 },"customers": {
                   Row: {
-                    "anonymized_at": string | null,"created_at": string,"display_name": string,"id": string,"last_order_at": string | null,"organization_id": string,"phone": string,"phone_normalized": string,"updated_at": string
+                    "anonymized_at": string | null,"created_at": string,"display_name": string,"id": string,"last_order_at": string | null,"marketing_opt_in": boolean,"marketing_opt_in_updated_at": string | null,"organization_id": string,"phone": string,"phone_normalized": string,"updated_at": string
                   }
                   Insert: {
-                    "anonymized_at"?: string | null,"created_at"?: string,"display_name": string,"id"?: string,"last_order_at"?: string | null,"organization_id": string,"phone": string,"phone_normalized": string,"updated_at"?: string
+                    "anonymized_at"?: string | null,"created_at"?: string,"display_name": string,"id"?: string,"last_order_at"?: string | null,"marketing_opt_in"?: boolean,"marketing_opt_in_updated_at"?: string | null,"organization_id": string,"phone": string,"phone_normalized": string,"updated_at"?: string
                   }
                   Update: {
-                    "anonymized_at"?: string | null,"created_at"?: string,"display_name"?: string,"id"?: string,"last_order_at"?: string | null,"organization_id"?: string,"phone"?: string,"phone_normalized"?: string,"updated_at"?: string
+                    "anonymized_at"?: string | null,"created_at"?: string,"display_name"?: string,"id"?: string,"last_order_at"?: string | null,"marketing_opt_in"?: boolean,"marketing_opt_in_updated_at"?: string | null,"organization_id"?: string,"phone"?: string,"phone_normalized"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -265,6 +265,44 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "organizations"
       referencedColumns: ["id"]
+    }
+                  ]
+                },"media_assets": {
+                  Row: {
+                    "alt_text": string,"canonical_url": string,"created_at": string,"created_by": string | null,"height_px": number,"id": string,"mime_type": string,"organization_id": string,"provider_key": string,"status": string,"storage_key": string,"updated_at": string,"width_px": number
+                  }
+                  Insert: {
+                    "alt_text": string,"canonical_url": string,"created_at"?: string,"created_by"?: string | null,"height_px": number,"id"?: string,"mime_type": string,"organization_id": string,"provider_key": string,"status"?: string,"storage_key": string,"updated_at"?: string,"width_px": number
+                  }
+                  Update: {
+                    "alt_text"?: string,"canonical_url"?: string,"created_at"?: string,"created_by"?: string | null,"height_px"?: number,"id"?: string,"mime_type"?: string,"organization_id"?: string,"provider_key"?: string,"status"?: string,"storage_key"?: string,"updated_at"?: string,"width_px"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "media_assets_organization_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"media_variants": {
+                  Row: {
+                    "created_at": string,"height_px": number,"id": string,"media_asset_id": string,"mime_type": string,"organization_id": string,"url": string,"variant_key": string,"width_px": number
+                  }
+                  Insert: {
+                    "created_at"?: string,"height_px": number,"id"?: string,"media_asset_id": string,"mime_type": string,"organization_id": string,"url": string,"variant_key": string,"width_px": number
+                  }
+                  Update: {
+                    "created_at"?: string,"height_px"?: number,"id"?: string,"media_asset_id"?: string,"mime_type"?: string,"organization_id"?: string,"url"?: string,"variant_key"?: string,"width_px"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "media_variants_asset_tenant_fkey"
+      columns: ["organization_id","media_asset_id"]
+isOneToOne: false
+      referencedRelation: "media_assets"
+      referencedColumns: ["organization_id","id"]
     }
                   ]
                 },"membership_roles": {
@@ -594,13 +632,13 @@ isOneToOne: false
                   ]
                 },"products": {
                   Row: {
-                    "category_id": string | null,"created_at": string,"description": string,"id": string,"name": string,"organization_id": string,"status": string,"updated_at": string
+                    "category_id": string | null,"created_at": string,"description": string,"id": string,"name": string,"organization_id": string,"primary_media_asset_id": string | null,"status": string,"updated_at": string
                   }
                   Insert: {
-                    "category_id"?: string | null,"created_at"?: string,"description"?: string,"id"?: string,"name": string,"organization_id": string,"status"?: string,"updated_at"?: string
+                    "category_id"?: string | null,"created_at"?: string,"description"?: string,"id"?: string,"name": string,"organization_id": string,"primary_media_asset_id"?: string | null,"status"?: string,"updated_at"?: string
                   }
                   Update: {
-                    "category_id"?: string | null,"created_at"?: string,"description"?: string,"id"?: string,"name"?: string,"organization_id"?: string,"status"?: string,"updated_at"?: string
+                    "category_id"?: string | null,"created_at"?: string,"description"?: string,"id"?: string,"name"?: string,"organization_id"?: string,"primary_media_asset_id"?: string | null,"status"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -615,6 +653,12 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "organizations"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "products_primary_media_tenant_fkey"
+      columns: ["organization_id","primary_media_asset_id"]
+isOneToOne: false
+      referencedRelation: "media_assets"
+      referencedColumns: ["organization_id","id"]
     }
                   ]
                 },"role_permissions": {
@@ -723,6 +767,31 @@ isOneToOne: false
       referencedColumns: ["organization_id","user_id"]
     }
                   ]
+                },"storefront_profiles": {
+                  Row: {
+                    "accent_preset": string,"branch_id": string,"card_style": string,"created_at": string,"establishment_id": string,"headline": string,"hero_media_asset_id": string | null,"id": string,"is_published": boolean,"layout_family": string,"organization_id": string,"public_slug": string,"subheadline": string,"theme_schema_version": number,"updated_at": string,"updated_by": string | null,"version": number
+                  }
+                  Insert: {
+                    "accent_preset"?: string,"branch_id": string,"card_style"?: string,"created_at"?: string,"establishment_id": string,"headline": string,"hero_media_asset_id"?: string | null,"id"?: string,"is_published"?: boolean,"layout_family"?: string,"organization_id": string,"public_slug": string,"subheadline"?: string,"theme_schema_version"?: number,"updated_at"?: string,"updated_by"?: string | null,"version"?: number
+                  }
+                  Update: {
+                    "accent_preset"?: string,"branch_id"?: string,"card_style"?: string,"created_at"?: string,"establishment_id"?: string,"headline"?: string,"hero_media_asset_id"?: string | null,"id"?: string,"is_published"?: boolean,"layout_family"?: string,"organization_id"?: string,"public_slug"?: string,"subheadline"?: string,"theme_schema_version"?: number,"updated_at"?: string,"updated_by"?: string | null,"version"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "storefront_profiles_branch_scope_fkey"
+      columns: ["organization_id","establishment_id","branch_id"]
+isOneToOne: false
+      referencedRelation: "branches"
+      referencedColumns: ["organization_id","establishment_id","id"]
+    },{
+      foreignKeyName: "storefront_profiles_hero_media_fkey"
+      columns: ["organization_id","hero_media_asset_id"]
+isOneToOne: false
+      referencedRelation: "media_assets"
+      referencedColumns: ["organization_id","id"]
+    }
+                  ]
                 },"tenant_entitlement_overrides": {
                   Row: {
                     "created_at": string,"entitlement_key": string,"expires_at": string | null,"id": string,"organization_id": string,"reason": string,"value_json": NonNullable<Json>
@@ -788,8 +857,14 @@ isOneToOne: false
 "append_settings_step_up_event":
 { Args: { "p_actor_user_id": string,"p_branch_id": string,"p_correlation_id": string,"p_establishment_id": string,"p_organization_id": string,"p_outcome": string,"p_reason_code": string,"p_required_permissions": (string)[],"p_scope_type": string,"p_setting_key": string }; Returns: string
                            },
+"append_storefront_step_up_event":
+{ Args: { "p_actor_user_id": string,"p_branch_id": string,"p_correlation_id": string,"p_establishment_id": string,"p_organization_id": string,"p_outcome": string,"p_reason_code": string,"p_required_permissions": (string)[],"p_target_id": string }; Returns: string
+                           },
 "catalog_has_permission":
 { Args: { "p_branch_id": string,"p_establishment_id": string,"p_organization_id": string,"p_permission_key": string }; Returns: boolean
+                           },
+"catalog_register_product_media":
+{ Args: { "p_alt_text": string,"p_branch_id": string,"p_canonical_url": string,"p_correlation_id": string,"p_establishment_id": string,"p_height_px": number,"p_mime_type": string,"p_organization_id": string,"p_product_id": string,"p_provider_key": string,"p_storage_key": string,"p_width_px": number }; Returns: Json
                            },
 "catalog_save_category":
 { Args: { "p_correlation_id": string,"p_description": string,"p_id": string,"p_name": string,"p_organization_id": string,"p_parent_id": string,"p_status": string }; Returns: Json
@@ -856,6 +931,24 @@ isOneToOne: false
                            },
 "settings_save_value":
 { Args: { "p_branch_id": string,"p_correlation_id": string,"p_establishment_id": string,"p_is_locked": boolean,"p_organization_id": string,"p_role_id": string,"p_scope_type": string,"p_setting_key": string,"p_step_up_proof_id": string,"p_value_json": Json }; Returns: Json
+                           },
+"storefront_can_read_org_media":
+{ Args: { "p_organization_id": string }; Returns: boolean
+                           },
+"storefront_get_order_tracking":
+{ Args: { "p_slug": string,"p_tracking_token": string }; Returns: Json
+                           },
+"storefront_get_public_menu":
+{ Args: { "p_slug": string }; Returns: Json
+                           },
+"storefront_has_permission":
+{ Args: { "p_branch_id": string,"p_establishment_id": string,"p_organization_id": string,"p_permission_key": string }; Returns: boolean
+                           },
+"storefront_place_public_order":
+{ Args: { "p_cash_change_for": number,"p_correlation_id": string,"p_customer_name": string,"p_customer_notes": string,"p_customer_phone": string,"p_declared_payment_method": string,"p_delivery_address": Json,"p_delivery_zone_id": string,"p_fulfillment_mode": string,"p_idempotency_key": string,"p_items": Json,"p_marketing_opt_in": boolean,"p_slug": string }; Returns: Json
+                           },
+"storefront_save_profile":
+{ Args: { "p_accent_preset": string,"p_branch_id": string,"p_card_style": string,"p_correlation_id": string,"p_establishment_id": string,"p_headline": string,"p_hero_media_asset_id": string,"p_is_published": boolean,"p_layout_family": string,"p_organization_id": string,"p_public_slug": string,"p_step_up_proof_id": string,"p_subheadline": string }; Returns: Json
                            }
           }
           Enums: {
