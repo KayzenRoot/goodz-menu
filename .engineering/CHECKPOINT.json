@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "project": "Goodz Menu",
   "repository": "KayzenRoot/goodz-menu",
-  "status": "GMZ_IMPL_010_PROMOTED_COMPLETE_READY_FOR_NEXT",
+  "status": "GMZ_IMPL_011_PROMOTED_COMPLETE_READY_FOR_NEXT",
   "gefVersion": "1.1.1",
   "fastTrackOverlay": "ADR_0005_ACTIVE",
   "ideation": "CLOSED",
@@ -14,23 +14,23 @@
   "testBenchmarkPlan": "APPROVED_V0_1",
   "definitionOfDone": "APPROVED_V0_1",
   "implementationAuthorized": false,
-  "overallCompletionPercent": 19.81,
+  "overallCompletionPercent": 23.5,
   "overallCompletionState": "EVIDENCE_BACKED_PRODUCTION_CREDIT",
   "activeWorkOrder": null,
   "activeIssue": null,
   "activeBranch": "main",
-  "baseSha": "5ef48fcee7c9852a59916ff4f5998a40612dcb8a",
-  "nextAction": "EXECUTE_NEXT_MVP_SLICE_GMZ_M11_STOREFRONT_AND_MEDIA",
-  "stopCondition": "GMZ_IMPL_010_PROMOTED_COMPLETE",
+  "baseSha": "0ba65a25630b069ce30e3fe8ce3d486ececa6f97",
+  "nextAction": "EXECUTE_NEXT_MVP_SLICE_GMZ_M27_LGPD_AND_GMZ_M25_GO_LIVE",
+  "stopCondition": "GMZ_IMPL_011_PROMOTED_COMPLETE",
   "lastAudit": {
-    "workOrder": "GMZ-IMPL-010",
+    "workOrder": "GMZ-IMPL-011",
     "stage": "OBJECTIVE_AUDIT",
     "critical": 0,
     "high": 0,
     "disposition": "APPROVED_AND_PROMOTED",
-    "auditedHead": "42e31a2b18f3f8b1d47bad9e7f7e1151ddb9091d",
-    "finalMergeCandidate": "42e31a2b18f3f8b1d47bad9e7f7e1151ddb9091d",
-    "mergeSha": "5ef48fcee7c9852a59916ff4f5998a40612dcb8a"
+    "auditedHead": "55ccccda2bf91084cc9bdd85e21ee21407e09c63",
+    "finalMergeCandidate": "55ccccda2bf91084cc9bdd85e21ee21407e09c63",
+    "mergeSha": "0ba65a25630b069ce30e3fe8ce3d486ececa6f97"
   },
   "currentOutputs": {
     "projectOverview": "APPROVED_V0_1",
@@ -52,7 +52,7 @@
     "definitionOfDone": "APPROVED_V0_1",
     "innovationLedger": "APPROVED_V0_1",
     "productionDenominator": 515,
-    "productionEarned": 102
+    "productionEarned": 121
   },
   "sourceSeedArchive": {
     "id": "GMZ-SRC-001",
@@ -80,7 +80,7 @@
   "backlogBaseline": "APPROVED_V0_1",
   "innovationLedger": "APPROVED_V0_1",
   "productionDenominator": 515,
-  "productionEarned": 102,
+  "productionEarned": 121,
   "activeImplementation": null,
   "moduleCompletion": {
     "GMZ-M01": {
@@ -99,12 +99,12 @@
       "state": "PARTIAL"
     },
     "GMZ-M04": {
-      "earned": 6,
+      "earned": 9,
       "weight": 15,
       "state": "PARTIAL"
     },
     "GMZ-M06": {
-      "earned": 7,
+      "earned": 9,
       "weight": 16,
       "state": "PARTIAL"
     },
@@ -113,13 +113,18 @@
       "weight": 20,
       "state": "PARTIAL"
     },
+    "GMZ-M11": {
+      "earned": 12,
+      "weight": 18,
+      "state": "PARTIAL"
+    },
     "GMZ-M12": {
       "earned": 10,
       "weight": 16,
       "state": "PARTIAL"
     },
     "GMZ-M23": {
-      "earned": 10,
+      "earned": 11,
       "weight": 19,
       "state": "PARTIAL"
     },
@@ -129,7 +134,7 @@
       "state": "PARTIAL"
     },
     "GMZ-M26": {
-      "earned": 16,
+      "earned": 17,
       "weight": 18,
       "state": "PARTIAL"
     }

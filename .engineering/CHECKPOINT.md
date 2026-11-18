@@ -1,6 +1,6 @@
 # Goodz Menu — Checkpoint
 
-Status: `GMZ_IMPL_010_PROMOTED_COMPLETE_READY_FOR_NEXT`
+Status: `GMZ_IMPL_011_PROMOTED_COMPLETE_READY_FOR_NEXT`
 
 ## Current state
 - Project: Goodz Menu
@@ -28,13 +28,13 @@ Status: `GMZ_IMPL_010_PROMOTED_COMPLETE_READY_FOR_NEXT`
 - Business-domain implementation: `NOT_AUTHORIZED (admit/contract next slice first)`
 
 ## Active increment
-- Work Order: `NONE (GMZ-IMPL-010 promoted complete)`
-- Last promoted increment: `GMZ-IMPL-010` (PR `#93`, merge `5ef48fcee7c9852a59916ff4f5998a40612dcb8a`)
-- Current earned production credit: `102 / 515 = 19.81%`
-- Next governed action: `ADMIT / CONTRACT NEXT MVP SLICE (GMZ-M11 GOODZ ONLINE STOREFRONT & GMZ-M06 MEDIA ABSTRACTION)`
+- Work Order: `NONE (GMZ-IMPL-011 promoted complete)`
+- Last promoted increment: `GMZ-IMPL-011` (PR `#96`, merge `0ba65a25630b069ce30e3fe8ce3d486ececa6f97`)
+- Current earned production credit: `121 / 515 = 23.50%`
+- Next governed action: `ADMIT / CONTRACT FINAL MVP SLICE (GMZ-M27 LGPD PRIVACY & GMZ-M25 CI/CD + CLOUD GO-LIVE READINESS)`
 
 ## Progress accounting
-Overall production completion: `102 / 515 = 19.81%`.
+Overall production completion: `121 / 515 = 23.50%`.
 
 Planning artifacts do not manufacture product-completion percentage.
 
@@ -1103,3 +1103,30 @@ STOP CONDITION: `GMZ_IMPL_009_PROMOTED_COMPLETE`.
 - next: `ADMIT / CONTRACT NEXT MVP SLICE (GMZ-M11 STOREFRONT & GMZ-M06 MEDIA)`
 
 STOP CONDITION: `GMZ_IMPL_010_PROMOTED_COMPLETE`.
+
+
+## GMZ-IMPL-011 post-merge promotion
+
+- implementation PR: `#96` (Issue `#95`)
+- accepted candidate: `55ccccda2bf91084cc9bdd85e21ee21407e09c63`
+- implementation merge: `0ba65a25630b069ce30e3fe8ce3d486ececa6f97`
+- objective audit: `APPROVED_FOR_PROMOTION` (`0` open SonarCloud issues across all severities; `Socket` `SUCCESS`)
+- credit:
+  - GMZ-M11: `12`
+  - GMZ-M06: `2`
+  - GMZ-M04: `3`
+  - GMZ-M23: `1`
+  - GMZ-M26: `1`
+  - total: `19 / 515`
+- cumulative production credit: `121 / 515 = 23.50%`
+- GMZ-M11 accepted baseline: `12 / 18 — PARTIAL`
+- GMZ-M06 accepted baseline: `9 / 16 — PARTIAL`
+- GMZ-M04 accepted baseline: `9 / 15 — PARTIAL`
+- GMZ-M23 accepted baseline: `11 / 19 — PARTIAL`
+- GMZ-M26 accepted baseline: `17 / 18 — PARTIAL`
+- implementation authorization: `NO`
+- unresolved review threads: `0`
+- CRITICAL/HIGH: `0 / 0`
+- next: `ADMIT / CONTRACT FINAL MVP SLICE (GMZ-M27 LGPD & GMZ-M25 CI/CD + GO-LIVE)`
+
+STOP CONDITION: `GMZ_IMPL_011_PROMOTED_COMPLETE`.
