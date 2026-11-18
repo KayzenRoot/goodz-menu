@@ -7,6 +7,10 @@ import {
   validateCatalogAdminGuardEvent,
   type CatalogAdminGuardEvent,
 } from "@/lib/supabase/catalog-admin-guard-policy";
+import {
+  validateSettingsAdminGuardEvent,
+  type SettingsAdminGuardEvent,
+} from "@/lib/supabase/settings-admin-guard-policy";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -84,5 +88,44 @@ export async function persistCatalogAdminGuardEvent(value: unknown): Promise<str
   }
 }
 
+export async function persistSettingsAdminGuardEvent(value: unknown): Promise<string | null> {
+  const event = validateSettingsAdminGuardEvent(value);
+  const runtime = readRuntimeConfig();
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!runtime.ok || !serviceRoleKey) throw new Error("Audit persistence is unavailable.");
+
+  try {
+    const client = createClient<Database>(runtime.config.supabaseApiUrl.toString(), serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
+    });
+    const args = {
+      p_actor_user_id: event.actor_user_id,
+      p_organization_id: event.organization_id,
+      p_establishment_id: event.establishment_id,
+      p_branch_id: event.branch_id,
+      p_scope_type: event.scope_type,
+      p_setting_key: event.setting_key,
+      p_required_permissions: event.required_permissions,
+      p_correlation_id: event.correlation_id,
+      p_outcome: event.outcome,
+      p_reason_code: event.reason_code,
+    } as unknown as Database["public"]["Functions"]["append_settings_step_up_event"]["Args"];
+    const { data, error } = await client.rpc("append_settings_step_up_event", args)
+      .abortSignal(AbortSignal.timeout(3_000));
+    const proofId = data as string | null;
+    if (
+      error
+      || (event.outcome === "allow" && (typeof proofId !== "string" || !UUID.test(proofId)))
+      || (event.outcome === "deny" && proofId !== null)
+    ) {
+      throw new Error("Audit persistence is unavailable.");
+    }
+    return proofId;
+  } catch {
+    throw new Error("Audit persistence is unavailable.");
+  }
+}
+
 export type { AdminGuardAuditEvent };
 export type { CatalogAdminGuardEvent };
+export type { SettingsAdminGuardEvent };

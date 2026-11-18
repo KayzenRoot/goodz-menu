@@ -6,7 +6,7 @@
   --surface-glass: rgb(255 255 255 / 76%); --text-primary: #17241e; --text-secondary: #52645a;
   --text-muted: #657268; --border-subtle: #e3e9e2; --border-strong: #ccd8ce;
   --accent: #176a4b; --accent-strong: #10573c; --accent-soft: #e6f2e8; --accent-lime: #c5e980;
-  --success: #258356; --warning: #a56b16; --danger: #b64d48; --info: #4779a0;
+  --success: #1b6f47; --warning: #8a560d; --danger: #b0433e; --info: #37668a;
   --shadow-soft: 0 14px 38px rgb(29 57 42 / 6%); --shadow-float: 0 26px 70px rgb(24 51 37 / 13%);
   --font-sans: "Avenir Next", Avenir, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
 }
@@ -222,4 +222,25 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
   .catalog-section { padding: 14px; }
   .catalog-section-heading h2 { font-size: 15px; }
   .catalog-card { padding: 14px; }
+}
+
+.settings-scope-bar { grid-template-columns: repeat(3, minmax(0, 1fr)) auto; }
+.settings-card-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.settings-lock-badge, .settings-plan-pill { display: inline-flex; align-items: center; padding: 4px 10px; border: 1px solid color-mix(in srgb, var(--accent), var(--border-subtle) 62%); border-radius: 99px; background: var(--accent-soft); color: var(--accent-strong); font-size: 9px; font-weight: 720; letter-spacing: .3px; }
+.settings-lock-badge { border-color: color-mix(in srgb, var(--warning), var(--border-subtle) 55%); background: color-mix(in srgb, var(--warning), var(--surface) 93%); color: var(--warning); }
+.settings-checkbox-group { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.settings-checkbox-group legend { margin-bottom: 6px; padding: 0; }
+.settings-page .auth-field select { width: 100%; height: 49px; padding: 0 13px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface-raised); color: var(--text-primary); font: inherit; font-size: 13px; }
+.settings-page .auth-field select:focus-visible { border-color: var(--accent); outline: 3px solid color-mix(in srgb, var(--accent), transparent 76%); outline-offset: 1px; }
+.settings-page[data-density="compact"] { gap: 13px; }
+.settings-page[data-density="compact"] .catalog-section { padding: 14px; }
+.settings-page[data-density="compact"] .catalog-card { gap: 8px; padding: 12px; }
+.settings-page[data-density="compact"] .auth-field input,
+.settings-page[data-density="compact"] .auth-field select { height: 40px; font-size: 12px; }
+
+@media (max-width: 1000px) {
+  .settings-scope-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .settings-scope-bar { grid-template-columns: minmax(0, 1fr); }
 }

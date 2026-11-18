@@ -128,6 +128,19 @@ isOneToOne: false
       referencedColumns: ["organization_id","id"]
     }
                   ]
+                },"entitlements": {
+                  Row: {
+                    "created_at": string,"default_value": NonNullable<Json>,"description": string,"display_name": string,"key": string,"value_type": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"default_value": NonNullable<Json>,"description"?: string,"display_name": string,"key": string,"value_type": string
+                  }
+                  Update: {
+                    "created_at"?: string,"default_value"?: NonNullable<Json>,"description"?: string,"display_name"?: string,"key"?: string,"value_type"?: string
+                  }
+                  Relationships: [
+
+                  ]
                 },"establishments": {
                   Row: {
                     "created_at": string,"display_name": string,"id": string,"organization_id": string,"status": string
@@ -215,6 +228,31 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"organization_plan_subscriptions": {
+                  Row: {
+                    "assigned_at": string,"organization_id": string,"plan_id": string,"status": string,"updated_at": string
+                  }
+                  Insert: {
+                    "assigned_at"?: string,"organization_id": string,"plan_id": string,"status"?: string,"updated_at"?: string
+                  }
+                  Update: {
+                    "assigned_at"?: string,"organization_id"?: string,"plan_id"?: string,"status"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "organization_plan_subscriptions_org_fkey"
+      columns: ["organization_id"]
+isOneToOne: true
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "organization_plan_subscriptions_plan_fkey"
+      columns: ["plan_id"]
+isOneToOne: false
+      referencedRelation: "plans"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"organizations": {
                   Row: {
                     "created_at": string,"display_name": string,"id": string,"legal_name": string | null,"status": string
@@ -237,6 +275,44 @@ isOneToOne: false
                   }
                   Update: {
                     "created_at"?: string,"display_name"?: string,"permission_key"?: string
+                  }
+                  Relationships: [
+
+                  ]
+                },"plan_entitlements": {
+                  Row: {
+                    "created_at": string,"entitlement_key": string,"plan_id": string,"value_json": NonNullable<Json>
+                  }
+                  Insert: {
+                    "created_at"?: string,"entitlement_key": string,"plan_id": string,"value_json": NonNullable<Json>
+                  }
+                  Update: {
+                    "created_at"?: string,"entitlement_key"?: string,"plan_id"?: string,"value_json"?: NonNullable<Json>
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "plan_entitlements_entitlement_fkey"
+      columns: ["entitlement_key"]
+isOneToOne: false
+      referencedRelation: "entitlements"
+      referencedColumns: ["key"]
+    },{
+      foreignKeyName: "plan_entitlements_plan_fkey"
+      columns: ["plan_id"]
+isOneToOne: false
+      referencedRelation: "plans"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"plans": {
+                  Row: {
+                    "created_at": string,"description": string,"display_name": string,"id": string,"plan_code": string,"status": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"description"?: string,"display_name": string,"id"?: string,"plan_code": string,"status"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"description"?: string,"display_name"?: string,"id"?: string,"plan_code"?: string,"status"?: string
                   }
                   Relationships: [
 
@@ -360,6 +436,93 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"setting_definitions": {
+                  Row: {
+                    "allowed_scopes": (string)[],"audit_required": boolean,"created_at": string,"default_value": NonNullable<Json>,"description": string,"display_name": string,"key": string,"lockable_scopes": (string)[],"schema_version": number,"sensitivity": string,"status": string,"updated_at": string,"validation_rules": NonNullable<Json>,"value_type": string
+                  }
+                  Insert: {
+                    "allowed_scopes": (string)[],"audit_required"?: boolean,"created_at"?: string,"default_value": NonNullable<Json>,"description"?: string,"display_name": string,"key": string,"lockable_scopes": (string)[],"schema_version"?: number,"sensitivity": string,"status"?: string,"updated_at"?: string,"validation_rules"?: NonNullable<Json>,"value_type": string
+                  }
+                  Update: {
+                    "allowed_scopes"?: (string)[],"audit_required"?: boolean,"created_at"?: string,"default_value"?: NonNullable<Json>,"description"?: string,"display_name"?: string,"key"?: string,"lockable_scopes"?: (string)[],"schema_version"?: number,"sensitivity"?: string,"status"?: string,"updated_at"?: string,"validation_rules"?: NonNullable<Json>,"value_type"?: string
+                  }
+                  Relationships: [
+
+                  ]
+                },"setting_values": {
+                  Row: {
+                    "branch_id": string | null,"created_at": string,"establishment_id": string | null,"id": string,"is_locked": boolean,"organization_id": string | null,"role_id": string | null,"scope_type": string,"setting_key": string,"updated_at": string,"updated_by": string | null,"user_id": string | null,"value_json": NonNullable<Json>,"version": number
+                  }
+                  Insert: {
+                    "branch_id"?: string | null,"created_at"?: string,"establishment_id"?: string | null,"id"?: string,"is_locked"?: boolean,"organization_id"?: string | null,"role_id"?: string | null,"scope_type": string,"setting_key": string,"updated_at"?: string,"updated_by"?: string | null,"user_id"?: string | null,"value_json": NonNullable<Json>,"version"?: number
+                  }
+                  Update: {
+                    "branch_id"?: string | null,"created_at"?: string,"establishment_id"?: string | null,"id"?: string,"is_locked"?: boolean,"organization_id"?: string | null,"role_id"?: string | null,"scope_type"?: string,"setting_key"?: string,"updated_at"?: string,"updated_by"?: string | null,"user_id"?: string | null,"value_json"?: NonNullable<Json>,"version"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "setting_values_branch_tenant_fkey"
+      columns: ["organization_id","establishment_id","branch_id"]
+isOneToOne: false
+      referencedRelation: "branches"
+      referencedColumns: ["organization_id","establishment_id","id"]
+    },{
+      foreignKeyName: "setting_values_establishment_tenant_fkey"
+      columns: ["organization_id","establishment_id"]
+isOneToOne: false
+      referencedRelation: "establishments"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "setting_values_organization_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "setting_values_role_tenant_fkey"
+      columns: ["organization_id","role_id"]
+isOneToOne: false
+      referencedRelation: "tenant_roles"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "setting_values_setting_key_fkey"
+      columns: ["setting_key"]
+isOneToOne: false
+      referencedRelation: "setting_definitions"
+      referencedColumns: ["key"]
+    },{
+      foreignKeyName: "setting_values_user_membership_fkey"
+      columns: ["organization_id","user_id"]
+isOneToOne: false
+      referencedRelation: "organization_memberships"
+      referencedColumns: ["organization_id","user_id"]
+    }
+                  ]
+                },"tenant_entitlement_overrides": {
+                  Row: {
+                    "created_at": string,"entitlement_key": string,"expires_at": string | null,"id": string,"organization_id": string,"reason": string,"value_json": NonNullable<Json>
+                  }
+                  Insert: {
+                    "created_at"?: string,"entitlement_key": string,"expires_at"?: string | null,"id"?: string,"organization_id": string,"reason": string,"value_json": NonNullable<Json>
+                  }
+                  Update: {
+                    "created_at"?: string,"entitlement_key"?: string,"expires_at"?: string | null,"id"?: string,"organization_id"?: string,"reason"?: string,"value_json"?: NonNullable<Json>
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "tenant_entitlement_overrides_entitlement_fkey"
+      columns: ["entitlement_key"]
+isOneToOne: false
+      referencedRelation: "entitlements"
+      referencedColumns: ["key"]
+    },{
+      foreignKeyName: "tenant_entitlement_overrides_org_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"tenant_roles": {
                   Row: {
                     "created_at": string,"display_name": string,"id": string,"organization_id": string,"role_key": string
@@ -391,6 +554,9 @@ isOneToOne: false
 "append_catalog_step_up_event":
 { Args: { "p_actor_user_id": string,"p_branch_id": string,"p_correlation_id": string,"p_establishment_id": string,"p_organization_id": string,"p_outcome": string,"p_reason_code": string,"p_required_permissions": (string)[],"p_target_id": string }; Returns: string
                            },
+"append_settings_step_up_event":
+{ Args: { "p_actor_user_id": string,"p_branch_id": string,"p_correlation_id": string,"p_establishment_id": string,"p_organization_id": string,"p_outcome": string,"p_reason_code": string,"p_required_permissions": (string)[],"p_scope_type": string,"p_setting_key": string }; Returns: string
+                           },
 "catalog_has_permission":
 { Args: { "p_branch_id": string,"p_establishment_id": string,"p_organization_id": string,"p_permission_key": string }; Returns: boolean
                            },
@@ -408,6 +574,28 @@ isOneToOne: false
                            },
 "catalog_save_variant":
 { Args: { "p_correlation_id": string,"p_flavor_label": string,"p_id": string,"p_name": string,"p_organization_id": string,"p_product_id": string,"p_size_label": string,"p_status": string }; Returns: Json
+                           },
+"resolve_effective_settings":
+{ Args: { "p_branch_id"?: string,"p_device_overrides"?: Json,"p_establishment_id"?: string,"p_organization_id": string }; Returns: {
+              "display_name": string,"effective_source": string,"effective_value": Json,"locked_by_scope": string,"sensitivity": string,"setting_key": string,"value_type": string,"version": number
+            }[]
+                           },
+"resolve_tenant_entitlements":
+{ Args: { "p_organization_id": string }; Returns: {
+              "description": string,"display_name": string,"effective_value": Json,"entitlement_key": string,"override_reason": string,"plan_code": string,"source": string,"value_type": string
+            }[]
+                           },
+"settings_can_read_establishment":
+{ Args: { "p_establishment_id": string,"p_organization_id": string }; Returns: boolean
+                           },
+"settings_can_read_organization":
+{ Args: { "p_organization_id": string }; Returns: boolean
+                           },
+"settings_has_permission":
+{ Args: { "p_branch_id": string,"p_establishment_id": string,"p_organization_id": string,"p_permission_key": string }; Returns: boolean
+                           },
+"settings_save_value":
+{ Args: { "p_branch_id": string,"p_correlation_id": string,"p_establishment_id": string,"p_is_locked": boolean,"p_organization_id": string,"p_role_id": string,"p_scope_type": string,"p_setting_key": string,"p_step_up_proof_id": string,"p_value_json": Json }; Returns: Json
                            }
           }
           Enums: {
