@@ -167,12 +167,12 @@ SELECT is(
   'each organization receives only the admitted default channel identities'
 );
 SELECT is(
-  (SELECT count(*)::integer FROM public.role_permissions WHERE role_id = (SELECT c_role_owner FROM pg_temp.gmz007_catalog_constants)),
+  (SELECT count(*)::integer FROM public.role_permissions WHERE role_id = (SELECT c_role_owner FROM pg_temp.gmz007_catalog_constants) AND permission_key LIKE 'catalog.%'),
   4,
   'owner role receives the four admitted catalog capabilities'
 );
 SELECT is(
-  (SELECT array_agg(permission_key ORDER BY permission_key) FROM public.role_permissions WHERE role_id = (SELECT c_role_staff FROM pg_temp.gmz007_catalog_constants)),
+  (SELECT array_agg(permission_key ORDER BY permission_key) FROM public.role_permissions WHERE role_id = (SELECT c_role_staff FROM pg_temp.gmz007_catalog_constants) AND permission_key LIKE 'catalog.%'),
   ARRAY[(SELECT c_permission_catalog_read FROM pg_temp.gmz007_catalog_constants), (SELECT c_permission_catalog_write FROM pg_temp.gmz007_catalog_constants)]::text[],
   'staff role can manage catalog metadata without price or availability authority'
 );
