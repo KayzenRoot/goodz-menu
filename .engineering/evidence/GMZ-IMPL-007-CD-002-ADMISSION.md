@@ -1,6 +1,6 @@
 # GMZ-IMPL-007-CD-002 — Scope Reconciliation Admission Evidence
 
-Status: `PROPOSED / GOVERNANCE-ONLY / INDEPENDENT AUDIT PENDING`
+Status: `APPROVED_FOR_MAINTAINER_DECISION / MERGED`
 
 ## Identity
 
@@ -62,15 +62,15 @@ At the proposal base, PR #69 was open and draft at head `35862001485ca2221f126ef
 
 - `git diff --cached --check`: `PASS` for all three staged proposal files.
 - Runtime tests, lint, typecheck, build, and Docker/Supabase checks: `NOT RUN` — this is a governance-only proposal with no executable changes.
-- Independent exact-head review: `PENDING`.
+- Independent exact-head review: `APPROVED_FOR_MAINTAINER_DECISION`; readback PR #77 comment `#6795017886`.
 - Review of prior head `e0ac7bfc31ae3228fbeee561b860891712b0e4aa`: `CORRECTION REQUIRED` for missing canonical Product description acceptance coverage (MEDIUM) and explicit promotion-schedule negative-test wording (LOW); this proposal addresses both, and independent review of the corrected head is pending.
 - Review of prior head `ab37331a4d6364aec1daee48265f2e46327ca315`: `CORRECTION REQUIRED` because the future test requirement covered descriptions but omitted canonical Product names and protection from channel-title overrides (MEDIUM). The prior promotion-schedule wording finding was resolved. This proposal expands the future test requirement to cover canonical names and descriptions together against both channel overrides; independent review of the new head is pending.
 - Source comparison: read `.engineering/context-locks/GMZ-IMPL-007.json`; for each `lockedSources[].path`, compare its `gitBlobSha` with `git rev-parse HEAD:<path>`, and compare `governanceSnapshot.checkpointGitBlobSha` with `git rev-parse HEAD:.engineering/CHECKPOINT.json`.
 - Deterministic result at base `556a9dbbcb3250b640c40fefe1ade0d5c425d871`: 15/16 locked sources match; Scope is stale; the separate Checkpoint governance snapshot is stale.
-- Current status: remain draft until the proposal diff and evidence pass independent review; then stop at `GMZ_IMPL_007_CD_002_ADMISSION_READY_FOR_REVIEW`.
+- Final proposal disposition: `APPROVED_FOR_MAINTAINER_DECISION`; the exact reviewed tree was merged through PR #77 at `985151f62be6cb26a67bc1c70fac4b7eaf831bd5`.
 
 ## Stop condition
 
 `GMZ_IMPL_007_CD_002_ADMISSION_READY_FOR_REVIEW`
 
-Reaching this token means only that this governance proposal is ready for independent audit. It does not authorize admission promotion, Context Lock replacement, execution, checkpoint promotion, merge, or deployment.
+At proposal time, reaching this token meant only that the governance proposal was ready for independent audit. Subsequent maintainer authorization and the post-merge execution bind are recorded in `.engineering/evidence/GMZ-IMPL-007-EXECUTION-BIND.md`; the admission merge did not itself authorize code merge, credit promotion, remote Supabase or deployment.

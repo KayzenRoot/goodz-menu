@@ -60,6 +60,74 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"channel_offer_price_history": {
+                  Row: {
+                    "actor_user_id": string,"amount": number,"channel_offer_id": string,"correlation_id": string,"created_at": string,"currency": string,"id": string,"organization_id": string,"version": number
+                  }
+                  Insert: {
+                    "actor_user_id": string,"amount": number,"channel_offer_id": string,"correlation_id": string,"created_at"?: string,"currency"?: string,"id"?: string,"organization_id": string,"version": number
+                  }
+                  Update: {
+                    "actor_user_id"?: string,"amount"?: number,"channel_offer_id"?: string,"correlation_id"?: string,"created_at"?: string,"currency"?: string,"id"?: string,"organization_id"?: string,"version"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "channel_offer_price_history_offer_tenant_fkey"
+      columns: ["organization_id","channel_offer_id"]
+isOneToOne: false
+      referencedRelation: "channel_offers"
+      referencedColumns: ["organization_id","id"]
+    }
+                  ]
+                },"channel_offers": {
+                  Row: {
+                    "availability_state": string,"base_price": number | null,"branch_id": string | null,"created_at": string,"currency": string,"description_override": string | null,"establishment_id": string | null,"id": string,"is_visible": boolean,"organization_id": string,"product_id": string | null,"sales_channel_id": string,"status": string,"target_kind": string,"title_override": string | null,"updated_at": string,"variant_id": string | null
+                  }
+                  Insert: {
+                    "availability_state"?: string,"base_price"?: number | null,"branch_id"?: string | null,"created_at"?: string,"currency"?: string,"description_override"?: string | null,"establishment_id"?: string | null,"id"?: string,"is_visible"?: boolean,"organization_id": string,"product_id"?: string | null,"sales_channel_id": string,"status"?: string,"target_kind": string,"title_override"?: string | null,"updated_at"?: string,"variant_id"?: string | null
+                  }
+                  Update: {
+                    "availability_state"?: string,"base_price"?: number | null,"branch_id"?: string | null,"created_at"?: string,"currency"?: string,"description_override"?: string | null,"establishment_id"?: string | null,"id"?: string,"is_visible"?: boolean,"organization_id"?: string,"product_id"?: string | null,"sales_channel_id"?: string,"status"?: string,"target_kind"?: string,"title_override"?: string | null,"updated_at"?: string,"variant_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "channel_offers_branch_scope_fkey"
+      columns: ["organization_id","establishment_id","branch_id"]
+isOneToOne: false
+      referencedRelation: "branches"
+      referencedColumns: ["organization_id","establishment_id","id"]
+    },{
+      foreignKeyName: "channel_offers_channel_tenant_fkey"
+      columns: ["organization_id","sales_channel_id"]
+isOneToOne: false
+      referencedRelation: "sales_channels"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "channel_offers_establishment_scope_fkey"
+      columns: ["organization_id","establishment_id"]
+isOneToOne: false
+      referencedRelation: "establishments"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "channel_offers_organization_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "channel_offers_product_tenant_fkey"
+      columns: ["organization_id","product_id"]
+isOneToOne: false
+      referencedRelation: "products"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "channel_offers_variant_tenant_fkey"
+      columns: ["organization_id","variant_id"]
+isOneToOne: false
+      referencedRelation: "product_variants"
+      referencedColumns: ["organization_id","id"]
+    }
+                  ]
                 },"establishments": {
                   Row: {
                     "created_at": string,"display_name": string,"id": string,"organization_id": string,"status": string
@@ -173,6 +241,81 @@ isOneToOne: false
                   Relationships: [
 
                   ]
+                },"product_categories": {
+                  Row: {
+                    "created_at": string,"description": string,"id": string,"name": string,"organization_id": string,"parent_id": string | null,"status": string,"updated_at": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"description"?: string,"id"?: string,"name": string,"organization_id": string,"parent_id"?: string | null,"status"?: string,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"description"?: string,"id"?: string,"name"?: string,"organization_id"?: string,"parent_id"?: string | null,"status"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "product_categories_organization_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "product_categories_parent_tenant_fkey"
+      columns: ["organization_id","parent_id"]
+isOneToOne: false
+      referencedRelation: "product_categories"
+      referencedColumns: ["organization_id","id"]
+    }
+                  ]
+                },"product_variants": {
+                  Row: {
+                    "created_at": string,"flavor_label": string | null,"id": string,"name": string,"organization_id": string,"product_id": string,"size_label": string | null,"status": string,"updated_at": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"flavor_label"?: string | null,"id"?: string,"name": string,"organization_id": string,"product_id": string,"size_label"?: string | null,"status"?: string,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"flavor_label"?: string | null,"id"?: string,"name"?: string,"organization_id"?: string,"product_id"?: string,"size_label"?: string | null,"status"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "product_variants_organization_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "product_variants_product_tenant_fkey"
+      columns: ["organization_id","product_id"]
+isOneToOne: false
+      referencedRelation: "products"
+      referencedColumns: ["organization_id","id"]
+    }
+                  ]
+                },"products": {
+                  Row: {
+                    "category_id": string | null,"created_at": string,"description": string,"id": string,"name": string,"organization_id": string,"status": string,"updated_at": string
+                  }
+                  Insert: {
+                    "category_id"?: string | null,"created_at"?: string,"description"?: string,"id"?: string,"name": string,"organization_id": string,"status"?: string,"updated_at"?: string
+                  }
+                  Update: {
+                    "category_id"?: string | null,"created_at"?: string,"description"?: string,"id"?: string,"name"?: string,"organization_id"?: string,"status"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "products_category_tenant_fkey"
+      columns: ["organization_id","category_id"]
+isOneToOne: false
+      referencedRelation: "product_categories"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "products_organization_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"role_permissions": {
                   Row: {
                     "created_at": string,"organization_id": string,"permission_key": string,"role_id": string
@@ -196,6 +339,25 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "tenant_roles"
       referencedColumns: ["organization_id","id"]
+    }
+                  ]
+                },"sales_channels": {
+                  Row: {
+                    "channel_key": string,"created_at": string,"display_name": string,"id": string,"organization_id": string,"status": string,"updated_at": string
+                  }
+                  Insert: {
+                    "channel_key": string,"created_at"?: string,"display_name": string,"id"?: string,"organization_id": string,"status"?: string,"updated_at"?: string
+                  }
+                  Update: {
+                    "channel_key"?: string,"created_at"?: string,"display_name"?: string,"id"?: string,"organization_id"?: string,"status"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "sales_channels_organization_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
     }
                   ]
                 },"tenant_roles": {
@@ -225,6 +387,27 @@ isOneToOne: false
           Functions: {
             "append_audit_event":
 { Args: { "p_action": string,"p_actor_user_id"?: string,"p_branch_id"?: string,"p_correlation_id": string,"p_establishment_id"?: string,"p_metadata": Json,"p_organization_id"?: string,"p_outcome": string,"p_reason_code": string,"p_source": string,"p_target_id"?: string,"p_target_type": string }; Returns: string
+                           },
+"append_catalog_step_up_event":
+{ Args: { "p_actor_user_id": string,"p_branch_id": string,"p_correlation_id": string,"p_establishment_id": string,"p_organization_id": string,"p_outcome": string,"p_reason_code": string,"p_required_permissions": (string)[],"p_target_id": string }; Returns: string
+                           },
+"catalog_has_permission":
+{ Args: { "p_branch_id": string,"p_establishment_id": string,"p_organization_id": string,"p_permission_key": string }; Returns: boolean
+                           },
+"catalog_save_category":
+{ Args: { "p_correlation_id": string,"p_description": string,"p_id": string,"p_name": string,"p_organization_id": string,"p_parent_id": string,"p_status": string }; Returns: Json
+                           },
+"catalog_save_channel":
+{ Args: { "p_channel_key": string,"p_correlation_id": string,"p_display_name": string,"p_id": string,"p_organization_id": string,"p_status": string }; Returns: Json
+                           },
+"catalog_save_offer":
+{ Args: { "p_availability_state": string,"p_base_price": number,"p_branch_id": string,"p_correlation_id": string,"p_currency": string,"p_description_override": string,"p_establishment_id": string,"p_id": string,"p_is_visible": boolean,"p_organization_id": string,"p_product_id": string,"p_sales_channel_id": string,"p_status": string,"p_step_up_proof_id": string,"p_target_kind": string,"p_title_override": string,"p_variant_id": string }; Returns: Json
+                           },
+"catalog_save_product":
+{ Args: { "p_category_id": string,"p_correlation_id": string,"p_description": string,"p_id": string,"p_name": string,"p_organization_id": string,"p_status": string }; Returns: Json
+                           },
+"catalog_save_variant":
+{ Args: { "p_correlation_id": string,"p_flavor_label": string,"p_id": string,"p_name": string,"p_organization_id": string,"p_product_id": string,"p_size_label": string,"p_status": string }; Returns: Json
                            }
           }
           Enums: {

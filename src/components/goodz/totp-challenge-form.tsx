@@ -9,14 +9,16 @@ type TotpChallengeFormProps = Readonly<{
   supabaseUrl: string;
   anonKey: string;
   factorId: string;
+  fieldId?: string;
   onVerified: () => void;
   buttonLabel?: string;
 }>;
 
-export function TotpChallengeForm({ supabaseUrl, anonKey, factorId, onVerified, buttonLabel = "Confirmar código" }: TotpChallengeFormProps) {
+export function TotpChallengeForm({ supabaseUrl, anonKey, factorId, fieldId = "totp-code", onVerified, buttonLabel = "Confirmar código" }: TotpChallengeFormProps) {
   const supabase = useMemo(() => createBrowserSupabaseClient(supabaseUrl, anonKey), [supabaseUrl, anonKey]);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const errorId = `${fieldId}-error`;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -58,9 +60,9 @@ export function TotpChallengeForm({ supabaseUrl, anonKey, factorId, onVerified, 
   return (
     <form className="mfa-code-form" method="post" onSubmit={handleSubmit} noValidate>
       <div className="auth-field">
-        <label htmlFor="totp-code">Código do aplicativo autenticador</label>
+        <label htmlFor={fieldId}>Código do aplicativo autenticador</label>
         <input
-          id="totp-code"
+          id={fieldId}
           name="totp-code"
           type="text"
           inputMode="numeric"
@@ -69,10 +71,10 @@ export function TotpChallengeForm({ supabaseUrl, anonKey, factorId, onVerified, 
           minLength={6}
           maxLength={8}
           required
-          aria-describedby={error ? "totp-code-error" : undefined}
+          aria-describedby={error ? errorId : undefined}
         />
       </div>
-      {error ? <p className="auth-error" id="totp-code-error" role="alert" aria-live="assertive">{error}</p> : null}
+      {error ? <p className="auth-error" id={errorId} role="alert" aria-live="assertive">{error}</p> : null}
       <button className="auth-submit" type="submit" disabled={pending}>
         {pending ? "Verificando…" : buttonLabel}
       </button>

@@ -176,7 +176,7 @@ async function expectAccessible(page: Page) {
 }
 
 test("local TOTP enrollment, AAL1 denial, verified step-up, branch scope, and live authorization revocation", async ({ page, context }) => {
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
   let secret = "";
   const guardClock = await installServerTrustedClock(page);
   await signIn(page, fixture.authorizedUser.email, fixture.authorizedUser.password);

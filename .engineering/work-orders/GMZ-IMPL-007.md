@@ -1,13 +1,27 @@
 # GMZ-IMPL-007 — Catalog Core & Channel Offers Foundation
 
-Status: `CD-002 SCOPE-ALIGNED ADMISSION PROPOSAL / EXECUTION BLOCKED`
+Status: `ADMITTED / BOUND_FOR_EXECUTION`
 Issue: `#67`
 Assurance: `ELEVATED`
 Amendment: `GMZ-IMPL-007-CD-002`
 Proposal branch: `codex/gmz-impl-007-cd-002-admission`
 Proposal base: `556a9dbbcb3250b640c40fefe1ade0d5c425d871`
 
-This governance-only amendment aligns the proposed catalog slice with the accepted first-release Scope. It supersedes only the conflicting promotional-price clauses after independent audit and merge. It does not amend the Checkpoint or Context Lock, authorize implementation, promote credit, merge the legacy implementation PR, or authorize remote Supabase or production deployment.
+This governance-only amendment aligns the catalog slice with the accepted first-release Scope. At proposal time it did not amend the Checkpoint or Context Lock and did not authorize implementation. The post-admission audit, merge and exact execution bind below now authorize only this Work Order's GMZ-M06/GMZ-M26 slice. They do not promote credit, authorize merging the legacy PR, permit remote Supabase, or permit production deployment.
+
+## POST-ADMISSION AUDIT AND EXECUTION BIND
+
+- Admission PR: `#77`.
+- Audited proposal base/head: `556a9dbbcb3250b640c40fefe1ade0d5c425d871` / `6fce15cc60b445904d19cc9db003d602926fb98a`.
+- Independent verdict: `APPROVED_FOR_MAINTAINER_DECISION`; zero CRITICAL/HIGH findings and no scope-alignment defect.
+- Durable review readback: PR #77 comment `#6795017886`.
+- Admission merge: `985151f62be6cb26a67bc1c70fac4b7eaf831bd5`; merged tree equals the reviewed proposal tree.
+- Exact execution base: `20a63ab8baa6f0776224c104656e20d05be5d6b0`.
+- Execution branch: `execution/gmz-impl-007-catalog-core-bound-20a63ab`.
+- Maintainer authorization: bind and execute only GMZ-M06 (`7`) plus GMZ-M26 (`2`) within this Work Order.
+- The prior lock's 3/16 stable fingerprints and Checkpoint snapshot were stale; the bound Context Lock replaces those fingerprints with the exact values at the authorized execution base.
+- Current credit remains `52 / 515`; no earned credit or product completion is claimed by the bind.
+- Executor has no merge, checkpoint-credit-promotion, remote-Supabase or deployment authority.
 
 ## OBJECTIVE
 
@@ -300,8 +314,4 @@ GMZ-M26 would become `13 / 18 — PARTIAL`.
 
 ## STOP CONDITION
 
-Admission:
-`GMZ_IMPL_007_CD_002_ADMISSION_READY_FOR_REVIEW`
-
-Execution after governed admission promotion and exact bind:
 `GMZ_IMPL_007_READY_FOR_OBJECTIVE_AUDIT`

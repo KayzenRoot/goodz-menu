@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 
-export function AuthFrame({ children }: Readonly<{ children: ReactNode }>) {
+export function AuthFrame({ children, wide = false }: Readonly<{ children: ReactNode; wide?: boolean }>) {
   return (
     <main className="auth-page">
-      <div className="auth-frame">
+      <div className={`auth-frame${wide ? " auth-frame-wide" : ""}`}>
         <aside className="auth-visual" aria-label="Goodz Menu">
           <Link className="auth-brand" href="/" aria-label="Goodz Menu — início">
             <span className="auth-brand-mark"><span>g</span><i /></span>

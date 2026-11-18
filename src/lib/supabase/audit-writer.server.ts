@@ -3,6 +3,10 @@ import { createClient } from "@supabase/supabase-js";
 import { readRuntimeConfig } from "@/lib/env/runtime-env";
 import type { Database } from "@/lib/supabase/database.types";
 import { validateAdminGuardAuditEvent, type AdminGuardAuditEvent } from "@/lib/supabase/admin-guard-policy";
+import {
+  validateCatalogAdminGuardEvent,
+  type CatalogAdminGuardEvent,
+} from "@/lib/supabase/catalog-admin-guard-policy";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -41,4 +45,44 @@ export async function persistAdminGuardAuditEvent(value: unknown): Promise<strin
   }
 }
 
+/** Persists only the narrow catalog step-up decision; this boundary never mutates catalog rows. */
+export async function persistCatalogAdminGuardEvent(value: unknown): Promise<string | null> {
+  const event = validateCatalogAdminGuardEvent(value);
+  const runtime = readRuntimeConfig();
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!runtime.ok || !serviceRoleKey) throw new Error("Audit persistence is unavailable.");
+
+  try {
+    const client = createClient<Database>(runtime.config.supabaseApiUrl.toString(), serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
+    });
+    // Postgres permits NULL scope/actor on denied events; generated PostgREST args cannot express that nullability.
+    const args = {
+      p_actor_user_id: event.actor_user_id,
+      p_organization_id: event.organization_id,
+      p_establishment_id: event.establishment_id,
+      p_branch_id: event.branch_id,
+      p_target_id: event.target_id,
+      p_required_permissions: event.required_permissions,
+      p_correlation_id: event.correlation_id,
+      p_outcome: event.outcome,
+      p_reason_code: event.reason_code,
+    } as unknown as Database["public"]["Functions"]["append_catalog_step_up_event"]["Args"];
+    const { data, error } = await client.rpc("append_catalog_step_up_event", args)
+      .abortSignal(AbortSignal.timeout(3_000));
+    const proofId = data as string | null;
+    if (
+      error
+      || (event.outcome === "allow" && (typeof proofId !== "string" || !UUID.test(proofId)))
+      || (event.outcome === "deny" && proofId !== null)
+    ) {
+      throw new Error("Audit persistence is unavailable.");
+    }
+    return proofId;
+  } catch {
+    throw new Error("Audit persistence is unavailable.");
+  }
+}
+
 export type { AdminGuardAuditEvent };
+export type { CatalogAdminGuardEvent };
