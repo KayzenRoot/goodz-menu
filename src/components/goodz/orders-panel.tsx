@@ -236,7 +236,7 @@ function OrdersQueueBody({
 
   return (
     <>
-      <div className="orders-status-banner" role="region" aria-label="Estado da vitrine">
+      <section className="orders-status-banner" aria-label="Estado da vitrine">
         <div>
           <strong>Recebimento online na unidade:</strong>{" "}
           <span>{props.orderingEnabled ? "ATIVO (monitoramento de fila obrigatório)" : "PAUSADO (fail-closed)"}</span>
@@ -245,7 +245,7 @@ function OrdersQueueBody({
           <span className="settings-plan-pill">Ativos na fila: {activeCount}</span>
           <span className="settings-plan-pill">Concluídos: {completedCount}</span>
         </div>
-      </div>
+      </section>
 
       {props.canWriteOrders ? (
         <StaffOrderIntakeSection props={props} />
