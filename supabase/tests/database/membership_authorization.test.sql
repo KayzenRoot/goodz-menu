@@ -141,11 +141,12 @@ SELECT is(
     'catalog.availability.write', 'catalog.price.write', 'catalog.read', 'catalog.write',
     'delivery.read', 'delivery.write', 'delivery.zone.write',
     'orders.cancel', 'orders.handoff_payment.sensitive', 'orders.handoff_payment.write', 'orders.read', 'orders.write',
+    'privacy.manage', 'privacy.read',
     'settings.read', 'settings.sensitive.write', 'settings.write',
     'storefront.read', 'storefront.write',
     (SELECT c_hierarchy_read_permission FROM pg_temp.gmz003_test_constants)
   ]::text[],
-  'only the admitted tenant, catalog, settings, orders, delivery, and storefront permissions are catalogued'
+  'only the admitted tenant, catalog, settings, orders, delivery, storefront, and privacy permissions are catalogued'
 );
 SELECT ok(
   to_regclass('public.platform_admin_memberships') IS NULL

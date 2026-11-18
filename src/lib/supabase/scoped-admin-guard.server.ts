@@ -7,6 +7,7 @@ import {
   type VerifiedAuthClaims,
 } from "@/lib/supabase/admin-guard-policy";
 import { requestCorrelationId } from "@/lib/observability/correlation";
+import { emitStructuredInfoLog } from "@/lib/observability/log-redactor";
 import { getCurrentAuthContext, type ServerSupabaseClient } from "@/lib/supabase/auth-session";
 import { hasFreshReauthenticationProof } from "@/lib/supabase/reauthentication.server";
 import {
@@ -94,14 +95,14 @@ export async function executeScopedAdminGuard(options: Readonly<{
     options.resourceId,
     testNowSeconds ?? Math.floor(Date.now() / 1000),
   );
-  console.info(JSON.stringify({
+  emitStructuredInfoLog({
     event: "admin_guard_decision",
     action: options.actionLogName,
     outcome: decision.allowed ? "allow" : "deny",
     reason: decision.allowed ? "authorized" : decision.reason,
     correlation_id: correlationId,
     audit_persisted: auditPersisted,
-  }));
+  });
   return { decision, proofId: decision.allowed ? proofId : null, correlationId };
 }
 

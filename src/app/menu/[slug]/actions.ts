@@ -2,6 +2,8 @@
 
 import { headers } from "next/headers";
 import { requestCorrelationId } from "@/lib/observability/correlation";
+import { emitStructuredInfoLog } from "@/lib/observability/log-redactor";
+import { publicCheckoutRateLimiter } from "@/lib/security/public-rate-limiter";
 import type { Database, Json } from "@/lib/supabase/database.types";
 import { HANDOFF_PAYMENT_METHODS, type HandoffPaymentMethod } from "@/lib/settings/settings-resolver";
 import { ORDER_FULFILLMENT_MODES, type OrderFulfillmentMode } from "@/lib/orders/order-lifecycle";
@@ -24,6 +26,7 @@ export type PublicCheckoutActionState =
       correlationId: string;
     }
   | { kind: "invalid"; correlationId: string }
+  | { kind: "rate_limited"; correlationId: string }
   | { kind: "paused"; correlationId: string }
   | { kind: "offer_unavailable"; correlationId: string }
   | { kind: "below_minimum"; correlationId: string }
@@ -49,9 +52,21 @@ export async function placePublicStorefrontOrderAction(
   _prev: PublicCheckoutActionState,
   formData: FormData,
 ): Promise<PublicCheckoutActionState> {
-  const correlationId = await createPublicCorrelationId();
+  const { correlationId, clientIp } = await readPublicRequestMeta();
   const parsed = parsePublicCheckoutForm(formData);
   if (!parsed) return { kind: "invalid", correlationId };
+
+  const rateDecision = publicCheckoutRateLimiter.consume(`checkout:${clientIp}:${parsed.slug}`);
+  if (!rateDecision.allowed) {
+    emitStructuredInfoLog({
+      event: "public_storefront_checkout",
+      slug: parsed.slug,
+      outcome: "rate_limited",
+      retry_after_seconds: rateDecision.retryAfterSeconds,
+      correlation_id: correlationId,
+    });
+    return { kind: "rate_limited", correlationId };
+  }
 
   const client = createPublicAnonSupabaseClient();
   if (!client) return { kind: "failed", correlationId };
@@ -74,7 +89,14 @@ export async function placePublicStorefrontOrderAction(
 
   try {
     const { data, error } = await client.rpc("storefront_place_public_order", args);
-    return mapPublicCheckoutResponse(parsed.slug, correlationId, data, error);
+    const result = mapPublicCheckoutResponse(parsed.slug, correlationId, data, error);
+    emitStructuredInfoLog({
+      event: "public_storefront_checkout",
+      slug: parsed.slug,
+      outcome: result?.kind ?? "unknown",
+      correlation_id: correlationId,
+    });
+    return result;
   } catch {
     return { kind: "failed", correlationId };
   }
@@ -212,10 +234,14 @@ function mapPublicCheckoutResponse(
   };
 }
 
-async function createPublicCorrelationId(): Promise<string> {
+async function readPublicRequestMeta(): Promise<Readonly<{ correlationId: string; clientIp: string }>> {
   const requestHeaders = await headers();
   const requestId = requestHeaders.get("x-request-id");
-  return requestCorrelationId(new Request("http://localhost", {
+  const forwarded = requestHeaders.get("x-forwarded-for")?.split(",")[0]?.trim();
+  const realIp = requestHeaders.get("x-real-ip")?.trim();
+  const clientIp = forwarded || realIp || "loopback";
+  const correlationId = requestCorrelationId(new Request("http://localhost", {
     headers: requestId ? { "x-request-id": requestId } : undefined,
   }));
+  return { correlationId, clientIp };
 }

@@ -98,6 +98,8 @@ export async function createOrdersSessionFixture(): Promise<OrdersSessionFixture
     inspectOrdersAudit: queryAuditEventsByCorrelation,
     async cleanup() {
       await runBatchSql(`
+        DELETE FROM private.privacy_step_up_consumptions
+        WHERE guard_event_id IN (SELECT id FROM public.audit_events WHERE organization_id = '${organizationId}');
         DELETE FROM private.storefront_step_up_consumptions
         WHERE guard_event_id IN (SELECT id FROM public.audit_events WHERE organization_id = '${organizationId}');
         DELETE FROM private.delivery_step_up_consumptions
@@ -122,7 +124,9 @@ export async function createOrdersSessionFixture(): Promise<OrdersSessionFixture
         UPDATE public.products SET primary_media_asset_id = NULL WHERE organization_id = '${organizationId}';
         DELETE FROM public.media_assets WHERE organization_id = '${organizationId}';
         DELETE FROM public.delivery_zones WHERE organization_id = '${organizationId}';
+        ALTER TABLE public.customer_consents DISABLE TRIGGER customer_consents_immutable;
         DELETE FROM public.customers WHERE organization_id = '${organizationId}';
+        ALTER TABLE public.customer_consents ENABLE TRIGGER customer_consents_immutable;
         DELETE FROM public.channel_offers WHERE organization_id = '${organizationId}';
         DELETE FROM public.products WHERE organization_id = '${organizationId}';
         DELETE FROM public.setting_values WHERE organization_id = '${organizationId}';

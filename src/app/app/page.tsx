@@ -31,6 +31,7 @@ export default async function TenantEntryPage() {
             <Link className="auth-entry-link" href="/app/storefront">Vitrine</Link>
             <Link className="auth-entry-link" href="/app/catalog">Catálogo</Link>
             <Link className="auth-entry-link" href="/app/settings">Configurações</Link>
+            <Link className="auth-entry-link" href="/app/privacy">Privacidade</Link>
             <Link className="auth-entry-link" href="/app/security">Segurança</Link>
             <Link className="auth-entry-link" href="/app/admin-guard">Ação protegida</Link>
             <LogoutButton supabaseUrl={config.config.supabaseApiUrl.toString()} anonKey={config.config.anonKey} />
