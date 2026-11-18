@@ -53,18 +53,19 @@ type ScopedValueRow = Pick<
 
 type EffectiveSettingRow = Database["public"]["Functions"]["resolve_effective_settings"]["Returns"][number];
 type EntitlementRow = Database["public"]["Functions"]["resolve_tenant_entitlements"]["Returns"][number];
+type BranchOption = {
+  id: string;
+  displayName: string;
+  establishmentId: string;
+  establishmentName: string;
+};
 
 type SettingsPanelProps = Readonly<{
   supabaseUrl: string;
   anonKey: string;
   userId: string;
   tenants: { id: string; displayName: string }[];
-  branches: {
-    id: string;
-    displayName: string;
-    establishmentId: string;
-    establishmentName: string;
-  }[];
+  branches: BranchOption[];
   selectedOrganizationId: string;
   selectedBranchId: string;
   selectedScope: "branch" | "organization";
@@ -99,38 +100,30 @@ const SCOPE_LABELS: Record<string, string> = {
   device_session: "Sessão neste dispositivo",
 };
 
+function resolveActiveDensity(
+  densityEffective: EffectiveSettingRow | undefined,
+  deviceDensity: UiDensityMode | "",
+): UiDensityMode {
+  const lockedBy = (densityEffective?.locked_by_scope as PersistedSettingScope | null) ?? null;
+  if (!lockedBy && deviceDensity) return deviceDensity;
+  return densityEffective?.effective_value === "compact" ? "compact" : "comfortable";
+}
+
+function resolveTargetScope(
+  selectedScope: "branch" | "organization",
+  canWriteOrganization: boolean,
+  selectedBranch: BranchOption | null,
+): "branch" | "organization" {
+  if (selectedScope === "organization" && canWriteOrganization) return "organization";
+  return selectedBranch ? "branch" : "organization";
+}
+
 export function SettingsPanel(props: SettingsPanelProps) {
   const [deviceDensity, setDeviceDensity] = useState<UiDensityMode | "">("");
-
   const densityEffective = props.effectiveSettings.find((row) => row.setting_key === "ui.density_mode");
-  const densityLockedBy = (densityEffective?.locked_by_scope as PersistedSettingScope | null) ?? null;
-  const activeDensity: UiDensityMode = !densityLockedBy && deviceDensity
-    ? deviceDensity
-    : densityEffective?.effective_value === "compact"
-      ? "compact"
-      : "comfortable";
-
+  const activeDensity = resolveActiveDensity(densityEffective, deviceDensity);
   const selectedBranch = props.branches.find(({ id }) => id === props.selectedBranchId) ?? null;
-  const targetScope: "branch" | "organization" = props.selectedScope === "organization" && props.canWriteOrganization
-    ? "organization"
-    : selectedBranch
-      ? "branch"
-      : "organization";
-
-  const canWriteTargetStandard = targetScope === "organization"
-    ? props.canWriteOrganization
-    : Boolean(selectedBranch && props.canWriteBranch);
-  const canWriteTargetSensitive = targetScope === "organization"
-    ? props.canWriteSensitiveOrganization
-    : Boolean(selectedBranch && props.canWriteSensitiveBranch);
-
-  const sensitiveDefinitions = props.definitions.filter(
-    (def) => def.sensitivity === "sensitive" && def.allowed_scopes.includes(targetScope),
-  );
-  const standardDefinitions = props.definitions.filter(
-    (def) => def.sensitivity === "standard" && def.key !== "ui.density_mode" && def.allowed_scopes.includes(targetScope),
-  );
-  const densityDefinition = props.definitions.find((def) => def.key === "ui.density_mode") ?? null;
+  const targetScope = resolveTargetScope(props.selectedScope, props.canWriteOrganization, selectedBranch);
 
   return (
     <div className="catalog-page settings-page" data-density={activeDensity}>
@@ -156,103 +149,166 @@ export function SettingsPanel(props: SettingsPanelProps) {
         <p className="catalog-alert" role="alert">
           Não foi possível carregar todas as políticas deste espaço. Atualize a página e tente novamente.
         </p>
-      ) : null}
-
-      {!props.loadFailed && props.access === "none" ? (
-        <section className="catalog-empty" aria-labelledby="settings-no-access-title">
-          <h2 id="settings-no-access-title">Permissão de configurações necessária</h2>
-          <p>
-            {props.selectedOrganizationId
-              ? "Sua sessão atual não possui permissão de leitura de configurações neste escopo."
-              : "Não há uma organização ativa disponível para consultar políticas."}
-          </p>
-        </section>
-      ) : null}
-
-      {!props.loadFailed && props.access !== "none" ? (
-        <>
-          <EntitlementsSection entitlements={props.entitlements} />
-
-          <section className="catalog-section" aria-labelledby="settings-sensitive-heading">
-            <div className="catalog-section-heading">
-              <div>
-                <span className="catalog-index">02</span>
-                <h2 id="settings-sensitive-heading">
-                  Chaves operacionais críticas ({targetScope === "organization" ? "Padrão da organização" : "Unidade selecionada"})
-                </h2>
-              </div>
-              <span className="catalog-section-count">{sensitiveDefinitions.length}</span>
-            </div>
-            <p className="catalog-readonly-note">
-              Alterações críticas e travas de política exigem papel Proprietário/Admin, confirmação de segurança (Admin Guard) e auditoria imutável.
-            </p>
-            <div className="catalog-card-grid">
-              {sensitiveDefinitions.map((definition) => (
-                <SettingEditorCard
-                  key={`${targetScope}-${definition.key}`}
-                  definition={definition}
-                  targetScope={targetScope}
-                  organizationId={props.selectedOrganizationId}
-                  establishmentId={selectedBranch?.establishmentId ?? null}
-                  branchId={targetScope === "branch" ? (selectedBranch?.id ?? null) : null}
-                  scopedRow={findScopedRow(props.scopedValues, definition.key, targetScope, props.selectedOrganizationId, selectedBranch)}
-                  effectiveRow={props.effectiveSettings.find((row) => row.setting_key === definition.key) ?? null}
-                  canWriteStandard={canWriteTargetStandard}
-                  canWriteSensitive={canWriteTargetSensitive}
-                  verifiedFactorIds={props.verifiedFactorIds}
-                  supabaseUrl={props.supabaseUrl}
-                  anonKey={props.anonKey}
-                />
-              ))}
-            </div>
-          </section>
-
-          <section className="catalog-section" aria-labelledby="settings-standard-heading">
-            <div className="catalog-section-heading">
-              <div>
-                <span className="catalog-index">03</span>
-                <h2 id="settings-standard-heading">
-                  Parâmetros da vitrine, retirada e entrega ({targetScope === "organization" ? "Padrão da organização" : "Unidade selecionada"})
-                </h2>
-              </div>
-              <span className="catalog-section-count">{standardDefinitions.length}</span>
-            </div>
-            <div className="catalog-card-grid">
-              {standardDefinitions.map((definition) => (
-                <SettingEditorCard
-                  key={`${targetScope}-${definition.key}`}
-                  definition={definition}
-                  targetScope={targetScope}
-                  organizationId={props.selectedOrganizationId}
-                  establishmentId={selectedBranch?.establishmentId ?? null}
-                  branchId={targetScope === "branch" ? (selectedBranch?.id ?? null) : null}
-                  scopedRow={findScopedRow(props.scopedValues, definition.key, targetScope, props.selectedOrganizationId, selectedBranch)}
-                  effectiveRow={props.effectiveSettings.find((row) => row.setting_key === definition.key) ?? null}
-                  canWriteStandard={canWriteTargetStandard}
-                  canWriteSensitive={canWriteTargetSensitive}
-                  verifiedFactorIds={props.verifiedFactorIds}
-                  supabaseUrl={props.supabaseUrl}
-                  anonKey={props.anonKey}
-                />
-              ))}
-            </div>
-          </section>
-
-          {densityDefinition ? (
-            <UserDensitySection
-              definition={densityDefinition}
-              organizationId={props.selectedOrganizationId}
-              userId={props.userId}
-              scopedValues={props.scopedValues}
-              effectiveRow={densityEffective ?? null}
-              deviceDensity={deviceDensity}
-              setDeviceDensity={setDeviceDensity}
-              activeDensity={activeDensity}
-            />
-          ) : null}
-        </>
-      ) : null}
+      ) : (
+        <SettingsPanelContent
+          props={props}
+          selectedBranch={selectedBranch}
+          targetScope={targetScope}
+          densityEffective={densityEffective ?? null}
+          deviceDensity={deviceDensity}
+          setDeviceDensity={setDeviceDensity}
+          activeDensity={activeDensity}
+        />
+      )}
     </div>
+  );
+}
+
+function SettingsPanelContent({
+  props,
+  selectedBranch,
+  targetScope,
+  densityEffective,
+  deviceDensity,
+  setDeviceDensity,
+  activeDensity,
+}: Readonly<{
+  props: SettingsPanelProps;
+  selectedBranch: BranchOption | null;
+  targetScope: "branch" | "organization";
+  densityEffective: EffectiveSettingRow | null;
+  deviceDensity: UiDensityMode | "";
+  setDeviceDensity: Dispatch<SetStateAction<UiDensityMode | "">>;
+  activeDensity: UiDensityMode;
+}>) {
+  if (props.access === "none") {
+    return (
+      <section className="catalog-empty" aria-labelledby="settings-no-access-title">
+        <h2 id="settings-no-access-title">Permissão de configurações necessária</h2>
+        <p>
+          {props.selectedOrganizationId
+            ? "Sua sessão atual não possui permissão de leitura de configurações neste escopo."
+            : "Não há uma organização ativa disponível para consultar políticas."}
+        </p>
+      </section>
+    );
+  }
+
+  const canWriteStandard = targetScope === "organization"
+    ? props.canWriteOrganization
+    : Boolean(selectedBranch && props.canWriteBranch);
+  const canWriteSensitive = targetScope === "organization"
+    ? props.canWriteSensitiveOrganization
+    : Boolean(selectedBranch && props.canWriteSensitiveBranch);
+  const scopeTitle = targetScope === "organization" ? "Padrão da organização" : "Unidade selecionada";
+
+  const sensitiveDefinitions = props.definitions.filter(
+    (def) => def.sensitivity === "sensitive" && def.allowed_scopes.includes(targetScope),
+  );
+  const standardDefinitions = props.definitions.filter(
+    (def) => def.sensitivity === "standard" && def.key !== "ui.density_mode" && def.allowed_scopes.includes(targetScope),
+  );
+  const densityDefinition = props.definitions.find((def) => def.key === "ui.density_mode") ?? null;
+
+  return (
+    <>
+      <EntitlementsSection entitlements={props.entitlements} />
+
+      <SettingsDefinitionGroupSection
+        index="02"
+        headingId="settings-sensitive-heading"
+        headingText={`Chaves operacionais críticas (${scopeTitle})`}
+        note="Alterações críticas e travas de política exigem papel Proprietário/Admin, confirmação de segurança (Admin Guard) e auditoria imutável."
+        definitions={sensitiveDefinitions}
+        targetScope={targetScope}
+        selectedBranch={selectedBranch}
+        props={props}
+        canWriteStandard={canWriteStandard}
+        canWriteSensitive={canWriteSensitive}
+      />
+
+      <SettingsDefinitionGroupSection
+        index="03"
+        headingId="settings-standard-heading"
+        headingText={`Parâmetros da vitrine, retirada e entrega (${scopeTitle})`}
+        note={null}
+        definitions={standardDefinitions}
+        targetScope={targetScope}
+        selectedBranch={selectedBranch}
+        props={props}
+        canWriteStandard={canWriteStandard}
+        canWriteSensitive={canWriteSensitive}
+      />
+
+      {densityDefinition ? (
+        <UserDensitySection
+          definition={densityDefinition}
+          organizationId={props.selectedOrganizationId}
+          userId={props.userId}
+          scopedValues={props.scopedValues}
+          effectiveRow={densityEffective}
+          deviceDensity={deviceDensity}
+          setDeviceDensity={setDeviceDensity}
+          activeDensity={activeDensity}
+        />
+      ) : null}
+    </>
+  );
+}
+
+function SettingsDefinitionGroupSection({
+  index,
+  headingId,
+  headingText,
+  note,
+  definitions,
+  targetScope,
+  selectedBranch,
+  props,
+  canWriteStandard,
+  canWriteSensitive,
+}: Readonly<{
+  index: string;
+  headingId: string;
+  headingText: string;
+  note: string | null;
+  definitions: DefinitionRow[];
+  targetScope: "branch" | "organization";
+  selectedBranch: BranchOption | null;
+  props: SettingsPanelProps;
+  canWriteStandard: boolean;
+  canWriteSensitive: boolean;
+}>) {
+  return (
+    <section className="catalog-section" aria-labelledby={headingId}>
+      <div className="catalog-section-heading">
+        <div>
+          <span className="catalog-index">{index}</span>
+          <h2 id={headingId}>{headingText}</h2>
+        </div>
+        <span className="catalog-section-count">{definitions.length}</span>
+      </div>
+      {note ? <p className="catalog-readonly-note">{note}</p> : null}
+      <div className="catalog-card-grid">
+        {definitions.map((definition) => (
+          <SettingEditorCard
+            key={`${targetScope}-${definition.key}`}
+            definition={definition}
+            targetScope={targetScope}
+            organizationId={props.selectedOrganizationId}
+            establishmentId={selectedBranch?.establishmentId ?? null}
+            branchId={targetScope === "branch" ? (selectedBranch?.id ?? null) : null}
+            scopedRow={findScopedRow(props.scopedValues, definition.key, targetScope, props.selectedOrganizationId, selectedBranch)}
+            effectiveRow={props.effectiveSettings.find((row) => row.setting_key === definition.key) ?? null}
+            canWriteStandard={canWriteStandard}
+            canWriteSensitive={canWriteSensitive}
+            verifiedFactorIds={props.verifiedFactorIds}
+            supabaseUrl={props.supabaseUrl}
+            anonKey={props.anonKey}
+          />
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -296,6 +352,12 @@ function SettingsScopeSelector({
   );
 }
 
+function formatEntitlementKicker(ent: EntitlementRow): string {
+  if (ent.source === "tenant_override") return "OVERRIDE INDIVIDUAL DA ORGANIZAÇÃO";
+  if (ent.source === "plan") return `PLANO · ${(ent.plan_code ?? "PILOT").toUpperCase()}`;
+  return "PADRÃO DE SEGURANÇA";
+}
+
 function EntitlementsSection({ entitlements }: Readonly<{ entitlements: EntitlementRow[] }>) {
   const activePlan = entitlements.find((item) => item.plan_code)?.plan_code ?? "pilot_mvp";
   return (
@@ -313,13 +375,7 @@ function EntitlementsSection({ entitlements }: Readonly<{ entitlements: Entitlem
       <div className="catalog-card-grid">
         {entitlements.map((ent) => (
           <article key={ent.entitlement_key} className="catalog-card catalog-readonly-card">
-            <span className="catalog-card-kicker">
-              {ent.source === "tenant_override"
-                ? "OVERRIDE INDIVIDUAL DA ORGANIZAÇÃO"
-                : ent.source === "plan"
-                  ? `PLANO · ${(ent.plan_code ?? "PILOT").toUpperCase()}`
-                  : "PADRÃO DE SEGURANÇA"}
-            </span>
+            <span className="catalog-card-kicker">{formatEntitlementKicker(ent)}</span>
             <h3>{ent.display_name}</h3>
             <p className="catalog-help">{ent.description}</p>
             <dl className="catalog-readonly-details">
@@ -342,6 +398,11 @@ function EntitlementsSection({ entitlements }: Readonly<{ entitlements: Entitlem
       </div>
     </section>
   );
+}
+
+function resolveSaveButtonLabel(pending: boolean, requiresProtectedSave: boolean): string {
+  if (pending) return "Salvando…";
+  return requiresProtectedSave ? "Salvar política protegida" : "Salvar configuração";
 }
 
 function SettingEditorCard({
@@ -383,6 +444,7 @@ function SettingEditorCard({
   const isSensitiveKey = definition.sensitivity === "sensitive";
   const canLockThisScope = definition.lockable_scopes.includes(targetScope) && canWriteSensitive;
   const canEdit = !blockedByHigherScope && (isSensitiveKey ? canWriteSensitive : canWriteStandard);
+  const requiresProtectedSave = isSensitiveKey || lockedDraft || (scopedRow?.is_locked ?? false);
 
   const formIdPrefix = `setting-${targetScope}-${definition.key.replace(/\./g, "-")}`;
   const effectiveSourceLabel = SCOPE_LABELS[effectiveRow?.effective_source ?? "default"] ?? "Padrão";
@@ -417,67 +479,152 @@ function SettingEditorCard({
         </div>
       </dl>
 
-      {blockedByHigherScope ? (
-        <p className="catalog-form-note">
-          Esta política foi travada em <strong>{SCOPE_LABELS[higherLock ?? "organization"]}</strong> e não pode ser sobrescrita neste escopo.
-        </p>
-      ) : null}
-
-      {canEdit ? (
-        <form className="catalog-offer-form" action={action}>
-          <input type="hidden" name="settingKey" value={definition.key} />
-          <input type="hidden" name="scopeType" value={targetScope} />
-          <input type="hidden" name="organizationId" value={organizationId} />
-          <input type="hidden" name="establishmentId" value={establishmentId ?? ""} />
-          <input type="hidden" name="branchId" value={branchId ?? ""} />
-
-          <SettingValueFieldInput
-            idPrefix={formIdPrefix}
-            definition={definition}
-            initialValue={initialValue}
-          />
-
-          {canLockThisScope ? (
-            <div className="catalog-checkbox-row">
-              <input
-                id={`${formIdPrefix}-lock`}
-                name="isLocked"
-                type="checkbox"
-                checked={lockedDraft}
-                onChange={(event) => setLockedDraft(event.target.checked)}
-              />
-              <label htmlFor={`${formIdPrefix}-lock`}>
-                Travar política na organização (impede overrides em estabelecimentos e unidades)
-              </label>
-            </div>
-          ) : null}
-
-          <button className="catalog-save-button" type="submit" disabled={pending}>
-            {pending ? "Salvando…" : isSensitiveKey || lockedDraft || (scopedRow?.is_locked ?? false)
-              ? "Salvar política protegida"
-              : "Salvar configuração"}
-          </button>
-
-          <SettingsActionFeedback state={state} />
-          <SettingsSecurityPrompt
-            idPrefix={formIdPrefix}
-            state={state}
-            verifiedFactorIds={verifiedFactorIds}
-            totpVerified={totpVerified}
-            setTotpVerified={setTotpVerified}
-            supabaseUrl={supabaseUrl}
-            anonKey={anonKey}
-            reauthentication={reauthState}
-            reauthenticationAction={reauthAction}
-            reauthenticationPending={reauthPending}
-          />
-        </form>
-      ) : !blockedByHigherScope ? (
-        <p className="catalog-readonly-copy">
-          Somente leitura para o seu papel atual neste escopo.
-        </p>
-      ) : null}
+      <SettingEditorBody
+        canEdit={canEdit}
+        blockedByHigherScope={blockedByHigherScope}
+        higherLock={higherLock}
+        action={action}
+        definition={definition}
+        targetScope={targetScope}
+        organizationId={organizationId}
+        establishmentId={establishmentId}
+        branchId={branchId}
+        formIdPrefix={formIdPrefix}
+        initialValue={initialValue}
+        canLockThisScope={canLockThisScope}
+        lockedDraft={lockedDraft}
+        setLockedDraft={setLockedDraft}
+        pending={pending}
+        requiresProtectedSave={requiresProtectedSave}
+        state={state}
+        verifiedFactorIds={verifiedFactorIds}
+        totpVerified={totpVerified}
+        setTotpVerified={setTotpVerified}
+        supabaseUrl={supabaseUrl}
+        anonKey={anonKey}
+        reauthState={reauthState}
+        reauthAction={reauthAction}
+        reauthPending={reauthPending}
+      />
     </article>
+  );
+}
+
+function SettingEditorBody({
+  canEdit,
+  blockedByHigherScope,
+  higherLock,
+  action,
+  definition,
+  targetScope,
+  organizationId,
+  establishmentId,
+  branchId,
+  formIdPrefix,
+  initialValue,
+  canLockThisScope,
+  lockedDraft,
+  setLockedDraft,
+  pending,
+  requiresProtectedSave,
+  state,
+  verifiedFactorIds,
+  totpVerified,
+  setTotpVerified,
+  supabaseUrl,
+  anonKey,
+  reauthState,
+  reauthAction,
+  reauthPending,
+}: Readonly<{
+  canEdit: boolean;
+  blockedByHigherScope: boolean;
+  higherLock: PersistedSettingScope | null;
+  action: (payload: FormData) => void;
+  definition: DefinitionRow;
+  targetScope: "branch" | "organization";
+  organizationId: string;
+  establishmentId: string | null;
+  branchId: string | null;
+  formIdPrefix: string;
+  initialValue: Json;
+  canLockThisScope: boolean;
+  lockedDraft: boolean;
+  setLockedDraft: Dispatch<SetStateAction<boolean>>;
+  pending: boolean;
+  requiresProtectedSave: boolean;
+  state: SettingsActionState;
+  verifiedFactorIds: string[];
+  totpVerified: boolean;
+  setTotpVerified: Dispatch<SetStateAction<boolean>>;
+  supabaseUrl: string;
+  anonKey: string;
+  reauthState: ReauthenticationActionState;
+  reauthAction: (payload: FormData) => void;
+  reauthPending: boolean;
+}>) {
+  if (blockedByHigherScope) {
+    return (
+      <p className="catalog-form-note">
+        Esta política foi travada em <strong>{SCOPE_LABELS[higherLock ?? "organization"]}</strong> e não pode ser sobrescrita neste escopo.
+      </p>
+    );
+  }
+  if (!canEdit) {
+    return (
+      <p className="catalog-readonly-copy">
+        Somente leitura para o seu papel atual neste escopo.
+      </p>
+    );
+  }
+
+  return (
+    <form className="catalog-offer-form" action={action}>
+      <input type="hidden" name="settingKey" value={definition.key} />
+      <input type="hidden" name="scopeType" value={targetScope} />
+      <input type="hidden" name="organizationId" value={organizationId} />
+      <input type="hidden" name="establishmentId" value={establishmentId ?? ""} />
+      <input type="hidden" name="branchId" value={branchId ?? ""} />
+
+      <SettingValueFieldInput
+        idPrefix={formIdPrefix}
+        definition={definition}
+        initialValue={initialValue}
+      />
+
+      {canLockThisScope ? (
+        <div className="catalog-checkbox-row">
+          <input
+            id={`${formIdPrefix}-lock`}
+            name="isLocked"
+            type="checkbox"
+            checked={lockedDraft}
+            onChange={(event) => setLockedDraft(event.target.checked)}
+          />
+          <label htmlFor={`${formIdPrefix}-lock`}>
+            Travar política na organização (impede overrides em estabelecimentos e unidades)
+          </label>
+        </div>
+      ) : null}
+
+      <button className="catalog-save-button" type="submit" disabled={pending}>
+        {resolveSaveButtonLabel(pending, requiresProtectedSave)}
+      </button>
+
+      <SettingsActionFeedback state={state} />
+      <SettingsSecurityPrompt
+        idPrefix={formIdPrefix}
+        state={state}
+        verifiedFactorIds={verifiedFactorIds}
+        totpVerified={totpVerified}
+        setTotpVerified={setTotpVerified}
+        supabaseUrl={supabaseUrl}
+        anonKey={anonKey}
+        reauthentication={reauthState}
+        reauthenticationAction={reauthAction}
+        reauthenticationPending={reauthPending}
+      />
+    </form>
   );
 }
 
@@ -498,14 +645,13 @@ function SettingValueFieldInput({
   };
 
   if (definition.value_type === "boolean") {
-    const checked = initialValue === true;
     return (
       <div className="catalog-checkbox-row">
         <input
           id={`${idPrefix}-bool`}
           name="booleanValue"
           type="checkbox"
-          defaultChecked={checked}
+          defaultChecked={initialValue === true}
         />
         <label htmlFor={`${idPrefix}-bool`}>{definition.display_name} habilitado neste escopo</label>
       </div>
@@ -532,7 +678,11 @@ function SettingValueFieldInput({
   }
 
   if (definition.value_type === "string_array") {
-    const selected = new Set(Array.isArray(initialValue) ? initialValue.map(String) : []);
+    const selected = new Set(
+      Array.isArray(initialValue)
+        ? initialValue.filter((entry): entry is string => typeof entry === "string")
+        : [],
+    );
     return (
       <fieldset className="settings-checkbox-group">
         <legend className="catalog-field-label">Meios presenciais aceitos (selecione ao menos um)</legend>
@@ -613,9 +763,8 @@ function UserDensitySection({
 
   const higherLock = (effectiveRow?.locked_by_scope as PersistedSettingScope | null) ?? null;
   const blocked = isTargetScopeBlockedByHigherLock("user", higherLock);
-  const initialMode = typeof (userRow?.value_json ?? effectiveRow?.effective_value) === "string"
-    ? String(userRow?.value_json ?? effectiveRow?.effective_value)
-    : "comfortable";
+  const rawPreferred = userRow?.value_json ?? effectiveRow?.effective_value;
+  const initialMode = typeof rawPreferred === "string" ? rawPreferred : "comfortable";
 
   return (
     <section className="catalog-section" aria-labelledby="settings-user-heading">
@@ -685,46 +834,11 @@ function UserDensitySection({
 function SettingsActionFeedback({ state }: Readonly<{ state: SettingsActionState }>) {
   if (!state) return null;
   if (state.kind === "saved") {
+    const auditLabel = state.auditEventIds.length ? state.auditEventIds.join(", ") : "sem alteração material";
     return (
       <output className="catalog-form-success">
-        Configuração salva (v{state.version}). Código: {state.correlationId}. Auditoria:{" "}
-        {state.auditEventIds.length ? state.auditEventIds.join(", ") : "sem alteração material"}.
+        Configuração salva (v{state.version}). Código: {state.correlationId}. Auditoria: {auditLabel}.
       </output>
-    );
-  }
-  if (state.kind === "policy_locked") {
-    return (
-      <p className="catalog-form-error" role="alert">
-        Operação bloqueada: esta chave está travada por um escopo superior de política. Código: {state.correlationId}
-      </p>
-    );
-  }
-  if (state.kind === "entitlement_denied") {
-    return (
-      <p className="catalog-form-error" role="alert">
-        O plano ou override de capacidades da organização não autoriza ativar esta chave. Código: {state.correlationId}
-      </p>
-    );
-  }
-  if (state.kind === "invalid") {
-    return (
-      <p className="catalog-form-error" role="alert">
-        Revise o valor informado conforme os limites permitidos. Código: {state.correlationId}
-      </p>
-    );
-  }
-  if (state.kind === "denied") {
-    return (
-      <p className="catalog-form-error" role="alert">
-        Alteração não autorizada para o seu papel neste escopo. Código: {state.correlationId}
-      </p>
-    );
-  }
-  if (state.kind === "failed") {
-    return (
-      <p className="catalog-form-error" role="alert">
-        Não foi possível concluir a alteração. Código: {state.correlationId}
-      </p>
     );
   }
   if (state.kind === "step_up_required") {
@@ -741,11 +855,66 @@ function SettingsActionFeedback({ state }: Readonly<{ state: SettingsActionState
       </output>
     );
   }
+  if (state.kind === "factor_setup_required") {
+    return (
+      <p className="catalog-form-error" role="alert">
+        Configure um fator autenticador em <Link href="/app/security">Segurança</Link> antes de continuar. Código:{" "}
+        {state.correlationId}
+      </p>
+    );
+  }
+  const errorMessages: Record<"policy_locked" | "entitlement_denied" | "invalid" | "denied" | "failed", string> = {
+    policy_locked: "Operação bloqueada: esta chave está travada por um escopo superior de política.",
+    entitlement_denied: "O plano ou override de capacidades da organização não autoriza ativar esta chave.",
+    invalid: "Revise o valor informado conforme os limites permitidos.",
+    denied: "Alteração não autorizada para o seu papel neste escopo.",
+    failed: "Não foi possível concluir a alteração.",
+  };
   return (
     <p className="catalog-form-error" role="alert">
-      Configure um fator autenticador em <Link href="/app/security">Segurança</Link> antes de continuar. Código:{" "}
-      {state.correlationId}
+      {errorMessages[state.kind]} Código: {state.correlationId}
     </p>
+  );
+}
+
+function StepUpBody({
+  idPrefix,
+  verifiedFactorId,
+  totpVerified,
+  setTotpVerified,
+  supabaseUrl,
+  anonKey,
+}: Readonly<{
+  idPrefix: string;
+  verifiedFactorId: string | undefined;
+  totpVerified: boolean;
+  setTotpVerified: Dispatch<SetStateAction<boolean>>;
+  supabaseUrl: string;
+  anonKey: string;
+}>) {
+  if (!verifiedFactorId) {
+    return (
+      <p>
+        Configure um fator autenticador em <Link href="/app/security">Segurança</Link>.
+      </p>
+    );
+  }
+  if (totpVerified) {
+    return (
+      <output className="catalog-step-up-status">
+        Código validado. Envie a configuração novamente para concluir a alteração.
+      </output>
+    );
+  }
+  return (
+    <TotpChallengeForm
+      supabaseUrl={supabaseUrl}
+      anonKey={anonKey}
+      factorId={verifiedFactorId}
+      fieldId={`${idPrefix}-totp`}
+      onVerified={() => setTotpVerified(true)}
+      buttonLabel="Validar código e salvar política novamente"
+    />
   );
 }
 
@@ -772,30 +941,19 @@ function SettingsSecurityPrompt({
   reauthenticationAction: (formData: FormData) => void;
   reauthenticationPending: boolean;
 }>) {
-  const verifiedFactorId = verifiedFactorIds[0];
   return (
     <>
       {state?.kind === "step_up_required" ? (
         <div className="catalog-step-up" aria-labelledby={`${idPrefix}-step-up`}>
           <h4 id={`${idPrefix}-step-up`}>Confirme a verificação em duas etapas</h4>
-          {verifiedFactorId && !totpVerified ? (
-            <TotpChallengeForm
-              supabaseUrl={supabaseUrl}
-              anonKey={anonKey}
-              factorId={verifiedFactorId}
-              fieldId={`${idPrefix}-totp`}
-              onVerified={() => setTotpVerified(true)}
-              buttonLabel="Validar código e salvar política novamente"
-            />
-          ) : verifiedFactorId ? (
-            <output className="catalog-step-up-status">
-              Código validado. Envie a configuração novamente para concluir a alteração.
-            </output>
-          ) : (
-            <p>
-              Configure um fator autenticador em <Link href="/app/security">Segurança</Link>.
-            </p>
-          )}
+          <StepUpBody
+            idPrefix={idPrefix}
+            verifiedFactorId={verifiedFactorIds[0]}
+            totpVerified={totpVerified}
+            setTotpVerified={setTotpVerified}
+            supabaseUrl={supabaseUrl}
+            anonKey={anonKey}
+          />
         </div>
       ) : null}
 
@@ -857,11 +1015,12 @@ function findScopedRow(
 
 function formatSettingDisplayValue(valueType: string, value: Json): string {
   if (valueType === "boolean") return value === true ? "Ativo" : "Pausado / Desativado";
-  if (valueType === "integer") return `${String(value)} min`;
+  if (valueType === "integer") return typeof value === "number" ? `${value} min` : "—";
   if (valueType === "string_array" && Array.isArray(value)) {
-    return value
-      .map((item) => PAYMENT_LABELS[String(item) as HandoffPaymentMethod] ?? String(item))
-      .join(", ");
+    const labels = value
+      .filter((item): item is string => typeof item === "string")
+      .map((item) => PAYMENT_LABELS[item as HandoffPaymentMethod] ?? item);
+    return labels.join(", ");
   }
   const str = typeof value === "string" ? value : "";
   return str.length > 0 ? str : "Não informado";
@@ -869,5 +1028,5 @@ function formatSettingDisplayValue(valueType: string, value: Json): string {
 
 function formatEntitlementValue(valueType: string, value: Json): string {
   if (valueType === "boolean") return value === true ? "Liberado" : "Indisponível no plano atual";
-  return String(value);
+  return typeof value === "number" ? `${value}` : "—";
 }

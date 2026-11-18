@@ -53,16 +53,19 @@ function runSupabase(args) {
     child.stderr.setEncoding("utf8").on("data", (chunk) => { stderr += chunk; });
     child.once("error", rejectRun);
     child.once("close", (code, signal) => {
-      if (code === 0) resolveRun({ stdout, stderr });
-      else rejectRun(new Error(`Local Supabase CLI failed (${signal || `exit ${code}`}). ${sanitizeCliOutput(stdout, stderr)}`));
+      if (code === 0) {
+        resolveRun({ stdout, stderr });
+        return;
+      }
+      const reason = signal || "exit " + String(code);
+      rejectRun(new Error("Local Supabase CLI failed (" + reason + "). " + sanitizeCliOutput(stdout, stderr)));
     });
   });
 }
 
 async function executeSql(sql) {
-  for (const statement of sql.split(";").map((part) => part.trim()).filter(Boolean)) {
-    await runSupabase(["db", "query", "--local", statement]);
-  }
+  const trimmed = sql.trim().replace(/;?\s*$/, ";");
+  await runSupabase(["db", "query", "--local", `DO $batch$ BEGIN ${trimmed} END $batch$`]);
 }
 
 async function getLocalApi() {

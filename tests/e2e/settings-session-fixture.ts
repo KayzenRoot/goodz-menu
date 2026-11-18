@@ -25,7 +25,7 @@ const repositoryRoot = process.cwd();
 const supabaseCli = path.join(repositoryRoot, "node_modules", "supabase", "dist", "supabase.js");
 const requestedWorkdir = process.env.GOODZ_SUPABASE_WORKDIR?.trim();
 
-function runSupabase(args: string[]): Promise<string> {
+function runLocalDbCommand(args: string[]): Promise<string> {
   return new Promise((resolveRun, reject) => {
     const cliArgs = requestedWorkdir
       ? [supabaseCli, "--workdir", path.resolve(requestedWorkdir), ...args]
@@ -41,20 +41,26 @@ function runSupabase(args: string[]): Promise<string> {
     child.stderr.setEncoding("utf8").on("data", (chunk: string) => { stderr += chunk; });
     child.once("error", reject);
     child.once("close", (code, signal) => {
-      if (code === 0) resolveRun(stdout);
-      else reject(new Error(`Local Supabase command failed (${signal || `exit ${code}`}). ${sanitizeLocalSupabaseOutput(`${stderr}\n${stdout}`)}`));
+      if (code === 0) {
+        resolveRun(stdout);
+        return;
+      }
+      const exitReason = signal || "exit " + String(code);
+      const summary = sanitizeLocalSupabaseOutput(stderr + "\n" + stdout);
+      reject(new Error("Local Supabase command failed (" + exitReason + "). " + summary));
     });
   });
 }
 
-async function executeSql(sql: string) {
-  for (const statement of sql.split(";").map((part) => part.trim()).filter(Boolean)) {
-    await runSupabase(["db", "query", "--local", statement]);
-  }
+async function runBatchSql(sql: string): Promise<void> {
+  const trimmed = sql.trim().replace(/;?\s*$/, ";");
+  await runLocalDbCommand(["db", "query", "--local", `DO $batch$ BEGIN ${trimmed} END $batch$`]);
 }
 
-async function queryJson(sql: string): Promise<unknown[]> {
-  const output = await runSupabase(["db", "query", "--local", "--output-format", "json", sql]);
+async function querySettingsAuditRows(correlationId: string): Promise<unknown[]> {
+  if (!/^[0-9a-f-]{36}$/i.test(correlationId)) throw new Error("Invalid correlation UUID.");
+  const sql = `SELECT action, outcome, reason_code, source, metadata FROM public.audit_events WHERE correlation_id = '${correlationId}' ORDER BY created_at ASC`;
+  const output = await runLocalDbCommand(["db", "query", "--local", "--output-format", "json", sql]);
   const jsonStart = output.search(/[[{]/);
   if (jsonStart < 0) throw new Error("Settings E2E local database returned no readable JSON evidence.");
   const result = JSON.parse(output.slice(jsonStart)) as unknown;
@@ -65,7 +71,7 @@ async function queryJson(sql: string): Promise<unknown[]> {
 
 export async function createSettingsSessionFixture(): Promise<SettingsSessionFixture> {
   const api = getLocalSupabaseApi(
-    await runSupabase(["status", "--output", "json"]),
+    await runLocalDbCommand(["status", "--output", "json"]),
     "Settings E2E requires a loopback API and public anon key from the local Supabase stack.",
   );
   const organizationId = randomUUID();
@@ -86,7 +92,7 @@ export async function createSettingsSessionFixture(): Promise<SettingsSessionFix
     owner = await createSyntheticUser(api, "owner", "gmz-impl-008-settings-e2e");
     branchStaff = await createSyntheticUser(api, "branch-staff", "gmz-impl-008-settings-e2e");
 
-    await executeSql(`
+    await runBatchSql(`
       INSERT INTO public.organizations (id, display_name) VALUES ('${organizationId}', '${organizationName}');
       INSERT INTO public.establishments (id, organization_id, display_name) VALUES ('${establishmentId}', '${organizationId}', 'Matriz Piloto');
       INSERT INTO public.branches (id, organization_id, establishment_id, display_name) VALUES ('${branchId}', '${organizationId}', '${establishmentId}', 'Unidade Centro');
@@ -102,14 +108,12 @@ export async function createSettingsSessionFixture(): Promise<SettingsSessionFix
         ('${staffMembershipId}', '${organizationId}', '${branchStaff.id}', 'active', '${establishmentId}', '${branchId}');
       INSERT INTO public.membership_roles (id, organization_id, membership_id, role_id, scope_type, establishment_id, branch_id) VALUES
         ('${ownerAssignmentId}', '${organizationId}', '${ownerMembershipId}', '${ownerRoleId}', 'organization', NULL, NULL),
-        ('${staffAssignmentId}', '${organizationId}', '${staffMembershipId}', '${staffRoleId}', 'branch', '${establishmentId}', '${branchId}')
+        ('${staffAssignmentId}', '${organizationId}', '${staffMembershipId}', '${staffRoleId}', 'branch', '${establishmentId}', '${branchId}');
     `);
   } catch (error) {
-    if (owner || branchStaff) {
-      const userIds = [owner?.id, branchStaff?.id].filter(Boolean).map((id) => `'${id}'`).join(", ");
-      if (userIds) {
-        await executeSql(`DELETE FROM auth.users WHERE id IN (${userIds})`).catch(() => undefined);
-      }
+    const userIds = [owner?.id, branchStaff?.id].filter(Boolean).map((id) => `'${id}'`).join(", ");
+    if (userIds) {
+      await runBatchSql(`DELETE FROM auth.users WHERE id IN (${userIds});`).catch(() => undefined);
     }
     throw error;
   }
@@ -123,14 +127,9 @@ export async function createSettingsSessionFixture(): Promise<SettingsSessionFix
     organizationName,
     establishmentId,
     branchId,
-    async inspectSettingsAudit(correlationId: string) {
-      if (!/^[0-9a-f-]{36}$/i.test(correlationId)) throw new Error("Invalid correlation UUID.");
-      return queryJson(
-        `SELECT action, outcome, reason_code, source, metadata FROM public.audit_events WHERE correlation_id = '${correlationId}' ORDER BY created_at ASC`,
-      );
-    },
+    inspectSettingsAudit: querySettingsAuditRows,
     async cleanup() {
-      await executeSql(`
+      await runBatchSql(`
         DELETE FROM private.settings_step_up_consumptions
         WHERE guard_event_id IN (SELECT id FROM public.audit_events WHERE organization_id = '${organizationId}');
         ALTER TABLE public.audit_events DISABLE TRIGGER audit_events_immutable;
@@ -146,7 +145,7 @@ export async function createSettingsSessionFixture(): Promise<SettingsSessionFix
         DELETE FROM public.branches WHERE organization_id = '${organizationId}';
         DELETE FROM public.establishments WHERE organization_id = '${organizationId}';
         DELETE FROM public.organizations WHERE id = '${organizationId}';
-        DELETE FROM auth.users WHERE id IN ('${owner.id}', '${branchStaff.id}')
+        DELETE FROM auth.users WHERE id IN ('${owner.id}', '${branchStaff.id}');
       `).catch(() => undefined);
     },
   };

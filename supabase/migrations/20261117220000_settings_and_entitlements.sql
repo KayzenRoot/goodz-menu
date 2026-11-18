@@ -287,43 +287,30 @@ STABLE
 SECURITY DEFINER
 SET search_path = ''
 AS $function$
-  SELECT (SELECT auth.uid()) IS NOT NULL
-    AND EXISTS (
-      SELECT 1 FROM public.organizations AS organization_row
-      WHERE organization_row.id = p_organization_id
-        AND organization_row.status = (private.get_settings_literal_constants()).status_active
+  SELECT public.settings_has_permission(
+      p_organization_id,
+      NULL,
+      NULL,
+      (private.get_settings_literal_constants()).permission_settings_read
     )
-    AND EXISTS (
-      SELECT 1
-      FROM public.organization_memberships AS membership
-      JOIN public.membership_roles AS assignment
-        ON assignment.organization_id = membership.organization_id
-        AND assignment.membership_id = membership.id
-      JOIN public.role_permissions AS role_permission
-        ON role_permission.organization_id = assignment.organization_id
-        AND role_permission.role_id = assignment.role_id
-      LEFT JOIN public.establishments AS est
-        ON est.organization_id = assignment.organization_id
-        AND est.id = assignment.establishment_id
-      LEFT JOIN public.branches AS br
-        ON br.organization_id = assignment.organization_id
-        AND br.establishment_id = assignment.establishment_id
-        AND br.id = assignment.branch_id
-      WHERE membership.user_id = (SELECT auth.uid())
-        AND membership.organization_id = p_organization_id
-        AND membership.status = (private.get_settings_literal_constants()).status_active
-        AND role_permission.permission_key = (private.get_settings_literal_constants()).permission_settings_read
-        AND (
-          assignment.scope_type = (private.get_settings_literal_constants()).scope_organization
-          OR (
-            assignment.scope_type = (private.get_settings_literal_constants()).scope_establishment
-            AND est.status = (private.get_settings_literal_constants()).status_active
-          )
-          OR (
-            assignment.scope_type = (private.get_settings_literal_constants()).scope_branch
-            AND est.status = (private.get_settings_literal_constants()).status_active
-            AND br.status = (private.get_settings_literal_constants()).status_active
-          )
+    OR EXISTS (
+      SELECT 1 FROM public.establishments AS est
+      WHERE est.organization_id = p_organization_id
+        AND public.settings_has_permission(
+          p_organization_id,
+          est.id,
+          NULL,
+          (private.get_settings_literal_constants()).permission_settings_read
+        )
+    )
+    OR EXISTS (
+      SELECT 1 FROM public.branches AS br
+      WHERE br.organization_id = p_organization_id
+        AND public.settings_has_permission(
+          p_organization_id,
+          br.establishment_id,
+          br.id,
+          (private.get_settings_literal_constants()).permission_settings_read
         )
     );
 $function$;
@@ -338,46 +325,21 @@ STABLE
 SECURITY DEFINER
 SET search_path = ''
 AS $function$
-  SELECT (SELECT auth.uid()) IS NOT NULL
-    AND EXISTS (
-      SELECT 1 FROM public.organizations AS organization_row
-      WHERE organization_row.id = p_organization_id
-        AND organization_row.status = (private.get_settings_literal_constants()).status_active
+  SELECT public.settings_has_permission(
+      p_organization_id,
+      p_establishment_id,
+      NULL,
+      (private.get_settings_literal_constants()).permission_settings_read
     )
-    AND EXISTS (
-      SELECT 1 FROM public.establishments AS establishment_row
-      WHERE establishment_row.organization_id = p_organization_id
-        AND establishment_row.id = p_establishment_id
-        AND establishment_row.status = (private.get_settings_literal_constants()).status_active
-    )
-    AND EXISTS (
-      SELECT 1
-      FROM public.organization_memberships AS membership
-      JOIN public.membership_roles AS assignment
-        ON assignment.organization_id = membership.organization_id
-        AND assignment.membership_id = membership.id
-      JOIN public.role_permissions AS role_permission
-        ON role_permission.organization_id = assignment.organization_id
-        AND role_permission.role_id = assignment.role_id
-      LEFT JOIN public.branches AS br
-        ON br.organization_id = assignment.organization_id
-        AND br.establishment_id = assignment.establishment_id
-        AND br.id = assignment.branch_id
-      WHERE membership.user_id = (SELECT auth.uid())
-        AND membership.organization_id = p_organization_id
-        AND membership.status = (private.get_settings_literal_constants()).status_active
-        AND role_permission.permission_key = (private.get_settings_literal_constants()).permission_settings_read
-        AND (
-          assignment.scope_type = (private.get_settings_literal_constants()).scope_organization
-          OR (
-            assignment.scope_type = (private.get_settings_literal_constants()).scope_establishment
-            AND assignment.establishment_id = p_establishment_id
-          )
-          OR (
-            assignment.scope_type = (private.get_settings_literal_constants()).scope_branch
-            AND assignment.establishment_id = p_establishment_id
-            AND br.status = (private.get_settings_literal_constants()).status_active
-          )
+    OR EXISTS (
+      SELECT 1 FROM public.branches AS br
+      WHERE br.organization_id = p_organization_id
+        AND br.establishment_id = p_establishment_id
+        AND public.settings_has_permission(
+          p_organization_id,
+          p_establishment_id,
+          br.id,
+          (private.get_settings_literal_constants()).permission_settings_read
         )
     );
 $function$;
@@ -579,226 +541,50 @@ ALTER TABLE public.setting_definitions
   ADD CONSTRAINT setting_definitions_default_value_valid_check
   CHECK (private.is_valid_setting_value(value_type, validation_rules, default_value));
 
+WITH c AS (
+  SELECT
+    (private.get_settings_literal_constants()).*,
+    ARRAY[
+      (private.get_settings_literal_constants()).scope_platform,
+      (private.get_settings_literal_constants()).scope_organization,
+      (private.get_settings_literal_constants()).scope_establishment,
+      (private.get_settings_literal_constants()).scope_branch
+    ]::text[] AS full_branch_scopes,
+    ARRAY[
+      (private.get_settings_literal_constants()).scope_organization,
+      (private.get_settings_literal_constants()).scope_establishment,
+      (private.get_settings_literal_constants()).scope_branch
+    ]::text[] AS tenant_branch_scopes,
+    ARRAY[
+      (private.get_settings_literal_constants()).scope_platform,
+      (private.get_settings_literal_constants()).scope_organization,
+      (private.get_settings_literal_constants()).scope_establishment
+    ]::text[] AS full_locks,
+    ARRAY[
+      (private.get_settings_literal_constants()).scope_organization,
+      (private.get_settings_literal_constants()).scope_establishment
+    ]::text[] AS tenant_locks
+)
 INSERT INTO public.setting_definitions (
   key, display_name, description, value_type, allowed_scopes, default_value, validation_rules, sensitivity, audit_required, lockable_scopes
 )
 SELECT
-  seed.key,
-  seed.display_name,
-  seed.description,
-  seed.value_type,
-  seed.allowed_scopes,
-  seed.default_value,
-  seed.validation_rules,
-  seed.sensitivity,
-  true,
-  seed.lockable_scopes
-FROM (
-  SELECT
-    (private.get_settings_literal_constants()).key_ordering_enabled AS key,
-    'Pedidos online ativos'::text AS display_name,
-    'Chave geral fail-closed da vitrine online Goodz na unidade.'::text AS description,
-    (private.get_settings_literal_constants()).type_boolean AS value_type,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_platform,
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment,
-      (private.get_settings_literal_constants()).scope_branch
-    ]::text[] AS allowed_scopes,
-    pg_catalog.to_jsonb(false) AS default_value,
-    '{}'::jsonb AS validation_rules,
-    (private.get_settings_literal_constants()).sensitivity_sensitive AS sensitivity,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_platform,
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment
-    ]::text[] AS lockable_scopes
-  UNION ALL SELECT
-    'storefront.pickup_enabled',
-    'Retirada no local',
-    'Permite pedidos para retirada presencial pelo cliente.',
-    (private.get_settings_literal_constants()).type_boolean,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_platform,
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment,
-      (private.get_settings_literal_constants()).scope_branch
-    ]::text[],
-    pg_catalog.to_jsonb(true),
-    '{}'::jsonb,
-    (private.get_settings_literal_constants()).sensitivity_standard,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_platform,
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment
-    ]::text[]
-  UNION ALL SELECT
-    'storefront.delivery_enabled',
-    'Entrega própria',
-    'Permite pedidos com entrega própria da unidade dentro das zonas ativas.',
-    (private.get_settings_literal_constants()).type_boolean,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_platform,
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment,
-      (private.get_settings_literal_constants()).scope_branch
-    ]::text[],
-    pg_catalog.to_jsonb(true),
-    '{}'::jsonb,
-    (private.get_settings_literal_constants()).sensitivity_standard,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_platform,
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment
-    ]::text[]
-  UNION ALL SELECT
-    'storefront.operating_hours',
-    'Horário de funcionamento exibido',
-    'Resumo público do horário de atendimento do cardápio online.',
-    (private.get_settings_literal_constants()).type_text,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment,
-      (private.get_settings_literal_constants()).scope_branch
-    ]::text[],
-    '"Seg–Dom · 11:00 às 23:00"'::jsonb,
-    '{"maxLength":240,"allowEmpty":false}'::jsonb,
-    (private.get_settings_literal_constants()).sensitivity_standard,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment
-    ]::text[]
-  UNION ALL SELECT
-    'storefront.estimated_prep_minutes',
-    'Tempo médio de preparo (min)',
-    'Estimativa padrão em minutos para pedidos de retirada.',
-    (private.get_settings_literal_constants()).type_integer,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_platform,
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment,
-      (private.get_settings_literal_constants()).scope_branch
-    ]::text[],
-    '25'::jsonb,
-    '{"min":5,"max":240}'::jsonb,
-    (private.get_settings_literal_constants()).sensitivity_standard,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_platform,
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment
-    ]::text[]
-  UNION ALL SELECT
-    'storefront.estimated_delivery_minutes',
-    'Tempo médio de entrega (min)',
-    'Estimativa padrão em minutos para pedidos com entrega própria.',
-    (private.get_settings_literal_constants()).type_integer,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_platform,
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment,
-      (private.get_settings_literal_constants()).scope_branch
-    ]::text[],
-    '45'::jsonb,
-    '{"min":10,"max":300}'::jsonb,
-    (private.get_settings_literal_constants()).sensitivity_standard,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_platform,
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment
-    ]::text[]
-  UNION ALL SELECT
-    'storefront.support_whatsapp',
-    'Contato de suporte (WhatsApp/Telefone)',
-    'Canal público de atendimento exibido ao cliente no acompanhamento do pedido.',
-    (private.get_settings_literal_constants()).type_text,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment,
-      (private.get_settings_literal_constants()).scope_branch
-    ]::text[],
-    '""'::jsonb,
-    '{"maxLength":40,"allowEmpty":true,"pattern":"^(\\+?[0-9() -]{8,30})?$"}'::jsonb,
-    (private.get_settings_literal_constants()).sensitivity_standard,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment
-    ]::text[]
-  UNION ALL SELECT
-    'storefront.public_notice',
-    'Aviso operacional na vitrine',
-    'Mensagem curta opcional exibida no topo do cardápio público.',
-    (private.get_settings_literal_constants()).type_text,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment,
-      (private.get_settings_literal_constants()).scope_branch
-    ]::text[],
-    '""'::jsonb,
-    '{"maxLength":500,"allowEmpty":true}'::jsonb,
-    (private.get_settings_literal_constants()).sensitivity_standard,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment
-    ]::text[]
-  UNION ALL SELECT
-    (private.get_settings_literal_constants()).key_accepted_payment_methods,
-    'Meios aceitos no pagamento na entrega/retirada',
-    'Formas presenciais aceitas no recebimento (sem gateway online no MVP).',
-    (private.get_settings_literal_constants()).type_string_array,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_platform,
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment,
-      (private.get_settings_literal_constants()).scope_branch
-    ]::text[],
-    '["pix_in_person","debit_card_pos","credit_card_pos","cash"]'::jsonb,
-    '{"allowedValues":["cash","pix_in_person","debit_card_pos","credit_card_pos"],"minItems":1,"maxItems":4}'::jsonb,
-    (private.get_settings_literal_constants()).sensitivity_sensitive,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_platform,
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment
-    ]::text[]
-  UNION ALL SELECT
-    'handoff.cash_change_enabled',
-    'Permitir solicitação de troco em dinheiro',
-    'Exibe campo de troco quando dinheiro estiver habilitado.',
-    (private.get_settings_literal_constants()).type_boolean,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_platform,
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment,
-      (private.get_settings_literal_constants()).scope_branch
-    ]::text[],
-    pg_catalog.to_jsonb(true),
-    '{}'::jsonb,
-    (private.get_settings_literal_constants()).sensitivity_standard,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_platform,
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_establishment
-    ]::text[]
-  UNION ALL SELECT
-    'ui.density_mode',
-    'Densidade visual do painel',
-    'Preferência de densidade visual para telas operacionais densas e uso diário.',
-    (private.get_settings_literal_constants()).type_enum,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_platform,
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_role,
-      (private.get_settings_literal_constants()).scope_user,
-      (private.get_settings_literal_constants()).scope_device_session
-    ]::text[],
-    '"comfortable"'::jsonb,
-    '{"allowedValues":["comfortable","compact"]}'::jsonb,
-    (private.get_settings_literal_constants()).sensitivity_standard,
-    ARRAY[
-      (private.get_settings_literal_constants()).scope_platform,
-      (private.get_settings_literal_constants()).scope_organization,
-      (private.get_settings_literal_constants()).scope_role
-    ]::text[]
-) AS seed
+  seed.k, seed.dn, seed.ds, seed.vt, seed.sc, seed.dv, seed.vr, seed.sn, true, seed.lk
+FROM c
+CROSS JOIN LATERAL (
+  VALUES
+    (c.key_ordering_enabled, 'Pedidos online ativos', 'Chave geral fail-closed da vitrine online Goodz na unidade.', c.type_boolean, c.full_branch_scopes, pg_catalog.to_jsonb(false), '{}'::jsonb, c.sensitivity_sensitive, c.full_locks),
+    ('storefront.pickup_enabled', 'Retirada no local', 'Permite pedidos para retirada presencial pelo cliente.', c.type_boolean, c.full_branch_scopes, pg_catalog.to_jsonb(true), '{}'::jsonb, c.sensitivity_standard, c.full_locks),
+    ('storefront.delivery_enabled', 'Entrega própria', 'Permite pedidos com entrega própria da unidade dentro das zonas ativas.', c.type_boolean, c.full_branch_scopes, pg_catalog.to_jsonb(true), '{}'::jsonb, c.sensitivity_standard, c.full_locks),
+    ('storefront.operating_hours', 'Horário de funcionamento exibido', 'Resumo público do horário de atendimento do cardápio online.', c.type_text, c.tenant_branch_scopes, '"Seg–Dom · 11:00 às 23:00"'::jsonb, '{"maxLength":240,"allowEmpty":false}'::jsonb, c.sensitivity_standard, c.tenant_locks),
+    ('storefront.estimated_prep_minutes', 'Tempo médio de preparo (min)', 'Estimativa padrão em minutos para pedidos de retirada.', c.type_integer, c.full_branch_scopes, pg_catalog.to_jsonb(25), '{"min":5,"max":240}'::jsonb, c.sensitivity_standard, c.full_locks),
+    ('storefront.estimated_delivery_minutes', 'Tempo médio de entrega (min)', 'Estimativa padrão em minutos para pedidos com entrega própria.', c.type_integer, c.full_branch_scopes, pg_catalog.to_jsonb(45), '{"min":10,"max":300}'::jsonb, c.sensitivity_standard, c.full_locks),
+    ('storefront.support_whatsapp', 'Contato de suporte (WhatsApp/Telefone)', 'Canal público de atendimento exibido ao cliente no acompanhamento do pedido.', c.type_text, c.tenant_branch_scopes, '""'::jsonb, '{"maxLength":40,"allowEmpty":true,"pattern":"^(\\+?[0-9() -]{8,30})?$"}'::jsonb, c.sensitivity_standard, c.tenant_locks),
+    ('storefront.public_notice', 'Aviso operacional na vitrine', 'Mensagem curta opcional exibida no topo do cardápio público.', c.type_text, c.tenant_branch_scopes, '""'::jsonb, '{"maxLength":500,"allowEmpty":true}'::jsonb, c.sensitivity_standard, c.tenant_locks),
+    (c.key_accepted_payment_methods, 'Meios aceitos no pagamento na entrega/retirada', 'Formas presenciais aceitas no recebimento (sem gateway online no MVP).', c.type_string_array, c.full_branch_scopes, '["pix_in_person","debit_card_pos","credit_card_pos","cash"]'::jsonb, '{"allowedValues":["cash","pix_in_person","debit_card_pos","credit_card_pos"],"minItems":1,"maxItems":4}'::jsonb, c.sensitivity_sensitive, c.full_locks),
+    ('handoff.cash_change_enabled', 'Permitir solicitação de troco em dinheiro', 'Exibe campo de troco quando dinheiro estiver habilitado.', c.type_boolean, c.full_branch_scopes, pg_catalog.to_jsonb(true), '{}'::jsonb, c.sensitivity_standard, c.full_locks),
+    ('ui.density_mode', 'Densidade visual do painel', 'Preferência de densidade visual para telas operacionais densas e uso diário.', c.type_enum, ARRAY[c.scope_platform, c.scope_organization, c.scope_role, c.scope_user, c.scope_device_session]::text[], '"comfortable"'::jsonb, '{"allowedValues":["comfortable","compact"]}'::jsonb, c.sensitivity_standard, ARRAY[c.scope_platform, c.scope_organization, c.scope_role]::text[])
+) AS seed(k, dn, ds, vt, sc, dv, vr, sn, lk)
 ON CONFLICT (key) DO NOTHING;
 
 CREATE TABLE public.setting_values (

@@ -128,8 +128,42 @@ export type ResolvedEntitlementResult = Readonly<{
 
 const DOTTED_KEY = /^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/;
 
+function compareAscii(left: string, right: string): number {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
+}
+
 export function isValidSettingKey(key: string): boolean {
   return key.length <= 120 && DOTTED_KEY.test(key);
+}
+
+function validateIntegerValue(rules: SettingValidationRules, value: unknown): boolean {
+  if (typeof value !== "number" || !Number.isInteger(value) || !Number.isSafeInteger(value)) {
+    return false;
+  }
+  if (rules.min !== undefined && value < rules.min) return false;
+  if (rules.max !== undefined && value > rules.max) return false;
+  return true;
+}
+
+function validateTextValue(rules: SettingValidationRules, value: unknown): boolean {
+  if (typeof value !== "string") return false;
+  const allowEmpty = rules.allowEmpty ?? true;
+  if (!allowEmpty && value.trim().length === 0) return false;
+  if (rules.maxLength !== undefined && value.length > rules.maxLength) return false;
+  if (rules.pattern !== undefined && !new RegExp(rules.pattern).test(value)) return false;
+  return true;
+}
+
+function validateStringArrayValue(rules: SettingValidationRules, value: unknown): boolean {
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string")) return false;
+  if (new Set(value).size !== value.length) return false;
+  const minItems = rules.minItems ?? 0;
+  const maxItems = rules.maxItems ?? 100;
+  if (value.length < minItems || value.length > maxItems) return false;
+  if (!Array.isArray(rules.allowedValues)) return false;
+  return value.every((item) => rules.allowedValues!.includes(item));
 }
 
 export function validateSettingValue(
@@ -138,66 +172,47 @@ export function validateSettingValue(
   value: unknown,
 ): boolean {
   if (value === null || value === undefined) return false;
-
   switch (valueType) {
     case "boolean":
       return typeof value === "boolean";
-
     case "integer":
-      if (typeof value !== "number" || !Number.isInteger(value) || !Number.isSafeInteger(value)) {
-        return false;
-      }
-      if (rules.min !== undefined && value < rules.min) return false;
-      if (rules.max !== undefined && value > rules.max) return false;
-      return true;
-
-    case "text": {
-      if (typeof value !== "string") return false;
-      const allowEmpty = rules.allowEmpty ?? true;
-      if (!allowEmpty && value.trim().length === 0) return false;
-      if (rules.maxLength !== undefined && value.length > rules.maxLength) return false;
-      if (rules.pattern !== undefined) {
-        const regex = new RegExp(rules.pattern);
-        if (!regex.test(value)) return false;
-      }
-      return true;
-    }
-
+      return validateIntegerValue(rules, value);
+    case "text":
+      return validateTextValue(rules, value);
     case "enum":
-      return typeof value === "string"
-        && Array.isArray(rules.allowedValues)
-        && rules.allowedValues.includes(value);
-
-    case "string_array": {
-      if (!Array.isArray(value) || value.some((item) => typeof item !== "string")) return false;
-      const unique = new Set(value);
-      if (unique.size !== value.length) return false;
-      const minItems = rules.minItems ?? 0;
-      const maxItems = rules.maxItems ?? 100;
-      if (value.length < minItems || value.length > maxItems) return false;
-      if (!Array.isArray(rules.allowedValues)) return false;
-      return value.every((item) => rules.allowedValues!.includes(item));
-    }
+      return typeof value === "string" && Boolean(rules.allowedValues?.includes(value));
+    case "string_array":
+      return validateStringArrayValue(rules, value);
   }
 }
 
-/**
- * Deterministic top-down resolution across:
- * Platform -> Organization -> Establishment -> Branch -> Role -> User -> Device/Session.
- * Any ancestor with `isLocked === true` establishes the authoritative ceiling and prevents lower overrides.
- */
 export function resolveEffectiveSettings(
   definitions: readonly SettingDefinitionRecord[],
   values: readonly ScopedSettingRecord[],
   context: SettingResolutionContext,
 ): ResolvedSettingResult[] {
-  const orderedDefinitions = [...definitions].sort((left, right) => (
-    left.key < right.key ? -1 : left.key > right.key ? 1 : 0
-  ));
+  const orderedDefinitions = [...definitions].sort((left, right) => compareAscii(left.key, right.key));
+  return orderedDefinitions.map((definition) => resolveSingleSetting(definition, values, context));
+}
 
-  return orderedDefinitions.map((definition) => (
-    resolveSingleSetting(definition, values, context)
-  ));
+function selectRoleCandidate(
+  matching: readonly ScopedSettingRecord[],
+  organizationId: string,
+  activeRoles: readonly Readonly<{ roleId: string; roleKey: string }>[],
+): ScopedSettingRecord | undefined {
+  const roleMap = new Map(activeRoles.map((role) => [role.roleId, role.roleKey]));
+  const candidates = matching
+    .filter((row) => (
+      row.scopeType === "role"
+      && row.organizationId === organizationId
+      && row.roleId !== null
+      && roleMap.has(row.roleId)
+    ))
+    .sort((left, right) => {
+      if (left.isLocked !== right.isLocked) return left.isLocked ? -1 : 1;
+      return compareAscii(roleMap.get(left.roleId!) ?? "", roleMap.get(right.roleId!) ?? "");
+    });
+  return candidates[0];
 }
 
 export function resolveSingleSetting(
@@ -222,15 +237,11 @@ export function resolveSingleSetting(
     }
   };
 
-  // 1. Platform
   applyCandidate(matching.find((row) => row.scopeType === "platform"));
-
-  // 2. Organization
   applyCandidate(matching.find((row) => (
     row.scopeType === "organization" && row.organizationId === context.organizationId
   )));
 
-  // 3. Establishment
   if (context.establishmentId) {
     applyCandidate(matching.find((row) => (
       row.scopeType === "establishment"
@@ -239,7 +250,6 @@ export function resolveSingleSetting(
     )));
   }
 
-  // 4. Branch
   if (context.establishmentId && context.branchId) {
     applyCandidate(matching.find((row) => (
       row.scopeType === "branch"
@@ -249,26 +259,10 @@ export function resolveSingleSetting(
     )));
   }
 
-  // 5. Role (locked role first, then roleKey lexical)
   if (lockedByScope === null && definition.allowedScopes.includes("role") && context.activeRoles?.length) {
-    const roleMap = new Map(context.activeRoles.map((role) => [role.roleId, role.roleKey]));
-    const roleCandidates = matching
-      .filter((row) => (
-        row.scopeType === "role"
-        && row.organizationId === context.organizationId
-        && row.roleId !== null
-        && roleMap.has(row.roleId)
-      ))
-      .sort((left, right) => {
-        if (left.isLocked !== right.isLocked) return left.isLocked ? -1 : 1;
-        const leftKey = roleMap.get(left.roleId!) ?? "";
-        const rightKey = roleMap.get(right.roleId!) ?? "";
-        return leftKey < rightKey ? -1 : leftKey > rightKey ? 1 : 0;
-      });
-    applyCandidate(roleCandidates[0]);
+    applyCandidate(selectRoleCandidate(matching, context.organizationId, context.activeRoles));
   }
 
-  // 6. User
   if (context.userId) {
     applyCandidate(matching.find((row) => (
       row.scopeType === "user"
@@ -277,12 +271,11 @@ export function resolveSingleSetting(
     )));
   }
 
-  // 7. Ephemeral Device / Session
   if (
     lockedByScope === null
     && definition.allowedScopes.includes("device_session")
     && context.deviceOverrides
-    && Object.prototype.hasOwnProperty.call(context.deviceOverrides, definition.key)
+    && Object.hasOwn(context.deviceOverrides, definition.key)
   ) {
     const candidateValue = context.deviceOverrides[definition.key];
     if (validateSettingValue(definition.valueType, definition.validationRules, candidateValue)) {
@@ -315,12 +308,8 @@ export function isTargetScopeBlockedByHigherLock(
       || targetScope === "role"
       || targetScope === "user";
   }
-  if (lockedByScope === "establishment") {
-    return targetScope === "branch";
-  }
-  if (lockedByScope === "role") {
-    return targetScope === "user";
-  }
+  if (lockedByScope === "establishment") return targetScope === "branch";
+  if (lockedByScope === "role") return targetScope === "user";
   return false;
 }
 
@@ -340,9 +329,7 @@ export function resolvePlanAndEntitlementOverrides(params: Readonly<{
   nowEpochMs?: number;
 }>): ResolvedEntitlementResult[] {
   const nowMs = params.nowEpochMs ?? Date.now();
-  const ordered = [...params.entitlements].sort((left, right) => (
-    left.key < right.key ? -1 : left.key > right.key ? 1 : 0
-  ));
+  const ordered = [...params.entitlements].sort((left, right) => compareAscii(left.key, right.key));
 
   return ordered.map((entitlement) => {
     const activeOverride = params.overrides.find((override) => (
@@ -364,7 +351,7 @@ export function resolvePlanAndEntitlementOverrides(params: Readonly<{
 
     const planActive = params.subscription
       && (params.subscription.status === "active" || params.subscription.status === "trialing")
-      && Object.prototype.hasOwnProperty.call(params.subscription.planValues, entitlement.key);
+      && Object.hasOwn(params.subscription.planValues, entitlement.key);
     if (planActive && params.subscription) {
       return {
         key: entitlement.key,

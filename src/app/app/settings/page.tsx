@@ -76,11 +76,7 @@ export default async function SettingsPage({ searchParams }: PageProps) {
     ? []
     : factorResult.data.totp.filter(({ status }) => status === "verified").map(({ id }) => id);
 
-  const defaultScope = pageData.canWriteOrganization && requestedScope === "organization"
-    ? "organization" as const
-    : selectedBranch
-      ? "branch" as const
-      : "organization" as const;
+  const defaultScope = resolveDefaultEditingScope(pageData.canWriteOrganization, requestedScope, Boolean(selectedBranch));
 
   return (
     <AuthFrame wide>
@@ -229,6 +225,17 @@ async function checkSettingsPermission(
 
 function deniedPermission(): PermissionResult {
   return { allowed: false, failed: false };
+}
+
+function resolveDefaultEditingScope(
+  canWriteOrganization: boolean,
+  requestedScope: string | undefined,
+  hasSelectedBranch: boolean,
+): "branch" | "organization" {
+  if (canWriteOrganization && requestedScope === "organization") {
+    return "organization";
+  }
+  return hasSelectedBranch ? "branch" : "organization";
 }
 
 function firstValue(value: string | string[] | undefined): string | undefined {
