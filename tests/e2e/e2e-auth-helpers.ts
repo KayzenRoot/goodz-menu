@@ -12,7 +12,10 @@ export async function signInWithCredentials(page: Page, email: string, password:
 
 export function computeTotpCode(secret: string, now = Date.now()): string {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-  const normalized = secret.replace(/=+$/g, "").toUpperCase();
+  let normalized = secret.toUpperCase();
+  while (normalized.endsWith("=")) {
+    normalized = normalized.slice(0, -1);
+  }
   let bits = "";
   for (const character of normalized) {
     const value = alphabet.indexOf(character);

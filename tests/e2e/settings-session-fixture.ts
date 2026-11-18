@@ -53,7 +53,8 @@ function runLocalDbCommand(args: string[]): Promise<string> {
 }
 
 async function runBatchSql(sql: string): Promise<void> {
-  const trimmed = sql.trim().replace(/;?\s*$/, ";");
+  const base = sql.trim();
+  const trimmed = base.endsWith(";") ? base : `${base};`;
   await runLocalDbCommand(["db", "query", "--local", `DO $batch$ BEGIN ${trimmed} END $batch$`]);
 }
 

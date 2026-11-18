@@ -64,7 +64,8 @@ function runSupabase(args) {
 }
 
 async function executeSql(sql) {
-  const trimmed = sql.trim().replace(/;?\s*$/, ";");
+  const base = sql.trim();
+  const trimmed = base.endsWith(";") ? base : `${base};`;
   await runSupabase(["db", "query", "--local", `DO $batch$ BEGIN ${trimmed} END $batch$`]);
 }
 
