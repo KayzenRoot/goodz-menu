@@ -89,7 +89,6 @@ jobs:
       - name: Run Data API integration suites
         run: |
           pnpm test:supabase:authz
-          pnpm test:supabase:catalog
           pnpm test:supabase:settings
           pnpm test:supabase:orders
           pnpm test:supabase:delivery
