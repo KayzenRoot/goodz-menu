@@ -128,6 +128,44 @@ isOneToOne: false
       referencedColumns: ["organization_id","id"]
     }
                   ]
+                },"customer_addresses": {
+                  Row: {
+                    "city": string,"complement": string,"created_at": string,"customer_id": string,"id": string,"neighborhood": string,"number_label": string,"organization_id": string,"postal_code": string,"reference_notes": string,"state_code": string,"street_line": string
+                  }
+                  Insert: {
+                    "city": string,"complement"?: string,"created_at"?: string,"customer_id": string,"id"?: string,"neighborhood": string,"number_label"?: string,"organization_id": string,"postal_code"?: string,"reference_notes"?: string,"state_code"?: string,"street_line": string
+                  }
+                  Update: {
+                    "city"?: string,"complement"?: string,"created_at"?: string,"customer_id"?: string,"id"?: string,"neighborhood"?: string,"number_label"?: string,"organization_id"?: string,"postal_code"?: string,"reference_notes"?: string,"state_code"?: string,"street_line"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "customer_addresses_customer_tenant_fkey"
+      columns: ["organization_id","customer_id"]
+isOneToOne: false
+      referencedRelation: "customers"
+      referencedColumns: ["organization_id","id"]
+    }
+                  ]
+                },"customers": {
+                  Row: {
+                    "anonymized_at": string | null,"created_at": string,"display_name": string,"id": string,"last_order_at": string | null,"organization_id": string,"phone": string,"phone_normalized": string,"updated_at": string
+                  }
+                  Insert: {
+                    "anonymized_at"?: string | null,"created_at"?: string,"display_name": string,"id"?: string,"last_order_at"?: string | null,"organization_id": string,"phone": string,"phone_normalized": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "anonymized_at"?: string | null,"created_at"?: string,"display_name"?: string,"id"?: string,"last_order_at"?: string | null,"organization_id"?: string,"phone"?: string,"phone_normalized"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "customers_organization_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"entitlements": {
                   Row: {
                     "created_at": string,"default_value": NonNullable<Json>,"description": string,"display_name": string,"key": string,"value_type": string
@@ -194,6 +232,118 @@ isOneToOne: false
       columns: ["organization_id","role_id"]
 isOneToOne: false
       referencedRelation: "tenant_roles"
+      referencedColumns: ["organization_id","id"]
+    }
+                  ]
+                },"order_handoff_payments": {
+                  Row: {
+                    "actor_user_id": string,"amount": number,"correlation_id": string,"created_at": string,"currency": string,"id": string,"order_id": string,"organization_id": string,"payment_method": string,"reason": string,"status": string
+                  }
+                  Insert: {
+                    "actor_user_id": string,"amount": number,"correlation_id": string,"created_at"?: string,"currency"?: string,"id"?: string,"order_id": string,"organization_id": string,"payment_method": string,"reason"?: string,"status": string
+                  }
+                  Update: {
+                    "actor_user_id"?: string,"amount"?: number,"correlation_id"?: string,"created_at"?: string,"currency"?: string,"id"?: string,"order_id"?: string,"organization_id"?: string,"payment_method"?: string,"reason"?: string,"status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "order_handoff_payments_order_tenant_fkey"
+      columns: ["organization_id","order_id"]
+isOneToOne: false
+      referencedRelation: "orders"
+      referencedColumns: ["organization_id","id"]
+    }
+                  ]
+                },"order_items": {
+                  Row: {
+                    "channel_offer_id": string,"created_at": string,"display_name_snapshot": string,"id": string,"line_number": number,"line_total_amount": number,"notes": string,"order_id": string,"organization_id": string,"product_id": string,"quantity": number,"unit_price_snapshot": number,"variant_id": string | null
+                  }
+                  Insert: {
+                    "channel_offer_id": string,"created_at"?: string,"display_name_snapshot": string,"id"?: string,"line_number": number,"line_total_amount": number,"notes"?: string,"order_id": string,"organization_id": string,"product_id": string,"quantity": number,"unit_price_snapshot": number,"variant_id"?: string | null
+                  }
+                  Update: {
+                    "channel_offer_id"?: string,"created_at"?: string,"display_name_snapshot"?: string,"id"?: string,"line_number"?: number,"line_total_amount"?: number,"notes"?: string,"order_id"?: string,"organization_id"?: string,"product_id"?: string,"quantity"?: number,"unit_price_snapshot"?: number,"variant_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "order_items_offer_tenant_fkey"
+      columns: ["organization_id","channel_offer_id"]
+isOneToOne: false
+      referencedRelation: "channel_offers"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "order_items_order_tenant_fkey"
+      columns: ["organization_id","order_id"]
+isOneToOne: false
+      referencedRelation: "orders"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "order_items_product_tenant_fkey"
+      columns: ["organization_id","product_id"]
+isOneToOne: false
+      referencedRelation: "products"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "order_items_variant_tenant_fkey"
+      columns: ["organization_id","variant_id"]
+isOneToOne: false
+      referencedRelation: "product_variants"
+      referencedColumns: ["organization_id","id"]
+    }
+                  ]
+                },"order_status_transitions": {
+                  Row: {
+                    "actor_kind": string,"actor_user_id": string | null,"correlation_id": string,"created_at": string,"from_status": string | null,"id": string,"order_id": string,"organization_id": string,"reason": string,"to_status": string
+                  }
+                  Insert: {
+                    "actor_kind": string,"actor_user_id"?: string | null,"correlation_id": string,"created_at"?: string,"from_status"?: string | null,"id"?: string,"order_id": string,"organization_id": string,"reason"?: string,"to_status": string
+                  }
+                  Update: {
+                    "actor_kind"?: string,"actor_user_id"?: string | null,"correlation_id"?: string,"created_at"?: string,"from_status"?: string | null,"id"?: string,"order_id"?: string,"organization_id"?: string,"reason"?: string,"to_status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "order_status_transitions_order_tenant_fkey"
+      columns: ["organization_id","order_id"]
+isOneToOne: false
+      referencedRelation: "orders"
+      referencedColumns: ["organization_id","id"]
+    }
+                  ]
+                },"orders": {
+                  Row: {
+                    "accepted_at": string | null,"branch_id": string,"cancellation_reason": string | null,"cancelled_at": string | null,"cash_change_for_amount": number | null,"channel_key": string,"completed_at": string | null,"currency": string,"customer_id": string | null,"customer_name_snapshot": string,"customer_notes": string,"customer_phone_snapshot": string,"declared_payment_method": string,"delivery_address_id": string | null,"delivery_address_snapshot": Json | null,"delivery_fee_amount": number,"delivery_zone_id": string | null,"dispatched_at": string | null,"establishment_id": string,"fulfillment_mode": string,"handoff_payment_status": string,"id": string,"idempotency_key": string,"order_number": number,"organization_id": string,"placed_at": string,"ready_at": string | null,"sales_channel_id": string,"status": string,"subtotal_amount": number,"total_amount": number,"updated_at": string
+                  }
+                  Insert: {
+                    "accepted_at"?: string | null,"branch_id": string,"cancellation_reason"?: string | null,"cancelled_at"?: string | null,"cash_change_for_amount"?: number | null,"channel_key": string,"completed_at"?: string | null,"currency"?: string,"customer_id"?: string | null,"customer_name_snapshot": string,"customer_notes"?: string,"customer_phone_snapshot": string,"declared_payment_method": string,"delivery_address_id"?: string | null,"delivery_address_snapshot"?: Json | null,"delivery_fee_amount"?: number,"delivery_zone_id"?: string | null,"dispatched_at"?: string | null,"establishment_id": string,"fulfillment_mode": string,"handoff_payment_status"?: string,"id"?: string,"idempotency_key": string,"order_number": number,"organization_id": string,"placed_at"?: string,"ready_at"?: string | null,"sales_channel_id": string,"status": string,"subtotal_amount": number,"total_amount": number,"updated_at"?: string
+                  }
+                  Update: {
+                    "accepted_at"?: string | null,"branch_id"?: string,"cancellation_reason"?: string | null,"cancelled_at"?: string | null,"cash_change_for_amount"?: number | null,"channel_key"?: string,"completed_at"?: string | null,"currency"?: string,"customer_id"?: string | null,"customer_name_snapshot"?: string,"customer_notes"?: string,"customer_phone_snapshot"?: string,"declared_payment_method"?: string,"delivery_address_id"?: string | null,"delivery_address_snapshot"?: Json | null,"delivery_fee_amount"?: number,"delivery_zone_id"?: string | null,"dispatched_at"?: string | null,"establishment_id"?: string,"fulfillment_mode"?: string,"handoff_payment_status"?: string,"id"?: string,"idempotency_key"?: string,"order_number"?: number,"organization_id"?: string,"placed_at"?: string,"ready_at"?: string | null,"sales_channel_id"?: string,"status"?: string,"subtotal_amount"?: number,"total_amount"?: number,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "orders_address_tenant_fkey"
+      columns: ["organization_id","delivery_address_id"]
+isOneToOne: false
+      referencedRelation: "customer_addresses"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "orders_branch_scope_fkey"
+      columns: ["organization_id","establishment_id","branch_id"]
+isOneToOne: false
+      referencedRelation: "branches"
+      referencedColumns: ["organization_id","establishment_id","id"]
+    },{
+      foreignKeyName: "orders_channel_tenant_fkey"
+      columns: ["organization_id","sales_channel_id"]
+isOneToOne: false
+      referencedRelation: "sales_channels"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "orders_customer_tenant_fkey"
+      columns: ["organization_id","customer_id"]
+isOneToOne: false
+      referencedRelation: "customers"
       referencedColumns: ["organization_id","id"]
     }
                   ]
@@ -554,6 +704,9 @@ isOneToOne: false
 "append_catalog_step_up_event":
 { Args: { "p_actor_user_id": string,"p_branch_id": string,"p_correlation_id": string,"p_establishment_id": string,"p_organization_id": string,"p_outcome": string,"p_reason_code": string,"p_required_permissions": (string)[],"p_target_id": string }; Returns: string
                            },
+"append_orders_step_up_event":
+{ Args: { "p_actor_user_id": string,"p_branch_id": string,"p_correlation_id": string,"p_establishment_id": string,"p_order_id": string,"p_organization_id": string,"p_outcome": string,"p_reason_code": string,"p_required_permissions": (string)[] }; Returns: string
+                           },
 "append_settings_step_up_event":
 { Args: { "p_actor_user_id": string,"p_branch_id": string,"p_correlation_id": string,"p_establishment_id": string,"p_organization_id": string,"p_outcome": string,"p_reason_code": string,"p_required_permissions": (string)[],"p_scope_type": string,"p_setting_key": string }; Returns: string
                            },
@@ -574,6 +727,26 @@ isOneToOne: false
                            },
 "catalog_save_variant":
 { Args: { "p_correlation_id": string,"p_flavor_label": string,"p_id": string,"p_name": string,"p_organization_id": string,"p_product_id": string,"p_size_label": string,"p_status": string }; Returns: Json
+                           },
+"orders_can_read_organization_customers":
+{ Args: { "p_organization_id": string }; Returns: boolean
+                           },
+"orders_has_permission":
+{ Args: { "p_branch_id": string,"p_establishment_id": string,"p_organization_id": string,"p_permission_key": string }; Returns: boolean
+                           },
+"orders_list_available_offers":
+{ Args: { "p_branch_id": string,"p_establishment_id": string,"p_organization_id": string }; Returns: {
+              "base_price": number,"display_label": string,"offer_id": string
+            }[]
+                           },
+"orders_place_staff":
+{ Args: { "p_branch_id": string,"p_cash_change_for": number,"p_correlation_id": string,"p_customer_name": string,"p_customer_notes": string,"p_customer_phone": string,"p_declared_payment_method": string,"p_delivery_address": Json,"p_delivery_fee_amount": number,"p_establishment_id": string,"p_fulfillment_mode": string,"p_idempotency_key": string,"p_items": Json,"p_organization_id": string }; Returns: Json
+                           },
+"orders_record_handoff_payment":
+{ Args: { "p_correlation_id": string,"p_order_id": string,"p_payment_method": string,"p_reason": string,"p_status": string,"p_step_up_proof_id": string }; Returns: Json
+                           },
+"orders_transition_status":
+{ Args: { "p_correlation_id": string,"p_order_id": string,"p_reason": string,"p_to_status": string }; Returns: Json
                            },
 "resolve_effective_settings":
 { Args: { "p_branch_id"?: string,"p_device_overrides"?: Json,"p_establishment_id"?: string,"p_organization_id": string }; Returns: {

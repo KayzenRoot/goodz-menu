@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "1.1",
+  "kind": "goodz.implementation-context-lock",
+  "workOrderId": "GMZ-IMPL-009",
+  "issue": 89,
+  "repository": "KayzenRoot/goodz-menu",
+  "gefVersion": "1.1.1",
+  "assurance": "ELEVATED",
+  "workBranch": "execution/gmz-impl-009-orders-staff-queue",
+  "executionBaseSha": "620af6d44478947b2e5c56d82924d8daf756e6a4",
+  "executionBaseState": "BOUND_FOR_EXECUTION",
+  "sourcePack": "FROZEN_V0_1",
+  "productionDenominator": 515,
+  "productionEarnedAtAdmission": 72,
+  "maxSliceCredit": 18,
+  "creditAllocation": {
+    "GMZ-M10": 10,
+    "GMZ-M04": 5,
+    "GMZ-M23": 2,
+    "GMZ-M26": 1
+  },
+  "projectedEarnedIfAccepted": 90,
+  "lockedSources": [
+    { "path": ".engineering/SOURCE-HIERARCHY.md", "gitBlobSha": "189109435a264fe5a7306d6d10fc3ea62145dab2" },
+    { "path": ".engineering/MODULE-MAP.md", "gitBlobSha": "c70a041da273787eb0d6f3ce43a6bc3a7260eeb0" },
+    { "path": "docs/source-pack/BACKLOG.md", "gitBlobSha": "df8eeeb6c38595072791ceb6a9ce91b0db936e66" },
+    { "path": "docs/source-pack/SCOPE.md", "gitBlobSha": "03fe1073f0c928a7be83d4c2b78bf54808208f75" },
+    { "path": "docs/source-pack/REQUIREMENTS.md", "gitBlobSha": "2e179c00446980a481e56dd02fe71865a7237f59" },
+    { "path": "docs/source-pack/ARCHITECTURE.md", "gitBlobSha": "a82ff873264a1ba77fa37e6914f321a48e0a75f5" },
+    { "path": "docs/source-pack/DATA-MODEL.md", "gitBlobSha": "51d59b4d4b96dd5ccd246a55d34d9172d9b82eb0" },
+    { "path": "docs/source-pack/API-INTEGRATION-CONTRACTS.md", "gitBlobSha": "4dd9b6f4648d04ac4539a4d093e662d430a239cc" },
+    { "path": "docs/source-pack/SECURITY.md", "gitBlobSha": "24e98825a54313a47e46abc32661f4ebaa6894d7" },
+    { "path": "docs/source-pack/TEST-BENCHMARK-PLAN.md", "gitBlobSha": "6e9002690fe8055d7da0936f3d323929d510158c" },
+    { "path": "docs/source-pack/DEFINITION-OF-DONE.md", "gitBlobSha": "a3d1652a7dc9edfabafcb98151b9db8aed417888" },
+    { "path": "docs/source-pack/DEPLOYMENT.md", "gitBlobSha": "b8f730179337a5c26ba34cdf9da43dab4b5e3b83" },
+    { "path": ".engineering/DATA-OWNERSHIP-MATRIX.md", "gitBlobSha": "0deb322cfa871f93410810ab1fc82933aca05213" },
+    { "path": ".engineering/SECURITY-CONTROL-MATRIX.md", "gitBlobSha": "e8888a50cb68230822f6c1352f63d33d19705df7" },
+    { "path": ".engineering/TEST-COVERAGE-MATRIX.md", "gitBlobSha": "10eb7a6afe1f8349b5a0f264ed46cbb96257cb98" },
+    { "path": ".engineering/PROGRESS-LEDGER.md", "gitBlobSha": "ac320bae0119fd1a2290c3b0df5a29bd5f796281" },
+    { "path": ".engineering/DECISIONS-LEDGER.md", "gitBlobSha": "24cfb8785d99512a6b53be1875f2572203dacf50" }
+  ],
+  "governanceSnapshot": {
+    "checkpointPath": ".engineering/CHECKPOINT.json",
+    "checkpointGitBlobSha": "f6ccc84c020f5ab5d6ac201d576a5108128c4374",
+    "status": "GMZ_IMPL_008_PROMOTED_COMPLETE_READY_FOR_NEXT"
+  },
+  "codexAllowed": true,
+  "codexAuthorizedScope": "GMZ-M10 canonical orders, GMZ-M04 staff order queue, GMZ-M23 order/handoff audit, and GMZ-M26 validation on execution/gmz-impl-009-orders-staff-queue.",
+  "stopCondition": "GMZ_IMPL_009_READY_FOR_OBJECTIVE_AUDIT"
+}

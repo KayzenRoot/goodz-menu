@@ -230,8 +230,19 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .settings-lock-badge { border-color: color-mix(in srgb, var(--warning), var(--border-subtle) 55%); background: color-mix(in srgb, var(--warning), var(--surface) 93%); color: var(--warning); }
 .settings-checkbox-group { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
 .settings-checkbox-group legend { margin-bottom: 6px; padding: 0; }
-.settings-page .auth-field select { width: 100%; height: 49px; padding: 0 13px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface-raised); color: var(--text-primary); font: inherit; font-size: 13px; }
-.settings-page .auth-field select:focus-visible { border-color: var(--accent); outline: 3px solid color-mix(in srgb, var(--accent), transparent 76%); outline-offset: 1px; }
+.settings-page .auth-field select,
+.orders-page .auth-field select { width: 100%; height: 49px; padding: 0 13px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface-raised); color: var(--text-primary); font: inherit; font-size: 13px; }
+.settings-page .auth-field select:focus-visible,
+.orders-page .auth-field select:focus-visible { border-color: var(--accent); outline: 3px solid color-mix(in srgb, var(--accent), transparent 76%); outline-offset: 1px; }
+.orders-status-banner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow-soft); font-size: 12px; }
+.orders-kpi-strip { display: flex; flex-wrap: wrap; gap: 8px; }
+.orders-filter-bar { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.orders-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.orders-tab-btn { min-height: 36px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 99px; background: var(--surface-raised); color: var(--text-secondary); font-size: 11px; font-weight: 660; cursor: pointer; }
+.orders-tab-btn-active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-strong); font-weight: 740; }
+.orders-details-box { padding: 10px 12px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--surface); }
+.orders-details-box > summary { color: var(--text-primary); font-size: 11px; font-weight: 680; cursor: pointer; }
+.orders-details-box[open] > summary { margin-bottom: 10px; }
 .settings-page[data-density="compact"] { gap: 13px; }
 .settings-page[data-density="compact"] .catalog-section { padding: 14px; }
 .settings-page[data-density="compact"] .catalog-card { gap: 8px; padding: 12px; }
